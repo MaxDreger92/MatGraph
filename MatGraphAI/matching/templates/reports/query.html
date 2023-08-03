@@ -1,0 +1,52 @@
+<table>
+    <tr>
+        <td><label for="execution_time">Query execution time</label></td>
+        <td><input disabled id="execution_time" value="{{ duration }}" /></td>
+    </tr>
+    <tr>
+        <td>Config</td>
+        <td>
+            <table>
+                {% for k, v in config %}
+                    <tr>
+                        <td><b>{{ k }}</b></td>
+                        <td>{{ v }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </td>
+    </tr>
+    {% if paginator %}
+        <tr>
+            <td>Pagination</td>
+            <td>
+                <table>
+                    <tr>
+                        <td><b>Start</b></td>
+                        <td>{{ paginator.start }}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Limit</b></td>
+                        <td>{{ paginator.limit }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    {% endif %}
+    <tr>
+        <td><label for="query">Query</label></td>
+        <td>
+            <textarea id="query" rows="15" cols="120">
+                {{ query }}
+            </textarea>
+        </td>
+    </tr>
+    <tr>
+        <td><label for="params">Parameter</label></td>
+        <td>
+            <textarea id="params" rows="15" cols="120">
+                {{ params }}
+            </textarea>
+        </td>
+    </tr>
+</table>

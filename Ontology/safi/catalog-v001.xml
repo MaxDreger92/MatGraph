@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://purl.obolibrary.org/obo/uo.owl" uri="safe/units.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.example.com/manufacturing" uri="manufacturing.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.example.com/new_ontology.owl" uri="safe/manufactured.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.semanticweb.org/maxdreger/ontologies/2022/10/materials" uri="materials.xml"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="manufactured.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties" uri="safe/quantities.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.semanticweb.org/mdreger/ontologies/2022/10/quantities" uri="quantities.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing" uri="safe/manufacturing1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="https://big-map.github.io/BattINFO/ontology/BattINFO" uri="BattINFO/battinfo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.example.com/manufacturing" uri="alt_list/manufacturing.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/maxdreger/ontologies/2022/10/materials" uri="alt_list/materials.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="alt_list/manufactured.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="safe/manufacured.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="safe/test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="safe/manufacured1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured" uri="safe/manufactured_old.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1683122212025" name="shadowed:http://www.semanticweb.org/mdreger/ontologies/2022/10/quantities" uri="alt_list/quantities.owl"/>
+    </group>
+</catalog>

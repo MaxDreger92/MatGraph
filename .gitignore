@@ -1,0 +1,7 @@
+Wotzka/
+venv/
+.idea/
+out/
+.env
+source/
+MatGraphAI/docs/
