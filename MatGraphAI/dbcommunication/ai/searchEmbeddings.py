@@ -46,7 +46,6 @@ class EmbeddingSearch:
         '''
         # Fetch embeddings from the database
         result, meta = db.cypher_query(query)
-        print(query)
 
         if not len(result):
             raise ValueError(f'no embeddings found for {Model.__label__}')
@@ -196,9 +195,7 @@ class WorkflowSearch:
                         RETURN o.uid, labels(o)[0]
                     '''
                 result, _ = db.cypher_query(query)
-                print(result)
                 connected_nodes[node_id] = [[row[0] for row in result if row[0] is not None], result[0][1]]
-        print(connected_nodes)
 
         # Finally, for each connected_node, find all paths that follow the relationship_patterns
         match = []
@@ -218,7 +215,6 @@ class WorkflowSearch:
         output = [f'''n{node.replace('-', '')}.uid as n{node.replace('-', '')}''' for node in connected_nodes.keys()]
 
         query = f''' MATCH {",".join(match)} \n WHERE {' AND '.join(filter)} \n RETURN DISTINCT {', '.join(output)}'''
-        print(query)
         result, _ = db.cypher_query(query)
         workflows.extend(result)
 

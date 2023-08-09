@@ -108,7 +108,6 @@ class Matcher:
         start = time.time()
         self.db_result, self.db_columns = db.cypher_query(query, params)
         print(f'{query} \n \n {params}')
-        print(self.db_result[0][0])
         end = time.time()
 
 

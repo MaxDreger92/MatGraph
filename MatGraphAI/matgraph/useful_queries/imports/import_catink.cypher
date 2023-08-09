@@ -276,7 +276,7 @@ FOREACH(x IN CASE WHEN row.`TEM EDX Inaccessible pores (%)` IS NOT NULL THEN [1]
         })
   MERGE(ccl)- [:IS_MEASUREMENT_INPUT] - >(tem)-[:IS_A]->(EMMO_tem)
   MERGE(ccl)- [:IS_MEASUREMENT_INPUT] - >(temepoxy)-[:IS_A]->(EMMO_tem)
-  MERGE(ccl)- [:HAS_PROPERTY{float_value: tofloat(row.`I/C TEM measured `)}] - >(temic)
+  MERGE(ccl)- [:HAS_PROPERTY{float_value: tofloat(row.`I/C TEM measured`)}] - >(temic)
   MERGE(temic)-[:IS_A]->(EMMO_ic)
   MERGE(tem)- [:HAS_MEASUREMENT_OUTPUT] - >(temionomervol)
   MERGE(ionomer)- [:HAS_PROPERTY{float_value: tofloat(row.`Ionomer volume, cm3/cm2`)}] - >(temionomervol)
