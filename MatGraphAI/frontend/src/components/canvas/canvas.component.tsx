@@ -8,9 +8,10 @@ import { TbBinaryTree } from "react-icons/tb"
 import RestartAltIcon from "@mui/icons-material/RestartAlt"
 import UndoIcon from "@mui/icons-material/Undo"
 import RedoIcon from "@mui/icons-material/Redo"
+import { LuFileJson } from "react-icons/lu"
 
-import Node from "./node.component"
 import ContextCanvas from "./ctxt/canvas-ctxt.component"
+import Node from "./node.component"
 import Connection, { TempConnection } from "./connection.component"
 import {
   Rect,
@@ -20,14 +21,16 @@ import {
   Vector2D,
 } from "./types/canvas.types"
 import { graphLayouts } from "./types/graphLayouts"
+import { isConnectionLegitimate, convertToJSONFormat, saveToFile } from "./helper/canvas.helpers"
 
 interface CanvasProps {
   colorIndex: number
-  setWorkflow: React.Dispatch<React.SetStateAction<JSON | null>>
+  setWorkflow: React.Dispatch<React.SetStateAction<string | null>>
+  style?: React.CSSProperties
 }
 
 export default function Canvas(props: CanvasProps) {
-  const { colorIndex, setWorkflow } = props
+  const { colorIndex, setWorkflow, style } = props
   const [nodes, setNodes] = useState<INode[]>([])
   const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
   const [selectedNodeIDs, setSelectedNodeIDs] = useState<Set<string> | null>(
@@ -87,12 +90,17 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [canvasRef])
 
-  const handleWorkflowUpdate = () => {
+  useEffect(() => {
+    setWorkflow(convertToJSONFormat(nodes, connections))
+  }, [nodes, connections, setWorkflow])
 
+  const saveWorkflow = () => {
+    const workflow = convertToJSONFormat(nodes, connections) //stringified
+    saveToFile(workflow)
   }
 
   const addNode = (type: INode["type"], position: Position) => {
-    const id = uuidv4()
+    const id = uuidv4().replaceAll("-", "")
     const layer = 0
     const size = 100
     const newNode = {
@@ -105,7 +113,11 @@ export default function Canvas(props: CanvasProps) {
       isEditing: true,
     }
     if (connectingNode) {
-      addConnection(connectingNode, newNode)
+      if (isConnectionLegitimate(connectingNode, newNode)) {
+        addConnection(connectingNode, newNode)
+      } else {
+        return
+      }
     } else {
       updateHistory()
     }
@@ -199,6 +211,7 @@ export default function Canvas(props: CanvasProps) {
   }
 
   const handleNodeNameChange = (nodeID: INode["id"], name?: string) => {
+    updateHistory()
     const newName = name ? name : ""
     setNodes((prevNodes) =>
       prevNodes.map((n) =>
@@ -309,15 +322,15 @@ export default function Canvas(props: CanvasProps) {
   }
 
   const addConnection = (start: INode, end: INode) => {
-    updateHistory()
     if (start.id === end.id) return
     const connectionExists = connections.some(
       (connection) =>
         (connection.start.id === start.id && connection.end.id === end.id) ||
         (connection.start.id === end.id && connection.end.id === start.id)
     )
-    if (connectionExists) return
-    const connectionID = uuidv4()
+    if (connectionExists || !isConnectionLegitimate(start, end)) return //add toast or something later
+    updateHistory()
+    const connectionID = uuidv4().replaceAll("-", "")
     setConnections((prevConnections) => [
       ...prevConnections,
       { start: start, end: end, id: connectionID },
@@ -343,9 +356,14 @@ export default function Canvas(props: CanvasProps) {
   const handleConnectionReverse = (connectionID: IConnection["id"]) => {
     updateHistory()
     setConnections((prevConnections) =>
-      prevConnections.map((c) =>
-        c.id === connectionID ? { ...c, start: c.end, end: c.start } : c
-      )
+      prevConnections.map((c) => {
+        if (c.id === connectionID && isConnectionLegitimate(c.end,c.start)) {
+          return { ...c, start: c.end, end: c.start }
+        } else {
+          //throw error (connection not allowed)
+          return c
+        }
+      })
     )
   }
 
@@ -580,9 +598,7 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log(e.key)
       if (e.ctrlKey && e.shiftKey && e.key === "Z") {
-        console.log("test")
         e.preventDefault()
         redo()
       } else if (e.ctrlKey) {
@@ -611,6 +627,7 @@ export default function Canvas(props: CanvasProps) {
   return (
     <div
       className="canvas"
+      style={style}
       // Selection rectangle
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={handleCanvasMouseMove}
@@ -691,6 +708,13 @@ export default function Canvas(props: CanvasProps) {
         <div className="canvas-btn-divider" />
         <div className="canvas-btn" onClick={handleLayoutNodes}>
           <TbBinaryTree
+            className="canvas-btn-icon"
+            style={{ width: "80%", height: "80%", marginLeft: "3px" }}
+          />
+        </div>
+        <div className="canvas-btn-divider" />
+        <div className="canvas-btn" onClick={saveWorkflow}>
+          <LuFileJson
             className="canvas-btn-icon"
             style={{ width: "80%", height: "80%", marginLeft: "3px" }}
           />

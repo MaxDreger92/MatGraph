@@ -7,7 +7,7 @@ import { useState } from "react"
 import { Planet } from "react-planet"
 import chroma from "chroma-js"
 
-import ProcessIcon from "@mui/icons-material/PrecisionManufacturing"
+import ManufacturingIcon from "@mui/icons-material/PrecisionManufacturing"
 import PropertyIcon from "@mui/icons-material/Description"
 import ParameterIcon from "@mui/icons-material/Tune"
 import MeasurementIcon from "@mui/icons-material/SquareFoot"
@@ -88,8 +88,8 @@ export default function CanvasContext(props: CanvasContextProps) {
       }
       open={open}
       hideOrbit
-      orbitRadius={125}
-      rotation={80}
+      orbitRadius={75}
+      rotation={144}
     >
       <ContextButton
         onSelect={onSelect}
@@ -99,8 +99,8 @@ export default function CanvasContext(props: CanvasContextProps) {
       />
       <ContextButton
         onSelect={onSelect}
-        nodeType="process"
-        children={<ProcessIcon style={{ color: "#ececec" }} />}
+        nodeType="manufacturing"
+        children={<ManufacturingIcon style={{ color: "#ececec" }} />}
         colorIndex={colorIndex}
       />
       <ContextButton
@@ -121,10 +121,6 @@ export default function CanvasContext(props: CanvasContextProps) {
         children={<MeasurementIcon style={{ color: "#1a1b1e" }} />}
         colorIndex={colorIndex}
       />
-      <div/>
-      <div/>
-      <div/>
-      <div/>
     </Planet>
   )
 }

@@ -20,7 +20,7 @@ export interface Rect {
 export interface INode {
   id: string
   name: string | undefined
-  type: "matter" | "process" | "measurement" | "parameter" | "property"
+  type: "matter" | "manufacturing" | "measurement" | "parameter" | "property"
   position: {x: number, y: number}
   size: number
   layer: number
@@ -36,4 +36,16 @@ export interface IConnection {
 export interface IDConnection {
   start: string
   end: string
+}
+
+interface RelationshipJSON {
+  rel_type: string;
+  connection: [string, string];
+}
+
+export interface NodeJSON {
+  id: string;
+  type: string;
+  name: string;
+  relationships: RelationshipJSON[];
 }
