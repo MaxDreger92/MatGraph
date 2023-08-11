@@ -25,22 +25,22 @@ export default function App() {
     () => localStorage.getItem("activeTab") || null
   )
 
-  const {
-    data: currentUser,
-    isLoading,
-    isError
-  } = useQuery<IUser | null | undefined>(
-    "getCurrentUser",
-    client.getCurrentUser
-  )
+  // const {
+  //   data: currentUser,
+  //   isLoading,
+  //   isError
+  // } = useQuery<IUser | null | undefined>(
+  //   "getCurrentUser",
+  //   client.getCurrentUser
+  // )
 
-  useEffect(() => {
-    // navigate to login after getCurrentUser is 
-    // resolved and currentUser is undefined
-    if (!isLoading && !isError && !currentUser) {
-      navigate("/login")
-    }
-  }, [isLoading, isError, currentUser, navigate])
+  // useEffect(() => {
+  //   // navigate to login after getCurrentUser is 
+  //   // resolved and currentUser is undefined
+  //   if (!isLoading && !isError && !currentUser) {
+  //     navigate("/login")
+  //   }
+  // }, [isLoading, isError, currentUser, navigate])
 
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab || "")
@@ -50,15 +50,15 @@ export default function App() {
     setActiveTab(tab)
   }
 
-  if (isLoading) {
-    console.log("loading")
-    return <div></div>
-  }
+  // if (isLoading) {
+  //   console.log("loading")
+  //   return <div></div>
+  // }
 
-  if (isError) {
-    console.log("error")
-    // handle error
-  }
+  // if (isError) {
+  //   console.log("error")
+  //   // handle error
+  // }
 
   const handleHeaderLinkClick = (key: string) => {
     navigate(key)
@@ -76,12 +76,15 @@ export default function App() {
 
   return (
     <div className="wrap-app">
-      <userContext.Provider value={currentUser}>
-        {currentUser && (
+      {/* <userContext.Provider value={currentUser}> */}
+        {/* {currentUser && (
           <div className="header">
             <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
           </div>
-        )}
+        )} */}
+        <div className="header">
+          <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
+        </div>
         <div className="main-window">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -91,7 +94,7 @@ export default function App() {
             <Route path="/account" element={<Account />} />
           </Routes>
         </div>
-      </userContext.Provider>
+      {/* </userContext.Provider> */}
       <Toaster
         position="top-center"
         containerStyle={{
