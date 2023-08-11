@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pprint import pprint
 from uuid import UUID
 import os
@@ -6,32 +7,44 @@ import pandas as pd
 
 
 def create_table_structure(data):
-    # Convert combinations list to a DataFrame
+    # Extract combinations and attributes
     combinations = data[0][0]
     attributes = data[0][1]
     print(f"Number of combinations: {len(combinations)}")
 
+    # Dynamically generate column names based on the longest combination
+    max_len = max(map(len, combinations))
+    half_len = max_len // 2  # We assume max_len is always even for this to work
+
+    uid_columns = [f'UID_{i+1}' for i in range(half_len)]
+    name_columns = [f'name_{i+1}' for i in range(half_len)]
+
+    columns = uid_columns + name_columns
+    print(columns)
+    print(combinations[0])
     # Convert combinations into a DataFrame
-    df_combinations = pd.DataFrame(combinations, columns=['UID1', 'UID2'])
+    df_combinations = pd.DataFrame(combinations, columns=columns)
 
     # Convert attributes into a DataFrame
-    df_attributes = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute'])
+    df_attributes_raw = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute'])
+    df_attributes = df_attributes_raw.drop_duplicates(subset=['UID', 'Attribute'])
+
 
     # Pivot the attributes dataframe
     df_pivoted = df_attributes.pivot(index='UID', columns='Attribute', values='Value').reset_index()
 
-    # Merge with combinations dataframe on UID1
-    merged_1 = pd.merge(df_combinations, df_pivoted, how='left', left_on='UID1', right_on='UID', suffixes=('', '_y'))
-    # Drop the unnecessary UID column (which came from df_pivoted)
-    merged_1.drop('UID', axis=1, inplace=True)
-
-    # Now, merge merged_1 with df_pivoted on UID2
-    final_df = pd.merge(merged_1, df_pivoted, how='left', left_on='UID2', right_on='UID', suffixes=('', '_y2'))
-    # Drop the unnecessary UID column (which came from df_pivoted)
-    final_df.drop('UID', axis=1, inplace=True)
+    # Iteratively merge with the combinations dataframe on each UID
+    for i, column in enumerate(columns):
+        merged = pd.merge(df_combinations, df_pivoted, how='left', left_on=column, right_on='UID', suffixes=('', f'_y{i+1}'))
+        # Drop the unnecessary UID column (which came from df_pivoted)
+        merged.drop('UID', axis=1, inplace=True)
+        df_combinations = merged
 
     # Drop columns that have only NaNs
-    final_df = final_df.dropna(axis=1, how='all')
+    final_df = df_combinations.dropna(axis=1, how='all')
+
+    # Drop all columns that contain the string 'UID'
+    final_df = final_df[final_df.columns.drop(list(final_df.filter(regex='UID')))]
 
     print(final_df)
     print(f"DF size: {final_df.shape[0]}")
@@ -51,7 +64,8 @@ ONTOMAPPER = {"EMMOMatter": "Matter",
                 "EMMOQuantity": "Quantity"}
 
 RELAMAPPER = {"IS_MANUFACTURING_INPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT",
-              "IS_MANUFACTURING_OUTPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT"}
+              "IS_MANUFACTURING_OUTPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT",
+              "HAS_PARAMETER": "HAS_PARAMETER"}
 
 
 FILTER_ONTOLOGY = """
@@ -89,61 +103,92 @@ class FabricationWorkflowMatcher(Matcher):
 
     def build_query(self):
         match_query = []
-        with_query = []
         filter_node_query = []
-        filter_relation_query = []
-        optional_match_query = []
-        return_query = []
-        # Create a list to hold uid pairs
-        pair_list = []
-        info_list = []
-        uid_list = []
+        relationship_query = []
+        with_query = []
+        with_path_query = []
+        conditions = []
+        where_query = []
 
         for node in self.query_list:
-            # Constructing the main MATCH and WHERE clauses
-            match_query.append(f"""(onto_{node['id']}:{node['type']} {{uid: '{node['uid']}'}})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
-            filter_node_query.append(f"""onto_{node['id']}.uid = '{node['uid']}'""")
+            where_query.append(f""" onto_{node['id']}.uid = '{node['uid']}'""")
+            with_query.append(f""" {node['id']}""")
+            if node['type'] == 'EMMOQuantity':
+                match_query.append(f"""(onto_{node['id']}:{node['type']})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
+                where_query.append(f""" rel_{node['id']}.float_value {node['operator']} {node['value']}""")
+            else:
+                match_query.append(f"""(onto_{node['id']}:{node['type']} {{uid: '{node['uid']}'}})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
 
-            # Adding the node uid to pair list
-            pair_list.append(f"{node['id']}.uid")
 
-            # Constructing the OPTIONAL MATCH based on the node type
-            if node["type"] == "EMMOMatter":
-                optional_match_query.append(f"""
-                CALL {{
-                with {node['id']}
-                OPTIONAL MATCH ({node['id']})-[{node['id']}_p:HAS_PROPERTY]->({node['id']}_property:Quantity)-[:IS_A]->({node['id']}_property_label:EMMOQuantity)
-                RETURN DISTINCT [{node['id']}.uid, {node['id']}_p.float_value, {node['id']}_property_label.name] as {node['id']}_info
-                }}""")
-            elif node["type"] == "EMMOProcess":
-                optional_match_query.append(f"""
-                CALL {{
-                with {node['id']}
-                OPTIONAL MATCH ({node['id']})-[{node['id']}_p:HAS_PARAMETER]->({node['id']}_parameter:Quantity)-[:IS_A]->({node['id']}_parameter_label:EMMOQuantity)
-                RETURN DISTINCT [{node['id']}.uid, {node['id']}_p.float_value, {node['id']}_parameter_label.name] as {node['id']}_info
-                }}""")
-            info_list.append(f"""collect({node['id']}_info)""")
-            uid_list.append(f"""{node['id']}.uid""")
-            with_query.append(f"""{node['id']}""")
+        # Constructing the relationship paths                m
             for rel in node["relationships"]:
-                if rel['direct']:
-                    filter_relation_query.append(f"""({rel['connection'][0]})-[:{rel['rel_type']}]->({rel['connection'][1]})""")
-                else:
-                    filter_relation_query.append(f"""({rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..]->({rel['connection'][1]})""")
+                if rel['connection'][0] == node['id']:
+                    relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = (({rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->({rel['connection'][1]}))""")
+                    with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
+        # 1. Create two dictionaries: one for path starts and one for path ends.
+        path_groups_start = defaultdict(list)
+        path_groups_end = defaultdict(list)
 
-        return_query.append(f"""[{", ".join(pair_list)}]  as pairs""")
+        # Group paths by their start and end node ids
+        for path in with_path_query:
+            start, end = path.split("_")[1], path.split("_")[2]
+            path_groups_start[start].append(path)
+            path_groups_end[end].append(path)
+
+        conditions = []
+
+        # 1. Check overlap between the end nodes of paths
+        for end, end_paths in path_groups_end.items():
+            if len(end_paths) > 1:  # More than one path sharing the same end node
+                for i in range(len(end_paths)):
+                    for j in range(i+1, len(end_paths)):
+                        conditions.append(f"nodes({end_paths[i]})[-1].uid = nodes({end_paths[j]})[-1].uid")
+
+                # 1. Check overlap between the end nodes of paths
+        for start, start_paths in path_groups_start.items():
+            if len(start_paths) > 1:  # More than one path sharing the same start node
+                for i in range(len(start_paths)):
+                    for j in range(i+1, len(start_paths)):
+                        conditions.append(f"nodes({start_paths[i]})[0].uid = nodes({start_paths[j]})[0].uid")
+
+        # 2. Check overlap between the start nodes of one path and the end nodes of another path
+        for start, start_paths in path_groups_start.items():
+            for end, end_paths in path_groups_end.items():
+                if start == end:  # Ensure that we're not comparing a path to itself
+                    for start_path in start_paths:
+                        for end_path in end_paths:
+                            conditions.append(f"nodes({start_path})[0].uid = nodes({end_path})[-1].uid")
+
+
+
+
+    # Concatenating relationship paths to the nodes, and removing the last "->"
 
         # Construct the main query parts
-        query = f"""MATCH {', '.join(match_query)} 
-            WHERE {' AND '.join(filter_node_query)}{' AND ' + ' AND '.join(filter_relation_query) if filter_relation_query else ''} 
-            WITH DISTINCT {', '.join(with_query)}
-            {' '.join(optional_match_query)}
-            RETURN DISTINCT collect(DISTINCT [{', '.join(uid_list)}]) as combinations, apoc.coll.union({', '.join(info_list)}) as metadata"""
+        query = f"""
+    MATCH {', '.join(match_query)}
+    WHERE {' AND '.join(where_query)}
+    WITH {', '.join(with_query)}
+    MATCH {' MATCH '.join(relationship_query)}
+    WHERE {' AND '.join(conditions)}
+    WITH DISTINCT {', '.join(with_query)}, apoc.coll.toSet(apoc.coll.flatten([{', '.join(["nodes("+ path + ")" for path in  with_path_query])}])) as pathNodes
+    WITH DISTINCT {', '.join(with_query)}, pathNodes, [node IN pathNodes | node.uid] + [x IN pathNodes | head([(x)-[:IS_A]->(neighbor) | neighbor.name])] as combinations
+    UNWIND pathNodes AS pathNode 
+    CALL apoc.case([
+        pathNode:{ONTOMAPPER["EMMOMatter"]}, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info',
+        pathNode:{ONTOMAPPER["EMMOProcess"]}, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info'
+    ])
+    YIELD value as node_info
+    WITH DISTINCT collect(DISTINCT node_info["node_info"]) as node_info, combinations
+    RETURN DISTINCT apoc.coll.toSet(collect(DISTINCT combinations)) as combinations, apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) as metadata"""
 
         node_list = self.query_list
         params = {"node_list": node_list}
         print(query)
         return query, params
+
+
+
 
 
     def build_result(self):

@@ -3,7 +3,6 @@
     "id": "node1",
     "type": "EMMOMatter",
     "name": "F50E-HT",
-    "uid": "effaff5ece09485c9b8690fae2aaacee",
     "relationships": [
       {
         "rel_type": "IS_MANUFACTURING_INPUT",
@@ -37,6 +36,23 @@
       {
         "rel_type": "IS_MANUFACTURING_INPUT",
         "connection": ["node3", "node2"],
+        "direct": true
+      },
+      {
+        "rel_type": "IS_MANUFACTURING_OUTPUT",
+        "connection": ["node2", "node4"],
+        "direct": true
+      }
+    ]
+  },
+  {
+    "id": "node4",
+    "type": "EMMOMatter",
+    "name": "FuelCell",
+    "relationships": [
+      {
+        "rel_type": "IS_MANUFACTURING_OUTPUT",
+        "connection": ["node2", "node4"],
         "direct": true
       }
     ]
