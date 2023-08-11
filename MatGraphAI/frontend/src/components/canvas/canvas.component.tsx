@@ -21,7 +21,7 @@ import {
   Vector2D,
 } from "./types/canvas.types"
 import { graphLayouts } from "./types/graphLayouts"
-import { isConnectionLegitimate, convertToJSONFormat, saveToFile } from "./helper/canvas.helpers"
+import { isConnectionLegitimate, convertToJSONFormat, saveToFile } from "../../common/helpers"
 
 interface CanvasProps {
   colorIndex: number
@@ -96,7 +96,7 @@ export default function Canvas(props: CanvasProps) {
 
   const saveWorkflow = () => {
     const workflow = convertToJSONFormat(nodes, connections) //stringified
-    saveToFile(workflow)
+    saveToFile(workflow, "json", "workflow.json")
   }
 
   const addNode = (type: INode["type"], position: Position) => {
@@ -692,7 +692,9 @@ export default function Canvas(props: CanvasProps) {
         className="canvas-btn-wrap"
         style={{ left: canvasRect ? canvasRect.width / 2 : "50%" }}
       >
-        {history.nodes.length}
+        <div className="canvas-btn" style={{textAlign: "center"}}>
+          {history.nodes.length}
+        </div>
         <div className="canvas-btn-divider" />
         <div className="canvas-btn" onClick={undo}>
           <UndoIcon className="canvas-btn-icon" />

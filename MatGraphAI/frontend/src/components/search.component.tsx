@@ -2,8 +2,11 @@ import { useState } from "react"
 
 import DoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft'
 import DoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight'
+import SearchIcon from '@mui/icons-material/Search';
 
 import Canvas from "./canvas/canvas.component"
+import client from "../client"
+import { saveToFile } from "../common/helpers"
 
 interface SearchProps {
   colorIndex: number
@@ -13,7 +16,18 @@ export default function Search(props: SearchProps) {
   const { colorIndex } = props
   const [workflow, setWorkflow] = useState<string | null>(null)
   const [splitView, setSplitView] = useState(false)
-  const [splitViewWidth, setSplitViewWidth] = useState(400)
+  const [splitViewWidth, setSplitViewWidth] = useState(0)
+
+  async function workflowSearch() {
+    try {
+      const response = await client.workflowSearch(workflow)
+      if (response) {
+        saveToFile(response.data, "csv", "workflows.csv")
+      }
+    } catch (err: any) {
+      throw new Error("Search failed")
+    }
+  }
 
   const handleSplitView = () => {
     if (splitView) {
@@ -35,18 +49,27 @@ export default function Search(props: SearchProps) {
         }}
       />
       {splitView && (
-        <div>
-          <textarea
-            readOnly
-            value={workflow ? workflow : "asd"}
-            style={{
-              width: splitViewWidth,
-              height: "100vh",
-              backgroundColor: "#25262b",
-              position: "relative",
-              color: "#A6A7AB"
-            }}
-          />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
+          <div
+            className="wflow-buttons" 
+          >
+            <SearchIcon onClick={workflowSearch}/>
+          </div>
+          <div className="wflow-text"> 
+            <textarea
+              readOnly
+              value={workflow ? workflow : "asd"}
+              style={{
+                width: splitViewWidth,
+                height: "100vh",
+              }}
+            />
+          </div>
         </div>
       )}
       <div
@@ -55,8 +78,8 @@ export default function Search(props: SearchProps) {
           position: "absolute",
           top: "42%",
           right: splitView ? splitViewWidth + 10 : 10,
-          width: 40,
-          height: 40,
+          width: 35,
+          height: 35,
         }}
         onClick={handleSplitView}
       >

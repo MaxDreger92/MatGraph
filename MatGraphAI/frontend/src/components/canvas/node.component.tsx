@@ -20,7 +20,9 @@ interface NodeProps {
     node: INode,
     action: string,
     delta?: number,
-    name?: string
+    name?: string,
+    value?: number,
+    operator?: "<" | ">" | "="
   ) => void
 }
 
@@ -35,6 +37,8 @@ export default React.memo(function Node(props: NodeProps) {
     handleNodeAction,
   } = props
   const [nodeName, setNodeName] = useState<string | undefined>(node.name)
+  const [fieldsMissing, setFieldsMissing] = useState(false)
+  const [focusedInside, setFocusedInside] = useState(0)
   const [dragging, setDragging] = useState(false)
   const [dragStartPos, setDragStartPos] = useState<Position | null>(null)
   const [dragCurrentPos, setDragCurrentPos] = useState<Position | null>(null)
@@ -62,6 +66,10 @@ export default React.memo(function Node(props: NodeProps) {
       nodeCpy.removeEventListener("wheel", scaleNode)
     }
   }, [node, handleNodeAction])
+
+  useEffect(() => {
+
+  })
 
   useEffect(() => {
     const paletteColors = colorPalette[colorIndex]
@@ -304,14 +312,15 @@ export default React.memo(function Node(props: NodeProps) {
               onKeyUp={handleInputKeyUp} // confirm name with enter
               autoFocus
               style={{
+                // borderColor: colors[1],
                 zIndex: node.layer + 1,
               }}
             />
           ) : (
             <span // node name tag
               onMouseUp={handleNameMouseUp}
+              className="node-name"
               style={{
-                userSelect: "none",
                 color:
                   node.type === "matter" || node.type === "measurement"
                     ? "#1a1b1e"
@@ -321,7 +330,7 @@ export default React.memo(function Node(props: NodeProps) {
             >
               {/* {nodeName
                 ? node.name
-                : `id: ${node.id.substring(0, node.size / 8 - 8)}...`} */}
+                : `id: ${node.id.substring(0, node.size / 4 - 8)}...`} */}
               {nodeName ? node.name : ""}
             </span>
           )}

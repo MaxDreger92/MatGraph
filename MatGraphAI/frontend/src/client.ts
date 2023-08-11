@@ -27,7 +27,7 @@ class Client {
       const response = await this.client.get("/test")
       return response.data
     } catch (err: any) {
-      throw new Error(err.message)
+      throw new Error('Error: ' + err.message)
     }
   }
 
@@ -44,7 +44,7 @@ class Client {
       // }
       return response
     } catch (err: any) {
-      throw new Error(err.message)
+      throw new Error('Error: ' + err.message)
     }
   }
 
@@ -57,7 +57,7 @@ class Client {
       }) // message json
       return response.data
     } catch (err: any) {
-      throw new Error(err.message)
+      throw new Error('Error: ' + err.message)
     }
   }
 
@@ -79,7 +79,7 @@ class Client {
       if (err.response && err.response.status === 404) {
         return null
       } else {
-        throw new Error("Error: ", err)
+        throw new Error('Error: ' + err.message)
       }
     }
   }
@@ -100,7 +100,7 @@ class Client {
 
       return response.data
     } catch (err: any) {
-      throw new Error('Error: ', err)
+      throw new Error('Error: ' + err.message)
     }
   }
 
@@ -120,7 +120,7 @@ class Client {
 
       return response.data
     } catch (err: any) {
-      throw new Error('Error: ', err)
+      throw new Error('Error: ' + err.message)
     }
   }
 
@@ -141,7 +141,20 @@ class Client {
 
       return response.data
     } catch (err: any) {
-      throw new Error('Error: ', err)
+      throw new Error('Error: ' + err.message)
+    }
+  }
+
+  async workflowSearch(workflow: string | null) {
+    try {
+      const response = await this.client.get("/search/workflow", {
+        params: {
+          workflow,
+        },
+      })
+      return response.data
+    } catch (err:any) {
+      throw new Error('Error: ' + err.message)
     }
   }
 }

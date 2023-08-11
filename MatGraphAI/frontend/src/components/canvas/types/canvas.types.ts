@@ -19,7 +19,9 @@ export interface Rect {
 
 export interface INode {
   id: string
-  name: string | undefined
+  name?: string
+  value?: number
+  operator?: "<" | ">" | "="
   type: "matter" | "manufacturing" | "measurement" | "parameter" | "property"
   position: {x: number, y: number}
   size: number
