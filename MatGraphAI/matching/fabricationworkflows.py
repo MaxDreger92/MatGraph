@@ -109,14 +109,19 @@ class FabricationWorkflowMatcher(Matcher):
         with_path_query = []
         conditions = []
         where_query = []
+        match_onto_query = []
+        with_onto_query = []
 
         for node in self.query_list:
-            where_query.append(f""" onto_{node['id']}.uid = '{node['uid']}'""")
+            where_query.append(f""" onto_{node['id']}.uid IN tree_uid_{node['id']}""")
+            match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']}:{node['type']}{{uid: '{node['uid']}'}})""")
+            with_onto_query.append(f"""collect(tree_onto_{node['id']}) + onto_{node['id']} as tree_{node['id']}, collect(tree_onto_{node['id']}.uid) + onto_{node['id']}.uid as tree_uid_{node['id']}""")
             with_query.append(f""" {node['id']}""")
             if node['type'] == 'EMMOQuantity':
                 match_query.append(f"""(onto_{node['id']}:{node['type']})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
                 where_query.append(f""" rel_{node['id']}.float_value {node['operator']} {node['value']}""")
             else:
+                match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']}:{node['type']})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
                 match_query.append(f"""(onto_{node['id']}:{node['type']} {{uid: '{node['uid']}'}})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
 
 
@@ -166,6 +171,8 @@ class FabricationWorkflowMatcher(Matcher):
 
         # Construct the main query parts
         query = f"""
+    MATCH {', '.join(match_onto_query)}
+    WITH {', '.join(with_onto_query)}
     MATCH {', '.join(match_query)}
     WHERE {' AND '.join(where_query)}
     WITH {', '.join(with_query)}
