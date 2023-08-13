@@ -1,0 +1,968 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"
+         xmlns="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured#">
+
+<owl:Ontology rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"/>
+
+<owl:AnnotationProperty rdf:about="#alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="#onto_name"/>
+
+<owl:Class rdf:about="http://www.semanticweb.org/maxdreger/ontologies/2022/10/materials#Aquivion">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aquivion is a perfluorosulfonic acid (PFSA) ionomer membrane used as a proton exchange membrane (PEM) in fuel cells. It offers high proton conductivity, chemical stability, and mechanical durability, making it a popular choice for various fuel cell applications.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aquivion PFSA Membrane', 'Aquivion PFSA Ionomer', 'Aquivion PEM', 'Perfluorosulfonic Acid Membrane', 'PFSA Proton Exchange Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aquivion</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#PerfluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Perfluorinated Membrane is a type of ion-conducting membrane used in proton exchange membrane fuel cells. It is made of a perfluorinated polymer, such as Nafion, and facilitates the transport of protons from the anode to the cathode while blocking the transport of electrons and gases.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['PFSA Membrane', 'Perfluorosulfonic Acid Membrane', 'Nafion Membrane', 'Proton Exchange Membrane', 'PEM']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AcidicElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Acidic Electrochemical Cell is an electrochemical cell that operates in an acidic environment, typically with a pH less than 7. It is commonly used in applications such as electrolysis, electroplating, and energy storage. The acidic environment can affect the cell's performance and materials selection.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Acidic Cell', 'Acidic Battery', 'Acidic Electrolytic Cell', 'Acidic Redox Flow Cell', 'Low-pH Electrochemical Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AcidicElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AqueousElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aqueous Electrochemical Cell is an electrochemical device that uses an aqueous electrolyte solution to facilitate the transfer of ions between the anode and cathode. It is commonly used in batteries, capacitors, and other energy storage systems, offering high power density, low cost, and improved safety compared to non-aqueous cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aqueous Cell', 'Water-Based Electrochemical Cell', 'Hydro-electrochemical Cell', 'Water-Based Battery', 'Aqueous Energy Storage System']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AqueousElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AlkalineElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Electrochemical Cell is a type of electrochemical cell that uses an alkaline electrolyte (usually potassium hydroxide) instead of an acidic electrolyte. It typically consists of a zinc anode, a manganese dioxide cathode, and an alkaline electrolyte. Alkaline cells are commonly used in household batteries and offer longer shelf life and higher energy density than acidic cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Alkaline Cell', 'Alkaline Battery', 'Zinc-Manganese Alkaline Battery', 'Potassium Hydroxide Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AlkalineZincAirElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Zinc-Air Electrochemical Cell is a type of battery that uses zinc as an anode, oxygen from the air as a cathode, and an alkaline electrolyte. It is a high-energy-density battery that offers long cycle life, low cost, and high safety. It is commonly used in hearing aids, remote sensors, and other small electronic devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Zinc-Air Battery', 'Alkaline Air Battery', 'Zinc-Air Fuel Cell', 'Alkaline Zinc-Air Cell', 'Zinc-Air Button Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineZincAirElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical cell is a device that converts chemical energy into electrical energy through electrochemical reactions. It consists of two electrodes (anode and cathode) and an electrolyte that facilitates the transfer of ions between the electrodes. Electrochemical cells are used in batteries, fuel cells, and other energy storage and conversion devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Galvanic Cell', 'Voltaic Cell', 'Electrolytic Cell', 'Redox Cell', 'Electrochemical System']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AlkalineZincManganeseDioxideElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Zinc-Manganese Dioxide Electrochemical Cell is a type of primary battery that uses zinc as the anode, manganese dioxide as the cathode, and an alkaline electrolyte. It is commonly used in low-drain devices such as flashlights, toys, and remote controls, offering a high energy density, long shelf life, and low cost.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Alkaline Zn-MnO2 Battery', 'Alkaline Dry Cell', 'Zinc-Manganese Alkaline Battery', 'Leclanché Cell', 'AM-1 Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineZincManganeseDioxideElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#PrimaryElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#GalvanicElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Primary Electrochemical Cell is a type of electrochemical cell that converts chemical energy into electrical energy through an irreversible chemical reaction. Once the reactants are consumed, the cell cannot be recharged or reused. Primary cells are commonly used in low-power applications, such as remote controls, watches, and hearing aids.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Non-rechargeable Electrochemical Cell', 'Disposable Electrochemical Cell', 'Single-use Electrochemical Cell', 'Primary Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PrimaryElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCoatedMetallicBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Carbon-Based Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminum substrate coated with a carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Carbon Coated Bipolar Plate', 'Aluminum-Carbon Coated Bipolar Plate', 'Al-Carbon BPP', 'Carbon-coated Al Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedCarbonBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedCoatedMetallicBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#NickelBasedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCoatedMetallicBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CoatedMetallicBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedCoductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedDiamondLikeCarbonCoatedBipolatPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedMetalNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedNobelMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#AluminiumBasedOrganicSelfAssemblyMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Anode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Electrode">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalComponent"/>
+  <owl:disjointWith rdf:resource="#FuelCellComponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Asiplex">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Battery">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalDevice">
+  <rdfs:subClassOf rdf:resource="#Device"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BatteryCell">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BatteryCellContainer">
+  <rdfs:subClassOf rdf:resource="#StructuralSubcomponent"/>
+  <owl:disjointWith rdf:resource="#Binder"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StructuralSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Binder">
+  <rdfs:subClassOf rdf:resource="#StructuralSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BatteryModule">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BimetallicElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MetalElectrode">
+  <rdfs:subClassOf rdf:resource="#ConversionElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BipolarPlate">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#BufferBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CCM">
+  <rdfs:subClassOf rdf:resource="#MembraneElectrodeAssembly"/>
+  <owl:disjointWith rdf:resource="#5LayerMEA"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MembraneElectrodeAssembly">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+</owl:Class>
+
+<owl:Class rdf:about="#5LayerMEA">
+  <rdfs:subClassOf rdf:resource="#MembraneElectrodeAssembly"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CarbonBasedCompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CompositeBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#MetalBasedCompositeBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+  <owl:disjointWith rdf:resource="#NonPorousGraphiteBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MetalBasedCompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CompositeBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CarbonPasterElectrode">
+  <rdfs:subClassOf rdf:resource="#CompositeElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CompositeElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CatalystCoatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Component">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <owl:disjointWith rdf:resource="#Device"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CatalystLayer">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Cathode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <owl:disjointWith rdf:resource="#CompositeElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ClothGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#GasDiffusionLayer">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CoinCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CoinCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Manufactured"/>
+
+<owl:Class rdf:about="#Device">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NonPorousGraphiteBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ConcentrationElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ConversionElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ConversionElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CoolingPlate">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CounterElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CurrentCollector">
+  <rdfs:subClassOf rdf:resource="#ElectronicSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectronicSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CylindricalCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#CylindricalCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#DryBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectricCurrentCollector">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalSubcomponent">
+  <rdfs:subClassOf rdf:resource="#Subcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalCapacitor">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalComponent">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalHalfcell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Subcomponent">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellComponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalComponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrolyticElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EmergencyBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FeltGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Flemion">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="#GalvanicElectrochemicalCell"/>
+  <owl:disjointWith rdf:resource="#PrimaryElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#GalvanicElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellStack">
+  <rdfs:subClassOf rdf:resource="#FuelCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellStation">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#GasDiffusionElectrode">
+  <rdfs:subClassOf rdf:resource="#PorousElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PorousElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#GoldElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Gore-Select">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#HybridElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#HydrogenElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#IndicatorElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#InertElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#IntercalationElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#IntercalationElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#IonicSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#LeclancheElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+  <owl:disjointWith rdf:resource="#LithiumCarbonMonofluorideElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#LithiumCarbonMonofluorideElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#LihtiumElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#NonAqueousElectrochemicalCell"/>
+  <owl:disjointWith rdf:resource="#MoltenSaltElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NonAqueousElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MoltenSaltElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#NonAqueousElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#LithiumElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#IntercalationElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#SecondaryElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SecondaryElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#LithiumIntercalationElectrode">
+  <rdfs:subClassOf rdf:resource="#IntercalationElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Membrane">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MetalAirElectrodeElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NRE211">
+  <rdfs:subClassOf rdf:resource="#NafionMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NafionMembrane">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NRE212">
+  <rdfs:subClassOf rdf:resource="#NafionMembrane"/>
+  <owl:disjointWith rdf:resource="#NafionMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NearneutralElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NegativeElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Neosepta-F">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedMetalNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NickelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NonFluorinatedCompositeMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NonFluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NonPolarizableElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#NormalHydrogenElectrode">
+  <rdfs:subClassOf rdf:resource="#ReferenceElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ReferenceElectrode">
+  <rdfs:subClassOf rdf:resource="#NonPolarizableElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#OEMBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PaperGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PaperLinedCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PartiallyFluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PasteLinedCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PhotoelectrolyticElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrolyticElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PilotBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PlatinumElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PolarizableElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PositiveElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PouchCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PouchCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PrismaticCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ReactiveSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ReplacementBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ReserveBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#RotationDiskElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Seal">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SimpleElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SingleFuelCell">
+  <rdfs:subClassOf rdf:resource="#FuelCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SolidElectrolyteElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedBiploarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#TitaniumBasedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedBiploarPlate"/>
+  <owl:disjointWith rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedBiploarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedMetalCarbidCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedMetalNitrideCoatedBiploarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StainlessSteelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#StandardVoltageCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Station">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SwagelokCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SwagelokCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ThermoElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ThreeElectrodeElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedBipolarPlate"/>
+  <owl:disjointWith rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedGraohiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedMtealNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#TitaniumBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+</owl:Class>
+
+<owl:Class rdf:about="#WestonStandardVoltageCell">
+  <rdfs:subClassOf rdf:resource="#StandardVoltageCell"/>
+</owl:Class>
+
+<owl:Class rdf:about="#WorkingElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+</owl:Class>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/maxdreger/ontologies/2022/10/materials#Aquivion"/>
+    <rdf:Description rdf:about="#Asiplex"/>
+    <rdf:Description rdf:about="#Flemion"/>
+    <rdf:Description rdf:about="#Gore-Select"/>
+    <rdf:Description rdf:about="#NafionMembrane"/>
+    <rdf:Description rdf:about="#Neosepta-F"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#AcidicElectrochemicalCell"/>
+    <rdf:Description rdf:about="#AlkalineElectrochemicalCell"/>
+    <rdf:Description rdf:about="#NearneutralElectrochemicalCell"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#AlkalineZincAirElectrochemicalCell"/>
+    <rdf:Description rdf:about="#AqueousElectrochemicalCell"/>
+    <rdf:Description rdf:about="#ConcentrationElectrochemicalCell"/>
+    <rdf:Description rdf:about="#ConversionElectrochemicalCell"/>
+    <rdf:Description rdf:about="#ElectrolyticElectrochemicalCell"/>
+    <rdf:Description rdf:about="#HybridElectrochemicalCell"/>
+    <rdf:Description rdf:about="#IntercalationElectrochemicalCell"/>
+    <rdf:Description rdf:about="#LeclancheElectrochemicalCell"/>
+    <rdf:Description rdf:about="#MetalAirElectrodeElectrochemicalCell"/>
+    <rdf:Description rdf:about="#NonAqueousElectrochemicalCell"/>
+    <rdf:Description rdf:about="#SolidElectrolyteElectrochemicalCell"/>
+    <rdf:Description rdf:about="#ThermoElectrochemicalCell"/>
+    <rdf:Description rdf:about="#ThreeElectrodeElectrochemicalCell"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#AluminiumBasedCoductivePolymerCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#AluminiumBasedDiamondLikeCarbonCoatedBipolatPlate"/>
+    <rdf:Description rdf:about="#AluminiumBasedGraphiteCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#AluminiumBasedOrganicSelfAssemblyMonoPolymerCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#AluminiumBasedMetalCarbideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#AluminiumBasedMetalNitrideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#AluminiumBasedNobelMetalCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Anode"/>
+    <rdf:Description rdf:about="#Cathode"/>
+    <rdf:Description rdf:about="#CompositeElectrode"/>
+    <rdf:Description rdf:about="#ConversionElectrode"/>
+    <rdf:Description rdf:about="#CounterElectrode"/>
+    <rdf:Description rdf:about="#HydrogenElectrode"/>
+    <rdf:Description rdf:about="#IndicatorElectrode"/>
+    <rdf:Description rdf:about="#InertElectrode"/>
+    <rdf:Description rdf:about="#IntercalationElectrode"/>
+    <rdf:Description rdf:about="#NegativeElectrode"/>
+    <rdf:Description rdf:about="#NonPolarizableElectrode"/>
+    <rdf:Description rdf:about="#PolarizableElectrode"/>
+    <rdf:Description rdf:about="#PorousElectrode"/>
+    <rdf:Description rdf:about="#PositiveElectrode"/>
+    <rdf:Description rdf:about="#RotationDiskElectrode"/>
+    <rdf:Description rdf:about="#SimpleElectrode"/>
+    <rdf:Description rdf:about="#WorkingElectrode"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Battery"/>
+    <rdf:Description rdf:about="#ElectrochemicalCapacitor"/>
+    <rdf:Description rdf:about="#ElectrochemicalHalfcell"/>
+    <rdf:Description rdf:about="#FuelCell"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#BatteryCell"/>
+    <rdf:Description rdf:about="#BatteryModule"/>
+    <rdf:Description rdf:about="#BufferBattery"/>
+    <rdf:Description rdf:about="#EmergencyBattery"/>
+    <rdf:Description rdf:about="#OEMBattery"/>
+    <rdf:Description rdf:about="#ReplacementBattery"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#BimetallicElectrode"/>
+    <rdf:Description rdf:about="#GoldElectrode"/>
+    <rdf:Description rdf:about="#PlatinumElectrode"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#CatalystCoatedMembrane"/>
+    <rdf:Description rdf:about="#CatalystLayer"/>
+    <rdf:Description rdf:about="#CoolingPlate"/>
+    <rdf:Description rdf:about="#FuelCellComponent"/>
+    <rdf:Description rdf:about="#GasDiffusionLayer"/>
+    <rdf:Description rdf:about="#Membrane"/>
+    <rdf:Description rdf:about="#MembraneElectrodeAssembly"/>
+    <rdf:Description rdf:about="#Seal"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#ClothGDL"/>
+    <rdf:Description rdf:about="#FeltGDL"/>
+    <rdf:Description rdf:about="#PaperGDL"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#CoinCell"/>
+    <rdf:Description rdf:about="#CylindricalCell"/>
+    <rdf:Description rdf:about="#DryBatteryCell"/>
+    <rdf:Description rdf:about="#PaperLinedCell"/>
+    <rdf:Description rdf:about="#PasteLinedCell"/>
+    <rdf:Description rdf:about="#PilotBatteryCell"/>
+    <rdf:Description rdf:about="#PouchCell"/>
+    <rdf:Description rdf:about="#ReserveBatteryCell"/>
+    <rdf:Description rdf:about="#StandardVoltageCell"/>
+    <rdf:Description rdf:about="#SwagelokCell"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#CoinCellHousing"/>
+    <rdf:Description rdf:about="#CylindricalCellHousing"/>
+    <rdf:Description rdf:about="#FuelCellStation"/>
+    <rdf:Description rdf:about="#PouchCellHousing"/>
+    <rdf:Description rdf:about="#PrismaticCellHousing"/>
+    <rdf:Description rdf:about="#SwagelokCellHousing"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#ElectricCurrentCollector"/>
+    <rdf:Description rdf:about="#ElectronicSubcomponent"/>
+    <rdf:Description rdf:about="#FuelCellSubcomponent"/>
+    <rdf:Description rdf:about="#IonicSubcomponent"/>
+    <rdf:Description rdf:about="#ReactiveSubcomponent"/>
+    <rdf:Description rdf:about="#StructuralSubcomponent"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#NickelBasedConductivePolymerCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#NickelBasedDiamondLikeCarbonCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#NickelBasedGraphiteCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#NickelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#NickelBasedMetalCarbideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#NickelBasedMetalNitrideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#NickelBasedNobleMetalCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#NonFluorinatedCompositeMembrane"/>
+    <rdf:Description rdf:about="#NonFluorinatedMembrane"/>
+    <rdf:Description rdf:about="#PartiallyFluorinatedMembrane"/>
+    <rdf:Description rdf:about="#PerfluorinatedMembrane"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#StainlessSteelBasedConductivePolymerCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#StainlessSteelBasedDiamondLikeCarbonCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#StainlessSteelBasedGraphiteCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#StainlessSteelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#StainlessSteelBasedMetalCarbidCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#StainlessSteelBasedMetalNitrideCoatedBiploarPlate"/>
+    <rdf:Description rdf:about="#StainlessSteelBasedNobleMetalCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#TitaniumBasedConductivePolymerCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#TitaniumBasedDiamondLikeCarbonCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#TitaniumBasedGraohiteCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#TitaniumBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#TitaniumBasedMetalCarbideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#TitaniumBasedMtealNitrideCoatedBipolarPlate"/>
+    <rdf:Description rdf:about="#TitaniumBasedNobleMetalCoatedBipolarPlate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+
+</rdf:RDF>

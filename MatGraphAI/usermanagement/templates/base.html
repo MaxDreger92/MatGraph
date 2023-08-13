@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Data App{% endblock %}</title>
+    <!-- Include Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <!-- Display user information and logout option -->
+    {% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}!</p>
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+    <p>You are not logged in.</p>
+    <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+</div>
+<!-- Include Bootstrap JavaScript and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,1388 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"
+         xmlns="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured#">
+
+<owl:Ontology rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"/>
+
+<owl:AnnotationProperty rdf:about="##alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="##onto_name"/>
+
+<owl:AnnotationProperty rdf:about="#alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="#onto_name"/>
+
+<owl:Class rdf:about="##Manufactured">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured refers to the process of making a product on a large scale using machinery and standardized processes. In the context of hydrogen technologies, it typically involves the production of materials, components, or systems used in fuel cells, electrolyzers, and other hydrogen-related applications.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Mass-Produced', 'Industrial-Scale Production', 'Large-Scale Manufacturing', 'Production Process', 'Manufacturing Process']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Component">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <rdfs:subClassOf rdf:resource="##Manufactured"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A manufactured component is a part or element of a device or system that has been produced through a manufacturing process. In the context of hydrogen technologies, manufactured components can include fuel cell stacks, electrolyzers, hydrogen storage tanks, and other system components.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Manufactured Part', 'Produced Component', 'Fabricated Element', 'Industrial Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Component</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CatalystCoatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <rdfs:subClassOf rdf:resource="##Component"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Catalyst-Coated Membrane (CCM) is a key component of a fuel cell, consisting of an ion-conducting membrane coated with a thin layer of catalyst material on both sides. CCMs facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Catalyst-Coated Membrane', 'Proton Exchange Membrane with Catalyst', 'PEM with Catalyst', 'Catalyst-Coated PEM', 'Ion-Conducting Membrane with Catalyst']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystCoatedMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CatalystLayer">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <rdfs:subClassOf rdf:resource="##Component"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Catalyst Layer is a thin layer of catalytic material applied to an electrode surface in a fuel cell or electrolyzer. It facilitates the electrochemical reactions that occur at the electrode surface, improving the efficiency and performance of the device.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Catalyst-Coated Electrode', 'Catalyst-Coated Membrane', 'Catalytic Layer', 'Electrocatalyst Layer', 'Catalyst Ink Layer']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystLayer</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalComponent">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <rdfs:subClassOf rdf:resource="##Component"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical component is a device that facilitates electrochemical reactions, such as those that occur in fuel cells, batteries, and electrolyzers. Examples include electrodes, membranes, catalysts, and bipolar plates.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Device Component', 'Electrochemical System Component', 'EC Component', 'Electrochemical Reaction Facilitator']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalComponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Electrode">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalComponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalComponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrode is an electrical conductor used to make contact with a non-metallic part of a circuit, such as an electrolyte. In hydrogen technologies, electrodes are used in electrochemical cells, such as fuel cells and electrolyzers, to facilitate the transfer of electrons between the electrode and the reactants.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrical Conductor', 'Electrochemical Cell Electrode', 'Anode/Cathode', 'Hydrogen Technology Electrode', 'Electrolysis Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Anode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An anode is an electrode in an electrochemical cell where oxidation (loss of electrons) occurs. In a fuel cell, the anode is the negative electrode where hydrogen fuel is oxidized to produce protons and electrons, which then flow through an external circuit to generate electricity.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Anode', 'Negative Electrode', 'Hydrogen Oxidation Anode', 'Oxidation Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Anode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Cathode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A cathode is an electrode in an electrochemical cell where reduction occurs. It is the site where electrons are consumed and the cell's positive charge is neutralized. In fuel cells, the cathode is typically coated with a catalyst that facilitates the oxygen reduction reaction.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Reduction Electrode', 'Oxygen Reduction Cathode', 'Cathodic Electrode', 'Positive Electrode', 'Cathodic Catalyst Layer']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cathode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CompositeElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Composite Electrode is an electrode made of a composite material, typically consisting of a conductive filler (such as carbon) and an active material (such as a metal oxide or a polymer). Composite electrodes are used in a variety of electrochemical devices, including batteries, supercapacitors, and electrochemical sensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Composite Material Electrode', 'Carbon-Active Material Electrode', 'Hybrid Electrode', 'Mixed Electrode', 'Conductive-Active Material Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CompositeElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CarbonPasterElectrode">
+  <rdfs:subClassOf rdf:resource="#CompositeElectrode"/>
+  <rdfs:subClassOf rdf:resource="##CompositeElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Carbon Paste Electrode (CPE) is a type of working electrode used in electrochemical analysis and sensing. It is made by mixing conductive carbon powder with a binder and solvent to form a paste, which is then applied to an electrode substrate. CPEs offer high sensitivity, low cost, and easy preparation, making them a popular choice in electrochemical research.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Carbon Paste Working Electrode', 'Carbon-Based Electrode', 'CPE', 'Carbon Ink Electrode', 'Carbon Composite Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CarbonPasterElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ConversionElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Conversion Electrode is an electrode material that undergoes conversion reactions with lithium ions during charge and discharge cycles in lithium-ion batteries. Conversion electrodes have high theoretical capacities and can offer higher energy densities than intercalation electrodes, but often suffer from poor cycling stability and low rate capability.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Conversion-Type Electrode', 'Conversion Reaction Electrode', 'Conversion Anode/Cathode', 'Conversion Material Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConversionElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##MetalElectrode">
+  <rdfs:subClassOf rdf:resource="#ConversionElectrode"/>
+  <rdfs:subClassOf rdf:resource="##ConversionElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A metal electrode is an electrical conductor that is used to make contact with a non-metallic part of a circuit. In hydrogen technologies, metal electrodes are commonly used in electrochemical cells, such as fuel cells and electrolyzers, to facilitate the conversion of chemical energy into electrical energy or vice versa.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Metallic Electrode', 'Metallic Conductor', 'Metal Contact', 'Metallic Contact', 'Metallic Current Collector']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MetalElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BimetallicElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+  <rdfs:subClassOf rdf:resource="##MetalElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Bimetallic Electrode is an electrode composed of two different metals, often used in electrocatalysis and electrochemical sensing. The two metals have different electrochemical properties, allowing for unique catalytic activity and selectivity. Bimetallic electrodes have applications in fuel cells, batteries, and electrochemical sensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dual Metal Electrode', 'Mixed Metal Electrode', 'Bimetal Electrode', 'Metal Alloy Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BimetallicElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##GoldElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+  <rdfs:subClassOf rdf:resource="##MetalElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Gold Electrode is a type of metal electrode commonly used in electrochemical measurements and biosensors. It offers high electrical conductivity, chemical stability, and biocompatibility, making it suitable for various applications in electrochemistry and biomedical research.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Au Electrode', 'Gold Working Electrode', 'Gold Working Electrode', 'Gold-Plated Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GoldElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PlatinumElectrode">
+  <rdfs:subClassOf rdf:resource="#MetalElectrode"/>
+  <rdfs:subClassOf rdf:resource="##MetalElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Platinum Electrode is a type of metal electrode commonly used in electrochemical applications, such as fuel cells, batteries, and sensors. Platinum is a highly conductive and corrosion-resistant metal that is often used as a catalyst in electrochemical reactions due to its high activity and stability.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Pt Electrode', 'Platinum Metal Electrode', 'Platinum Catalyst Electrode', 'Highly Conductive Platinum Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PlatinumElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CounterElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Counter Electrode is an electrode in an electrochemical cell that completes the circuit by providing a site for the reduction or oxidation of a species that is not involved in the main electrochemical reaction. It is typically made of a noble metal, such as platinum, and is used to maintain electrical neutrality in the cell.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Auxiliary Electrode', 'Reference Electrode', 'Compensation Electrode', 'Secondary Electrode', 'Counter Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CounterElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##HydrogenElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Hydrogen Electrode is a reference electrode used in electrochemical measurements. It consists of a platinum electrode in contact with a solution of hydrogen ions at unit activity, with a defined hydrogen pressure. It is used as a reference to measure the potential of other electrodes in the same solution.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Standard Hydrogen Electrode', 'SHE', 'Platinum-Hydrogen Electrode', 'Hydrogen Reference Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##IndicatorElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Indicator Electrode is an electrode used in electrochemical measurements to determine the concentration of a specific ion in a solution. It is typically composed of a metal or metal oxide that is sensitive to the ion of interest and is used in conjunction with a reference electrode to measure the potential difference between the two electrodes.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ion-Selective Electrode', 'ISE', 'Specific Ion Electrode', 'SIE', 'Potentiometric Sensor']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IndicatorElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##InertElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An inert electrode is an electrode that does not participate in the electrochemical reaction during electrolysis. It is typically made of materials that are stable and do not react with the electrolyte or the products of the reaction. Inert electrodes are used to conduct electricity and complete the circuit in electrolysis processes.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Non-Reacting Electrode', 'Passive Electrode', 'Inert Anode', 'Inert Cathode', 'Inert Metal Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">InertElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##IntercalationElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An intercalation electrode is a type of electrode used in rechargeable batteries, where ions are inserted and extracted from the electrode during charging and discharging. Intercalation electrodes are typically made of layered materials, such as graphite or metal oxides, and offer high energy density and long cycle life.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Insertion Electrode', 'Layered Electrode', 'Graphite Electrode', 'Metal Oxide Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IntercalationElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##LithiumIntercalationElectrode">
+  <rdfs:subClassOf rdf:resource="#IntercalationElectrode"/>
+  <rdfs:subClassOf rdf:resource="##IntercalationElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Lithium Intercalation Electrode is an electrode material used in lithium-ion batteries that can reversibly intercalate lithium ions into its crystal structure during charging and discharging. Common materials used as lithium intercalation electrodes include graphite, lithium titanate, and lithium iron phosphate.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Li-Intercalation Electrode', 'Lithium-Intercalating Anode/Cathode', 'Lithium-Insertion Electrode', 'Li-Ion Battery Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LithiumIntercalationElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NegativeElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Negative Electrode is an electrode in an electrochemical cell where oxidation (loss of electrons) occurs. In rechargeable batteries, it is the electrode that supplies electrons to the external circuit during discharge. In lithium-ion batteries, the negative electrode is typically made of graphite or other carbon-based materials that can intercalate lithium ions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Anode', 'Graphite Anode', 'Carbon Anode', 'Negative Terminal', 'Lithium-Ion Battery Anode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NegativeElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NonPolarizableElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Non-Polarizable Electrode is an electrode that does not undergo any significant electrochemical reaction during the operation of an electrochemical cell. It is used as a reference electrode to measure the potential of other electrodes in the cell. Non-polarizable electrodes are typically made of materials such as platinum, gold, or silver.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Reference Electrode', 'Non-Reacting Electrode', 'Inert Electrode', 'Saturated Calomel Electrode', 'Ag/AgCl Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonPolarizableElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ReferenceElectrode">
+  <rdfs:subClassOf rdf:resource="#NonPolarizableElectrode"/>
+  <rdfs:subClassOf rdf:resource="##NonPolarizableElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Reference Electrode is an electrode with a known and stable potential used as a reference point for measuring the potential of other electrodes in an electrochemical cell. It is typically made of a metal with a stable potential, such as silver/silver chloride or calomel, and is used in a variety of electrochemical applications, including corrosion studies and pH measurements.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Standard Electrode', 'Calomel Electrode', 'Ag/AgCl Electrode', 'Reference Standard Electrode', 'Stable Potential Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ReferenceElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NormalHydrogenElectrode">
+  <rdfs:subClassOf rdf:resource="#ReferenceElectrode"/>
+  <rdfs:subClassOf rdf:resource="##ReferenceElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The Normal Hydrogen Electrode (NHE) is a reference electrode used in electrochemistry to measure the standard electrode potential of other electrodes. It consists of a platinum electrode in contact with a solution of hydrogen ions and hydrogen gas at a pressure of 1 atm. The NHE has a defined potential of 0 V at all temperatures.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Reference Electrode', 'Standard Hydrogen Electrode', 'Hydrogen/Hydrogen Ion Reference Electrode', 'Platinum-Hydrogen Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NormalHydrogenElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PolarizableElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A polarizable electrode is an electrode that can be polarized or charged by an external voltage source. It is used in electrochemical cells to facilitate the transfer of electrons between the electrode and the electrolyte. Polarizable electrodes can be made of various materials, including metals, semiconductors, and carbon-based materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Polarizing Electrode', 'Polarized Electrode', 'Chargeable Electrode', 'Voltage-Dependent Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PolarizableElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PorousElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Porous Electrode is an electrode with a porous structure that allows for efficient mass transport of reactants and products in electrochemical reactions. Porous electrodes are commonly used in fuel cells, batteries, and electrochemical sensors, where high surface area and accessibility to the electrolyte are important for efficient electrochemical reactions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Porous Structure Electrode', 'High Surface Area Electrode', 'Permeable Electrode', 'Porosity Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PorousElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##GasDiffusionElectrode">
+  <rdfs:subClassOf rdf:resource="#PorousElectrode"/>
+  <rdfs:subClassOf rdf:resource="##PorousElectrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Gas Diffusion Electrode (GDE) is an electrode used in electrochemical devices, such as fuel cells and electrolyzers, that allows for the diffusion of gas through a porous layer to the catalyst layer. GDEs are used to improve mass transport and reduce the overpotential of the electrochemical reaction.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gas-Diffusion Cathode', 'Gas-Diffusion Anode', 'Porous Electrode with Catalyst Layer', 'GDE']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GasDiffusionElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PositiveElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A positive electrode is an electrode in an electrochemical cell where oxidation occurs during discharge. In a battery, it is the electrode that receives electrons from the external circuit and ions from the electrolyte during charging. In a fuel cell, it is the electrode where oxygen reduction occurs to produce water.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Cathode', 'Oxygen Reduction Electrode', 'Positive Terminal', 'Positive Pole']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PositiveElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##RotationDiskElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Rotating Disk Electrode (RDE) is a type of electrochemical cell electrode that rotates at a controlled speed in a solution. It is used to study the kinetics of electrochemical reactions, particularly in the field of electrocatalysis. RDEs can provide information on reaction rates, reaction mechanisms, and electrochemical surface area.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Rotating Disk Electrode', 'Rotating Disk Electrochemical Cell', 'Rotating Disk Working Electrode', 'RDE']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RotationDiskElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SimpleElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Simple Electrode is a basic electrochemical cell component, consisting of a conductive material that serves as either an anode or cathode. It is used in a variety of electrochemical applications, including batteries, fuel cells, and sensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Basic Electrode', 'Single Electrode', 'Non-Complex Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SimpleElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##WorkingElectrode">
+  <rdfs:subClassOf rdf:resource="#Electrode"/>
+  <rdfs:subClassOf rdf:resource="##Electrode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Working Electrode is an electrode in an electrochemical cell where the electrochemical reaction of interest occurs. It is typically the electrode where the analyte is oxidized or reduced, and is used to measure the concentration of the analyte in solution. Working electrodes are commonly used in electroanalytical chemistry and biosensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['WE', 'Analytical Electrode', 'Sensing Electrode', 'Oxidation/Reduction Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WorkingElectrode</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FuelCellComponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalComponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalComponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Component is a part of a fuel cell that plays a crucial role in the electrochemical reactions that convert chemical energy into electrical energy. Examples of fuel cell components include the membrane electrode assembly, bipolar plates, and gas diffusion layers.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Part', 'Fuel Cell Element', 'Fuel Cell Unit', 'Fuel Cell Device Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellComponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Membrane">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <rdfs:subClassOf rdf:resource="##Component"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A membrane is a thin, selectively permeable material that separates the anode and cathode compartments in a fuel cell. It allows the transport of ions while preventing the mixing of fuel and oxidant gases. Membranes are a critical component of proton exchange membrane fuel cells (PEMFCs) and direct methanol fuel cells (DMFCs).</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Membrane', 'Proton Exchange Membrane', 'PEM', 'Ion-Exchange Membrane', 'Selective Permeable Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Membrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NonFluorinatedCompositeMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <rdfs:subClassOf rdf:resource="##Membrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Non-Fluorinated Composite Membrane is a type of polymer electrolyte membrane (PEM) used in fuel cells. It is composed of a polymer matrix and inorganic fillers, and does not contain any fluorinated components. Non-fluorinated composite membranes offer improved durability, thermal stability, and lower cost compared to traditional fluorinated membranes.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fluorine-Free Composite Membrane', 'Non-Fluorinated PEM', 'Fluorine-Free PEM', 'Non-Fluorinated Proton Exchange Membrane', 'NFCM']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonFluorinatedCompositeMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NonFluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <rdfs:subClassOf rdf:resource="##Membrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Non-Fluorinated Membrane is a type of polymer electrolyte membrane (PEM) used in fuel cells, which does not contain any fluorine atoms. These membranes offer improved chemical stability, mechanical strength, and thermal resistance compared to traditional fluorinated membranes.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fluorine-Free Membrane', 'Non-F Containing Membrane', 'Non-Fluoropolymer Membrane', 'Fluorine-Free PEM', 'Non-Fluorinated Polymer Electrolyte Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonFluorinatedMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PartiallyFluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <rdfs:subClassOf rdf:resource="##Membrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Partially Fluorinated Membrane is a type of polymer electrolyte membrane used in fuel cells. It is composed of a partially fluorinated polymer, such as sulfonated poly(ether ether ketone) (SPEEK), which offers improved chemical stability and mechanical strength compared to fully fluorinated membranes. Partially fluorinated membranes are also more cost-effective and environmentally friendly.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SPEEK Membrane', 'Partially Fluorinated Polymer Electrolyte Membrane', 'PFSA Membrane', 'Partially Fluorinated Fuel Cell Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PartiallyFluorinatedMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PerfluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <rdfs:subClassOf rdf:resource="##Membrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Perfluorinated membranes are a type of ion-conducting membrane used in fuel cells, consisting of a fluoropolymer material with a high concentration of sulfonic acid groups. They offer high proton conductivity, chemical stability, and durability under harsh operating conditions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['PFSA Membrane', 'Perfluorosulfonic Acid Membrane', 'Fluoropolymer Membrane', 'Perfluorinated Proton Exchange Membrane', 'PFSA PEM']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Aquivion">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aquivion is a perfluorosulfonic acid (PFSA) ionomer membrane used in proton exchange membrane (PEM) fuel cells. It offers high proton conductivity, chemical stability, and mechanical durability, making it a popular choice for fuel cell applications.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aquivion PFSA Membrane', 'Aquivion Ion-Exchange Membrane', 'Aquivion Fuel Cell Membrane', 'Perfluorosulfonic Acid Membrane', 'PFSA Fuel Cell Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aquivion</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Asiplex">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Asiplex is a type of perfluorinated ion-exchange membrane used in various electrochemical applications, including fuel cells and electrolyzers. It is known for its high proton conductivity, chemical stability, and durability under harsh operating conditions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Asiplex Membrane', 'Perfluorinated Ion-Exchange Membrane', 'Asiplex Polymer Electrolyte Membrane', 'Asiplex PEM', 'Asahi Glass Asiplex']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Asiplex</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Flemion">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Flemion is a perfluorinated sulfonic acid ionomer membrane used in various electrochemical applications, including fuel cells, electrolyzers, and redox flow batteries. It offers high proton conductivity, chemical stability, and mechanical strength.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Perfluorosulfonic Acid Membrane', 'PFSA Membrane', 'Flemion Membrane', 'Flemion Ion-Exchange Membrane', 'Perfluorinated Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Flemion</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Gore-Select">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gore-Select is a brand of fluorinated ion exchange membranes used in various electrochemical applications, including fuel cells and electrolyzers. These membranes offer high proton conductivity, chemical stability, and durability under harsh operating conditions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gore-Select Membrane', 'Gore-Select Ion Exchange Membrane', 'Gore-Select Fuel Cell Membrane', 'Gore-Select Electrolyzer Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gore-Select</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NafionMembrane">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nafion is a perfluorinated sulfonic acid polymer membrane widely used in proton exchange membrane fuel cells (PEMFCs) due to its high proton conductivity, chemical stability, and mechanical durability. It is a trade name of The Chemours Company.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Nafion', 'Nafion Polymer Membrane', 'Perfluorosulfonic Acid Membrane', 'PEMFC Membrane', 'Fluorinated Polymer Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NafionMembrane</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NRE211">
+  <rdfs:subClassOf rdf:resource="#NafionMembrane"/>
+  <rdfs:subClassOf rdf:resource="##NafionMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NRE211 is a specific, high-performance nickel-rich layered oxide cathode material used in lithium-ion batteries. It has a chemical formula of LiNi0.8Mn0.1Co0.1O2 and offers improved energy density, thermal stability, and cycle life compared to other cathode materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['LiNi0.8Mn0.1Co0.1O2', 'Nickel-Rich Layered Oxide Cathode', 'NRE-211', 'Ni-Rich Cathode Material', 'High-Nickel Cathode Material']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NRE211</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NRE212">
+  <rdfs:subClassOf rdf:resource="#NafionMembrane"/>
+  <rdfs:subClassOf rdf:resource="##NafionMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NRE212 is a high-performance cathode material used in lithium-ion batteries, with a chemical formula of LiNi0.6Mn0.2Co0.2O2. It offers improved energy density, thermal stability, and cycle life compared to other cathode materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['LiNi0.6Mn0.2Co0.2O2', 'Nickel-Rich Layered Oxide Cathode', 'NRE-212', 'Ni-Rich Cathode Material', 'High-Nickel Cathode Material']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NRE212</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Neosepta-F">
+  <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
+  <rdfs:subClassOf rdf:resource="##PerfluorinatedMembrane"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Neosepta-F is a perfluorinated ion-exchange membrane used in various electrochemical applications, including fuel cells and electrolyzers. It offers high proton conductivity, chemical stability, and mechanical strength, making it suitable for harsh operating conditions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Perfluorinated Ion-Exchange Membrane Neosepta-F', 'Neosepta F Membrane', 'Neosepta Fluorinated Membrane', 'Neosepta PFSA Membrane', 'Neosepta Proton Exchange Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Neosepta-F</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##MembraneElectrodeAssembly">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <rdfs:subClassOf rdf:resource="##Component"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Membrane Electrode Assembly (MEA) is a key component of a fuel cell, consisting of an ion-conducting membrane sandwiched between two catalyst-coated electrodes (anode and cathode). MEAs facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells. NRE211 is a specific, high-performance nickel-rich layered oxide cathode material used in lithium-ion batteries. It has a chemical formula of LiNi0.8Mn0.1Co0.1O2 and offers improved energy density, thermal stability, and cycle life compared to other cathode materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['NRE211 MEA', 'LiNi0.8Mn0.1Co0.1O2 MEA', 'Nickel-Rich Layered Oxide Cathode MEA', 'High-Nickel Cathode Material MEA']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MembraneElectrodeAssembly</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CCM">
+  <rdfs:subClassOf rdf:resource="#MembraneElectrodeAssembly"/>
+  <rdfs:subClassOf rdf:resource="##MembraneElectrodeAssembly"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Catalyst Coated Membrane (CCM) is a key component of a fuel cell, consisting of an ion-conducting membrane coated on both sides with a thin layer of catalyst. CCMs facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Membrane Electrode Assembly with Catalyst Layer', 'Catalyst Coated Proton Exchange Membrane', 'Catalyst Coated Membrane Electrode Assembly', 'Catalyst Coated PEM', 'Catalyst Coated Gas Diffusion Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCM</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##5LayerMEA">
+  <rdfs:subClassOf rdf:resource="#MembraneElectrodeAssembly"/>
+  <rdfs:subClassOf rdf:resource="##MembraneElectrodeAssembly"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A 5-Layer Membrane Electrode Assembly (MEA) is a type of fuel cell component consisting of a proton exchange membrane sandwiched between two anode and two cathode catalyst-coated gas diffusion layers. It is used in proton exchange membrane fuel cells (PEMFCs) and offers improved performance and durability compared to traditional 3-layer MEAs.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Five-Layer Membrane Electrode Assembly', 'PEMFC 5-Layer MEA', 'High-Performance 5-Layer MEA', 'Multi-Layer MEA']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5LayerMEA</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Device">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <rdfs:subClassOf rdf:resource="##Manufactured"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A device is a physical object or system designed to perform a specific function or task. In the context of hydrogen technologies, devices can include fuel cells, electrolyzers, hydrogen storage tanks, and hydrogen sensors, among others.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Device', 'Hydrogen Technology Device', 'Hydrogen System', 'Hydrogen Apparatus', 'Hydrogen Equipment']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Device</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalDevice">
+  <rdfs:subClassOf rdf:resource="#Device"/>
+  <rdfs:subClassOf rdf:resource="##Device"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical device is a device that converts chemical energy into electrical energy through electrochemical reactions. Examples include batteries, fuel cells, and electrochemical sensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical System', 'Electrochemical Apparatus', 'Electrochemical Equipment', 'Electrochemical Machine']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalDevice</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Battery">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A battery is an electrochemical device that stores chemical energy and converts it into electrical energy. It consists of one or more electrochemical cells, which contain two electrodes (anode and cathode) and an electrolyte. Batteries are used in a wide range of applications, from portable electronics to electric vehicles and grid-scale energy storage.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Secondary Battery', 'Rechargeable Battery', 'Primary Battery', 'Non-rechargeable Battery', 'Energy Storage Device']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Battery</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BatteryCell">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A battery cell is the basic electrochemical unit of a battery, consisting of an anode, a cathode, and an electrolyte. It converts chemical energy into electrical energy through electrochemical reactions. Battery cells can be combined in series or parallel to form a battery pack with higher voltage and capacity.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Cell', 'Battery Unit', 'Electrochemical Cell', 'Battery Element', 'Battery Building Block']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BatteryCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CoinCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A coin cell is a small, cylindrical battery cell commonly used in small electronic devices, such as watches, calculators, and hearing aids. It typically consists of a metal casing, a cathode, an anode, and an electrolyte. Coin cells are often disposable and have a low capacity compared to other types of batteries.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Button Cell', 'Watch Battery', 'Small Cylindrical Battery', 'Coin-Shaped Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CoinCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CylindricalCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A cylindrical cell is a type of battery cell that has a cylindrical shape. It is commonly used in consumer electronics, electric vehicles, and stationary energy storage systems. The cylindrical shape allows for efficient use of space and easy manufacturing. The most common cylindrical cell format is the 18650 cell, which has a diameter of 18 mm and a length of 65 mm.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Cylinder Cell', 'Cylindrical Battery', '18650 Cell', '18650 Battery', 'Round Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CylindricalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##DryBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A dry battery cell is a type of electrochemical cell that uses a paste electrolyte instead of a liquid. It is commonly used in small, portable electronic devices and offers a longer shelf life and lower risk of leakage compared to wet cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dry Cell Battery', 'Paste Cell Battery', 'Solid Electrolyte Battery', 'Zinc-Carbon Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DryBatteryCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PaperLinedCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A paper-lined cell is a type of dry battery cell that uses a paper lining to separate the anode and cathode. The paper lining is impregnated with an electrolyte solution, which allows for the flow of ions between the electrodes. Paper-lined cells are commonly used in low-power applications, such as remote controls and flashlights.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dry Cell with Paper Separator', 'Paper-Separator Battery Cell', 'Paper-Separator Dry Battery', 'Paper-Separator Zinc-Carbon Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PaperLinedCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PasteLinedCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Paste-Lined Cell is a type of dry cell battery that uses a paste mixture of ammonium chloride and zinc chloride as the electrolyte. The paste is held in a porous material lining the cell, which also serves as the separator between the anode and cathode. This type of cell is commonly used in low-drain applications such as remote controls and flashlights.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Zinc-Carbon Paste-Lined Cell', 'Dry Paste Cell', 'Ammonium Chloride Paste Cell', 'Zinc Chloride Paste Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PasteLinedCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PilotBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Pilot Battery Cell is a small-scale battery cell used for testing and prototyping purposes. It is typically used to evaluate the performance of new materials, designs, and manufacturing processes before scaling up to larger cells or batteries.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Small-Scale Battery Cell', 'Prototype Battery Cell', 'Testing Battery Cell', 'Pilot-Scale Battery Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PilotBatteryCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PouchCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A pouch cell is a type of lithium-ion battery cell that has a flexible, rectangular shape. It consists of a cathode, an anode, and a separator, all of which are enclosed in a flexible, heat-sealed pouch. Pouch cells are commonly used in portable electronic devices and electric vehicles due to their high energy density and low weight.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Flexible Lithium-Ion Battery Cell', 'Soft Pack Battery Cell', 'LiPo Battery Cell', 'Lithium Polymer Battery Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PouchCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ReserveBatteryCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Reserve Battery Cell is a type of electrochemical cell that is designed to provide long-term, low-level power output. It is commonly used in applications where a small amount of power is needed over an extended period of time, such as in remote sensors or emergency backup systems.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Long-Term Battery Cell', 'Low-Level Power Battery Cell', 'Backup Battery Cell', 'Reserve Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ReserveBatteryCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StandardVoltageCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Standard Voltage Cell is a type of battery cell that has a nominal voltage of 1.5 volts. It is commonly used in household devices such as flashlights, remote controls, and toys.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['1.5V Cell', 'Carbon-Zinc Cell', 'Alkaline Cell', 'Primary Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StandardVoltageCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##WestonStandardVoltageCell">
+  <rdfs:subClassOf rdf:resource="#StandardVoltageCell"/>
+  <rdfs:subClassOf rdf:resource="##StandardVoltageCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Weston Standard Voltage Cell is a type of primary battery cell that generates a stable voltage output. It consists of a cadmium sulfate electrolyte, a mercury oxide cathode, and a cadmium amalgam anode. It is used as a voltage reference in laboratory instruments and as a calibration standard for voltmeters.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Weston Cell', 'Cadmium-Mercury Cell', 'Standard Cell', 'Laboratory Reference Cell', 'Cadmium Standard Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WestonStandardVoltageCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SwagelokCell">
+  <rdfs:subClassOf rdf:resource="#BatteryCell"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Swagelok cell is a type of electrochemical cell used for electrochemical measurements and testing. It consists of two electrodes, a Swagelok fitting, and a glass tube containing the electrolyte solution. Swagelok cells are commonly used for studying the electrochemical behavior of materials and for testing the performance of batteries and fuel cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Swagelok Electrochemical Cell', 'Swagelok Test Cell', 'Swagelok Test Fixture', 'Swagelok Test Rig']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SwagelokCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BatteryModule">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A battery module is a group of battery cells that are connected together to provide a higher voltage and/or capacity than a single cell. It typically includes a protective casing, electrical connections, and a battery management system to monitor and control the performance of the cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Battery Pack', 'Battery Array', 'Battery Bank', 'Battery Stack', 'Battery Cluster']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BatteryModule</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BufferBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A buffer battery is a type of battery used to provide backup power to a system in the event of a power outage or other interruption. It is designed to provide a short-term power supply to allow for a safe shutdown of the system or to bridge the gap until a primary power source can be restored.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Backup Battery', 'Emergency Battery', 'Standby Battery', 'Uninterruptible Power Supply (UPS) Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BufferBattery</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##EmergencyBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Emergency Battery is a type of battery used as a backup power source in case of power outages or other emergencies. It is designed to provide power for a short period of time and is often used in critical applications such as hospitals, data centers, and emergency lighting systems.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Backup Battery', 'Standby Battery', 'Uninterruptible Power Supply Battery', 'UPS Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">EmergencyBattery</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##OEMBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Original Equipment Manufacturer (OEM) Battery is a battery designed and manufactured by a company for use in a specific device or product. These batteries are often custom-made to fit the specific requirements of the device and are not intended for general consumer use.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Custom Battery', 'Proprietary Battery', 'Device-Specific Battery', 'Specialty Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">OEMBattery</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ReplacementBattery">
+  <rdfs:subClassOf rdf:resource="#Battery"/>
+  <rdfs:subClassOf rdf:resource="##Battery"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Replacement Battery is a battery designed to replace an original battery in a device. It is typically manufactured by a third-party company and offers similar or improved performance compared to the original battery. Replacement batteries are commonly used in electronic devices such as smartphones, laptops, and power tools.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aftermarket Battery', 'Third-Party Battery', 'Compatible Battery', 'Generic Battery', 'Alternative Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ReplacementBattery</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalCapacitor">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Electrochemical Capacitor is an energy storage device that uses electrochemical processes to store and release energy. It consists of two electrodes (positive and negative) separated by an electrolyte, and can be charged and discharged rapidly, making it suitable for high-power applications. Electrochemical capacitors offer high power density, long cycle life, and low maintenance requirements.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Supercapacitor', 'Electric Double-Layer Capacitor', 'EDLC', 'Pseudocapacitor', 'Hybrid Capacitor']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalCapacitor</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical cell is a device that converts chemical energy into electrical energy through electrochemical reactions. It consists of two electrodes (anode and cathode) and an electrolyte that facilitates the movement of ions between the electrodes. Electrochemical cells are used in batteries, fuel cells, and other energy storage devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Galvanic Cell', 'Voltaic Cell', 'Electrolytic Cell', 'Primary Cell', 'Secondary Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AlkalineZincAirElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Zinc-Air Electrochemical Cell is a type of primary battery that uses zinc as the anode, oxygen from the air as the cathode, and an alkaline electrolyte. It is used in hearing aids, watches, and other small electronic devices, offering high energy density, long shelf life, and low cost.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Zinc-Air Battery', 'Alkaline Air Battery', 'Zinc-Air Cell', 'Alkaline Air Cell', 'Zinc-Oxygen Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineZincAirElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AlkalineZincManganeseDioxideElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##PrimaryElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Zinc-Manganese Dioxide Electrochemical Cell is a primary battery that uses an alkaline electrolyte and a zinc anode, and a manganese dioxide cathode. It is commonly used in consumer electronics and offers a high energy density, long shelf life, and low cost.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Alkaline Zn-MnO2 Cell', 'Alkaline Battery', 'Zinc-Manganese Dioxide Battery', 'Leclanché Cell', 'Zinc Alkaline Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineZincManganeseDioxideElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PrimaryElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#GalvanicElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##GalvanicElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A primary electrochemical cell is a type of battery that is designed to be used once and then discarded. It generates electrical energy through an irreversible chemical reaction, and cannot be recharged. Primary cells are commonly used in small electronic devices, such as remote controls and watches.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Non-rechargeable battery', 'Disposable battery', 'Single-use battery', 'Primary battery', 'Throwaway battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PrimaryElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##GalvanicElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Galvanic Electrochemical Cell is a type of electrochemical cell that converts chemical energy into electrical energy through a spontaneous redox reaction. It consists of two electrodes (anode and cathode) and an electrolyte solution that allows the flow of ions between the electrodes. Galvanic cells are commonly used in batteries and fuel cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Voltaic Cell', 'Daniell Cell', 'Zinc-Copper Cell', 'Redox Cell', 'Spontaneous Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GalvanicElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AqueousElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aqueous Electrochemical Cell is an electrochemical cell that uses an aqueous electrolyte solution. These cells are commonly used in batteries and fuel cells, and offer advantages such as low cost, high safety, and environmental friendliness.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Water-Based Electrochemical Cell', 'Aqueous Battery', 'Aqueous Fuel Cell', 'Water-Based Battery', 'Water-Based Fuel Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AqueousElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AcidicElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##AqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An acidic electrochemical cell is a type of electrochemical cell that operates in an acidic environment. The electrolyte in the cell is an acidic solution, which can be sulfuric acid or hydrochloric acid. These cells are commonly used in lead-acid batteries and other applications where a high power output is required.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Acidic Cell', 'Acid Cell', 'Acidic Battery', 'Acid Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AcidicElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AlkalineElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##AqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Electrochemical Cell is a type of electrochemical cell that uses an alkaline electrolyte, typically potassium hydroxide (KOH), instead of an acidic electrolyte. It is commonly used in consumer electronics, such as flashlights and remote controls, due to its longer shelf life and higher energy density compared to acidic cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Alkaline Cell', 'Alkaline Battery', 'Alkaline Dry Cell', 'Alkaline-Manganese Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NearneutralElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##AqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Near-neutral Electrochemical Cell is an electrochemical cell that operates at a pH close to neutral (pH 6-8). It is used in various applications, including wastewater treatment, desalination, and energy storage. Near-neutral electrochemical cells offer advantages such as high efficiency, low energy consumption, and low environmental impact.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Neutral pH Electrochemical Cell', 'pH 6-8 Electrochemical Cell', 'Low-pH Electrochemical Cell', 'Near-neutral EC', 'Neutral pH EC']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NearneutralElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ConcentrationElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Concentration Electrochemical Cell is a type of electrochemical cell that generates electrical energy from the concentration gradient of two solutions. It consists of two half-cells separated by a semi-permeable membrane, with each half-cell containing a different concentration of the same electrolyte. The concentration gradient drives the flow of ions across the membrane, generating an electrical potential difference.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Concentration Cell', 'Diffusion Cell', 'Gradient Cell', 'Concentration Gradient Cell', 'Concentration Difference Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConcentrationElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ConversionElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Conversion Electrochemical Cell is an electrochemical device that converts chemical energy into electrical energy through a redox reaction. It typically consists of two electrodes and an electrolyte, where the reactants are consumed at the anode and produced at the cathode. Conversion electrochemical cells are used in batteries, fuel cells, and other energy storage devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Conversion Cell', 'Redox Cell', 'Oxidation-Reduction Cell', 'Conversion Battery', 'Redox Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConversionElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrolyticElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrolytic electrochemical cell is a device that uses electrical energy to drive a non-spontaneous chemical reaction. It consists of two electrodes (anode and cathode) and an electrolyte solution that conducts ions between the electrodes. The anode is positively charged and the cathode is negatively charged, and the direction of electron flow is reversed compared to a galvanic cell.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrolysis Cell', 'Electrolytic Cell', 'Electrolytic Reactor', 'Electrolytic Tank']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PhotoelectrolyticElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrolyticElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrolyticElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A photoelectrolytic electrochemical cell is a device that converts light energy into electrical energy through an electrochemical process. It consists of a photoelectrode, an electrolyte, and a counter electrode. The photoelectrode absorbs light and generates electron-hole pairs, which are separated by the electric field and drive the electrochemical reaction in the electrolyte. This type of cell has potential applications in solar energy conversion and storage.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Photoelectrochemical Cell', 'PEC', 'Photoelectrolysis Cell', 'Photoelectrochemical Device']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PhotoelectrolyticElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FuelCell">
+  <rdfs:subClassOf rdf:resource="#GalvanicElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="##GalvanicElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell is an electrochemical device that converts the chemical energy of a fuel (usually hydrogen) and an oxidant (usually oxygen) into electrical energy. Fuel cells offer high efficiency, low emissions, and quiet operation, making them attractive for a variety of applications, including transportation, stationary power generation, and portable electronics.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Fuel Cell', 'Proton Exchange Membrane Fuel Cell', 'PEM Fuel Cell', 'Solid Oxide Fuel Cell', 'SOFC']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FuelCellStack">
+  <rdfs:subClassOf rdf:resource="#FuelCell"/>
+  <rdfs:subClassOf rdf:resource="##FuelCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Stack is a collection of individual fuel cells that are electrically connected in series and/or parallel to produce the desired voltage and power output. Fuel cell stacks are used in a variety of applications, including transportation, stationary power generation, and portable electronics.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Array', 'Fuel Cell Battery', 'Fuel Cell Power Module', 'Fuel Cell Power Pack', 'Fuel Cell Power System']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellStack</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SingleFuelCell">
+  <rdfs:subClassOf rdf:resource="#FuelCell"/>
+  <rdfs:subClassOf rdf:resource="##FuelCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Single Fuel Cell is an electrochemical device that converts the chemical energy of a fuel (usually hydrogen) and an oxidant (usually oxygen) directly into electrical energy. It consists of an anode, a cathode, and an electrolyte, and operates at relatively low temperatures. Single fuel cells are used in portable electronic devices, backup power systems, and small vehicles.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Individual Fuel Cell', 'Portable Fuel Cell', 'Micro Fuel Cell', 'Direct Methanol Fuel Cell', 'DMFC']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SingleFuelCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##LeclancheElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##PrimaryElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Leclanché cell is a primary electrochemical cell that uses a zinc anode, a manganese dioxide cathode, and an ammonium chloride electrolyte. It is commonly used in low-drain applications such as flashlights and toys.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Zinc-Manganese Dioxide Cell', 'Dry Cell', 'Leclanché Battery', 'Ammonium Chloride Cell', 'Zinc-Carbon Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LeclancheElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##LithiumCarbonMonofluorideElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#PrimaryElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##PrimaryElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Lithium-Carbon Monofluoride Electrochemical Cell is a primary battery that uses lithium as the anode, carbon monofluoride as the cathode, and a non-aqueous electrolyte. It has a high energy density and a long shelf life, making it suitable for use in small electronic devices such as calculators, watches, and medical devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Li-CFx Cell', 'Lithium-Carbon Monofluoride Battery', 'Li/CFx Battery', 'Li/CFx Cell', 'Carbon Monofluoride Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LithiumCarbonMonofluorideElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##HybridElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Hybrid Electrochemical Cell is an electrochemical device that combines two or more different types of electrochemical cells to achieve improved performance. It can be a combination of primary and secondary cells, or different types of secondary cells, such as lithium-ion and supercapacitors. Hybrid electrochemical cells offer higher energy density, longer cycle life, and faster charging compared to traditional electrochemical cells.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hybrid Battery', 'Combined Electrochemical Cell', 'Multi-Electrochemical Cell', 'Mixed Electrochemical Cell', 'Hybrid Supercapacitor']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HybridElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##IntercalationElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Intercalation Electrochemical Cell is a type of rechargeable battery that uses intercalation compounds as the active material in the electrodes. During charging and discharging, lithium ions are inserted and extracted from the intercalation compound, resulting in the flow of electrical current. Intercalation Electrochemical Cells have high energy density and long cycle life, making them suitable for use in portable electronic devices and electric vehicles.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Intercalation Battery', 'Lithium-ion Battery', 'Li-ion Battery', 'Rechargeable Battery', 'Secondary Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IntercalationElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##LithiumElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#IntercalationElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="#SecondaryElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##IntercalationElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##SecondaryElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Lithium Electrochemical Cell is a type of battery that uses lithium as the primary active material in both the anode and cathode. It offers high energy density, long cycle life, and low self-discharge rate, making it suitable for various applications, including portable electronics, electric vehicles, and grid storage.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Lithium Battery', 'Li-ion Battery', 'Li-Polymer Battery', 'Lithium-Ion Cell', 'Li-S Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LithiumElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SecondaryElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A secondary electrochemical cell is a type of battery that can be recharged by passing a current through it in the opposite direction of its discharge. It is also known as a rechargeable battery and is commonly used in portable electronic devices, electric vehicles, and renewable energy systems.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Rechargeable Battery', 'Storage Battery', 'Secondary Battery', 'Accumulator']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SecondaryElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##MetalAirElectrodeElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Metal-Air Electrode Electrochemical Cell is a type of battery that uses a metal anode and an air cathode to generate electrical energy. The anode is typically made of zinc, aluminum, or lithium, while the cathode is exposed to air, which provides oxygen for the electrochemical reaction. Metal-air batteries have high energy density and are used in applications such as electric vehicles and portable electronics.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Metal-Air Battery', 'Air Cathode Battery', 'Zinc-Air Battery', 'Aluminum-Air Battery', 'Lithium-Air Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MetalAirElectrodeElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NonAqueousElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A non-aqueous electrochemical cell is a type of electrochemical cell that uses a non-aqueous electrolyte, typically an organic solvent, to transport ions between the electrodes. These cells are commonly used in high-energy-density applications, such as in electric vehicles and portable electronics.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Organic Electrochemical Cell', 'Non-Aqueous Battery', 'Non-Aqueous Lithium Battery', 'Non-Aqueous Secondary Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonAqueousElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##LihtiumElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#NonAqueousElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##NonAqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Lithium Electrochemical Cell is a type of battery that uses lithium as the primary active material for both the anode and cathode. It is commonly used in portable electronic devices and electric vehicles due to its high energy density and long cycle life.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Lithium Battery', 'Li-ion Battery', 'Li-Polymer Battery', 'Lithium Ion Cell', 'Lithium Polymer Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LihtiumElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##MoltenSaltElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#NonAqueousElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##NonAqueousElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Molten Salt Electrochemical Cell is an electrochemical cell that uses a molten salt as the electrolyte. It operates at high temperatures and is used in high-temperature applications such as nuclear reactors and metal production. Molten salt electrolytes offer high ionic conductivity and can be used with a variety of electrode materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['High-Temperature Molten Salt Cell', 'Molten Salt Battery', 'Molten Salt Electrolyte Cell', 'High-Temperature Electrochemical Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MoltenSaltElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SolidElectrolyteElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Solid Electrolyte Electrochemical Cell is a type of secondary electrochemical cell that uses a solid electrolyte instead of a liquid or gel electrolyte. Solid electrolytes offer improved safety, stability, and energy density compared to liquid electrolytes. They are used in various applications, including batteries, fuel cells, and sensors.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Solid-State Electrochemical Cell', 'Solid-State Battery', 'Solid-State Fuel Cell', 'Solid-State Sensor', 'Solid Polymer Electrolyte Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidElectrolyteElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ThermoElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Thermo-Electrochemical Cell is an electrochemical device that converts thermal energy into electrical energy. It operates based on the Seebeck effect, which generates a voltage difference between two dissimilar materials when they are exposed to a temperature gradient. Thermo-electrochemical cells have potential applications in waste heat recovery and thermoelectric power generation.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Thermocell', 'Thermo-Electric Cell', 'Seebeck Cell', 'Thermal Battery']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ThermoElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ThreeElectrodeElectrochemicalCell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalCell"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalCell"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Three-Electrode Electrochemical Cell is an electrochemical setup consisting of three electrodes: a working electrode, a reference electrode, and a counter electrode. It is used for electrochemical measurements and analysis, such as cyclic voltammetry and electrochemical impedance spectroscopy.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['3-Electrode Electrochemical Cell', 'Three-Electrode Cell', 'Working-Reference-Counter Electrode Cell', '3EC', 'TET Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ThreeElectrodeElectrochemicalCell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalHalfcell">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalDevice"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalDevice"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical half-cell is a component of an electrochemical cell that consists of a single electrode and an electrolyte. It is used to measure the potential of a single electrode and is often used in electrochemical experiments and studies.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Half-Cell', 'Single Electrode Cell', 'Electrode-Electrolyte Half-Cell', 'Reference Half-Cell', 'Working Half-Cell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalHalfcell</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Subcomponent">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <rdfs:subClassOf rdf:resource="##Manufactured"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a smaller component that is part of a larger electrochemical device or system. It can be a single electrode, a membrane, or a catalyst layer, among others. Subcomponents are designed to perform specific functions and are assembled together to form a complete electrochemical device.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Subsystem', 'Electrochemical Building Block', 'Electrochemical Unit', 'Electrochemical Element', 'Electrochemical Part']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Subcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectrochemicalSubcomponent">
+  <rdfs:subClassOf rdf:resource="#Subcomponent"/>
+  <rdfs:subClassOf rdf:resource="##Subcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a component of an electrochemical device that performs a specific electrochemical function. Examples include electrodes, membranes, and catalyst layers.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Component Subunit', 'Electrochemical Device Subcomponent', 'Electrochemical Unit Component', 'Electrochemical Building Block']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectricCurrentCollector">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Electric Current Collector is a subcomponent of an electrochemical device that collects and conducts electrical current from the active electrode material to the external circuit. It is typically made of a conductive material, such as metal, and is designed to minimize resistance and maximize current flow.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Current Collector', 'Electrical Collector', 'Conductive Collector', 'Electrode Collector', 'Current Collector Subcomponent']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectricCurrentCollector</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FuelCellSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Subcomponent is a part of a fuel cell that performs a specific function in the electrochemical reaction. Examples include the anode, cathode, and membrane electrode assembly (MEA).</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Component', 'Fuel Cell Part', 'Fuel Cell Element', 'Fuel Cell Layer', 'Fuel Cell Unit']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ElectronicSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electronic subcomponent is a component of an electrochemical device that is responsible for the electronic conduction of the device. It includes components such as conductive wires, connectors, and electronic circuits that are used to connect the electrochemical components and to control the flow of electrons in the device.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electronic Component', 'Electrical Subcomponent', 'Conductive Subcomponent', 'Electricity Conduction Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectronicSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CurrentCollector">
+  <rdfs:subClassOf rdf:resource="#ElectronicSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectronicSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A current collector is an electrochemical subcomponent that collects and conducts electrical current from an electrode or cell. It is typically made of a conductive material, such as metal, and is used in batteries, fuel cells, and other electrochemical devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrical Current Collector', 'Conductive Collector', 'Current Collector Subcomponent', 'Electrode Current Collector']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CurrentCollector</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BipolarPlate">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Bipolar Plate is a key component of a fuel cell, used to connect individual cells in a stack and to distribute reactant gases and coolant. It is typically made of a conductive material, such as graphite, metal, or carbon composite, and may be coated with a catalyst layer to enhance electrochemical reactions.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Bipolar Plate', 'Stack Connector Plate', 'Gas Distributor Plate', 'Current Collector Plate', 'BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CoatedMetallicBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##BipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Coated Metallic Bipolar Plate is a fuel cell component that is made of a metallic substrate, such as stainless steel or titanium, coated with a thin layer of a conductive material, such as graphite or carbon. The coating provides improved electrical conductivity and corrosion resistance, while the metallic substrate provides mechanical strength and durability.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Metallic Bipolar Plate Coated with Graphite', 'Graphite-Coated Metallic Bipolar Plate', 'Carbon-Coated Metallic Bipolar Plate', 'Metallic Substrate Coated with Conductive Material', 'Coated Metal Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CoatedMetallicBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedCoatedMetallicBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Coated Metallic Bipolar Plate is an electrochemical cell component used in fuel cells, consisting of an aluminium substrate coated with a thin layer of a conductive material such as graphite or carbon. It is used to conduct electricity and to separate reactant gases in fuel cells, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aluminum-Based Coated Metallic Bipolar Plate', 'Aluminum-Coated Graphite Bipolar Plate', 'Aluminum-Carbon Composite Bipolar Plate', 'Aluminum-Graphite Composite Bipolar Plate', 'Aluminum-Graphite Coated Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedCoatedMetallicBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Carbon-Based Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Carbon Coated Bipolar Plate', 'Aluminium-Carbon Coated Bipolar Plate', 'Al-C Coated BPP', 'Carbon-Coated Aluminium Bipolar Plate', 'Al-Carbon Composite Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedCarbonBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedCoductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Conductive Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a conductive polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aluminum Conductive Polymer Coated Bipolar Plate', 'Aluminum-CPP Coated Bipolar Plate', 'Aluminum-Based Conductive Polymer BPP', 'Al-CPP BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedCoductivePolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedDiamondLikeCarbonCoatedBipolatPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Diamond-Like Carbon Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a diamond-like carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-DLC Coated Bipolar Plate', 'Aluminium-DLC Coated Bipolar Plate', 'Al-Diamond-Like Carbon Bipolar Plate', 'Al-DLC BPP', 'DLC-coated Al Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedDiamondLikeCarbonCoatedBipolatPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Graphite Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a graphite layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Graphite Coated Bipolar Plate', 'Al-Gr BPP', 'Graphite-Coated Al Bipolar Plate', 'Aluminium-Graphite Composite Bipolar Plate', 'Al-Gr Composite BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedGraphiteCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedOrganicSelfAssemblyMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Organic Self-Assembly Mono/Polymer Coated Bipolar Plate is an electrochemical cell component consisting of an aluminium substrate coated with a self-assembled monolayer or polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aluminium-Based Organic Self-Assembly Coated Bipolar Plate', 'Aluminium-Based OSA Mono/Polymer Coated BPP', 'Aluminium-Based Self-Assembled Monolayer Coated Bipolar Plate', 'Aluminium-Based SAM Coated BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedOrganicSelfAssemblyMonoPolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedCoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedCoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Metal-Based Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a metal-based layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Metal Coated Bipolar Plate', 'Aluminium-Metal Coated Bipolar Plate', 'Al-Metal BPP', 'Metal-Coated Al Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedMetalBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Metal Carbide Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a metal carbide layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Metal Carbide Coated Bipolar Plate', 'Al-Metal Carbide BPP', 'Aluminium Carbide Coated Bipolar Plate', 'Al-Carbide Coated BPP', 'Metal Carbide Coated Aluminium Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedMetalCarbideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedMetalNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Metal Nitride Coated Bipolar Plate is an electrochemical cell component consisting of an aluminium substrate coated with a metal nitride layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Aluminum Nitride Coated Bipolar Plate', 'Aluminum-Based Nitride Coated Bipolar Plate', 'Aluminum-Metal Nitride Coated Bipolar Plate', 'Aluminum Nitride BPP', 'Aluminum Nitride-Metal Coated Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedMetalNitrideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##AluminiumBasedNobelMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##AluminiumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Aluminium-Based Noble Metal Coated Bipolar Plate is an electrochemical cell component, consisting of an aluminium substrate coated with a noble metal layer (such as platinum, gold, or palladium). It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Al-Noble Metal Coated Bipolar Plate', 'Al-NM Coated BPP', 'Aluminium-Based Precious Metal Coated Bipolar Plate', 'Al-Precious Metal Coated BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AluminiumBasedNobelMetalCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate. It is used in fuel cells and batteries, offering good electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni Bipolar Plate', 'Nickel BPP', 'Nickel Substrate Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Carbon-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-C Coated Bipolar Plate', 'Nickel-Carbon Coated Bipolar Plate', 'Ni-Carbon BPP', 'Carbon-coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedCarbonBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Conductive Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a conductive polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Conductive Polymer Coated Bipolar Plate', 'Nickel-Conductive Polymer Coated Bipolar Plate', 'Ni-CP Coated Bipolar Plate', 'Conductive Polymer Coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedConductivePolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Diamond-Like Carbon Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a diamond-like carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-DLC Coated Bipolar Plate', 'Nickel-DLC Coated Bipolar Plate', 'Ni-Diamond-Like Carbon Bipolar Plate', 'Ni-DLC BPP', 'DLC-coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedDiamondLikeCarbonCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Graphite Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a graphite layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Graphite Coated Bipolar Plate', 'Nickel-Graphite Coated Bipolar Plate', 'Ni-Gr BPP', 'Graphite-coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedGraphiteCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Organic Self-Assemble Mono-Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a self-assembled monolayer (SAM) of organic polymers. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-OSAM Coated Bipolar Plate', 'Nickel-Organic SAM Coated Bipolar Plate', 'Ni-Self-Assemble Mono-Polymer BPP', 'SAM-coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Metal-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a metal-based layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Metal Coated Bipolar Plate', 'Nickel-Metal Coated Bipolar Plate', 'Ni-Metallic Coated Bipolar Plate', 'Nickel-Metallic Coated Bipolar Plate', 'Ni-Metal Alloy Coated Bipolar Plate', 'Nickel-Metal Alloy Coated Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedMetalBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Metal Carbide Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a metal carbide layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Metal Carbide Coated Bipolar Plate', 'Nickel-Metal Carbide Coated Bipolar Plate', 'Ni-MC Coated BPP', 'Metal Carbide Coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedMetalCarbideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedMetalNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Metal Nitride Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a metal nitride layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Metal Nitride Coated Bipolar Plate', 'Nickel-Metal Nitride Coated Bipolar Plate', 'Ni-Metal Nitride BPP', 'Metal Nitride Coated Ni Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedMetalNitrideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NickelBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##NickelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Nickel-Based Noble Metal Coated Bipolar Plate is an electrochemical cell component, consisting of a nickel substrate coated with a thin layer of noble metal (such as platinum, gold, or palladium). It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ni-Noble Metal Coated Bipolar Plate', 'Nickel-Noble Metal Coated Bipolar Plate', 'Ni-Pt Coated Bipolar Plate', 'Ni-Au Coated Bipolar Plate', 'Ni-Pd Coated Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NickelBasedNobleMetalCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedBiploarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate. It is used in fuel cells and batteries, offering improved mechanical properties and corrosion resistance compared to other materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Based Bipolar Plate', 'Stainless Steel BPP', 'Stainless Steel Electrode Plate', 'Stainless Steel Current Collector', 'SS-Current Collector']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedBiploarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedBiploarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedBiploarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Carbon-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Carbon Coated Bipolar Plate', 'Stainless Steel-Carbon Coated Bipolar Plate', 'SS-Carbon BPP', 'Carbon-Coated Stainless Steel Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedCarbonBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Conductive Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a conductive polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Based Conductive Polymer Coated Bipolar Plate', 'Stainless Steel-Based Conductive Polymer BPP', 'Stainless Steel-Based Conductive Polymer Electrode', 'Stainless Steel-Based Conductive Polymer Coated Electrode']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedConductivePolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Diamond-Like Carbon Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a diamond-like carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-DLC Coated Bipolar Plate', 'Stainless Steel-DLC Coated Bipolar Plate', 'SS-Diamond-Like Carbon Bipolar Plate', 'SS-DLC BPP', 'DLC-coated SS Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedDiamondLikeCarbonCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedGraphiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Graphite Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a graphite layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Graphite Coated Bipolar Plate', 'Stainless Steel-Graphite Bipolar Plate', 'Stainless Steel-Based Graphite BPP', 'Graphite-Coated SS Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedGraphiteCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Organic Self-Assemble Mono-Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a self-assembled monolayer of organic polymers. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Based OSM Coated Bipolar Plate', 'Stainless Steel-Based Self-Assembled Monolayer Coated Bipolar Plate', 'SS-OSM BPP', 'Organic Monolayer Coated SS Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedBiploarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedBiploarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Metal-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a metal layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Metal Coated Bipolar Plate', 'Stainless Steel-Metal Coated Bipolar Plate', 'Stainless Steel-Based Metal Coated BPP', 'Metal-SS Coated Bipolar Plate', 'Metallic Coated Stainless Steel Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedMetalBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedMetalCarbidCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Metal Carbide Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a metal carbide layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Metal Carbide Coated Bipolar Plate', 'Stainless Steel-Metal Carbide BPP', 'Stainless Steel Carbide Coated Bipolar Plate', 'Metal Carbide Coated SS Bipolar Plate', 'SS-Metal Carbide BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedMetalCarbidCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedMetalNitrideCoatedBiploarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Metal Nitride Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a metal nitride layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS Metal Nitride Coated Bipolar Plate', 'Stainless Steel Nitride Coated BPP', 'Stainless Steel-Based Nitride Coated Electrode', 'SS-Metal-Nitride BPP', 'Metal Nitride Coated Stainless Steel Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedMetalNitrideCoatedBiploarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StainlessSteelBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##StainlessSteelBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Stainless Steel-Based Noble Metal Coated Bipolar Plate is an electrochemical cell component, consisting of a stainless steel substrate coated with a noble metal layer (such as platinum or gold). It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SS-Based Noble Metal Coated Bipolar Plate', 'Stainless Steel-Based Noble Metal BPP', 'Stainless Steel-Based Noble Metal Coated Electrode', 'Stainless Steel-Based Noble Metal Coated Current Collector']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StainlessSteelBasedNobleMetalCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CoatedMetallicBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CoatedMetallicBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Bipolar Plate is an electrochemical cell component made of titanium and used in fuel cells and batteries. It offers high corrosion resistance, low weight, and good mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Based Bipolar Plate', 'Titanium Bipolar Plate', 'Titanium Alloy Bipolar Plate', 'Ti-BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedCarbonBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Carbon-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Carbon Coated Bipolar Plate', 'Titanium-Carbon Coated Bipolar Plate', 'Ti-C Coated BPP', 'Carbon-Coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedCarbonBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedConductivePolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Conductive Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a conductive polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Conductive Polymer Coated Bipolar Plate', 'Titanium Conductive Polymer BPP', 'Ti-CPP', 'Conductive Polymer Coated Titanium Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedConductivePolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedDiamondLikeCarbonCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Diamond-Like Carbon Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a diamond-like carbon layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-DLC Coated Bipolar Plate', 'Titanium-DLC Coated Bipolar Plate', 'Ti-Diamond-Like Carbon Bipolar Plate', 'Ti-DLC BPP', 'DLC-coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedDiamondLikeCarbonCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedGraohiteCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Graphite Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a graphite layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Graphite Coated Bipolar Plate', 'Titanium-Graphite Coated Bipolar Plate', 'Ti-Gr BPP', 'Graphite-coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedGraohiteCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedCarbonBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Organic Self-Assembled Mono/Polymer Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a self-assembled monolayer or polymer layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-OSAM/P Coated Bipolar Plate', 'Titanium-Based Self-Assembled Monolayer/Polymer Coated Bipolar Plate', 'Ti-Organic Self-Assembled Mono/Polymer BPP', 'Ti-OSAM/P BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedOrganicSelfAssembleMonoPolymerCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedMetalBasedCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Metal-Based Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a metal layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Metal Coated Bipolar Plate', 'Titanium-Metal Coated Bipolar Plate', 'Ti-Metal BPP', 'Metal-Coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedMetalBasedCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedMetalCarbideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Metal Carbide Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a metal carbide layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Metal Carbide Coated Bipolar Plate', 'Titanium Carbide Coated Bipolar Plate', 'TiC Coated Bipolar Plate', 'Titanium-Based Carbide BPP', 'Metal Carbide Coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedMetalCarbideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedMtealNitrideCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Metal Nitride Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a metal nitride layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Metal Nitride Coated Bipolar Plate', 'Titanium Nitride Coated Bipolar Plate', 'Ti-Based Nitride Coated BPP', 'Metal Nitride Coated Ti Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedMtealNitrideCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##TitaniumBasedNobleMetalCoatedBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##TitaniumBasedMetalBasedCoatedBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Titanium-Based Noble Metal Coated Bipolar Plate is an electrochemical cell component, consisting of a titanium substrate coated with a noble metal layer. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ti-Noble Metal Coated Bipolar Plate', 'Titanium-Noble Metal Coated Bipolar Plate', 'Ti-Based Noble Metal Coated BPP', 'Noble Metal Coated Titanium Bipolar Plate', 'Ti-NM BPP']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TitaniumBasedNobleMetalCoatedBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##BipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Composite Bipolar Plate is an electrochemical cell component, consisting of a composite material that combines two or more materials, such as graphite, carbon, metals, or polymers. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties compared to traditional bipolar plates.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Composite Material Bipolar Plate', 'Hybrid Bipolar Plate', 'Multi-Material Bipolar Plate', 'Graphite-Polymer Composite Bipolar Plate', 'Carbon-Metal Composite Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CompositeBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CarbonBasedCompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CompositeBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CompositeBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Carbon-Based Composite Bipolar Plate is an electrochemical cell component, consisting of a carbon-based substrate reinforced with a composite material. It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['CBC Bipolar Plate', 'Carbon Composite Bipolar Plate', 'Carbon Fiber Reinforced Bipolar Plate', 'Carbon Composite BPP', 'Composite Carbon Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CarbonBasedCompositeBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##MetalBasedCompositeBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#CompositeBipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##CompositeBipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Metal-Based Composite Bipolar Plate is an electrochemical cell component, consisting of a metal substrate (such as aluminum, nickel, or titanium) reinforced with a composite material (such as carbon fiber or graphite). It is used in fuel cells and batteries, offering improved electrical conductivity, corrosion resistance, and mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Metal-Composite Bipolar Plate', 'Metal-Reinforced Composite Bipolar Plate', 'Metal-Graphite Composite Bipolar Plate', 'Metal-Carbon Fiber Composite Bipolar Plate', 'Metal-Matrix Composite Bipolar Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MetalBasedCompositeBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##NonPorousGraphiteBipolarPlate">
+  <rdfs:subClassOf rdf:resource="#BipolarPlate"/>
+  <rdfs:subClassOf rdf:resource="##BipolarPlate"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Non-Porous Graphite Bipolar Plate is an electrochemical cell component made of graphite, used in fuel cells and batteries. It is designed to be gas-tight and prevent reactant crossover between adjacent cells. Non-porous graphite bipolar plates offer high electrical conductivity, corrosion resistance, and low cost.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Non-Permeable Graphite Bipolar Plate', 'Gas-Tight Graphite Bipolar Plate', 'Non-Porous Graphite BPP', 'Graphite Separator Plate', 'Graphite Flow Field Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonPorousGraphiteBipolarPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CoolingPlate">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Cooling Plate is a component of a fuel cell or battery that helps to dissipate heat generated during operation. It is typically made of a thermally conductive material, such as aluminum or copper, and is designed to efficiently transfer heat away from the electrochemical components.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Heat Dissipation Plate', 'Thermal Management Plate', 'Thermal Conductive Plate', 'Cooling System Plate', 'Heat Sink Plate']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CoolingPlate</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##GasDiffusionLayer">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Gas Diffusion Layer (GDL) is a porous, conductive material used in fuel cells to facilitate the transport of reactant gases to the catalyst layer and the removal of product gases from the cell. GDLs are typically made of carbon fibers or paper and are coated with a hydrophobic layer to prevent flooding.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Gas Diffusion Layer', 'Porous Gas Diffusion Layer', 'Carbon Paper Gas Diffusion Layer', 'GDL', 'Hydrophobic Gas Diffusion Layer']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GasDiffusionLayer</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ClothGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+  <rdfs:subClassOf rdf:resource="##GasDiffusionLayer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Cloth Gas Diffusion Layer (GDL) is a porous, fibrous material used in fuel cells to facilitate the transport of reactant gases to the catalyst layer and the removal of product gases from the cell. It is made of carbon fibers or other conductive materials and offers high gas permeability, low electrical resistance, and good mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Carbon Cloth GDL', 'Fibrous GDL', 'Porous Cloth Electrode', 'Gas Diffusion Electrode Cloth', 'Carbon Fiber Cloth GDL']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ClothGDL</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FeltGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+  <rdfs:subClassOf rdf:resource="##GasDiffusionLayer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Felt Gas Diffusion Layer (GDL) is a porous, fibrous material used in fuel cells to facilitate the transport of reactants and products between the electrodes and the electrolyte. It is made of carbon fibers or other conductive materials and offers high porosity, low electrical resistance, and good mechanical properties.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Carbon Felt GDL', 'Carbon Fiber Felt GDL', 'Fibrous GDL', 'Porous Felt GDL']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FeltGDL</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PaperGDL">
+  <rdfs:subClassOf rdf:resource="#GasDiffusionLayer"/>
+  <rdfs:subClassOf rdf:resource="##GasDiffusionLayer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Paper Gas Diffusion Layer (GDL) is a porous, fibrous material used in fuel cells to facilitate the transport of reactant gases to the catalyst layer and the removal of product water. It is made of carbon fibers and/or other materials, and is typically coated with a hydrophobic polymer to improve water management.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Carbon Paper GDL', 'Fuel Cell Paper GDL', 'Carbon Fiber Paper GDL', 'Porous Carbon Paper']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PaperGDL</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Seal">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A seal is a component used to prevent leakage of fluids or gases in an electrochemical device. It is typically made of a flexible material, such as rubber or plastic, and is placed between two surfaces to create a tight seal.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gasket', 'O-ring', 'Sealing Ring', 'Sealing Gasket', 'Fluid Seal']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seal</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Station">
+  <rdfs:subClassOf rdf:resource="#FuelCellSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##FuelCellSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A station is a facility that houses equipment for the production, storage, and distribution of hydrogen. It is used for refueling hydrogen fuel cell vehicles and other applications that require hydrogen gas.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Station', 'H2 Station', 'Fueling Station', 'Hydrogen Refueling Station', 'Hydrogen Fueling Station']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Station</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##IonicSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Ionic Subcomponent is a component of an electrochemical device that is responsible for the transport of ions between the anode and cathode. Examples include the electrolyte in a battery or fuel cell, or the ion-conducting membrane in a membrane electrode assembly.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ion Transport Subcomponent', 'Ionic Transport Component', 'Ion-Conducting Subcomponent', 'Ionic Conductor', 'Ion-Transporting Material']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##ReactiveSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A reactive subcomponent is a component that participates in the electrochemical reaction of an electrochemical device. It can be an electrode, a catalyst, or an electrolyte. Reactive subcomponents are essential for the functioning of electrochemical devices.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemically Active Subcomponent', 'Active Subcomponent', 'Reactive Component', 'Electrochemically Active Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ReactiveSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##StructuralSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##ElectrochemicalSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Structural Subcomponent is a component of an electrochemical device that provides mechanical support and stability to the device. It is typically made of a strong and durable material, such as metal or ceramic, and is designed to withstand the stresses and strains of the device's operation.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Mechanical Subcomponent', 'Support Subcomponent', 'Structural Component', 'Mechanical Component', 'Support Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StructuralSubcomponent</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##BatteryCellContainer">
+  <rdfs:subClassOf rdf:resource="#StructuralSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##StructuralSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Battery Cell Container is a structural subcomponent that houses the battery cell components, including the electrodes, electrolyte, and separator. It provides mechanical support and protection to the cell components and can be made of various materials, such as metal, plastic, or composite materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Battery Housing', 'Cell Enclosure', 'Battery Casing', 'Cell Container', 'Battery Shell']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BatteryCellContainer</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CoinCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Coin Cell Housing is a container used to hold a coin cell battery. It is typically made of metal or plastic and has a positive and negative terminal for electrical connections. The housing provides mechanical support and protection for the battery.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Coin Cell Casing', 'Coin Cell Enclosure', 'Button Cell Housing', 'Coin Cell Holder']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CoinCellHousing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##CylindricalCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A cylindrical cell housing is a container used to hold cylindrical battery cells. It is typically made of metal or plastic and provides mechanical support and protection for the cell. The housing also contains the necessary electrical contacts for the cell.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Cylindrical Battery Cell Container', 'Cylindrical Battery Can', 'Cylindrical Battery Housing']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CylindricalCellHousing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##FuelCellStation">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Station is a facility that provides hydrogen fuel for fuel cell vehicles. It typically includes a hydrogen production system, storage tanks, and dispensing equipment. Fuel cell stations are important for the development of a hydrogen economy and the widespread adoption of fuel cell vehicles.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Fueling Station', 'Hydrogen Refueling Station', 'H2 Station', 'Fuel Cell Refueling Station', 'Hydrogen Dispensing Station']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellStation</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PouchCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Pouch Cell Housing is a container used to hold and protect a pouch cell battery. It is typically made of a flexible material such as aluminum or plastic and is designed to be lightweight and durable. The housing provides a barrier against external elements and helps to maintain the integrity of the battery.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Pouch Cell Enclosure', 'Flexible Battery Housing', 'Pouch Cell Casing', 'Pouch Cell Wrapper']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PouchCellHousing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##PrismaticCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Prismatic Cell Housing is a container used to hold prismatic cells in a battery pack. It is typically made of a lightweight and durable material, such as plastic or aluminum, and is designed to protect the cells from damage and provide structural support to the battery pack.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Prismatic Cell Enclosure', 'Prismatic Battery Case', 'Rectangular Cell Housing']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PrismaticCellHousing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##SwagelokCellHousing">
+  <rdfs:subClassOf rdf:resource="#BatteryCellContainer"/>
+  <rdfs:subClassOf rdf:resource="##BatteryCellContainer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Swagelok Cell Housing is a type of cell housing used in electrochemical cells, particularly in fuel cells. It is a cylindrical container made of stainless steel, with Swagelok fittings for gas inlets and outlets. The Swagelok fittings provide a secure and leak-tight seal, ensuring safe and efficient operation of the cell.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Swagelok Fuel Cell Housing', 'Swagelok Electrochemical Cell Housing', 'Stainless Steel Swagelok Cell Housing', 'Swagelok Gas Tight Cell Housing']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SwagelokCellHousing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="##Binder">
+  <rdfs:subClassOf rdf:resource="#StructuralSubcomponent"/>
+  <rdfs:subClassOf rdf:resource="##StructuralSubcomponent"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A binder is a material used in the manufacture of electrodes for batteries and fuel cells. It is used to hold the active material particles together and to attach them to the current collector. Binders can be organic or inorganic and are typically chosen for their adhesive properties, mechanical strength, and chemical stability.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrode Binder', 'Battery Binder', 'Fuel Cell Binder', 'Active Material Binder']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Binder</onto_name>
+</owl:Class>
+
+
+</rdf:RDF>

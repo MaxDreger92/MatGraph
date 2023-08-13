@@ -1,0 +1,1 @@
+WITH DISTINCT  node1,  node3,  node2,  node4, apoc.coll.toSet(apoc.coll.flatten([collect(nodes( path_node1)), collect(nodes( path_node3))]))

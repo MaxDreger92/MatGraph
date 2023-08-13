@@ -1,0 +1,13 @@
+Wotzka/
+venv/
+.idea/
+out/
+.env
+source/
+MatGraphAI/docs/
+MatGraphAI/frontend/node_modules/
+*.log
+.gitignore
+/MatGraphAI/frontend/public/
+/MatGraphAI/frontend/node_modules/
+/MatGraphAI/frontend/build/

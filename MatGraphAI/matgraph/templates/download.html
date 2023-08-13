@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Upload CSV - Data App{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Download Data</h1>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form method="get" action="/select-data" enctype="multipart/form-data" id="downloadForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="data_type">Select Data Type:</label>
+                <select name="data_type" class="form-control" id="data_type" required>
+                    <option value="">Choose a data type</option>
+                    <option value="measurement">Measurement Data</option>
+                    <option value="materials">Materials Data</option>
+                    <option value="simulation">Simulation Data</option>
+                    <option value="fabrication">Fabrication Data</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Next</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const downloadForm = document.getElementById("downloadForm");
+      const dataTypeSelect = document.getElementById("data_type");
+
+      downloadForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const selectedDataType = dataTypeSelect.value;
+        if (selectedDataType === 'measurement') {
+          window.location.href = "/measurement-query";
+        } else {
+          // Add logic for other data types if needed
+        }
+      });
+    });
+</script>
+{% endblock %}
+
