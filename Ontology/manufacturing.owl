@@ -1,0 +1,389 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.example.com/manufacturing"
+         xmlns="http://www.example.com/manufacturing#">
+
+<owl:Ontology rdf:about="http://www.example.com/manufacturing"/>
+
+<owl:AnnotationProperty rdf:about="#alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="#onto_name">
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:AnnotationProperty>
+
+<owl:AnnotationProperty rdf:about="#alternative_label">
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:AnnotationProperty>
+
+<owl:Class rdf:about="#Process">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">In the context of hydrogen technologies, a process refers to a series of steps or operations that are carried out to produce, store, or utilize hydrogen. These steps may include hydrogen production, purification, compression, storage, transportation, and utilization. Processes can be optimized to improve efficiency, reduce costs, and minimize environmental impact.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Process</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Process', 'Hydrogen Production Process', 'Hydrogen Utilization Process', 'Hydrogen Storage Process', 'Hydrogen Compression Process']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenProductionProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenUtilizationProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenStorageProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenCompressionProcess</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Manufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Process"/>
+  <rdfs:subClassOf rdf:resource="#Process"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufacturing</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufacturing is the process of converting raw materials into finished products through various physical, chemical, and mechanical processes. In the context of hydrogen technologies, manufacturing involves the production of components such as fuel cells, electrolyzers, and hydrogen storage tanks, as well as the assembly of these components into complete systems.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Production', 'Fabrication', 'Assembly', 'Manufacturing Processes', 'Hydrogen Component Manufacturing']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Production</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Assembly</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ManufacturingProcesses</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenComponentManufacturing</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#AdditiveManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Manufacturing"/>
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Additive Manufacturing (AM) is a manufacturing process that creates three-dimensional objects by adding successive layers of material. It is used in the production of complex geometries and structures, including fuel cell components, such as bipolar plates and electrolyte membranes.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdditiveManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['3D Printing', 'Layered Manufacturing', 'Additive Fabrication', 'Additive Processes', 'Additive Techniques']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3DPrinting</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LayeredManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdditiveFabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdditiveProcesses</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdditiveTechniques</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#ComponentManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Manufacturing"/>
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Component manufacturing is the process of producing individual parts or components that are used in the assembly of larger systems or products. In the context of hydrogen technologies, component manufacturing involves the production of various components such as fuel cell stacks, electrolyzers, and hydrogen storage tanks.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Part Manufacturing', 'Component Production', 'Component Fabrication', 'Component Assembly', 'Component Machining']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PartManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentFabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentAssembly</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentMachining</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#CCLManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#ComponentManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#ComponentManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCL Manufacturing refers to the process of manufacturing Copper-Clad Laminates (CCLs), which are composite materials used as the substrate for printed circuit boards (PCBs). CCLs are made by bonding a layer of copper foil onto a substrate material, such as fiberglass or paper, using heat and pressure. The resulting material is then used to fabricate PCBs.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCLManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Copper-Clad Laminate Manufacturing', 'CCL Production', 'Copper Clad Substrate Manufacturing', 'Copper Clad Board Manufacturing']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CopperCladLaminateManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCLProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CopperCladSubstrateManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CopperCladBoardManufacturing</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellAssembly">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#ComponentManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#ComponentManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Assembly is a complete fuel cell system that includes all the necessary components for generating electrical power from a fuel source. It typically consists of a fuel cell stack, fuel processing system, thermal management system, and power conditioning system. Fuel cell assemblies are used in a variety of applications, including transportation, stationary power generation, and portable power.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellAssembly</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell System', 'Fuel Cell Power Plant', 'Fuel Cell Generator', 'Fuel Cell Pack', 'Fuel Cell Unit']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellSystem</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellPowerPlant</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellGenerator</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellPack</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellUnit</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#MEAManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#ComponentManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#ComponentManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEA Manufacturing is the process of producing Membrane Electrode Assemblies (MEAs), which are key components of fuel cells. The process involves the application of catalyst ink onto a membrane, followed by the addition of gas diffusion layers and the lamination of the assembly. MEA manufacturing requires precise control of materials and processes to ensure high performance and durability of the final product.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['MEA Production', 'Fuel Cell MEA Manufacturing', 'Proton Exchange Membrane Assembly Manufacturing', 'PEM Assembly Production']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellMEAManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProtonExchangeMembraneAssemblyManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PEMAssemblyProduction</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#CCMManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#MEAManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#MEAManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCM Manufacturing refers to the process of manufacturing a Catalyst Coated Membrane (CCM), which is a key component of a fuel cell. It involves depositing a thin layer of catalyst onto an ion-conducting membrane, which facilitates the electrochemical reactions that convert chemical energy into electrical energy in fuel cells.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCMManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['CCM Production', 'Catalyst Coated Membrane Manufacturing', 'Fuel Cell CCM Manufacturing', 'Ion-Conducting Membrane Coating']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCMProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystCoatedMembraneManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellCCMManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonConductingMembraneCoating</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#5LayerMEAManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#MEAManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#MEAManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5-Layer MEA Manufacturing is a process of producing a Membrane Electrode Assembly (MEA) for fuel cells, consisting of five layers: a catalyst-coated membrane, two gas diffusion layers, and two microporous layers. This type of MEA offers improved performance and durability in fuel cells.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5LayerMEAManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Five-Layer MEA Manufacturing', 'High-Performance MEA Manufacturing', 'MEA with Five Layers', '5-Layered Fuel Cell Membrane Electrode Assembly Manufacturing']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FiveLayerMEAManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HighPerformanceMEAManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAwithFiveLayers</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5LayeredFuelCellMembraneElectrodeAssemblyManufacturing</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#DeviceManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Manufacturing"/>
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Device manufacturing is the process of creating a functional device or system that can perform a specific task or function. In the context of hydrogen technologies, device manufacturing involves the production of various components, such as fuel cells, electrolyzers, and hydrogen storage systems, and their integration into a complete system.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DeviceManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Device Manufacturing', 'System Manufacturing', 'Component Integration', 'Device Fabrication', 'Device Assembly']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenDeviceManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SystemManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ComponentIntegration</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DeviceFabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DeviceAssembly</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#DeviceManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#DeviceManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fuel cell manufacturing is the process of producing fuel cells, which are electrochemical devices that convert chemical energy into electrical energy. The manufacturing process involves the production of individual components such as the membrane electrode assembly, bipolar plates, and gas diffusion layers, followed by the assembly of these components into a complete fuel cell stack.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Production', 'Fuel Cell Fabrication', 'Fuel Cell Manufacturing Process', 'Fuel Cell Stack Assembly']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellFabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellManufacturingProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellStackAssembly</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#MaterialsManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Manufacturing"/>
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Materials Manufacturing is the process of producing materials with specific properties and characteristics for use in various applications, including hydrogen technologies. This involves the synthesis, processing, and fabrication of materials, such as metals, ceramics, polymers, and composites, to meet the desired performance requirements.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialsManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Advanced Materials Manufacturing', 'Materials Synthesis and Fabrication', 'Materials Processing', 'Materials Production']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdvancedMaterialsManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialsSynthesisandFabrication</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialsProcessing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialsProduction</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#CatalystInkManufacturing">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#MaterialsManufacturing"/>
+  <rdfs:subClassOf rdf:resource="#MaterialsManufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Catalyst ink manufacturing is the process of producing a suspension of catalyst particles in a solvent, which is used to coat the electrodes of a fuel cell or electrolyzer. The catalyst ink is a critical component of the membrane electrode assembly (MEA) and directly affects the performance and durability of the fuel cell or electrolyzer.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystInkManufacturing</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrode Ink Manufacturing', 'Catalyst Suspension Manufacturing', 'MEA Ink Manufacturing', 'Catalyst Coating Manufacturing']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrodeInkManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystSuspensionManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAInkManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystCoatingManufacturing</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#SamplePreparation">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Manufacturing"/>
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sample preparation is the process of preparing a material sample for analysis or testing. In hydrogen technologies, sample preparation involves the collection, processing, and conditioning of materials to be analyzed for their hydrogen storage, production, or utilization properties. This process is critical for obtaining accurate and reliable results in research and development.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SamplePreparation</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Material Sample Preparation', 'Hydrogen Sample Preparation', 'Sample Processing', 'Sample Conditioning', 'Sample Analysis Preparation']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialSamplePreparation</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenSamplePreparation</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SampleProcessing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SampleConditioning</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SampleAnalysisPreparation</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Measurement">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Process"/>
+  <rdfs:subClassOf rdf:resource="#Process"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Measurement</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Measurement is the process of obtaining quantitative or qualitative data about a material or system. In hydrogen technologies, measurements are used to characterize the properties and performance of materials, devices, and systems. Common measurements include electrochemical performance, thermal conductivity, and mechanical strength.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Material Characterization', 'Performance Testing', 'Analytical Measurement', 'Experimental Analysis', 'Data Acquisition']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialCharacterization</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerformanceTesting</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AnalyticalMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ExperimentalAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DataAcquisition</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#BETMethod">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Measurement"/>
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETMethod</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The BET (Brunauer-Emmett-Teller) method is a physical adsorption technique used to measure the specific surface area of porous materials. It involves measuring the amount of gas adsorbed onto the surface of a solid material at different pressures and calculating the surface area based on the adsorption isotherm.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['BET Analysis', 'BET Surface Area Measurement', 'BET Gas Adsorption Method']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETSurfaceAreaMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETGasAdsorptionMethod</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Gravimetry">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Measurement"/>
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gravimetry</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gravimetry is a quantitative analytical technique used to determine the mass or concentration of a substance by measuring its weight. It is commonly used in materials science to measure the adsorption of gases or liquids onto a solid surface, such as in the BET method for determining surface area.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gravimetric Analysis', 'Mass Measurement', 'Weight Analysis', 'Adsorption Gravimetry']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GravimetricAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MassMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WeightAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdsorptionGravimetry</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#DynamicVaporSorptionMeasurement">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Gravimetry"/>
+  <rdfs:subClassOf rdf:resource="#Gravimetry"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dynamic Vapor Sorption (DVS) measurement is a gravimetric technique used to measure the water vapor sorption and desorption properties of materials. It involves exposing a sample to varying humidity levels while continuously measuring its weight change, allowing for the determination of moisture uptake and release behavior.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DynamicVaporSorptionMeasurement</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dynamic Vapor Sorption Analysis', 'DVS Analysis', 'Water Vapor Sorption Measurement', 'Moisture Sorption Analysis', 'Gravimetric Moisture Sorption Analysis']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DynamicVaporSorptionAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DVSAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WaterVaporSorptionMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MoistureSorptionAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GravimetricMoistureSorptionAnalysis</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#CatalystLayerDynamicVaporSorptionMeasurement">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#DynamicVaporSorptionMeasurement"/>
+  <rdfs:subClassOf rdf:resource="#DynamicVaporSorptionMeasurement"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Catalyst Layer Dynamic Vapor Sorption Measurement is a technique used to measure the water uptake and transport properties of catalyst layers in fuel cells. It involves exposing the catalyst layer to varying levels of humidity and measuring the resulting changes in mass. This information is used to optimize the design and performance of fuel cell catalyst layers.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystLayerDynamicVaporSorptionMeasurement</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['CL-DVS Measurement', 'Catalyst Layer DVS Analysis', 'Dynamic Vapor Sorption Analysis of Catalyst Layers', 'Catalyst Layer Water Uptake Measurement']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CLDVSMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystLayerDVSAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DynamicVaporSorptionAnalysisofCatalystLayers</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystLayerWaterUptakeMeasurement</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#PowderDynamicVaporSorptionMeasurement">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#DynamicVaporSorptionMeasurement"/>
+  <rdfs:subClassOf rdf:resource="#DynamicVaporSorptionMeasurement"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Powder Dynamic Vapor Sorption (DVS) Measurement is a technique used to measure the water sorption properties of powders. It involves exposing a sample to varying humidity levels and measuring the change in mass as the sample adsorbs or desorbs water vapor. This technique is useful for characterizing the water uptake behavior of materials used in hydrogen technologies, such as fuel cell catalysts and adsorbents.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderDynamicVaporSorptionMeasurement</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Powder DVS Measurement', 'Powder Water Sorption Measurement', 'Powder Water Uptake Measurement', 'Powder Water Adsorption Measurement']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderDVSMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderWaterSorptionMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderWaterUptakeMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderWaterAdsorptionMeasurement</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Imaging">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Measurement"/>
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Imaging</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Imaging is a technique used to visualize the microstructure and morphology of materials used in hydrogen technologies. It includes various methods such as scanning electron microscopy (SEM), transmission electron microscopy (TEM), and atomic force microscopy (AFM). Imaging is used to study the surface morphology, particle size, and distribution of materials used in fuel cells, electrolyzers, and other hydrogen technologies.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Material Imaging', 'Microscopy', 'Surface Imaging', 'Morphology Analysis', 'Material Characterization']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Microscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SurfaceImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MorphologyAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialCharacterization</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Microscopy">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Imaging"/>
+  <rdfs:subClassOf rdf:resource="#Imaging"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Microscopy</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Microscopy is a technique used to visualize and study materials at the microscale or nanoscale level. It involves the use of microscopes, which can be optical, electron, or scanning probe microscopes, to obtain high-resolution images of materials and their properties. Microscopy is an important tool in materials science, allowing for the characterization of materials and the study of their structure, morphology, and composition.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Microscopic Analysis', 'Material Imaging', 'Nanoscale Imaging', 'Microscale Imaging', 'Microstructural Analysis']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MicroscopicAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MaterialImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NanoscaleImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MicroscaleImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MicrostructuralAnalysis</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectronMicroscopy">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Microscopy"/>
+  <rdfs:subClassOf rdf:resource="#Microscopy"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electron Microscopy is a type of microscopy that uses a beam of electrons to image the surface or internal structure of a material at high magnification. It is commonly used in materials science to study the microstructure and morphology of materials, including catalysts, fuel cell components, and hydrogen storage materials.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectronMicroscopy</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['EM', 'Transmission Electron Microscopy', 'Scanning Electron Microscopy', 'TEM', 'SEM']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">EM</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TransmissionElectronMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ScanningElectronMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEM</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEM</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#SEMImaging">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#ElectronMicroscopy"/>
+  <rdfs:subClassOf rdf:resource="#ElectronMicroscopy"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMImaging</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scanning Electron Microscopy (SEM) Imaging is a technique that uses a focused beam of electrons to create high-resolution images of a sample's surface. It is commonly used in materials science to study the morphology, composition, and structure of materials at the micro- and nanoscale.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Scanning Electron Microscopy', 'SEM Analysis', 'SEM Imaging Technique', 'Electron Microscopy Imaging', 'SEM Microscopy']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ScanningElectronMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMAnalysis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMImagingTechnique</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectronMicroscopyImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMMicroscopy</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#TEMImaging">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#ElectronMicroscopy"/>
+  <rdfs:subClassOf rdf:resource="#ElectronMicroscopy"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMImaging</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Transmission Electron Microscopy (TEM) is a type of electron microscopy that produces high-resolution images of thin samples, typically less than 200 nm thick. TEM uses a beam of electrons that pass through the sample to create an image, allowing for the observation of the internal structure and morphology of materials at the nanoscale.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Transmission Electron Microscopy', 'TEM Imaging', 'Electron Transmission Microscopy', 'TEM Microscopy', 'TEM Analysis']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TransmissionElectronMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMImaging</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectronTransmissionMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMMicroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMAnalysis</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Scattering">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Imaging"/>
+  <rdfs:subClassOf rdf:resource="#Imaging"/>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scattering</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scattering is a technique used to study the structure and properties of materials by analyzing the way they scatter radiation or particles. In hydrogen technologies, scattering techniques such as X-ray diffraction (XRD) and neutron scattering are commonly used to study the crystal structure, composition, and morphology of materials.</rdfs:comment>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Scattering Techniques', 'X-ray Diffraction', 'Neutron Scattering', 'Small-Angle Neutron Scattering', 'SAXS', 'WAXS', 'Powder Diffraction']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ScatteringTechniques</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">XrayDiffraction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NeutronScattering</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SmallAngleNeutronScattering</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SAXS</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WAXS</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PowderDiffraction</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#DynamicLightScattering">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Scattering"/>
+  <rdfs:subClassOf rdf:resource="#Scattering"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dynamic Light Scattering (DLS) is a non-invasive scattering technique used to measure the size distribution of particles in a solution. It is commonly used in materials science to determine the size of nanoparticles, colloids, and macromolecules in solution. DLS measures the fluctuations in the intensity of scattered light caused by Brownian motion of the particles, providing information on the size and size distribution of the particles.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DynamicLightScattering</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Photon Correlation Spectroscopy', 'PCS', 'Quasi-Elastic Light Scattering', 'QELS', 'Nanoparticle Sizing']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PhotonCorrelationSpectroscopy</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PCS</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">QuasiElasticLightScattering</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">QELS</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NanoparticleSizing</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#MethodOfStandardPorosimetry">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Measurement"/>
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Method of Standard Porosimetry is a technique used to measure the pore size distribution and porosity of porous materials. It involves the use of a non-reactive gas, such as nitrogen, to fill the pores of the material and measure the pressure required to fill the pores. The pore size distribution and porosity can be calculated from the pressure data using mathematical models.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MethodOfStandardPorosimetry</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Standard Porosimetry', 'Gas Adsorption Porosimetry', 'Pore Size Distribution Measurement', 'Pore Volume Measurement']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">StandardPorosimetry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GasAdsorptionPorosimetry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PoreSizeDistributionMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PoreVolumeMeasurement</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#ViscosityMeasurement">
+  <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/mdreger/ontologies/2022/11/manufacturing#Measurement"/>
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Viscosity measurement is a technique used to determine the resistance of a fluid to flow. It is an important property of materials used in hydrogen technologies, as it affects the performance of fuel cells and other devices. Viscosity measurements can be performed using various methods, including rotational viscometry, capillary viscometry, and oscillatory rheometry.</rdfs:comment>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ViscosityMeasurement</onto_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Viscometry', 'Viscosity Testing', 'Fluid Viscosity Measurement', 'Rotational Viscometry', 'Capillary Viscometry', 'Oscillatory Rheometry']</alternative_labels>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Viscometry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ViscosityTesting</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FluidViscosityMeasurement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RotationalViscometry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CapillaryViscometry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">OscillatoryRheometry</alternative_label>
+</owl:Class>
+
+
+</rdf:RDF>

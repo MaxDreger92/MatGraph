@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"
+         xmlns="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured#">
+
+<owl:Ontology rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/manufactured"/>
+
+<owl:AnnotationProperty rdf:about="##alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="##onto_name"/>
+
+<owl:AnnotationProperty rdf:about="#alternative_label">
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:AnnotationProperty>
+
+
+
+<owl:Class rdf:about="#Cerium">
+  <rdfs:subClassOf rdf:resource="#Atom"/>
+  <onto_name>Cerium</onto_name>
+  <rdfs:comment>Cerium is a chemical element with the symbol Ce and atomic number 58. It is a soft, silvery, ductile metal that easily oxidizes in air. Cerium is widely used in catalytic converters, glass polishing, and as a component of mischmetal, a pyrophoric alloy used in lighter flints.</rdfs:comment>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ce</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Atomic number 58</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rare earth metal</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cerium metal</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Darmstadtium">
+  <rdfs:subClassOf rdf:resource="#Atom"/>
+  <onto_name>Darmstadtium</onto_name>
+  <rdfs:comment>Darmstadtium is a synthetic, highly radioactive element with the symbol Ds and atomic number 110. It is a member of the transactinide series and is named after the city of Darmstadt, Germany. Darmstadtium has no known biological role and is primarily used for scientific research purposes.</rdfs:comment>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ds</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Element 110</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Transactinide Darmstadtium</alternative_label>
+</owl:Class>
+
+<owl:Class rdf:about="#Atom">
+  <onto_name>Atom</onto_name>
+  <rdfs:comment>An atom is the basic unit of matter, consisting of a nucleus (protons and neutrons) and electrons that orbit the nucleus. Atoms are the building blocks of all chemical elements and are characterized by their atomic number, mass number, and electron configuration.</rdfs:comment>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Atomic Structure</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Elementary Particle</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Atomic Nucleus</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electron Cloud</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Atomic Orbital</alternative_label>
+</owl:Class>
+
+</rdf:RDF>

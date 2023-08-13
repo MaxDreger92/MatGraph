@@ -1,0 +1,1 @@
+{"version":3,"file":"HeaderControl.d.ts","sourceRoot":"","sources":["../../src/HeaderControl/HeaderControl.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAC1B,OAAO,EAA2B,YAAY,EAAE,MAAM,eAAe,CAAC;AAItE,MAAM,WAAW,kBAAmB,SAAQ,YAAY;IACtD,OAAO,EAAE,MAAM,CAAC;IAChB,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;CAC3B;AAWD,eAAO,MAAM,aAAa;;;;;;mCAEzB,CAAC"}

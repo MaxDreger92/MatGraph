@@ -1,0 +1,1 @@
+{"version":3,"file":"prism-theme.d.ts","sourceRoot":"","sources":["../../src/Prism/prism-theme.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,sBAAsB,CAAC;AAClD,OAAO,EAAE,YAAY,EAAE,MAAM,eAAe,CAAC;AAE7C,eAAO,MAAM,IAAI,UAAW,YAAY,KAAG,UAsFzC,CAAC;AAEH,eAAO,MAAM,KAAK,UAAW,YAAY,KAAG,UA4F1C,CAAC;AAEH,eAAO,MAAM,aAAa,UAAW,YAAY,eAAe,OAAO,GAAG,MAAM,eAC3B,CAAC"}

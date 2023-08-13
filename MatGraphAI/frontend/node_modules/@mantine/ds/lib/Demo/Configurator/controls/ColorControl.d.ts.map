@@ -1,0 +1,1 @@
+{"version":3,"file":"ColorControl.d.ts","sourceRoot":"","sources":["../../../../src/Demo/Configurator/controls/ColorControl.tsx"],"names":[],"mappings":";AAIA,UAAU,iBAAiB;IACzB,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,EAAE,MAAM,CAAC;IACd,QAAQ,CAAC,KAAK,EAAE,MAAM,GAAG,IAAI,CAAC;CAC/B;AAED,wBAAgB,YAAY,CAAC,EAAE,KAAK,EAAE,KAAK,EAAE,QAAQ,EAAE,GAAG,MAAM,EAAE,EAAE,iBAAiB,eA8BpF;yBA9Be,YAAY"}

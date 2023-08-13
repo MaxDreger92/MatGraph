@@ -1,0 +1,1 @@
+{"version":3,"file":"BooleanControl.d.ts","sourceRoot":"","sources":["../../../../src/Demo/Configurator/controls/BooleanControl.tsx"],"names":[],"mappings":";AAIA,UAAU,mBAAmB;IAC3B,KAAK,EAAE,OAAO,CAAC;IACf,KAAK,EAAE,MAAM,CAAC;IACd,QAAQ,CAAC,KAAK,EAAE,OAAO,GAAG,IAAI,CAAC;CAChC;AAOD,wBAAgB,cAAc,CAAC,EAAE,KAAK,EAAE,KAAK,EAAE,QAAQ,EAAE,GAAG,MAAM,EAAE,EAAE,mBAAmB,eAUxF;yBAVe,cAAc"}
