@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 @csrf_exempt  # This decorator allows for POST requests from all origins, not recommended in production environment.
 def workflow_matcher_view(request):
-    return render(request, 'workflow.html')
+    return render(request, 'index.html')
 
 @csrf_exempt  # This decorator allows for POST requests from all origins, not recommended in production environment.
 def workflow_matcher(request):
