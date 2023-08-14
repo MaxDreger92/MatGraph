@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .fabricationworkflows import FabricationWorkflowMatcher
 import json
@@ -8,21 +8,31 @@ from django.shortcuts import render
 def workflow_matcher_view(request):
     return render(request, 'index.html')
 
-@csrf_exempt  # This decorator allows for POST requests from all origins, not recommended in production environment.
 def workflow_matcher(request):
-    print('workflow_matcher called')  # Add this line
-    if request.method == 'POST':
-        string_data = json.loads(request.body)['jsonData']
+    print('workflow_matcher called')
+
+    if request.method == 'GET':
+        # Retrieve the 'jsonData' from the GET query parameters instead of request body
+        string_data = request.GET.get('workflow', None)
+
+        if not string_data:
+            return JsonResponse({'error': 'jsonData is required.'}, status=400)
+
         data = json.loads(string_data)
-        matcher = FabricationWorkflowMatcher(data, force_report= True)
+        print("DATA:",data)
+
+        matcher = FabricationWorkflowMatcher(data, force_report=True)
         matcher.run()
-        # Call relevant methods of the matcher here.
-        # You might want to call matcher.build_query() or other methods and return their results.
-        # In this example, let's suppose matcher.build_query() returns a dictionary.
-        result = matcher.build_query()
-        return JsonResponse(result, safe=False)
+
+        # Convert the DataFrame to CSV and create an HTTP response with it
+        csv_content = matcher.result.to_csv(index=False)
+        matcher.result.to_csv('output_filename.csv', index=False)
+        response = HttpResponse(csv_content, content_type='text/csv',
+                                headers = {'Content-Disposition': 'attachment; filename=workflows.csv'})
+        return response
     else:
-        return JsonResponse({'error': 'Only POST method is allowed.'}, status=405)
+        return JsonResponse({'error': 'Only GET method is allowed.'}, status=405)
+
 
 
 

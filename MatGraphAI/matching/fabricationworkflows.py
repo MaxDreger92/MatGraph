@@ -111,25 +111,27 @@ class FabricationWorkflowMatcher(Matcher):
         where_query = []
         match_onto_query = []
         with_onto_query = []
-
+        match_only_onto_query = []
         for node in self.query_list:
-            where_query.append(f""" onto_{node['id']}.uid IN tree_uid_{node['id']}""")
-            match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']}:{node['type']}{{uid: '{node['uid']}'}})""")
-            with_onto_query.append(f"""collect(tree_onto_{node['id']}) + onto_{node['id']} as tree_{node['id']}, collect(tree_onto_{node['id']}.uid) + onto_{node['id']}.uid as tree_uid_{node['id']}""")
-            with_query.append(f""" {node['id']}""")
+            match_only_onto_query.append(f"""(onto_{node['id']}:{node['type']}{{uid: '{node['uid']}'}})""")
+            where_query.append(f""" full_onto_{node['id']}.uid IN tree_uid_{node['id']}""")
+            match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']})""")
+            with_onto_query.append(f"""collect(DISTINCT tree_onto_{node['id']}) + onto_{node['id']} as tree_{node['id']}, collect( DISTINCT tree_onto_{node['id']}.uid) + onto_{node['id']}.uid as tree_uid_{node['id']}""")
+            with_query.append(f""" node_{node['id']}""")
             if node['type'] == 'EMMOQuantity':
-                match_query.append(f"""(onto_{node['id']}:{node['type']})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
+                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
                 where_query.append(f""" rel_{node['id']}.float_value {node['operator']} {node['value']}""")
             else:
-                match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']}:{node['type']})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
-                match_query.append(f"""(onto_{node['id']}:{node['type']} {{uid: '{node['uid']}'}})<-[:IS_A]-({node['id']}:{ONTOMAPPER[node['type']]})""")
+                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{ONTOMAPPER[node['type']]})""")
 
 
         # Constructing the relationship paths                m
             for rel in node["relationships"]:
+                print(rel, rel['connection'][0], rel['connection'][1], node['id'], with_path_query)
                 if rel['connection'][0] == node['id']:
-                    relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = (({rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->({rel['connection'][1]}))""")
+                    relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = ((node_{rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->(node_{rel['connection'][1]}))""")
                     with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
+        print(with_path_query), print(relationship_query)
         # 1. Create two dictionaries: one for path starts and one for path ends.
         path_groups_start = defaultdict(list)
         path_groups_end = defaultdict(list)
@@ -167,17 +169,20 @@ class FabricationWorkflowMatcher(Matcher):
 
 
 
+
     # Concatenating relationship paths to the nodes, and removing the last "->"
 
         # Construct the main query parts
         query = f"""
-    MATCH {', '.join(match_onto_query)}
-    WITH {', '.join(with_onto_query)}
+    MATCH {', '.join(match_only_onto_query)}
+    WITH *
+    OPTIONAL MATCH {' OPTIONAL MATCH '.join(match_onto_query)}
+    WITH DISTINCT {', '.join(with_onto_query)}
     MATCH {', '.join(match_query)}
     WHERE {' AND '.join(where_query)}
-    WITH {', '.join(with_query)}
+    WITH DISTINCT {', '.join(with_query)}
     MATCH {' MATCH '.join(relationship_query)}
-    WHERE {' AND '.join(conditions)}
+    {'WHERE ' + ' AND '.join(conditions) if len(conditions) != 0 else ''}
     WITH DISTINCT {', '.join(with_query)}, apoc.coll.toSet(apoc.coll.flatten([{', '.join(["nodes("+ path + ")" for path in  with_path_query])}])) as pathNodes
     WITH DISTINCT {', '.join(with_query)}, pathNodes, [node IN pathNodes | node.uid] + [x IN pathNodes | head([(x)-[:IS_A]->(neighbor) | neighbor.name])] as combinations
     UNWIND pathNodes AS pathNode 
@@ -189,6 +194,8 @@ class FabricationWorkflowMatcher(Matcher):
     WITH DISTINCT collect(DISTINCT node_info["node_info"]) as node_info, combinations
     RETURN DISTINCT apoc.coll.toSet(collect(DISTINCT combinations)) as combinations, apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) as metadata"""
 
+        # print(query)
+        # return query
         node_list = self.query_list
         params = {"node_list": node_list}
         print(query)
@@ -200,9 +207,9 @@ class FabricationWorkflowMatcher(Matcher):
 
     def build_result(self):
 
-        if self.count:
-            return self.db_results[0][0]
-        pass
+        # if self.count:
+        #     return self.db_results[0][0]
+        return create_table_structure(self.db_result)
 
     def build_results_for_report(self):
         # Dynamic extraction

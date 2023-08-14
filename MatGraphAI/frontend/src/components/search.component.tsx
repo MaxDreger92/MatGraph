@@ -18,14 +18,33 @@ export default function Search(props: SearchProps) {
   const [splitView, setSplitView] = useState(false)
   const [splitViewWidth, setSplitViewWidth] = useState(0)
 
+  function saveBlobAsFile(blob: Blob, filename: string) {
+    if (!(blob instanceof Blob)) {
+          console.error("Provided data is not a Blob");
+          return;
+      }
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Asynchronous function to search for a workflow
   async function workflowSearch() {
     try {
-      const response = await client.workflowSearch(workflow)
+      // Call to the client to search for the workflow and get a response
+      const response = await client.workflowSearch(workflow);
+
+      // If the search response is successful, save the returned data to a CSV file
       if (response) {
-        saveToFile(response.data, "csv", "workflows.csv")
+        console.log(response.data);  // log the response data
+        saveBlobAsFile(response.data, "workflows.csv");
       }
     } catch (err: any) {
-      throw new Error("Search failed")
+      // Handle errors in the search and throw a new error message
+      throw new Error(`Search failed: ${err.message}`);
     }
   }
 
