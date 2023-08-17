@@ -35,91 +35,90 @@ MATCH (EMMO_fcas:EMMOProcess {name: "FuelCellAssembly"}),
 
 // MEA and FC
 MERGE(fc:Matter:Device {name: row.`Run #`+"FuelCell",
-                 date_added : date()
+                 date_added : date(),
+                uid : randomUUID()
 })
-  ON CREATE
-  SET fc.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(fc)
 MERGE(catink:Matter:Material {name: row.`Run #`+"_ink",
                        date_added : date(),
-                       flag: "jasna"
+                       flag: "jasna",
+                        uid : randomUUID()
 })
-  ON CREATE
-  SET catink.uid = randomUUID()
 MERGE(pida)-[:CONTAINS]->(catink)
 
 
 MERGE(mea:Matter:Component {name: row.`Run #`,
                      date_added : date(),
-                     flag: "jasna"
+                     flag: "jasna",
+                      uid : randomUUID()
 })
-  ON CREATE
-  SET mea.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(mea)
 
 // Other Components
 MERGE(membrane:Matter:Material {name: row.Membrane,
                          date_added : date(),
-                         flag: "jasna"
+                         flag: "jasna",
+                          uid : randomUUID()
 })
-  ON CREATE
-  SET membrane.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(membrane)
 
 MERGE(bp:Matter:Component {name: row.plates,
                     date_added : date(),
-                    flag: "jasna"
+                    flag: "jasna",
+                      uid : randomUUID()
 })
-  ON CREATE
-  SET bp.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(bp)
 
 MERGE(gdl:Matter:Component {name: row.GDL,
                      date_added : date(),
-                     flag: "jasna"
+                     flag: "jasna",
+                      uid : randomUUID()
 })
-  ON CREATE
-  SET gdl.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(gdl)
 
 MERGE(station:Matter:Component {name: row.Station,
                          date_added : date(),
-                         flag: "jasna"
+                         flag: "jasna",
+                          uid : randomUUID()
 })
-  ON CREATE
-  SET station.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(station)
 
 MERGE(anode:Matter:Material {name: row.Anode,
                       date_added : date(),
-                      flag: "jasna"
+                      flag: "jasna",
+                       uid : randomUUID()
 })
-  ON CREATE
-  SET anode.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(anode)
 
 MERGE(ionomer:Matter:Material {name: row.Ionomer,
                         date_added : date(),
-                        flag: "jasna"
+                        flag: "jasna",
+                         uid : randomUUID()
 })
-  ON CREATE
-  SET ionomer.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(ionomer)
 
 MERGE(catalyst:Matter:Material {name: row.Catalyst,
                          date_added : date(),
-                         flag: "jasna"
+                         flag: "jasna",
+                          uid : randomUUID()
 })
-  ON CREATE
-  SET catalyst.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(catalyst)
 
 MERGE(carbonsupport:Matter:Material {name: row.`Catalyst`+"support",
                               date_added : date(),
-                              flag: "jasna"
+                              flag: "jasna",
+                                uid : randomUUID()
 })
-  ON CREATE
-  SET carbonsupport.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(carbonsupport)
 
 MERGE(carbonsupport)<-[:HAS_PART]-(catalyst)
@@ -128,10 +127,10 @@ MERGE(carbonsupport)-[:IS_A]->(EMMO_carbonsupport)
 
 MERGE(coatingsubstrate:Matter:Material {name: row.`Coating substrate`,
                                  date_added : date(),
-                                 flag: "jasna"
+                                 flag: "jasna",
+                                  uid : randomUUID()
 })
-  ON CREATE
-  SET coatingsubstrate.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(coatingsubstrate)
 
 
@@ -164,10 +163,10 @@ MERGE(pida)-[:CONTAINS]->(meafab)
 
 MERGE(inkfab:Process:Manufacturing {run_title: row.`Run #`+ "_InkFabrication",
                             date_added : date(),
-                            flag: "jasna"
+                            flag: "jasna",
+                            uid: randomUUID()
 })
-  ON CREATE
-  SET inkfab.uid = randomUUID()
+
 MERGE(pida)-[:CONTAINS]->(inkfab)
 
 

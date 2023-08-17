@@ -23,8 +23,12 @@ def create_table_structure(data):
     print(columns)
     print(combinations[0])
     # Convert combinations into a DataFrame
-    df_combinations = pd.DataFrame(combinations, columns=columns)
 
+    df_combinations = pd.DataFrame(combinations, columns=columns)
+    print(df_combinations)
+    df_combinations = df_combinations.drop_duplicates(subset=columns)
+    print(df_combinations)
+    return(df_combinations)
     # Convert attributes into a DataFrame
     df_attributes_raw = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute'])
     df_attributes = df_attributes_raw.drop_duplicates(subset=['UID', 'Attribute'])
@@ -46,8 +50,7 @@ def create_table_structure(data):
     # Drop all columns that contain the string 'UID'
     final_df = final_df[final_df.columns.drop(list(final_df.filter(regex='UID')))]
 
-    print(final_df)
-    print(f"DF size: {final_df.shape[0]}")
+
     final_df.to_csv('output_filename.csv', index=False)
 
     return final_df
@@ -96,7 +99,6 @@ class FabricationWorkflowMatcher(Matcher):
             }
             for node in workflow_list
         ]
-        pprint(self.query_list)
         self.count = count
         super().__init__(**kwargs)
 
@@ -127,11 +129,9 @@ class FabricationWorkflowMatcher(Matcher):
 
         # Constructing the relationship paths                m
             for rel in node["relationships"]:
-                print(rel, rel['connection'][0], rel['connection'][1], node['id'], with_path_query)
                 if rel['connection'][0] == node['id']:
                     relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = ((node_{rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->(node_{rel['connection'][1]}))""")
                     with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
-        print(with_path_query), print(relationship_query)
         # 1. Create two dictionaries: one for path starts and one for path ends.
         path_groups_start = defaultdict(list)
         path_groups_end = defaultdict(list)
@@ -213,8 +213,6 @@ class FabricationWorkflowMatcher(Matcher):
 
     def build_results_for_report(self):
         # Dynamic extraction
-        print("RESULT")
-        pprint(create_table_structure(self.db_result))
         return self.db_result[0][0], self.db_columns
 
 

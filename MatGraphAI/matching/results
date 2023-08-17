@@ -1,0 +1,161 @@
+{
+  "start": {
+    "identity": 1091,
+    "labels": [
+      "Matter",
+      "Material"
+    ],
+    "properties": {
+      "uid": "0736cdd1-2832-434c-bf34-c92ee62c0032",
+      "date_added": "2023-08-14",
+      "flag": "jasna",
+      "name": "F50E-HT"
+    },
+    "elementId": "1091"
+  },
+  "end": {
+    "identity": 1147,
+    "labels": [
+      "Manufacturing",
+      "Process"
+    ],
+    "properties": {
+      "uid": "2a091669-3fe6-47f1-abb3-30412f50c167",
+      "date_added": "2023-08-14",
+      "flag": "jasna",
+      "run_title": "RN0721-28_MEAManufacturing",
+      "DOI": "1"
+    },
+    "elementId": "1147"
+  },
+  "segments": [
+    {
+      "start": {
+        "identity": 1091,
+        "labels": [
+          "Matter",
+          "Material"
+        ],
+        "properties": {
+          "uid": "0736cdd1-2832-434c-bf34-c92ee62c0032",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "name": "F50E-HT"
+        },
+        "elementId": "1091"
+      },
+      "relationship": {
+        "identity": 5027,
+        "start": 1091,
+        "end": 1173,
+        "type": "IS_MANUFACTURING_INPUT",
+        "properties": {
+
+        },
+        "elementId": "5027",
+        "startNodeElementId": "1091",
+        "endNodeElementId": "1173"
+      },
+      "end": {
+        "identity": 1173,
+        "labels": [
+          "Manufacturing",
+          "Process"
+        ],
+        "properties": {
+          "uid": "6ff1fb16-cd2d-4815-acc9-3cf8cd5fca14",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "run_title": "RN0721-28_InkFabrication"
+        },
+        "elementId": "1173"
+      }
+    },
+    {
+      "start": {
+        "identity": 1173,
+        "labels": [
+          "Manufacturing",
+          "Process"
+        ],
+        "properties": {
+          "uid": "6ff1fb16-cd2d-4815-acc9-3cf8cd5fca14",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "run_title": "RN0721-28_InkFabrication"
+        },
+        "elementId": "1173"
+      },
+      "relationship": {
+        "identity": 5095,
+        "start": 1173,
+        "end": 57,
+        "type": "IS_MANUFACTURING_OUTPUT",
+        "properties": {
+
+        },
+        "elementId": "5095",
+        "startNodeElementId": "1173",
+        "endNodeElementId": "57"
+      },
+      "end": {
+        "identity": 57,
+        "labels": [
+          "Matter",
+          "Material"
+        ],
+        "properties": {
+          "uid": "f5ef9cb8-9ee5-4be7-bda1-ac2cc0ebdbf4",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "name": "RN0721-28_ink"
+        },
+        "elementId": "57"
+      }
+    },
+    {
+      "start": {
+        "identity": 57,
+        "labels": [
+          "Matter",
+          "Material"
+        ],
+        "properties": {
+          "uid": "f5ef9cb8-9ee5-4be7-bda1-ac2cc0ebdbf4",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "name": "RN0721-28_ink"
+        },
+        "elementId": "57"
+      },
+      "relationship": {
+        "identity": 5210,
+        "start": 57,
+        "end": 1147,
+        "type": "IS_MANUFACTURING_INPUT",
+        "properties": {
+
+        },
+        "elementId": "5210",
+        "startNodeElementId": "57",
+        "endNodeElementId": "1147"
+      },
+      "end": {
+        "identity": 1147,
+        "labels": [
+          "Manufacturing",
+          "Process"
+        ],
+        "properties": {
+          "uid": "2a091669-3fe6-47f1-abb3-30412f50c167",
+          "date_added": "2023-08-14",
+          "flag": "jasna",
+          "run_title": "RN0721-28_MEAManufacturing",
+          "DOI": "1"
+        },
+        "elementId": "1147"
+      }
+    }
+  ],
+  "length": 3.0
+}
