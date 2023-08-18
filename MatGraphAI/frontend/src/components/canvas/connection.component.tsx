@@ -89,6 +89,8 @@ export default function Connection(props: ConnectionProps) {
     handleConnectionAction(connection.id, action)
   }
 
+
+
   const start = connection.start
   const end = connection.end
 

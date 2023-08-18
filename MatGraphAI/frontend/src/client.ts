@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 
-const API_URL = "http://localhost:8000/"
+const API_URL = "http://localhost:8080/api"
 
 function getCookie(name: string) {
   const cookieValue = document.cookie
@@ -147,7 +147,6 @@ class Client {
 
   async workflowSearch(workflow: string | null) {
     try {
-      const jsonData = JSON.stringify({ workflow });
       const response = await this.client.get("/search/fabrication-workflow", {
         params: {
           workflow,

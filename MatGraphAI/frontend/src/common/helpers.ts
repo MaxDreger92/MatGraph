@@ -3,6 +3,15 @@ import {
   IConnection
 } from "../components/canvas/types/canvas.types"
 
+const connectionToRelType: Record<string, string> = {
+  'matter-manufacturing': 'IS_MANUFACTURING_INPUT',
+  'manufacturing-matter': 'IS_MANUFACTURING_OUTPUT',
+  'matter-measurement': 'IS_MEASUREMENT_INPUT',
+  'matter-property': 'HAS_PROPERTY',
+  'manufacturing-parameter': 'HAS_PARAMETER',
+  'measurement-property': 'IS_MEASUREMENT_OUTPUT'
+};
+
 /**
  * Map a node type from the application's internal format to the desired output format.
  * 
@@ -34,16 +43,35 @@ function mapNodeType(type: string): string {
  * @returns Corresponding relationship type for the connection
  */
 function determineRelationshipType(startType: string, endType: string): string {
-  const connectionToRelType: Record<string, string> = {
-    'matter-manufacturing': 'IS_MANUFACTURING_INPUT',
-    'manufacturing-matter': 'IS_MANUFACTURING_OUTPUT',
-    'matter-measurement': 'IS_MEASUREMENT_INPUT',
-    'matter-property': 'HAS_PROPERTY',
-    'manufacturing-parameter': 'HAS_PARAMETER',
-    'measurement-property': 'IS_MEASUREMENT_OUTPUT'
-  };
-
   return connectionToRelType[`${startType}-${endType}`] || 'UNKNOWN_RELATIONSHIP';
+}
+
+/**
+ * Gets a list of possible end types for a given start type.
+ * 
+ * @param startType Starting node's type
+ * @returns Array of possible end node types for the given start type
+ */
+export function possibleConnections(startType: string | undefined): string[] {
+  if (!startType) return ["matter", "manufacturing", "parameter", "property", "measurement"]
+
+  // Filter the keys to find matches and extract the endType
+  return Object.keys(connectionToRelType)
+    .filter(key => key.startsWith(`${startType}-`))
+    .map(key => key.split('-')[1]);
+}
+
+/**
+ * Checks if a given node type can connect to another node.
+ * 
+ * @param nodeType Type of the node
+ * @returns true if the node can connect to another node, false otherwise
+ */
+export function isConnectableNode(nodeType: string | undefined): boolean {
+  if (!nodeType) return false;
+
+  // Check if there's a key that starts with the given nodeType followed by a '-'
+  return Object.keys(connectionToRelType).some(key => key.startsWith(`${nodeType}-`));
 }
 
 export function convertToJSONFormat(nodes: INode[], connections: IConnection[]): string {
@@ -72,6 +100,8 @@ export function convertToJSONFormat(nodes: INode[], connections: IConnection[]):
     return {
       id: node.id,
       name: node.name || '',
+      value: node.value || '',
+      operator: node.operator || '',
       type: mapNodeType(node.type),
       relationships
     };
@@ -124,4 +154,17 @@ export function saveToFile(data: string, type: "json" | "csv", filename: string)
   // Clean up by removing the anchor element and revoking the blob URL
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+export function saveBlobAsFile(blob: Blob, filename: string) {
+  if (!(blob instanceof Blob)) {
+        console.error("Provided data is not a Blob");
+        return;
+    }
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  window.URL.revokeObjectURL(url);
 }

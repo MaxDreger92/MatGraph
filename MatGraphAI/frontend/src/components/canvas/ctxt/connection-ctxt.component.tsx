@@ -22,7 +22,7 @@ function ContextButton(props: ContextButtonProps) {
   const { onSelect, children, action } = props
   const [hovered, setHovered] = useState(false)
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation()
     onSelect(action)
   }
@@ -40,7 +40,8 @@ function ContextButton(props: ContextButtonProps) {
   return (
     <div
       className="ctxt-button"
-      onClick={handleClick}
+      onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+      onMouseUp={handleSelect}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -56,8 +57,6 @@ function ContextButton(props: ContextButtonProps) {
 
 export default function ConnectionContext(props: ConnectionContextProps) {
   const { onSelect, isOpen} = props
-
-  console.log("rendered")
 
   return (
     <Planet
