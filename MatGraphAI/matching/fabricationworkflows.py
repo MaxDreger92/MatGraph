@@ -28,7 +28,7 @@ def create_table_structure(data):
     print(df_combinations)
     df_combinations = df_combinations.drop_duplicates(subset=columns)
     print(df_combinations)
-    return(df_combinations)
+    # return(df_combinations)
     # Convert attributes into a DataFrame
     df_attributes_raw = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute'])
     df_attributes = df_attributes_raw.drop_duplicates(subset=['UID', 'Attribute'])
@@ -213,7 +213,8 @@ class FabricationWorkflowMatcher(Matcher):
 
     def build_results_for_report(self):
         # Dynamic extraction
-        return self.db_result[0][0], self.db_columns
+        result = create_table_structure(self.db_result)
+        return result.values.tolist(), result.columns
 
 
     def build_extra_reports(self):

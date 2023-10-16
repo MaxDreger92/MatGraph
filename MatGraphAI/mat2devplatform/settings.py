@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'mat2devplatform',
     'matching',
     'usermanagement',
+    'importing',
     'matgraph',
     'colorfield',
     'corsheaders',
@@ -107,6 +108,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -140,7 +142,7 @@ WSGI_APPLICATION = 'mat2devplatform.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'test.db',
+        'NAME': os.path.join(BASE_DIR, 'user.db'),
         'ENGINE': 'django.db.backends.sqlite3',
         'USER': '',
         'PASSWORD': '',
@@ -196,7 +198,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/build/static'),
+    os.path.join(BASE_DIR, 'matching/static'),
     ]
+print(STATICFILES_DIRS)
 # Media Files
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'

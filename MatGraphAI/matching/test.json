@@ -6,8 +6,19 @@
     "relationships": [
       {
         "rel_type": "IS_MANUFACTURING_INPUT",
-        "connection": ["node1", "node2"],
-        "direct": true
+        "connection": ["node1", "node2"]
+      },
+      {
+        "rel_type": "IS_MANUFACTURING_OUTPUT",
+        "connection": ["node2", "node1"]
+      },
+      {
+        "rel_type": "IS_MEASUREMENT_INPUT",
+        "connection": ["node1", "node2"]
+      },
+      {
+        "rel_type": "HAS_PROPERTY",
+        "connection": ["node1", "node2"]
       }
     ]
   },
