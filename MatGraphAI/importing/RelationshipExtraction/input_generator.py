@@ -17,10 +17,10 @@ def csv_to_json(file_name):
     """
 
     # Helper function to parse attributes
-    def parse_attributes(attr_str, header, second_row):
+    def parse_attributes(attr_str, header, second_row, index):
         matches = re.findall(r'(\w+)', attr_str)
         match_dict = {
-            matches[i - 1]: {"position": matches[i], "data": header if matches[i] == "header" else second_row}
+            matches[i - 1]: {"position": [index, matches[i]], "data": header if matches[i] == "header" else second_row}
             for i in range(1, len(matches), 2)
         }
         return match_dict
@@ -40,10 +40,10 @@ def csv_to_json(file_name):
             {
                 "node_id": node_id,
                 "label": label,
-                "attributes": parse_attributes(attribute, heading, second_row_cell)
+                "attributes": parse_attributes(attribute, heading, second_row_cell, index)
             }
-            for node_id, label, attribute, heading, second_row_cell in
-            zip(node_data["node_id"], node_data["node_label"], node_data["node_attribute"], header, second_row)
+            for node_id, label, attribute, heading, second_row_cell, index in
+            zip(node_data["node_id"], node_data["node_label"], node_data["node_attribute"], header, second_row, range(len(node_data["node_id"])))
         ]
 
     # Group nodes by node_id and combine nodes with the same node_id
@@ -63,20 +63,22 @@ def csv_to_json(file_name):
             "label": ", ".join(list(dict.fromkeys([node["label"] for node in group]))),
             "attributes": combined_attributes
         })
+    for node in combined_nodes:
+        if node['label'] == '' or node['attributes'] == {} or node['node_id'] == '':
+            combined_nodes.remove(node)
 
-    return json.dumps({"nodes": combined_nodes}, indent=4)
+    return json.dumps({"nodes": combined_nodes, "headers": header}, indent=4)
 
 
-def extract_data(json_data_str, label_one, label_two):
+def extract_data(json_data_str, label):
     json_data = json.loads(str(json_data_str).replace('\'', '"'))
     # Parse the JSON data
     nodes = json_data.get('nodes', [])
 
     # Extract manufacturing data
-    label_one_data = [node for node in nodes if node.get('label') == label_one]
-    label_two_data = [node for node in nodes if node.get('label') == label_two]
+    label_data = [node for node in nodes if node.get('label') == label]
 
-    return label_one_data, label_two_data
+    return label_data
 
 
 def generate_strings(label_one_data, label_two_data, label_one, label_two, rel):
@@ -142,14 +144,19 @@ def flatten_dict(dict):
         [dict[key].append(item) for item in att_list if item not in dict[key]]
     return dict
 
+def flatten_json(json_obj):
+    for node in json_obj:
+        node["attributes"] = flatten_dict(node["attributes"])
+    return json_obj
+
 
 def prepare_lists(json_input, label1, label2):
-    label_one_data, label_two_data = extract_data(json_input, "matter", "manufacturing")
-    label_one_data = remove_key(label_one_data, "position")
-    label_two_data = remove_key(label_two_data, "position")
-    for node1, node2 in zip(label_one_data, label_two_data):
-        node1["attributes"] = flatten_dict(node1["attributes"])
-        node2["attributes"] = flatten_dict(node2["attributes"])
+    label_one_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label1]
+    label_two_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label2]
+
+    label_two_data = [item for sublist in label_two_data for item in sublist]
+    label_one_data = [item for sublist in label_one_data for item in sublist]
+
     return label_one_data, label_two_data
 
 

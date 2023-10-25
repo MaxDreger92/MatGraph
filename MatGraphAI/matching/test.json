@@ -69,13 +69,3 @@
     ]
   }
 ]
-
-
-[
-{
-"id": "node2",
-"type": "EMMOProcess",
-"name": "CatalystInkManufacturing",
-"relationships": []
-}
-]
