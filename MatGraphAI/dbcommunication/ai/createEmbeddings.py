@@ -16,31 +16,6 @@ from dbcommunication.ai.utils import split_dataframe
 from matgraph.models.ontology import EMMOMatter, EMMOQuantity, EMMOProcess
 
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-def request_embedding(text: str) -> List[float]:
-    """
-    Retrieve the embedding of the given text using OpenAI's API.
-
-    This function attempts to generate an embedding for the input text using OpenAI's Embedding API.
-    If the request fails, it will retry up to 6 times, with an exponential backoff strategy for waiting
-    between retries.
-
-    Args:
-        text (str): The input text to get the embedding for.
-
-    Returns:
-        List[float]: A list of floating-point numbers representing the embedding.
-    """
-
-    # Replace newlines in the input text with spaces, as they can negatively affect performance.
-    text = str(text).replace("\n", " ").strip().replace("'", "")
-    # Call the OpenAI Embedding API to create an embedding for the input text.
-    # The API response contains the embedding data in a nested structure.
-    embedding_response = openai.Embedding.create(input=[text], engine=EMBEDDING_MODEL, api_key = settings.OPENAI_API_KEY
-    )
-
-    # Extract the embedding data from the response and return it as a list of floating-point numbers.
-    return embedding_response["data"][0]["embedding"]
 
 
 

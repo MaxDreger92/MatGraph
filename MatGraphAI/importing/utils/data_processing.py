@@ -141,7 +141,7 @@ def get_true_node_row(csv_path):
     # Return None if none of the label options were found
     return None
 
-def get_true_node_label(csv_path, heading):
+def get_true_node_label(csv_path, index_heading, row = 69):
     """
     Find and return the true node label from a CSV file based on a given heading.
     This function looks for the label in columns containing the specified heading.
@@ -157,17 +157,13 @@ def get_true_node_label(csv_path, heading):
 
     dataframe = load_csv_to_dataframe(csv_path)
     # Fetch the index of the row containing the true node label
-    row = get_true_node_row(csv_path)
+    row = row
     # Fetch the column indices containing the given heading
-    cols = find_cols_by_heading(csv_path, heading)
+    col = index_heading
 
-    # Iterate over the list of column indices to find the true node label
-    for col in cols:
-        # Check if the cell in the identified row and column is not NaN (i.e., it contains a label)
-        if pd.notna(dataframe.iloc[row, col]):
-            return dataframe.iloc[row, col]
-    # Return None if no label was found
-    return None
+
+    return dataframe.iloc[row, col]
+
 
 
 

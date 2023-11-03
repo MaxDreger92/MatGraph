@@ -57,37 +57,7 @@ class fullRelationshipsExtractor:
 
         return relationships
 
-def generate_query(json_file):
-    # Iterate through the list of nodes in the configuration
-    query_parts = ["LOAD CSV FROM 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2wLudGdp-uSJ__NXR0lovJWP5gxA6EhyoVHtXQ7_DTLklpwIlA9ySMvF4ShZ6QE2ZSA1Dk7CPx6mu/pub?output=csv' AS row"]
 
-    for node_config in json_file['nodes']:
-        label = node_config['label']
-        id = node_config['node_id']
-        attributes = node_config['attributes']
-        headers = json_file["headers"]
-        # Construct the Cypher query for this node
-        query_parts.append(
-            f"CREATE (n{id}:{label} {{uid: randomUUID()}})")
-        print(id)
-        print(len(json_file["nodes"]))
-
-        for attr_name, attr_values in attributes.items():
-            for attr_config in attr_values:
-                if attr_config['position'][1] == 'header':
-                    # If the attribute value is in the header, use the attribute name directly
-                    query_parts.append(f"""SET n{id}.{attr_name} = '{headers[attr_config['position'][0]]}'""")
-                elif attr_config['position'][1] == 'column':
-                    # If the attribute value is in a column, use the column index to access the value
-                    query_parts.append(f"""SET n{id}.{attr_name} = row[{attr_config['position'][0]}]""")
-    for rel in json_file['relationships']:
-        rel_type = rel['rel_type']
-        start_node = rel['connection'][0]
-        end_node = rel['connection'][1]
-        query_parts.append(f"""MERGE (n{start_node})-[r{start_node}{end_node}:{rel_type}]->(n{end_node})""")
-
-    query = '\n'.join(query_parts)
-    return query
 
 
 def main():

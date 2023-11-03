@@ -3,6 +3,7 @@ import time
 from django.template.loader import render_to_string
 from neomodel import db
 
+from importing.NodeLabelClassification.embeddings import NodeClassifier
 from importing.models import ImportingReport
 
 
@@ -137,6 +138,44 @@ class Importer:
         """
         return self.build_result()
 
+class TableTransformer:
+    """
+    A Table Transformer class to transform the table data into structured JSON data following the schema:
+    {
+      "nodes": [
+        {
+          "id": "node1",
+          "type": "TypeA",
+          "name": "Name1"
+        },
+        {
+          "id": "node2",
+          "type": "TypeB",
+          "name": "Name2"
+        }
+        // ... other nodes
+      ],
+      "relationships": [
+        {
+          "source": "node1",
+          "target": "node2",
+          "type": "REL_TYPE_1"
+        }
+        // ... other relationships
+      ]
+    }
+    """
+    def __init__(self, data):
+        """
+        Initialize the TableTransformer instance.
+
+        Args:
+            data (dict): The table data.
+        """
+        self.data = data
+
+    def classify_nodes(self):
+        self.node_classifier = NodeClassifier(self.data, )
 class TableImporter(Importer):
     """
     A generic Importer class to run query and generate reports.
@@ -159,30 +198,19 @@ class TableImporter(Importer):
         self.data = data
         self.db_results = None
 
-    def build_query(self):    # Iterate through the list of nodes in the configuration
+    def build_query(self):
+        # Iterate through the list of nodes in the configuration
         query_parts = ["LOAD CSV FROM 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2wLudGdp-uSJ__NXR0lovJWP5gxA6EhyoVHtXQ7_DTLklpwIlA9ySMvF4ShZ6QE2ZSA1Dk7CPx6mu/pub?output=csv' AS row"]
     
         for node_config in self.data['nodes']:
             label = node_config['label']
-            if label == 'manufacturing' or label == 'measurement':
-                label += ':process'
-            if label == 'property' or label == 'parameter':
-                label += ':quanitity'
             id = node_config['node_id']
             attributes = node_config['attributes']
             headers = self.data["headers"]
             # Construct the Cypher query for this node
-            if not 'internal_id' in attributes:
-                query_parts.append(
-                    f"CREATE (n{id}:{label} {{uid: randomUUID()}})")
-            else:
-                query_parts.append(
-                    f"""MERGE (n{id}:{label} {{internal_id: row[{attributes['internal_id'][0]['position'][0]}]}})
-                    ON CREATE SET n{id}.uid = randomUUID()"""
-                    )
-
-
-
+            query_parts.append(
+                f"CREATE (n{id}:{label} {{uid: randomUUID()}})")
+            print(len(self.data["nodes"]))
     
             for attr_name, attr_values in attributes.items():
                 for attr_config in attr_values:
@@ -199,9 +227,7 @@ class TableImporter(Importer):
             query_parts.append(f"""MERGE (n{start_node})-[r{start_node}{end_node}:{rel_type}]->(n{end_node})""")
     
         query = '\n'.join(query_parts)
-        print(query)
         return query, {}
-
 
     def _build_query_report(self, query, params, start, end):
         """
