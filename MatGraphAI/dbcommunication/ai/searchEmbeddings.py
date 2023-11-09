@@ -6,8 +6,8 @@ from pprint import pprint
 from dotenv import load_dotenv
 from neomodel import db
 
-from dbcommunication.ai.config import EMBEDDING_DIMENSIONS
 from dbcommunication.ai.createEmbeddings import request_embedding
+from graphutils.embeddings import EmbeddingSearch
 from matgraph.models.ontology import EMMOMatter
 # loads embeddings for a model into RAM and enables fast search using FAISS
 # index is fetched and built on instance creation

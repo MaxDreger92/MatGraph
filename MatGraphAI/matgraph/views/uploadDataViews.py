@@ -33,33 +33,35 @@ def create_file_node(uid, file_name, file_path):
     :param file_name: The name of the file.
     :param file_path: The path of the file in local storage.
     """
+    print("create file node")
+
     db.cypher_query("CREATE (f:File {uid: $uid, file_name: $file_name, file_path: $file_path})",
                     {"uid": uid, "file_name": file_name, "file_path": file_path})
 
 
-@login_required
-def file_upload_form(request):
-    """
-    A Django view for rendering the file upload form and handling file uploads.
+# @login_required
+# def file_upload_form(request):
+#     """
+#     A Django view for rendering the file upload form and handling file uploads.
+#
+#     :param request: The HTTP request object.
+#     :return: The rendered file upload form or the JSON response after processing a file upload.
+#     """
+#     print("file upload form")
+#
+#     if request.method == 'POST':
+#         file_upload_view = FileUploadView.as_view()
+#         response = file_upload_view(request)
+#
+#         if response.status_code == 201:
+#             # Redirect the user to the success page
+#             return HttpResponseRedirect(response.data['redirect_url'])
+#         else:
+#             return JsonResponse(response.data, status=response.status_code)
+#
+#     return render(request, 'file_upload_form.html')
 
-    :param request: The HTTP request object.
-    :return: The rendered file upload form or the JSON response after processing a file upload.
-    """
 
-    if request.method == 'POST':
-        file_upload_view = FileUploadView.as_view()
-        response = file_upload_view(request)
-
-        if response.status_code == 201:
-            # Redirect the user to the success page
-            return HttpResponseRedirect(response.data['redirect_url'])
-        else:
-            return JsonResponse(response.data, status=response.status_code)
-
-    return render(request, 'file_upload_form.html')
-
-
-@login_required
 class FileUploadView(views.APIView):
     """
     A Django view that receives a file uploaded by the user, saves it locally,
@@ -69,6 +71,7 @@ class FileUploadView(views.APIView):
 
     def post(self, request):
         # Retrieve the uploaded file from the request
+        print("uploading file")
         file_obj = request.FILES['file']
         file_name = file_obj.name
         # Save the uploaded file to local storage

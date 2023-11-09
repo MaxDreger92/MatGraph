@@ -1,15 +1,25 @@
 from neomodel import RelationshipTo, RelationshipFrom, ArrayProperty, FloatProperty, One, ZeroOrMore, \
     StringProperty
 
+from graphutils.models import EmbeddingSearcher
 from matgraph.models.abstractclasses import OntologyNode, UIDDjangoNode
 from matgraph.models.relationships import IsARel
 
 
-class EMMOQuantity(OntologyNode):
+class EMMOQuantity(OntologyNode, EmbeddingSearcher):
     """
     Class representing EMMO quantity in the knowledge graph. This node is part of the European Materials Modelling
     Ontology (EMMO).
     """
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "quantity-embeddings"
+
     # Relationships
     emmo_is_a = RelationshipTo("Property", "EMMO__IS_A",
                                model=IsARel)  # Represents "IS_A" relationship to another EMMOQuantity
@@ -17,11 +27,23 @@ class EMMOQuantity(OntologyNode):
                                    cardinality=ZeroOrMore)
 
 
-class EMMOMatter(OntologyNode):
+class EMMOMatter(OntologyNode, EmbeddingSearcher):
     """
     Class representing EMMO matter in the knowledge graph. This node is also part of the European Materials Modelling
     Ontology (EMMO).
     """
+    # Properties
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "matter-embeddings"
+
+
+
 
     class Meta:
         verbose_name_plural = 'EMMO Matter'  # Plural name for admin interface
@@ -48,11 +70,18 @@ class EMMOMatter(OntologyNode):
 
 
 
-class EMMOProcess(OntologyNode):
+class EMMOProcess(OntologyNode, EmbeddingSearcher):
     """
     Class representing EMMO process in the knowledge graph. This node is a component of the European Materials Modelling Ontology (EMMO).
     """
-
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "process-embeddings"
     class Meta:
         verbose_name_plural = 'EMMO Processes'  # Plural name for admin interface
 
@@ -65,21 +94,4 @@ class EMMOProcess(OntologyNode):
                             model=IsARel)  # "IS_A" relationship from Process model
 
 
-class ModelEmbedding(UIDDjangoNode):
-    """
-    This class represents a Model Embedding, which holds a vector representation of some object or concept for
-    machine learning purposes.
-    """
 
-    class Meta:
-        app_label = "matgraph"  # App label for django
-
-    # Relationships
-    ontology_node = RelationshipTo('graphutils.models.AlternativeLabel', 'FOR', One)  # Points at OntologyNode
-
-    # Properties
-    vector = ArrayProperty(
-        base_property=FloatProperty(),  # The vector is composed of floats
-        required=True  # This field must be populated
-    )
-    input = StringProperty(required=True)  # The original input used to generate the vector

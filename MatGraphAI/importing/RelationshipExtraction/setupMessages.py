@@ -1,14 +1,14 @@
 MATTER_MANUFACTURING_MESSAGE = [{"role": "system",
                                 "content": """
 You assist on generating the relationships in knowledge graphs. You have a deep knowledge about fabrication workflows
-in the field of energy materials and you always strictly follow the rules of the knwledge graph. Following the knowledge
+in the field of energy materials and you always strictly follow the rules of the knowledge graph. Following the knowledge
 graph rules is your highest priority:
 1. Every node needs to have at least one edge another node node.
-2. Matter nodes cannot have an 'is_manufacturing_input' and 'is_manfacturing_output' edge with the same manufacturing node.
-3. Matter node cannot have an 'is_manfacturing_output' relationship with two different manufacturing nodes.
+2. Matter nodes cannot have an 'is_manufacturing_input' and 'is_manufacturing_output' edge with the same manufacturing node.
+3. Matter node cannot have an 'is_manufacturing_output' relationship with two different manufacturing nodes.
 
-- The edge "is_manufacturing_input" connects matter nodes and the manufacturing nodes (e.g., ['Polymer', 'is_manufacturing_input', 'MembraneManufactruing'].
-- The edge "is_manfacturing_output" connects matter nodes and the manufacturing nodes (e.g., ['FuelCellManufactruing', 'is_manfacturing_output', 'FuelCell;'].
+- The edge "is_manufacturing_input" connects matter nodes and the manufacturing nodes (e.g., ['Polymer', 'is_manufacturing_input', 'MembraneManufacturing'].
+- The edge "is_manufacturing_output" connects matter nodes and the manufacturing nodes (e.g., ['FuelCellManufacturing', 'is_manufacturing_output', 'FuelCell;'].
 
 """}
     ,
@@ -54,26 +54,26 @@ process requires catalysts (('8'), ('9') and ('10')). Two as the input and one a
     - ['5', 'is_manufacturing_input', '22'],
     - ['8', 'is_manufacturing_input', '22'],
     - ['9', 'is_manufacturing_input', '22'],
-    - ['22', 'is_manfacturing_output', '10']
+    - ['22', 'is_manufacturing_output', '10']
     
-- "CatalystInkManfuacturing" ('24') produces catlyst ink ('13') from the catalyst powder ('10'), the ionomer ('11') 
+- "CatalystInkManufacturing" ('24') produces catlyst ink ('13') from the catalyst powder ('10'), the ionomer ('11') 
 in a solvent ('12'):
     - ['10', 'is_manufacturing_input', '24'],
     - ['13', 'is_manufacturing_input', '24'],
     - ['11', 'is_manufacturing_input', '24'],
     - ['12', 'is_manufacturing_input', '24'],
-    - ['24', 'is_manfacturing_output', '13']
+    - ['24', 'is_manufacturing_output', '13']
     
 Now we check if all nodes are used and if the rules are followed:
 
 1. Every node needs to have at least on edge to another node.
 - Node '5', '8', '9', '10', '11', '12', '13', '22', '24' are part of triples and no node is isolated.
 
-2. One matter node cannot have an 'is_manufacturing_input' and 'is_manfacturing_output' edge with the same manufacturing node.
-- No matter node has an 'is_manufacturing_input' and 'is_manfacturing_output' edge with the same manufacturing node.
+2. One matter node cannot have an 'is_manufacturing_input' and 'is_manufacturing_output' edge with the same manufacturing node.
+- No matter node has an 'is_manufacturing_input' and 'is_manufacturing_output' edge with the same manufacturing node.
 
-3. One matter node cannot have an 'is_manfacturing_output' relationship with two different manufacturing nodes.
-- No matter node has an 'is_manfacturing_output' relationship with two different manufacturing nodes.
+3. One matter node cannot have an 'is_manufacturing_output' relationship with two different manufacturing nodes.
+- No matter node has an 'is_manufacturing_output' relationship with two different manufacturing nodes.
 
 
 The final result is:
@@ -81,11 +81,11 @@ The final result is:
     [['5', 'is_manufacturing_input', '22'],
     ['8', 'is_manufacturing_input', '22'],
     ['9', 'is_manufacturing_input', '22'],
-    ['22', 'is_manfacturing_output', '10'],
+    ['22', 'is_manufacturing_output', '10'],
     ['10', 'is_manufacturing_input', '24'],
     ['13', 'is_manufacturing_input', '24'],
     ['11', 'is_manufacturing_input', '24'],
-    ['24', 'is_manfacturing_output', '13']]  
+    ['24', 'is_manufacturing_output', '13']]  
                 }"""}
     ,
                                                                {"role": "user",
@@ -127,15 +127,15 @@ The final result is:
                                     [['2', 'is_manufacturing_input', '18'],
                                     ['4', 'is_manufacturing_input', '18'],
                                     ['7', 'is_manufacturing_input', '18'],
-                                    ['18', 'is_manfacturing_output', '3'],
+                                    ['18', 'is_manufacturing_output', '3'],
                                     ['1', 'is_manufacturing_input', '20'],
                                     ['10', 'is_manufacturing_input', '20'],
                                     ['9', 'is_manufacturing_input', '20'],
-                                    ['20', 'is_manfacturing_output', '2'],
+                                    ['20', 'is_manufacturing_output', '2'],
                                     ['5', 'is_manufacturing_input', '22'],
                                     ['8', 'is_manufacturing_input', '22'],
                                     ['6', 'is_manufacturing_input', '21'],
-                                    ['21', 'is_manfacturing_output', '10']]
+                                    ['21', 'is_manufacturing_output', '10']]
                                                 }"""}
                                ]
 
@@ -193,12 +193,12 @@ We need to make sure that each property is assigned to exactly one matter node.
 Therefore we go through all property nodes and assign them to a matter node.
 
 
-- "EW" (22) is the abbreaviation for equivalent weight and is a property of polymers and ionomers. The ionomerr 
+- "EW" (22) is the abbreviation for equivalent weight and is a property of polymers and ionomers. The ionomer 
 AquivionD79-25BS (10) has this property and the D79 in its name is referencing the equivalent weight.
 Therefore we assign the property node 22 to the matter node 10.
     - ['10', 'has_property', '22']
 
-- "I/C" (24) is the abbreaviation for ionomer to carbon ratio and is a property of catalyst layers. The catalyst layer
+- "I/C" (24) is the abbreviation for ionomer to carbon ratio and is a property of catalyst layers. The catalyst layer
 (8) has this property. Therefore we assign the property node 24 to the matter node 8.
     - ['8', 'has_property', '24']
 
@@ -307,18 +307,18 @@ We need to make sure that each parameter is assigned to exactly one matter node.
 Therefore we go through all property nodes and assign them to a matter node.
 
 
-- "RH" (22) with value 95 is the abbreaviation for relative humidity and is a parameter of 'CL DVS sorption at 
+- "RH" (22) with value 95 is the abbreviation for relative humidity and is a parameter of 'CL DVS sorption at 
 '95%RH (% mass change/cm2geo)' (9), because  The name contains '95%RH'. 
 Therefore we assign the parameter node 22 to the matter node 9.
     - ['10', 'has_parameter', '22']
 
-- "RH" (24) with value 80 is the abbreaviation for relative humidity and is a parameter of 'CL DVS sorption at
+- "RH" (24) with value 80 is the abbreviation for relative humidity and is a parameter of 'CL DVS sorption at
 '80%RH (% mass change/cm2geo)' (10), because  The name contains '80%RH'.
 Therefore we assign the parameter node 24 to the matter node 10.
     - ['8', 'has_parameter', '24']
 
 - "Temperature" (26) with value 150 is a parameter of 'hot pressing' (5), because as its a manufacturing step for 
-which the tmeperature is very important. Therefore we assign the parameter node 26 to the matter node 5.
+which the temperature is very important. Therefore we assign the parameter node 26 to the matter node 5.
     - ['5', 'has_parameter', '26']
     
 - "Hot_Pressing_Time" (27) with value 120 is a parameter of 'hot pressing' (5), because as its name contains 'hot pressing'.

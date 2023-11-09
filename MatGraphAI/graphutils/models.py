@@ -18,8 +18,75 @@ from django.apps import apps
 
 from django_neomodel import DjangoNode, classproperty
 from neomodel import UniqueIdProperty, StringProperty, ArrayProperty, AliasProperty, JSONProperty, RelationshipFrom, \
-    ZeroOrOne
+    ZeroOrOne, NodeSet, StructuredNode
 from neomodel.properties import validator, BooleanProperty
+from neomodel import db
+
+from graphutils.embeddings import request_embedding
+
+
+class EmbeddingNodeSet(NodeSet):
+    def __init__(self, cls):
+        super().__init__(cls)
+
+
+    def _get_by_embedding(self, include_similarity, include_input_string, **kwargs):
+
+        #TODO: Needs to have big numbers for limit
+        query = """
+        CALL db.index.vector.queryNodes($embedding, $limit, $vector)
+        YIELD node AS similarEmbedding, score
+        MATCH (similarEmbedding)-[:FOR]->(n)
+        RETURN n AS title, score AS score, similarEmbedding.input AS similarEmbedding
+        ORDER BY score DESC
+        """
+        kwargs['embedding'] = self.source_class.embedding
+
+        # db.cypher_query(query, {'embedding': embedding, 'topN': limit, 'vector': vector})[0][0]
+        # if limit:
+        #     self.limit = limit
+        #
+        # return self.query_cls(self).build_ast()._execute(False)
+
+        results, _ = db.cypher_query(query, kwargs, resolve_objects=True)
+        # The following is not as elegant as it could be but had to be copied from the
+        # version prior to cypher_query with the resolve_objects capability.
+        # It seems that certain calls are only supposed to be focusing to the first
+        # result item returned (?)
+        if results:
+            if include_similarity and include_input_string:
+                return [[n[0], n[1], n[2]] for n in results]
+            elif include_similarity:
+                return [[n[0], n[1]] for n in results]
+            elif include_input_string:
+                return [[n[0], n[2]] for n in results]
+
+            else:
+                return [n[0] for n in results]
+        return []
+
+
+    def get_by_embedding(self, include_similarity = False, include_input_string = False, **kwargs):
+        """
+        Retrieve one node from the set matching supplied parameters
+        :param lazy: False by default, specify True to get nodes with id only without the parameters.
+        :param kwargs: same syntax as `filter()`
+        :return: node
+        """
+        result = self._get_by_embedding(include_similarity, include_input_string, **kwargs)
+        return result
+
+
+    def get_by_string(self, include_similarity = False, include_input_string = False, **kwargs):
+        """
+        Retrieve one node from the set matching supplied parameters
+        :param lazy: False by default, specify True to get nodes with id only without the parameters.
+        :param kwargs: same syntax as `filter()`
+        :return: node
+        """
+        kwargs["vector"] = request_embedding(kwargs['string'])
+        result = self._get_by_embedding(include_similarity, include_input_string, **kwargs)
+        return result
 
 
 class UIDDjangoNode(DjangoNode):
@@ -90,27 +157,7 @@ class UploadedFile:
         })
 
 
-class UploadedFilesList(list):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def upload(self, upload):
-        self.append(UploadedFile(upload.file, upload.name))
-
-    @classmethod
-    def from_future_attachments(cls, attachments):
-        from attachments.models import FutureAttachment
-
-        ufl = cls()
-
-        for att in attachments:
-            att = FutureAttachment.objects.get(id=att['id'])
-            ufl.append(UploadedFile(att.file.name, att.name))
-            att.keep_file = True  # make sure file is not deleted when FutureAttachment is deleted
-            att.save()
-
-        return ufl
 
 
 class UploadedFileProperty(JSONProperty):
@@ -124,16 +171,7 @@ class UploadedFileProperty(JSONProperty):
         return value._to_json()
 
 
-class FileUploadProperty(ArrayProperty):
 
-    def __init__(self, *args, **kwargs):
-        kwargs['base_property'] = UploadedFileProperty()
-        kwargs['default'] = UploadedFilesList()
-        super().__init__(*args, **kwargs)
-
-    @validator
-    def inflate(self, value):
-        return UploadedFilesList(super().inflate(value))
 
 
 class AlternativeLabel(DjangoNode):
@@ -144,3 +182,26 @@ class AlternativeLabel(DjangoNode):
     primary = BooleanProperty(default=False)
     type = StringProperty(required=False)
     language = StringProperty(required=False)
+
+
+
+from django.db import models
+from neo4j import GraphDatabase
+
+class EmbeddingSearcher:
+    # Your model fields here
+
+
+    def query_vector(self, vector, topN=10):
+        query = """
+        CALL db.index.vector.queryNodes($embedding, $topN, $vector)
+        YIELD node AS similarEmbedding, score
+        MATCH (similarEmbedding)-[:FOR]->(n)
+        RETURN n.name AS title, score
+        """
+
+
+        # Connect to the database
+        result, _ = db.cypher_query(query, {'vector': vector, 'embedding': self.embedding, 'topN': topN})
+
+        return result

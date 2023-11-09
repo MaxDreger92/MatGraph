@@ -5607,104 +5607,609 @@
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AboluteHumidity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoefficientOfHeatTransfer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CubicExpansionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfHeatFlowRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DewPointTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatFlowRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HelmholtzEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicCompressibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicExponent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsothermalCompressibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#JouleThomsonCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeat"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearExpansionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassRatioOfWaterToDryMatter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassieuFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaximumEfficiency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeltingPoint"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MixingRatio"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PlanckFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PressureCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Purity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatioOfSpecificHeatCapacities"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeHumidity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassConcentrationOfVapour"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassFractionOfVapour"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePressureCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Solubility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpcificEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEntropy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGasConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceCoefficientOfHeatTransfer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDifusity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalInsulance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalResistance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicEffiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCSupport"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalayst"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalystLayer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeIonomer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeVoid"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificFilledVolume"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCSupport"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalayst"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalystLayer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeIonomer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeSolid"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeVoid"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEnthalpy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGibbsEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHelmholtzEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificInternalEnergy"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsobaricHeastCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsochoricHeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacityAtSaturatedVaporPressure"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExperimentalCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatedCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TheoreticalCapacity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumElectrodePotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardElectrodePotential"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InternalConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicConductance"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalStabilityLimit"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalWindow"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OpenCircuitVoltage"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalActiveSurfaceArea"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeGeometricSurfaceArea"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeRealSurfaceArea"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Depth"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Diameter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Displacement"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Height"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RadialDistance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Radius"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Thickness"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Wavelength"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Width"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChemicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PhysicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProcessQuantity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChemicalCompositionQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExtensiveQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IntensiveQuantity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeTransferCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrentDensity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalStabilityLimit"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodePotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EndOfDischargeVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MembraneVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OpenCircuitVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Overpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Voltage"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CategorizedPhysicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DerivedQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ISQBaseQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardizedPhysicalQuantity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LimitingCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NetFarradaicCurrent"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronCharge"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElementaryCharge"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NegativeCharge"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PositiveCharge"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacitance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DisplacementCurrentDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFieldStrength"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFlux"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFluxDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricPolarization"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricSusceptibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearDensityOfElectricCharge"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearElectricCurrentDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePermeability"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePermittivity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BatteryEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CycleNumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatedCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ServiceLife"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ServiceMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StorageLife"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicNumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassNumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NumberOfElements"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AverageMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AverageMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MonoIsotopicMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreaDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticActivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Density"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoseEquivalent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergyOfReaction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permeability"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permittivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Pressure"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOrder"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReationRateConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Temperature"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
   </owl:members>
 </owl:AllDisjointClasses>
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AboluteHumidity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoefficientOfHeatTransfer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CubicExpansionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfHeatFlowRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DewPointTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatFlowRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HelmholtzEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicCompressibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicExponent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsothermalCompressibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#JouleThomsonCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeat"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearExpansionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassRatioOfWaterToDryMatter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassieuFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaximumEfficiency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MixingRatio"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PlanckFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PressureCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatioOfSpecificHeatCapacities"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeHumidity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassConcentrationOfVapour"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassFractionOfVapour"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePressureCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Solubility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpcificEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEntropy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGasConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceCoefficientOfHeatTransfer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDifusity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalInsulance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalResistance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicEffiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreaDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticActivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Color"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Density"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoseEquivalent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergyOfReaction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permeability"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permittivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Pressure"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOrder"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReationRateConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Temperature"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
   </owl:members>
 </owl:AllDisjointClasses>
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AbsoluteActivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityOfSolute"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityOfSolvent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardAbsoluteActivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Length"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LuminousIntensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Time"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Area"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCharge"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricResistivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Energy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Entropy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Force"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Length"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Momentum"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Power"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Radioactivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Volume"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Angle"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Porosity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Propability"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RefractiveIndex"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SolidAngle"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Strain"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Tortuosity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFraction"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountConcentration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassConcentration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionQuotient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFraction"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AlterningCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DirectCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InstantaneousCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxContinousDischargeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MigrationCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AlterningCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ClockTime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DirectCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Duration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InstantaneousCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxContinousDischargeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeTime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MigrationCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RestingTime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TimeInterval"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Activity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AffinityOfAChemicalReaction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CanonicalPartitionFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeNumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Degenerency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DegreeOfDissociation"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrolyticConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExtentOfReaction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Fugacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GrandCanonicalPartitionFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicStrength"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeatOfPhaseTransition"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePath"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MicroCanonicalPartitionFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Molality"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarEnthalpy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarEntropy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarGibbsEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarHeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarHelmholtzEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarInternalEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarVolume"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolecularConcentration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolecularPartitionFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NumberOfEntities"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OsmoticCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OsmoticPressure"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PartialPressure"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ParticleConcentration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SingleComponentActivationEnergyOfDiffusion"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SingleComponentMaximalDiffusity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardAmountConcentration"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardChemicalPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardEquilibriumConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StatisticalWeightOfSubsystem"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StoichiometricNumberOfSubstance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDiffusionFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDiffusionRatio"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TransportNumber"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActiveOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AnodicOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CathodicOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ConcentrationOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CrystalizationOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OhmicOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOverpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceOverpotential"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActiveMaterialLoading"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AppliedPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreicCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BatteryQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CellVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurrentDensityLimit"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurrentEfficiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CycleLife"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffuseLayerPotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DischargeCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalKineticQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalThermodynamicQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalTransportQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodePotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeSurfaceArea"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EndOfDischargeVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Overpotential"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualActiveMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RestingTime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TeamperatureCoefficientOfTheCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TemperatureCoefficientOfTheOpenCircuitVolatage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumetricCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#WorkingPotentialRange"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivationEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Enthalpy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Heat"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InternalEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PotentialEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Work"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Action"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularImpulse"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularMomentum"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Compressibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DragCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DragForce"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DynamicViscosity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GaugePressure"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Impulse"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KinematicViscosity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticFrictionFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticFrictionForce"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearMassDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassChangeRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFlow"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFlowRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MechanicalEfficiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfCompression"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfElasticity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfRigidity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MomentOfForce"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MomentOfInertia"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NormalStress"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PoissonNumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeLinearStrain"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RollingResistance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RollingResistanceFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SecondAxialMomentumOfArea"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SecondPolarMomentumOfArea"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SectionModulus"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShearStrain"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShearStress"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolume"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StaticFrictionCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StaticFrictionForce"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceMassDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceTension"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFlowRate"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AcousticQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicAndNuclearPhysicsQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CondensedMatterPhysicsQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectromagneticQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LightAndRadiationQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MechanicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PhysioChemicalQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShelfLife"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpaceAndTimeQuantity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicalQuantity"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AcceptorDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularReciprocalLatticeVector"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularWavenumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicsScatteringFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BraggAngle"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BurgersVector"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CarrierLifetime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoherenceLength"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurieTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeAngularFrequency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeWallerFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfVibrationalStates"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionLength"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DisplacementFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DonorDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EffectiveMass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronAffinity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EnergyDensityOfStates"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumPositionVector"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeIntegral"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiAngularWavenumber"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FundamentalLatticeVecotrs"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FundamentalReciprocalLatticeVecotrs"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GapEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GrueneisenParameter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HallCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HoleDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IntrinsicCarrierDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonizationEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatticePlaneSpacing"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatticeVector"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LondonPenetrationDepth"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LongRangeOrderParameter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LorentzCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LowerCriticalMagneticFluxDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePathOfElectrons"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePathOfPhonons"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MobilityRatio"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NeelTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ParticlePositionVector"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeltierCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelaxationTime"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualResistivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RichardsonConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SeebeckCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShortRangeOrderParameter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StructureFactor"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SuperConductionTransitionTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SuperConductorEnergyGap"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermoElectricVoltage"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicCriticalMagneticFluxDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicGruenEisenParameter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThomsonCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#UpperCriticalMagneticFluxDensity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#WorkFunction"/>
   </owl:members>
 </owl:AllDisjointClasses>
 
@@ -5775,609 +6280,104 @@
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AcceptorDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularReciprocalLatticeVector"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularWavenumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicsScatteringFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BraggAngle"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BurgersVector"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CarrierLifetime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoherenceLength"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurieTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeAngularFrequency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DebyeWallerFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfVibrationalStates"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionLength"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DisplacementFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DonorDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EffectiveMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronAffinity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EnergyDensityOfStates"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumPositionVector"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeIntegral"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiAngularWavenumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FermiTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FundamentalLatticeVecotrs"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FundamentalReciprocalLatticeVecotrs"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GapEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GrueneisenParameter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HallCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HoleDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IntrinsicCarrierDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonizationEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatticePlaneSpacing"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatticeVector"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LondonPenetrationDepth"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LongRangeOrderParameter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LorentzCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LowerCriticalMagneticFluxDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePathOfElectrons"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePathOfPhonons"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MobilityRatio"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NeelTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ParticlePositionVector"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeltierCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelaxationTime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualResistivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RichardsonConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SeebeckCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShortRangeOrderParameter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StructureFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SuperConductionTransitionTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SuperConductorEnergyGap"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermoElectricVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicCriticalMagneticFluxDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicGruenEisenParameter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThomsonCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#UpperCriticalMagneticFluxDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#WorkFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AbsoluteActivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityOfSolute"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityOfSolvent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardAbsoluteActivity"/>
   </owl:members>
 </owl:AllDisjointClasses>
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AcousticQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicAndNuclearPhysicsQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CondensedMatterPhysicsQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectromagneticQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LightAndRadiationQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MechanicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PhysioChemicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShelfLife"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpaceAndTimeQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicalQuantity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Action"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularImpulse"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AngularMomentum"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Compressibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DragCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DragForce"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DynamicViscosity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GaugePressure"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Impulse"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KinematicViscosity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticFrictionFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticFrictionForce"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearMassDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassChangeRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFlow"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFlowRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MechanicalEfficiency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfCompression"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfElasticity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ModulusOfRigidity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MomentOfForce"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MomentOfInertia"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NormalStress"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PoissonNumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeLinearStrain"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RollingResistance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RollingResistanceFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SecondAxialMomentumOfArea"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SecondPolarMomentumOfArea"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SectionModulus"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShearStrain"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ShearStress"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolume"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StaticFrictionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StaticFrictionForce"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceMassDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceTension"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFlowRate"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivationEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Enthalpy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Heat"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InternalEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PotentialEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Work"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActiveMaterialLoading"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AppliedPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreicCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BatteryQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CellVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurrentDensityLimit"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CurrentEfficiency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CycleLife"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffuseLayerPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DischargeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalKineticQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalThermodynamicQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalTransportQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodePotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeSurfaceArea"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EndOfDischargeVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Overpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualActiveMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RestingTime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TeamperatureCoefficientOfTheCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TemperatureCoefficientOfTheOpenCircuitVolatage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumetricCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#WorkingPotentialRange"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActiveOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AnodicOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CathodicOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ConcentrationOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CrystalizationOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OhmicOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOverpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceOverpotential"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Activity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ActivityFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AffinityOfAChemicalReaction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CanonicalPartitionFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeNumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Degenerency"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DegreeOfDissociation"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrolyticConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExtentOfReaction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Fugacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GrandCanonicalPartitionFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicStrength"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeatOfPhaseTransition"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeanFreePath"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MicroCanonicalPartitionFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Molality"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarEnthalpy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarEntropy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarGibbsEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarHeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarHelmholtzEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarInternalEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolarVolume"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolecularConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MolecularPartitionFunction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NumberOfEntities"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OsmoticCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OsmoticPressure"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PartialPressure"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ParticleConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SingleComponentActivationEnergyOfDiffusion"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SingleComponentMaximalDiffusity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardAmountConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardChemicalPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardEquilibriumConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StatisticalWeightOfSubsystem"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StoichiometricNumberOfSubstance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDiffusionFactor"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDiffusionRatio"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TransportNumber"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AlterningCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ClockTime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DirectCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Duration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InstantaneousCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxContinousDischargeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeTime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MigrationCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RestingTime"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TimeInterval"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AdsorptionCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AlterningCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DirectCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoubleLayerCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#FarradaicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InstantaneousCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxContinousDischargeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaxPulseDischargeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MigrationCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PeakCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SquareWaveCurrent"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountConcentration"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AboluteHumidity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoefficientOfHeatTransfer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CubicExpansionCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfHeatFlowRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DewPointTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatFlowRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HelmholtzEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicCompressibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicExponent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsothermalCompressibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#JouleThomsonCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeat"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearExpansionCoefficient"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassConcentration"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionQuotient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFraction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassRatioOfWaterToDryMatter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassieuFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaximumEfficiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MixingRatio"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PlanckFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PressureCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatioOfSpecificHeatCapacities"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeHumidity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassConcentrationOfVapour"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassFractionOfVapour"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePressureCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Solubility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpcificEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEntropy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGasConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceCoefficientOfHeatTransfer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDifusity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalInsulance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalResistance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicEffiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
   </owl:members>
 </owl:AllDisjointClasses>
 
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountFraction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Angle"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AboluteHumidity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CoefficientOfHeatTransfer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CubicExpansionCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DensityOfHeatFlowRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DewPointTemperature"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HeatFlowRate"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#HelmholtzEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicCompressibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsentropicExponent"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsothermalCompressibility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#JouleThomsonCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LatentHeat"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearExpansionCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassConcentration"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassFraction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Porosity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Propability"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RefractiveIndex"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SolidAngle"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Strain"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Tortuosity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#VolumeFraction"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Area"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCharge"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricResistivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Energy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Entropy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Force"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Length"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Momentum"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Power"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Radioactivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Volume"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AmountOfSubstance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Length"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LuminousIntensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Mass"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassRatioOfWaterToDryMatter"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassieuFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MaximumEfficiency"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MeltingPoint"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MixingRatio"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PlanckFunction"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PressureCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Purity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatioOfSpecificHeatCapacities"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeHumidity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassConcentrationOfVapour"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativeMassFractionOfVapour"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePressureCoefficient"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Solubility"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpcificEnergy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEntropy"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGasConstant"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SurfaceCoefficientOfHeatTransfer"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalConductivity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalDifusity"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalInsulance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermalResistance"/>
+    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicEffiency"/>
     <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Time"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreaDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticActivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Color"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Density"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoseEquivalent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergyOfReaction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permeability"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permittivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Pressure"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOrder"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReationRateConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Temperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AreaDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticActivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Density"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DoseEquivalent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricConductivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#GibbsEnergyOfReaction"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permeability"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Permittivity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Pressure"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionOrder"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReactionRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ReationRateConstant"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Temperature"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ThermodynamicTemperature"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AverageMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MonoIsotopicMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AverageMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProtonMass"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#AtomicNumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MassNumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NumberOfElements"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#BatteryEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CycleNumber"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DRate"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatedCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ServiceLife"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ServiceMass"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StorageLife"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacitance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DisplacementCurrentDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFieldStrength"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFlux"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricFluxDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricPolarization"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectricSusceptibility"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearDensityOfElectricCharge"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LinearElectricCurrentDensity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePermeability"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RelativePermittivity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Capacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronCharge"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElementaryCharge"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NegativeCharge"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PositiveCharge"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CatalyticCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DiffusionCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#KineticCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#LimitingCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#NetFarradaicCurrent"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#CategorizedPhysicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#DerivedQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ISQBaseQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardizedPhysicalQuantity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeCutoffPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalStabilityLimit"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodePotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EndOfDischargeVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#MembraneVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OpenCircuitVoltage"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Overpotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Voltage"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChargeTransferCoefficient"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrent"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExchangeCurrentDensity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChemicalCompositionQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExtensiveQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IntensiveQuantity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ChemicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#PhysicalQuantity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ProcessQuantity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Depth"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Diameter"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Displacement"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Height"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RadialDistance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Radius"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Thickness"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Wavelength"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#Width"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalActiveSurfaceArea"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeGeometricSurfaceArea"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrodeRealSurfaceArea"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalStabilityLimit"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectrochemicalWindow"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#OpenCircuitVoltage"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ElectronicConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#InternalConductance"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IonicConductance"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumElectrodePotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#EquilibriumPotential"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#StandardElectrodePotential"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ExperimentalCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#RatedCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#ResidualCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#TheoreticalCapacity"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsobaricHeastCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#IsochoricHeatCapacity"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHeatCapacityAtSaturatedVaporPressure"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificEnthalpy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificGibbsEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificHelmholtzEnergy"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificInternalEnergy"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificFilledVolume"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCSupport"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalayst"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalystLayer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeIonomer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeSolid"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeVoid"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCSupport"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalayst"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeCatalystLayer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeIonomer"/>
-    <rdf:Description rdf:about="http://www.semanticweb.org/mdreger/ontologies/2022/10/properties#SpecificVolumeVoid"/>
   </owl:members>
 </owl:AllDisjointClasses>
 

@@ -10,9 +10,10 @@ from neomodel import db
 from pandarallel import pandarallel
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from dbcommunication.ai.config import EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, EMBEDDING_FETCHING_PROCESSES, \
-    EMBEDDING_DB_CHUNK_SIZE
+
 from dbcommunication.ai.utils import split_dataframe
+from graphutils.config import EMBEDDING_FETCHING_PROCESSES, EMBEDDING_DB_CHUNK_SIZE
+from graphutils.embeddings import request_embedding
 from matgraph.models.ontology import EMMOMatter, EMMOQuantity, EMMOProcess
 
 
@@ -189,6 +190,8 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
 
 def main():
     # Get the project root directory
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
+
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Change the current working directory to the project root directory

@@ -1,9 +1,11 @@
 from datetime import timezone
 import time
+
+from annoying.decorators import render_to
 from django.template.loader import render_to_string
 from neomodel import db
 
-from importing.NodeLabelClassification.embeddings import NodeClassifier
+from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.models import ImportingReport
 
 

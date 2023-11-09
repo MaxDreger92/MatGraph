@@ -59,7 +59,7 @@ class OntologyManager:
         conversation_history.append({"role": "user", "content": prompt})
 
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=conversation_history,
             max_tokens=250,
             n=1,
@@ -185,7 +185,7 @@ def main():
     ontology_folder = "/home/mdreger/Documents/MatGraphAI/Ontology/"
 
     ontology_manager = OntologyManager(api_key, ontology_folder)
-    ontology_manager.import_all_ontologies()
+    ontology_manager.update_all_ontologies()
 
 
 

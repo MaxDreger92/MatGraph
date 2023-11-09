@@ -4,6 +4,7 @@ from uuid import UUID
 import os
 
 import pandas as pd
+from dotenv import load_dotenv
 
 
 def create_table_structure(data):
@@ -59,7 +60,6 @@ def create_table_structure(data):
 # TODO implement filtering for values!
 QUERY_BY_VALUE = """"""
 from matching.matcher import Matcher
-from dbcommunication.ai.searchEmbeddings import EmbeddingSearch
 from matgraph.models.ontology import *
 
 ONTOMAPPER = {"EMMOMatter": "Matter",
@@ -87,15 +87,12 @@ class FabricationWorkflowMatcher(Matcher):
 
 
     def __init__(self, workflow_list, count=False, **kwargs):
-        materials_search = EmbeddingSearch(EMMOMatter)
-        process_search = EmbeddingSearch(EMMOProcess)
-        quantity_search = EmbeddingSearch(EMMOQuantity)
         self.query_list = [
             {
                 **node,
-                'uid': materials_search.find_string(node['name']) if node['type'] == 'EMMOMatter' else
-                process_search.find_string(node['name']) if node['type'] == 'EMMOProcess' else
-                quantity_search.find_string(node['name']) if node['type'] == 'EMMOQuantity' else 'nope'
+                'uid': EMMOMatter.nodes.get_by_string(string = node['name'], limit = 1)[0].uid if node['type'] == 'EMMOMatter' else
+                EMMOProcess.nodes.get_by_string(string = node['name'], limit = 1)[0].uid if node['type'] == 'EMMOProcess' else
+                EMMOQuantity.nodes.get_by_string(string = node['name'], limit = 1)[0].uid if node['type'] == 'EMMOQuantity' else 'nope'
             }
             for node in workflow_list
         ]
@@ -117,8 +114,8 @@ class FabricationWorkflowMatcher(Matcher):
         for node in self.query_list:
             match_only_onto_query.append(f"""(onto_{node['id']}:{node['type']}{{uid: '{node['uid']}'}})""")
             where_query.append(f""" full_onto_{node['id']}.uid IN tree_uid_{node['id']}""")
-            match_onto_query.append(f"""(tree_onto_{node['id']})<-[:EMMO__IS_A*..]-(onto_{node['id']})""")
-            with_onto_query.append(f"""collect(DISTINCT tree_onto_{node['id']}) + onto_{node['id']} as tree_{node['id']}, collect( DISTINCT tree_onto_{node['id']}.uid) + onto_{node['id']}.uid as tree_uid_{node['id']}""")
+            match_onto_query.append(f"""(tree_onto_{node['id']})-[:EMMO__IS_A*..]->(onto_{node['id']})""")
+            with_onto_query.append(f"""apoc.coll.union(collect(tree_onto_{node['id']}), collect(onto_{node['id']})) as tree_{node['id']}, apoc.coll.union(collect( tree_onto_{node['id']}.uid), collect(onto_{node['id']}.uid)) as tree_uid_{node['id']}""")
             with_query.append(f""" node_{node['id']}""")
             if node['type'] == 'EMMOQuantity':
                 match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")

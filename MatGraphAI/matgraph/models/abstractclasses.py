@@ -19,6 +19,8 @@ from django_neomodel import DjangoNode, classproperty
 from neomodel import AliasProperty, StringProperty, UniqueIdProperty, ArrayProperty, RelationshipTo, ZeroOrMore
 from django.apps import apps
 
+from graphutils.models import EmbeddingNodeSet
+
 
 class UIDDjangoNode(DjangoNode):
     """
@@ -105,6 +107,11 @@ class OntologyNode(UIDDjangoNode):
     name: The name of the ontology node according to the EMMO.
     uri: The unique URI of the ontology node according to the EMMO.
     """
+    @classproperty
+    def nodes(cls):
+        return EmbeddingNodeSet(cls)
+
+
     name = StringProperty()
     uri = StringProperty()
     description = StringProperty()
