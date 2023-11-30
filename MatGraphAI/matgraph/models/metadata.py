@@ -97,9 +97,50 @@ class File(CausalObject):
     Represents a file.
     """
     FILE_FORMAT_CHOICES = {
-        "pdf": "PDF",
-        "tif": "tif",
-        "jpg": "JPG",
+        # Text formats
+        "text/plain": "TXT",
+        "text/csv": "CSV",
+        "text/html": "HTML",
+        "text/css": "CSS",
+        "text/javascript": "JavaScript",
+
+        # Image formats
+        "image/jpeg": "JPEG",
+        "image/png": "PNG",
+        "image/gif": "GIF",
+        "image/svg+xml": "SVG",
+        "image/webp": "WEBP",
+
+        # Audio formats
+        "audio/mpeg": "MP3",
+        "audio/ogg": "OGG",
+        "audio/*": "Other audio formats",
+
+        # Video formats
+        "video/mp4": "MP4",
+        "video/quicktime": "MOV",
+        "video/x-msvideo": "AVI",
+        "video/x-ms-wmv": "WMV",
+        "video/x-flv": "FLV",
+
+        # Application-specific formats
+        "application/pdf": "PDF",
+        "application/msword": "DOC",
+        "application/vnd.ms-excel": "XLS",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
+        "application/json": "JSON",
+        "application/xml": "XML",
+        "application/zip": "ZIP",
+        "application/x-7z-compressed": "7z",
+        "application/x-rar-compressed": "RAR",
+
+        # Others
+        "application/octet-stream": "Unknown or binary format",
+        # ... add other MIME types as needed
     }
+
+
     link = StringProperty(unique=True)
     format = StringProperty(choices=FILE_FORMAT_CHOICES)
+    context = StringProperty()

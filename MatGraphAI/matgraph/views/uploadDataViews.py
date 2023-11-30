@@ -1,5 +1,6 @@
 from datetime import date
-
+from http.client import HTTPResponse
+import magic
 import requests
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
@@ -8,6 +9,8 @@ from django.urls import reverse
 from rest_framework import views, status, parsers
 from rest_framework.response import Response
 
+from graphutils.models import UploadedFile
+from importing.importer import TableImporter, TableTransformer
 from matgraph.serializers import UploadedFileSerializer
 
 import os
@@ -16,7 +19,7 @@ import pandas as pd
 from neomodel import db
 from fuzzywuzzy import process
 from matgraph.models.metadata import *  # Import your models here
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from matgraph.importer.import_pubchem_json import IMPORT_PUBCHEM
 
 
@@ -64,58 +67,77 @@ def create_file_node(uid, file_name, file_path):
 
 class FileUploadView(views.APIView):
     """
-    A Django view that receives a file uploaded by the user, saves it locally,
+    A Django view for handling file uploads.
+    This view receives a file uploaded by the user, saves it locally,
     and uploads it to a remote server.
     """
     parser_classes = (parsers.MultiPartParser, parsers.FormParser)
 
     def post(self, request):
+        """Handle POST request to upload a file."""
         # Retrieve the uploaded file from the request
-        print("uploading file")
         file_obj = request.FILES['file']
         file_name = file_obj.name
-        # Save the uploaded file to local storage
-        file_path = default_storage.save(file_name, file_obj)
 
-        # Construct the remote URL using the file_name
+
+
+        # Upload the file to the remote server
+        file_obj.seek(0)  # Reset file pointer
+        remote_upload_response = self.upload_to_remote_server(file_name, file_obj)
+
+
+        if remote_upload_response.status_code == 200:
+            # Parse response and save file record
+
+            self.handle_successful_upload(remote_upload_response, file_name, request)
+            return Response({'success': True}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(self.parse_error(remote_upload_response), status=remote_upload_response.status_code)
+
+    def upload_to_remote_server(self, file_name, file_obj):
+        """Upload the file to a remote server and return the response."""
         url = f"http://134.94.199.40/{file_name}"
-
-        # Define payload and headers for the request
         payload = {'user': 'TLxtWQZbhc', 'password': '50PVZNIO5Q'}
+        files = [('files', (file_name, file_obj.read()))]
+        headers = {'Accept': '*/*'}
+        return requests.post(url, headers=headers, data=payload, files=files)
 
-        # Reset the file pointer to the beginning of the file
-        file_obj.seek(0)
+    def handle_successful_upload(self, response, file_name, request):
+        """Handle actions to be taken after successful file upload."""
+        # Extract information from the response
+        resp_data = response.json()
+        file_link = f"http://134.94.199.40/neo4j/{resp_data['filename'][0]}"
+        file_id = resp_data['id']
 
-        # Prepare the files dictionary for the request
-        files = [
-            ('files', (file_name, file_obj.read()))
-        ]
-        headers = {
-            'Accept': '*/*'
-        }
-
-        # Make the POST request to the remote server to upload the file
-        response = requests.request("POST", url, headers=headers, data=payload, files=files)
-
-        today = date.today()
-        file_id = response.json()['id']
+        # Retrieve additional information from the request
+        context = request.POST.get('data_context', '')
+        file_format = request.FILES['file'].content_type
+        file_obj = request.FILES['file']
 
         # Save the uploaded file information in the database
-        uploaded_file = File(name=file_name, date_added=today, path=file_path, uid=file_id)
-        uploaded_file.save()
-        if response.status_code == 200:
-            create_file_node(uploaded_file.id, file_name, file_path)
-            serializer = UploadedFileSerializer(uploaded_file)
-            return Response({'success': True, 'redirect_url': reverse('upload_success')},
-                            status=status.HTTP_201_CREATED)
-        else:
-            try:
-                json_data = response.json()
-            except ValueError:
-                json_data = {'error': 'Invalid JSON response from the file server'}
+        File(
+            name=file_name,
+            date_added=date.today(),
+            uid=file_id,
+            link=file_link,
+            context=context,
+            format=file_format
+        ).save()
+        print("file saved", file_format)
+        if file_format == "text/csv":
 
-            return Response(json_data, status=response.status_code)
+            table_transformer = TableTransformer(file_obj, {"context": context, 'file_link': file_link, 'file_name': file_name})
+            table_transformer.create_data()
+            table_transformer.classify_node_labels()
+            table_transformer.classify_attributes()
+            table_transformer.create_node_list()
 
+    def parse_error(self, response):
+        """Parse error message from the response."""
+        try:
+            return response.json()
+        except ValueError:
+            return {'error': 'Invalid JSON response from the file server'}
 
 def map_measurement_data(csv_data):
     # Implement your mapping logic for measurement data here

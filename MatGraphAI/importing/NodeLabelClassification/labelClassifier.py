@@ -1,6 +1,10 @@
 import csv
 import os
+
 import django
+
+from graphutils.general import TableDataTransformer
+
 django.setup()
 
 from graphutils import config
@@ -9,82 +13,93 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from dbcommunication.ai.createEmbeddings import request_embedding
-
-from importing.models import NodeLabel, NodeLabelEmbedding
-
-
-
-
-
-
-
-
+from importing.models import LabelClassificationReport, NodeLabel, ImporterCache
 import pandas as pd
 
-class NodeClassifier:
+
+class NodeClassifier(TableDataTransformer):
     """
-    A classifier that processes a CSV file, extracts headers and classifies them using a node label model.
+    A classifier that processes a CSV file, extracts headers, and classifies them using a node label model.
     """
+    def __init__(self, ReportClass = LabelClassificationReport,  **kwargs):
+        kwargs['data'] = [
+            {
+                'header': kwargs['data'].iloc[0, i],
+                'column_values': column_values
+            }
+            for i in range(kwargs['data'].shape[1])
+            if (column_values := kwargs['data'].iloc[1:, i].dropna().tolist())  # Assign and check in one line
+        ]
+        super().__init__(ReportClass = LabelClassificationReport, **kwargs)
 
-    def __init__(self, sample_csv_path):
+
+    def _process(self, **kwargs):
         """
-        Initialize the NodeClassifier with the path to a CSV file.
-
-        Args:
-            sample_csv_path (str): The file path to the sample CSV.
+        Transform the data.
         """
-        self.sample_csv_path = sample_csv_path
-        self._predicted_labels = []
+        if self._pre_check(index = kwargs['index'], element = kwargs['element']):
+            return
+        elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
+            return
+        else:
+            self._transform(index = kwargs['index'], element = kwargs['element'])
 
-    def classify(self):
+    def _create_input_string(self, index, element):
+        first_non_null_value = element['column_values'][0]
+        return f"Define the term \"{element['header']}\" (example: \"{first_non_null_value}\" is a \"{element['header']}\")..."
+
+    def _pre_check(self, index, element):
         """
-        Classify the headers in the CSV file. Predicts labels for each header and stores the results.
+        Perform a check before processing the data.
         """
-        # Read the CSV file, skipping the header as we will process it separately
-        df = pd.read_csv(self.sample_csv_path, header=None)
-        headers = df.iloc[0]
-        df = pd.read_csv(self.sample_csv_path)
+        column = element['column_values']
+        if len(column) == 0:
+            print("No column values", element['header'])
+            return True
+        return False
 
-        for column_index, header in enumerate(headers):
-            # Select the column by header after skipping the first row (header row)
-            column = df[header]
-
-            # Skip if column is empty (excluding the header)
-            if column.isnull().all():
-                print(f"Skipping column: {header}")
-                continue
-
-            # Find the first non-null value in the column
-            first_non_null_value = column.dropna().iloc[0]
-
-            input_string = (f"Define the term \"{header}\" (example: \"{first_non_null_value}\" "
-                            f"is a \"{header}\") in a three word sentence, on a very high abstraction-level"
-                            f"(matter, manufacturing, measurement, property, parameter, equipment, laboratory)!")
-
-            # Assuming NodeLabel is a defined class with a method 'get_by_string' used for classification
-            query_result = NodeLabel.nodes.get_by_string(string=input_string, limit=4,
-                                                         include_similarity=True, include_input_string=True)
-
-            # Store the predicted label in the list
-            self._predicted_labels.append({
-                "header": header,
-                "column_index": column_index,
-                "pd_header": header,  # The key 'pd_header' seems redundant since it's the same as 'header'
-                "input_string": input_string.replace("\n", ""),
-                "predicted_label": query_result[0][0].name,
-                "predicted_sublabel": query_result[0][2],
-                "full_result": query_result
-            })
-
-    @property
-    def predicted_labels(self):
+    def _update(self, result, input_string, **kwargs):
         """
-        Gets the predicted labels after classification has been run.
-
-        Returns:
-            list: A list of dictionaries containing the predicted labels and related information.
+        Update the classification result.
         """
-        return self._predicted_labels
+        self._results.append({
+            "cached": False,
+            "input_string": input_string.replace("\n", ""),
+            **{f"{i+1}_label": r[0].name for i, r in enumerate(result)},
+            **{f"{i+1}_sublabel": r[2] for i, r in enumerate(result)},
+            **{f"{i+1}_similarity": r[1] for i, r in enumerate(result)}
+        })
+        ImporterCache.update(kwargs['element']['header'], label=result[0][0].name)
+
+    def _llm_request(self, input_string, **kwargs):
+        """
+        Send a request to the node label model.
+        """
+        return NodeLabel.nodes.get_by_string(string=input_string, limit=5,
+                                             include_similarity=True, include_input_string=True)
+
+    def _update_with_cache(self, cached, **kwargs):
+        """
+        Update the classification result with a cached result.
+        """
+        self._results.append({
+            "cached": True,
+            "input_string": None,
+            "1_label": cached[1],
+            **{f"{i}_label": None for i in range(2, 5)},
+            **{f"{i}_sublabel": None for i in range(1, 5)},
+            **{f"{i}_similarities": None for i in range(1, 5)}
+        })
+
+
+    def build_results(self):
+        """
+        Build the classification results.
+        """
+        self._results = [{**results, **data} for results, data in zip(self.results, self.data)]
+
+
+
 
 
 class ClassifierTester:
@@ -124,7 +139,7 @@ class ClassifierTester:
         """
         correct_predictions = sum(
             1 for predicted_label in self.predicted_labels
-            if self.actual_labels.get(predicted_label["pd_header"]) == predicted_label["predicted_label"]
+            if self.actual_labels[predicted_label["column_index"]] == predicted_label["predicted_labels"][0]
         )
         total_predictions = len(self.predicted_labels)
         accuracy = correct_predictions / total_predictions if total_predictions else 0
@@ -139,10 +154,10 @@ class ClassifierTester:
             None
         """
         for predicted_label in self.predicted_labels:
-            actual_label = self.actual_labels.get(predicted_label["pd_header"])
-            prediction = predicted_label["predicted_label"]
+            actual_label = self.actual_labels[predicted_label["column_index"]]
+            prediction = predicted_label["predicted_labels"][0]
             if prediction != actual_label:
-                print(f'Header: {predicted_label["header"]}, Predicted: {prediction}, Actual: {actual_label}')
+                print(f'Header: {predicted_label["header"]}, Predicted: {prediction}, Actual: {actual_label}, column: {predicted_label["column_index"]}' )
 
     def store_results_to_csv(self):
         """
@@ -153,16 +168,16 @@ class ClassifierTester:
         """
         filename = f"{datetime.now():%Y-%m-%d_%H-%M-%S}_{int(self.validate_predictions() * 100)}.csv"
         headers = ['Heading', 'Input', 'Ground Truth', 'Correct Prediction'] + \
-                  [f'{i}. Predicted Label' for i in range(1, 5)] + \
-                  [f'{i}. Predicted Sub-label' for i in range(1, 5)] + \
-                  [f'{i}. Similarity' for i in range(1, 5)]
+                  [f'{i}. Predicted Label' for i in range(1, 6)] + \
+                  [f'{i}. Predicted Sub-label' for i in range(1, 6)] + \
+                  [f'{i}. Similarity' for i in range(1, 6)]
 
         with open(filename, 'w', newline='') as file:
             csv_writer = csv.DictWriter(file, fieldnames=headers)
             csv_writer.writeheader()
 
             for predicted_label_data in self.predicted_labels:
-                actual_label = self.actual_labels.get(predicted_label_data["pd_header"])
+                actual_label = self.actual_labels[predicted_label_data["column_index"]]
                 correct_prediction = actual_label == predicted_label_data["full_result"][0][0].name
 
                 row = {
@@ -194,8 +209,9 @@ def classify_and_test(sample_csv_path):
     Args:
         sample_csv_path (str): The path to the sample CSV file.
     """
+    df = pd.read_csv(sample_csv_path, header= None)
     print("Starting classification...")
-    classifier = NodeClassifier(sample_csv_path)
+    classifier = NodeClassifier(df, {"context": "Solar Cell Fabrication", 'file_link': "file_name", 'file_name': "file_name"})
     classifier.classify()
     print("Classification completed.")
 
@@ -212,7 +228,6 @@ def classify_and_test(sample_csv_path):
     print("Results stored successfully.")
 
     print("Predicted labels:")
-    print(classifier.predicted_labels)
 
 def create_and_connect_node_embeddings(node_embedding_inputs, embedding_mapper, request_embedding):
     """
@@ -282,7 +297,7 @@ if __name__ == "__main__":
     sample_csv_path = "../../../data/materials.csv"
 
     # Now it's safe to import Django models
-    from importing.models import NodeLabel, NodeLabelEmbedding
+    from importing.models import NodeLabel, NodeLabelEmbedding, LabelClassificationReport
 
     # Run the classification and testing process
     classify_and_test(sample_csv_path)

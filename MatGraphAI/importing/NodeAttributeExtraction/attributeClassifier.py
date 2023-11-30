@@ -1,95 +1,211 @@
-import csv
 import os
-
-
-import pandas as pd
 from dotenv import load_dotenv
 
-from importing.NodeLabelClassification.config import node_embedding_inputs, embedding_mapper
+from graphutils.general import ReportBuilder, TableDataTransformer
+from importing.models import (NodeAttribute, ManufacturingAttribute,
+                              MeasurementAttribute, MatterAttribute,
+                              MetadataAttribute, PropertyAttribute,
+                              ParameterAttribute, ImporterCache, LabelClassificationReport,
+                              AttributeClassificationReport)
 from mat2devplatform import settings
 
 
-class AttributeClassifier:
-    def __init__(self, data, embedding_mapper, embedding_search = EmbeddingSearch(), new_node_label_embeddings=False,
-                 embeddings_path='NodeLabelClassification/data.pkl'):
-        """
-        Initialize the NodeClassifier.
+class AttributeClassifier(TableDataTransformer):
+    """
+    A classifier for attributing labels and sub-attributes to data headings.
 
-        :param sample_csv_path: Path to the CSV file containing samples.
-        :param embedding_search: An instance of EmbeddingSearch class.
-        :param embedding_mapper: A dictionary mapping embeddings to their corresponding labels.
-        :param new_node_label_embeddings: A flag to indicate if new embeddings should be generated. Default is False.
-        :param embeddings_path: Path to the stored embeddings file. Default is 'data.pkl'.
-        """
-        self.data = data
-        self.es = embedding_search
-        self.embedding_mapper = embedding_mapper
+    Attributes:
+        data (list): The input data to classify.
+        context (str): The context for classification.
+        cache (bool): Flag to use caching mechanism.
+    """
 
-        if new_node_label_embeddings:
-            # Assuming the correct method name is 'generate_embeddings' for embedding_search
-            self.es.generate_embeddings(node_embedding_inputs)
-            self.es.store_embeddings(embeddings_path)
-            self.es.load_embeddings_from_file(embeddings_path)
-        else:
-            self.es.load_embeddings_from_file(embeddings_path)
-
-        self._predicted_labels = []
-
-    def classify(self):
-        """
-        Classify the headings from the CSV file.
-
-        Predicts labels for each heading and stores them in the predicted_labels dictionary.
-        """
-        df = pd.read_csv(self.sample_csv_path, header=None)
-
-        # Extract the original header row
-        headers = df.iloc[0]
-        df = pd.read_csv(self.sample_csv_path)
-
-
-
-
-        for pd_header, header, i in zip(df.columns, headers, range(len(headers))):
-            # Skip if column is empty (besides the heading)
-            if df[pd_header][1:].isnull().all():
-                print("Skipping column: ", pd_header)
-                continue
-
-            # Initialize element as an empty string
-            element = ""
-            # Loop through each row in the column to find a non-null value
-            for row_value in df[pd_header].iloc[1:]:  # Assuming the first row is the header
-                if not pd.isnull(row_value):
-                    element = str(row_value)
-                    break  # Break out of the loop once a non-null value is found
-
-            input_string = f"""Define the term "{header}" (example: "{element}" is a "{header}") in a three word sentence,
-            on a very high abstraction-level(matter, manufacturing, measurement, property, parameter, equipment, laboratory)! 
-                            """
-            # input_string = f"""Classify "{header}" ("{element}" is a "{header}") as either Property, Parameter, Manufacturing or Measurement
-            # or Metadata!
-            #         """
-
-
-            print(input_string)
-            query_result = self.es.find_string(input_string, include_similarity=True)
-            input_string = input_string.replace("\n", "")
-            self._predicted_labels.append({
-                "header": header,
-                "column_index": i,
-                "pd_header": pd_header,
-                "input_string": input_string,
-                "predicted_label": embedding_mapper[query_result[0]],
-                "predicted_sublabel": query_result[0],
-                "full_result": query_result
-            })
-            # Store the predicted label in the dictionary
+    def __init__(self, predicted_labels, ReportClass = LabelClassificationReport,  **kwargs):
+        kwargs['data'] = predicted_labels
+        super().__init__(ReportClass = LabelClassificationReport, **kwargs)
 
     @property
-    def predicted_labels(self):
-        """Return the dictionary containing the predicted labels for each heading."""
-        return self._predicted_labels
+    def iterable(self):
+        """
+        Returns the headers for iteration.
+
+        Returns:
+            pandas.Series: The headers of the table data.
+        """
+        return self.data
+
+    def iterate(self):
+        """
+        Iterates over each header to transform the data.
+        """
+        for index, element in enumerate(self.iterable):
+            self._process(element = element, index = index)
+    def _process(self, **kwargs):
+        """
+        Transform the data.
+        """
+        if self._pre_check(index = kwargs['index'], element = kwargs['element']):
+            return
+        elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
+            return
+        else:
+            self._transform(index = kwargs['index'], element = kwargs['element'])
+
+
+    def _pre_check(self, index, element):
+        """
+        Perform a check before processing the data.
+        """
+
+        column = element['column_values']
+        if len(column) == 0:
+            return True
+        return False
+        if element['1_label'] == 'No label':
+            element.update({
+            f'{i}_attribute': ["No attribute"],
+            f'{i}_subattributes': ["No attribute"],
+            f'{i}_predicted_attribute_similarities': ["No similarities"]}
+            for i in range(1, 5)
+            )
+            return True
+
+        return False
+
+
+    def build_results(self):
+        """
+        Build the classification results.
+        """
+        pass
+
+
+    def _update_from_cache(self, element):
+        """
+        Attempt to update the element from cache.
+
+        Args:
+            element (dict): The element to update.
+
+        Returns:
+            bool: True if the element was updated from cache, False otherwise.
+        """
+        if cached := ImporterCache.fetch(element['header'], element['column_values'][0]):
+            attribute = cached[3]
+            if attribute is not None:
+                self._results.append({
+                    **element,
+                    "cached": True,
+                    "input_string": None,
+                    **{f"{i+1}_attribute": attribute for i in range(4)},  # Assuming 4 attributes
+                    **{f"{i+1}_subattribute": attribute for i in range(4)},  # Assuming 4 subattributes
+                    **{f"{i+1}_attribute_similarity": 1 for i in range(4)}  # Assuming similarity is 1 for all
+                })
+                return True
+        return False
+
+
+
+
+    def _update(self, result, input_string, **kwargs):
+        """
+        Update the element's data based on the query result.
+
+        Args:
+            input_string (str): The input string used for the query.
+            result (list): The query result to update the element with.
+            **kwargs: Additional keyword arguments.
+        """
+        element = kwargs['element']
+        self._results.append({
+            **element,
+            "cached": False,
+            "input_string": input_string.replace("\n", ""),
+            **{f"{i+1}_attribute": r[0].name for i, r in enumerate(result)},
+            **{f"{i+1}_subattribute": r[2] for i, r in enumerate(result)},
+            **{f"{i+1}_attribute_silirity": r[1] for i, r in enumerate(result)}
+        })
+        ImporterCache.update(element['header'], column_attribute=result[0][0].name)
+
+    def _update_with_cache(self, cached, **kwargs):
+        """
+        Update the element's data based on the query result.
+
+        Args:
+            input_string (str): The input string used for the query.
+            result (list): The query result to update the element with.
+            **kwargs: Additional keyword arguments.
+        """
+        element = kwargs['element']
+        self._results.append({
+            **element,
+            "cached": True,
+            "input_string": None,
+            "1_attribute": cached[3],
+            **{f"{i}_attribute": None for i in range(2, 5)},
+            **{f"{i}_subattribute": None for i in range(1, 5)},
+            **{f"{i}_attribute_similarity": None for i in range(1, 5)}
+        })
+
+    def _llm_request(self, input_string, **kwargs):
+        """
+        Send a request to the node label model.
+        """
+        return self._get_node_class(kwargs['element']['1_label']).nodes.get_by_string(string=input_string, limit=5,
+                                             include_similarity=True, include_input_string=True)
+
+    def _create_input_string(self, index, element):
+        """
+        Create an input string for classification based on the element.
+
+        Args:
+            element (dict): The element to create an input string for.
+
+        Returns:
+            str: The created input string.
+        """
+        return f"""
+        context: Solar cell fabrication 
+        table heading: "{element['header']}"
+        Table Rows: {", ".join(element['column_values'][1:min([3, len(element['column_values'])])])}
+        Describe the attribute presented here!
+        """.lower().replace("\t", "")
+
+    @staticmethod
+    def _get_node_class(label):
+        """
+        Get the node class corresponding to a label.
+
+        Args:
+            label (str): The label to get the node class for.
+
+        Returns:
+            Class: The corresponding node class.
+        """
+        node_classes = {
+            "Manufacturing": ManufacturingAttribute,
+            "Measurement": MeasurementAttribute,
+            "Matter": MatterAttribute,
+            "Metadata": MetadataAttribute,
+            "Property": PropertyAttribute,
+            "Parameter": ParameterAttribute  # Default case
+        }
+        return node_classes.get(label, ParameterAttribute)
+
+
+    @property
+    def results(self):
+        """
+        Get the predicted attributes.
+
+        Returns:
+            list: The predicted attributes.
+        """
+
+        return self._results
+
+
+
 
 
 

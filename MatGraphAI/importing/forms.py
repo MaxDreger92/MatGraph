@@ -5,6 +5,8 @@ from django import forms
 # Local application imports
 from graphutils.embeddings import request_embedding
 from graphutils.forms import NeoModelForm, RelationMultipleChoiceField, RelationSingleChoiceField
+from importing.models import ImporterCache
+
 
 class ClassifierAdminForm(NeoModelForm):
     """
@@ -82,3 +84,30 @@ class NodeAttributeClassifierAdminForm(ClassifierAdminForm):
         (None, {"fields": ("uid", "input", "label")}),
         ("Advanced options", {"fields": ["vector"]})
     ]
+
+
+class MatterAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("MatterAttribute", primary_key="uid", label_field='name')
+
+class PropertyAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("PropertyAttribute", primary_key="uid", label_field='name')
+
+class ParameterAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("ParameterAttribute", primary_key="uid", label_field='name')
+
+class MeasurementAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("MeasurementAttribute", primary_key="uid", label_field='name')
+
+class ManufacturingAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("ManufacturingAttribute", primary_key="uid", label_field='name')
+
+class MetadataAttributeClassifierAdminForm(NodeAttributeClassifierAdminForm):
+    # Define a single choice field for the NodeAttribute relation
+    label = RelationSingleChoiceField("MetadataAttribute", primary_key="uid", label_field='name')
+
+

@@ -1,12 +1,16 @@
 from datetime import timezone
 import time
+from pprint import pprint
 
+import pandas as pd
 from annoying.decorators import render_to
 from django.template.loader import render_to_string
 from neomodel import db
 
+from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
+from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
-from importing.models import ImportingReport
+from importing.models import ImportingReport, LabelClassificationReport
 
 
 class Importer:
@@ -167,17 +171,82 @@ class TableTransformer:
       ]
     }
     """
-    def __init__(self, data):
+    def __init__(self, file, context):
         """
         Initialize the TableTransformer instance.
 
         Args:
             data (dict): The table data.
         """
-        self.data = data
 
-    def classify_nodes(self):
-        self.node_classifier = NodeClassifier(self.data, )
+        self.file = file
+        self.context = context
+
+    @property
+    def predicted_labels(self):
+        """
+        Property method to get the predicted labels.
+
+        Returns:
+            The predicted labels.
+        """
+        if not hasattr(self, '_predicted_labels'):
+            self.classify_node_labels()
+        return self._predicted_labels
+    def create_data(self):
+        """
+        Method to check the format of the table data.
+        This method should be implemented in subclasses.
+        """
+        print("create data")
+        try:
+            # Reset the file pointer to the start of the file
+            self.file.seek(0)
+
+            # Read the CSV data into a DataFrame
+            self.data = pd.read_csv(self.file, header=None)
+            return True
+
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
+
+    def classify_node_labels(self):
+        self.node_classifier = NodeClassifier(data = self.data,
+                                              context = self.context['context'],
+                                              file_link = self.context['file_link'],
+                                              file_name = self.context['file_name'])
+        self.node_classifier.run()
+        self._predicted_labels  = self.node_classifier.results
+
+    def classify_attributes(self):
+        print("classify attributes")
+        # print(self.predicted_labels)
+        self.attribute_classifier = AttributeClassifier(
+                                                        self.predicted_labels,
+                                                        data = self.data,
+                                                        context =self.context['context'],
+                                                        file_link = self.context['file_link'],
+                                                        file_name = self.context['file_name']
+                                                        )
+        self.attribute_classifier.run()
+        self._predicted_attributes = self.attribute_classifier.results
+
+
+    def create_node_list(self):
+        print("create node_list attributes")
+        self.node_extractor = NodeExtractor(data = self._predicted_attributes,
+                                            context = self.context['context'],
+                                            file_link = self.context['file_link'],
+                                            file_name = self.context['file_name'])
+        self.node_extractor.run()
+        self._node_list = self.node_extractor.results
+
+
+
+
+
 class TableImporter(Importer):
     """
     A generic Importer class to run query and generate reports.

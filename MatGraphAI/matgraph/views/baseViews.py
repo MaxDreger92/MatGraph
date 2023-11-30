@@ -50,11 +50,13 @@ def upload(request):
         form = UploadedFile(request.FILES, request.FILES['file'].name)
         file_upload_view = FileUploadView()
         file_upload_view.post(request)
-        return file_upload_view(request)
+        return redirect('upload_success')
+
+
     else:
-        # form = UploadFileForm()
-        print("upload")
-    return render(request, 'upload.html')
+            # form = UploadFileForm()
+            print("upload")
+            return render(request, 'upload.html')
 
 @login_required
 def download(request):
