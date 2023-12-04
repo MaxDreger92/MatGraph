@@ -17,7 +17,7 @@ def chat_with_gpt4(setup_message=[], prompt='', api_key=os.environ.get("OPENAI_A
         model="gpt-4-1106-preview",
         messages=conversation_history,
         max_tokens=2500,
-        n=2,
+        n=1,
         stop=None,
         temperature=0,
     )

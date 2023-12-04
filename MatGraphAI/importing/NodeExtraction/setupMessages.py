@@ -186,280 +186,291 @@
 #
 #                               ]
 
+
+
+
+
+#
+#
+# CONTEXT_GENERATION_MESSAGE = [{"role": "system",
+#                                "content": """
+# You are a helpful knowledge graph expert with deep knowledge in materials science and you exist to extract nodes and their attributes from the input data.
+# Your data typically represents fabrication workflows and you excel in identifying and extracting all materials, components, devices, intermediates, products, chemicals, functional units, parts, etc.
+# that are part of the underlying workflow.
+#
+#
+# You will receive the following input list that contains:
+# - the header of each column
+# - a sample column
+# - the attribute_type that needs to be extracted (You only extract the attributes that are mentioned in the input)
+# - the column index
+#
+# Further, you get the context of the data and the table structure.
+#
+# You always need to follow these steps to successfully extract the nodes:
+#
+# 1. Node Extraction from Table Data:
+#     Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+#     If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+#     If only one educt is used to fabricate a node, extract them as a single node
+#     Output: List of all nodes with names
+#         ( e.g. [{"name": [["KOH", 2], ["Base", 3]]}, {"name": [["Electrode", 4]]}]}, {"name": [["Battery", inferred]]}] )
+#
+# 2. Attribute Assignment:
+#     Assign attributes to nodes based on the input data, including the column index for each attribute.
+#     Add "inferred" for attributes not directly mentioned in the table but deduced from context.
+#     All columns need be assigned to node attributes
+#
+# 3. Create a list of dictionaries that contains the nodes and their attributes as a list of dictionaries.
+#
+# Example 1:
+#
+# Input:
+#
+# Context: Battery Fabrication
+#
+# Headers/Row: [
+# {{"column_header": "id", "column_value": "BT-1001", "attribute_type": "identifier", "index": 1}},
+# {{"column_header": "material", "column_value": "KOH", "attribute_type": "name", "index": 2}},
+# {{"column_header": "material", "column_value": "Base", "attribute_type": "name", "index": 3}},
+# {{"column_header": "component", "column_value": "Electrode", "attribute_type": "name", "index": 4}},
+# {{"column_header": "device", "column_value": "Battery", "attribute_type": "name", "index": 5}}]
+#
+# 1. List of all nodes with names:
+# - KOH, Base (same node as KOH is a Base)
+# - Electrode
+# - Battery
+#
+# 2. Attribute Assignment:
+# - identifier can be assigned to Battery as the id starts with "Bt"
+#
+#
+# Output:
+#
+# [{{"name": [["KOH", 2], ["Base", 3]]},
+# {{"name": [["Electrode", 4]]},
+# {{"name": [["Battery", inferred]], "identifier": ["BT-1001", 1]}}]
+#
+# Example 2:
+# Example with all attributes:
+# Input:
+#
+# Context: Catalyst Ink Fabrication
+#
+# Headers/Row: [
+# {{"column_header": "id", "column_value": "CT-1001", "attribute_type": "identifier", "index": 1}},
+# {{"column_header": "function", "column_value": "solvent", "attribute_type": "name", "index": 2}},
+# {{"column_header": "material", "column_value": "EtOh", "attribute_type": "name", "index": 3}},
+# {{"column_header": "function", "column_value": "Catalyst Powder", "attribute_type": "name", "index": 4}},
+# {{"column_header": "conc.", "column_value": "97", "attribute_type": "concentration", "index": 5}},
+# {{"column_header": "material", "column_value": "PtPdC Catalyst", "attribute_type": "name", "index": 6}},
+# {{"column_header": "function", "column_value": "metal", "attribute_type": "name", "index": 6}},
+# {{"column_header": "material", "column_value": "Pt", "attribute_type": "name", "index": 7}},
+# {{"column_header": "ratio", "column_value": "50", "attribute_type": "ratio", "index": 8}},
+# {{"column_header": "batch number", "column_value": "CB-1001", "attribute_type": "batch number", "index": 9}}]
+# {{"column_header": "function", "column_value": "support", "attribute_type": "name", "index": 10}},
+# {{"column_header": "material", "column_value": "C", "attribute_type": "name", "index": 11}},
+# {{"column_header": "ratio", "column_value": "30", "attribute_type": "ratio", "index": 12}},
+# {{"column_header": "function", "column_value": "metal", "attribute_type": "name", "index": 13}},
+# {{"column_header": "material", "column_value": "Pd", "attribute_type": "name", "index": 14}},
+# {{"column_header": "ratio", "column_value": "20", "attribute_type": "ratio", "index": 15}},
+# {{"column_header": "batch number", "column_value": "CB-1001", "attribute_type": "batch number", "index": 16}}]
+#
+# 1. List of all nodes with names:
+# - solvent
+# - EtOH
+# - Catalyst Powder, PtPdC Catalyst (same node as the catalyst powder is a PtPdC Catalyst)
+# - metal, Pt (same node Pt is a metal used to fabricate the catalyst powder)
+# - support, C (same node as the support is C used to fabricate the catalyst powder)
+# - metal, Pd (same node as the metal is Pd used to fabricate the catalyst powder)
+#
+# 2. Attribute Assignment:
+# - batch numbers can be assigned to Pt and Pd as their columns are in close proximity, also the batch number is often given for catalysts
+# - concentration can be assigned to EtOH as their columns are in close proximity and a concentration is often assigned to liquids
+# - ratio can be assigned to Pt, Pd, C, EtOH as their columns are in close proximity
+#
+#
+# Output:
+#
+# [{{"name": [["solvent", 2], ["EtOH", 3]], "concentration": ["97", 5]}},
+# {{"name": [["Catalyst Powder", 4], ["PtPdC Catalyst", 6]], "identifier": ["CT-1001", 1]}},
+# {{"name": [["metal", 6], ["Pt", 7]], "ratio": ["50", 8]}, "batch number": ["CB-1001", 9]}},
+# {{"name": [["support", 10], ["C", 11]], "ratio": ["30", 12]}, "batch number": ["CB-1001", 16]}},
+# {{"name": [["metal", 13], ["Pd", 14]], "ratio": ["20", 15]}, "batch number": ["CB-1001", 16]}}]
+# """},
+#
+#                               {"role": "user",
+#                                "content": f"""
+# Context: Catalyst Fabrication
+#
+# Headers/Row: [
+# {{"header": "id", "row": "CT-1001", "attribute_type": "identifier", "index": 1}},
+# {{"header": "MaterialA", "row": "Pt", "attribute_type": "name", "index": 2}},
+# {{"header": "MaterialB", "row": "C", "attribute_type": "name", "index": 3}},
+# {{"header": "MaterialC", "row": "Pd", "attribute_type": "name", "index": 4}},
+# {{"header": "ratioA", "row": "50", "attribute_type": "ratio", "index": 5}},
+# {{"header": "ratioB", "row": "30", "attribute_type": "ratio", "index": 6}},
+# {{"header": "ratioC", "row": "20", "attribute_type": "ratio", "index": 7}}]
+#
+# REMEMBER:
+#
+# - Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+# - If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+# - If only one educt is used to fabricate a node, extract them as a single node
+#                     """},
+#                               {"role": "system",
+#                                "content": f"""
+#
+# 1. List of all nodes with names:
+# - MaterialA, Pt
+# - MaterialB, C
+# - MaterialC, Pd
+# - Catalyst, inferred from CT-1001 (separate node as more than one material is used to fabricate the catalyst)
+#
+# 2. Attribute Assignment:
+# - identifier can be assigned to Catalyst as their column is in close proximity
+#     - Catalyst -> CT-1001
+# - concentration is not given in the data
+# - ratio can be assigned to Pt, Pd, C as their column is in close proximity
+#     - Pt -> 50
+#     - Pd -> 20
+#     - C -> 30
+# - batch number is not given in the data
+#
+#
+# [{{"name": [["Catalyst", "inferred"]], "identifier": ["CT-1001", 1]}},
+# {{"name": [["Pt", 2]], "ratio": ["50", 5]}},
+# {{"name": [["C", 3]], "ratio": ["30", 6]}},
+# {{"name": [["Pd", 4]], "ratio": ["20", 7]}}]
+# """},
+#
+#
+#                               ]
+
 CONTEXT_GENERATION_MESSAGE = [{"role": "system",
                                "content": """
-You are a helpful knowldge graph expert with deep knowledge in materials science and you exist to extract nodes and their attributes from the input data.
+You are a helpful knowledge graph expert with deep knowledge in materials science and you exist to extract nodes and their attributes from the input data.
+Your data typically represents fabrication workflows and you excel in identifying and extracting all materials, components, devices, intermediates, products, chemicals, functional units, parts, etc. 
+that are part of the underlying workflow.
 
-You will receive the following input list that contains:
-- the header of each column
-- a sample column
-- the attribute_type that needs to be extracted
-- the column index
+
+You will recieve a table with one sample row and the header of each column.
 
 Further, you get the context of the data and the table structure.
 
 You always need to follow these steps to successfully extract the nodes:
 
-1. Explicit Node Extraction from Table Data:
-    1.1 Check if the table contains names that describe the real-world object (as materials/components are often either described by their composition or their function) 
-    and gather them together for this you need to use your knowledge of materials science and check the table structure as attributes describing the same node might be
-    in columns that are close to each other. Use the column headers to infer which names might belong to the same node and
-    which names describe different nodes.
-    Examples: 
-        - "KOH", "Base" might be "name" attributes of the same node as "KOH" is a "Base"
-        - "Catalyst Layer" "Pt" "C" are different nodes as the "Pt" and "C" are "Catalyst Layer" materials 
-    1.2 Create a list of nodes that are explicitly mentioned in the table 
-    Output: List of nodes with names 
-    ( e.g. [{"name": [["KOH", 2], ["Base", 3]]}, {"name": [["Electrode", 4]]}] )
-
-2. Node Identification from Context and Structure:
-    2.1. Analyze the table structure and the context of the data to identify all nodes. (e.g., if the context is "Battery Fabrication" and the table contains a "Run ID" 
-    column then the node "Battery" can be inferred as the ID is used to identify the battery). Use your domain knowledge to make sure you extrct all nodes
-    and the you aggregate the correct names into the right nodes.
+1. Node Extraction from Table Data:
+    Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+    If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+    If only one educt is used to fabricate a node, extract them as a single node
     Output: List of all nodes with names
         ( e.g. [{"name": [["KOH", 2], ["Base", 3]]}, {"name": [["Electrode", 4]]}]}, {"name": [["Battery", inferred]]}] )
 
-3. Attribute Assignment:
-    Assign attributes to nodes based on the input data, including the column index for each attribute.
+2. Attribute Assignment:
+    Assign attributes name, identifier, concentration, ratio, batch number 
     Add "inferred" for attributes not directly mentioned in the table but deduced from context.
+    All columns need be assigned to node attributes
 
-    3.1. Name Assignment:
-        3.1.1 Check all nodes in your node list and check if "names" can be assigned to them using the context or its column header.
+3. Create a list of dictionaries that contains the nodes and their attributes as a list of dictionaries.
 
-    3.2. Identifier Assignment:
-        3.2.1   Check all "identifier" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-                Each node can only have zero or one identifier.
-              
-    3.3. Concentration Assignment:
-        3.3.1   Check all "concentration" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-                Each node can only have zero or one concentration.
-                Example: - The concentration "10" and the nodes "Membrane" and "KOH" let you infer that the concentration belongs to the "KOH" as
-                a membrane cannot have a concentration.
-              
-    3.4. Ratio Assignment:
-        3.4.1   Check all "ratio" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-                Each node can only have zero or one ratio.
-                Example: - The ratios "10" "50" and "40" and the nodes "Pt", "C", "Pd" and "CatalystPowder" let you infer that the ratios belong to the "Pt", "C", "Pd" as
-                the "catalyst powder" is fabricated by mixing the "Pt", "C", "Pd" in the given ratios for which three ratios are given 
-                the right assignment needs to be done by analyzing the table structure and the context.
-              
+Example 1:
 
-    3.5. Batch Number Assignment:
-        3.5.1   Check all "batch number" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-    
-4. Create a list of dictionaries that contains the nodes and their attributes following the given format:
+Context: Battery Fabrication
 
-Nodes:
+Table:
+id (identifier), material (name), material (name), component (name), device (name)
+BT-1001, KOH, Base, Electrode, Battery
 
-[{{"name": [["Cat", "inferred"],["PdC", 2]], "identifier": ["1233495", 1], "batch number": ["0005", 3]}},
-{{"name": [["Solvent", "5"],["EtOh", 2]], "identifier": ["ION-2002", 4], "concentration": ["10%", 6]}},
-{{"name": [["Anode", "8"]], "identifier": ["An-6006", 16]}},
-{{"name": [["Cathode", "9"],["110", 0]]}},
-{{"name": [["Electrolyte", "inferred"],["E3", 13]]}}]
+1. List of all nodes with names:
+- KOH, Base (same node as KOH is a Base)
+- Electrode
+- Battery
 
+2. Attribute Assignment:
+- identifier can be assigned to Battery as the id starts with "Bt" 
+
+Now we can create the list of node, by strictly following the results of step 1 and 2:
+Output:
+
+[{{"name": [["KOH", 2], ["Base", 3]]},
+{{"name": [["Electrode", 4]]},
+{{"name": [["Battery", inferred]], "identifier": ["BT-1001", 1]}}]
+
+Example 2:
+
+Context: Catalyst Ink Fabrication
+
+Table:
+id (identifier), function (name), material (name), function (name), conc. (concentration), material (name), function (name), material (name), ratio (ratio), batch number (batch number)
+CT-1001, solvent, EtOH, Catalyst Powder, 97, PtPdC Catalyst, metal, Pt, 50, CB-1001
+
+1. List of all nodes with names:
+- solvent
+- EtOH
+- Catalyst Powder, PtPdC Catalyst (same node as the catalyst powder is a PtPdC Catalyst)
+- metal, Pt (same node Pt is a metal used to fabricate the catalyst powder)
+- support, C (same node as the support is C used to fabricate the catalyst powder)
+- metal, Pd (same node as the metal is Pd used to fabricate the catalyst powder)
+
+2. Attribute Assignment:
+- batch numbers can be assigned to Pt and Pd as their columns are in close proximity, also the batch number is often given for catalysts
+- concentration can be assigned to EtOH as their columns are in close proximity and a concentration is often assigned to liquids
+- ratio can be assigned to Pt, Pd, C, EtOH as their columns are in close proximity
+
+Now we can create the list of node, by strictly following the results of step 1 and 2:
+Output:
+
+[{{"name": [["solvent", 2], ["EtOH", 3]], "concentration": ["97", 5]}},
+{{"name": [["Catalyst Powder", 4], ["PtPdC Catalyst", 6]], "identifier": ["CT-1001", 1]}},
+{{"name": [["metal", 6], ["Pt", 7]], "ratio": ["50", 8]}, "batch number": ["CB-1001", 9]}},
+{{"name": [["support", 10], ["C", 11]], "ratio": ["30", 12]}, "batch number": ["CB-1001", 16]}},
+{{"name": [["metal", 13], ["Pd", 14]], "ratio": ["20", 15]}, "batch number": ["CB-1001", 16]}}]
+
+REMEMBER:
+
+- Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+- If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+- If only one educt is used to fabricate a node, extract them as a single node
+- do not create duplicate nodes, if not necessary
+- assign concentrations and ratios to educts not to products
+- do not create nodes that have exactly the same name if the materials/components/devoices they represent do not occur multiple times
 """},
+
                               {"role": "user",
                                "content": f"""
-                 Context: Fuel Cell Fabrication
-                 Headers/Row: [
-                {{"header": "run", "row": "RN0721-28", "attribute_type": "identifier", "index": 0}},
-                {{"header": "Catalyst", "row": "F50E-HT", "attribute_type": "name", "index": 2}},
-                {{"header": "Catalyst", "row": "PtBased", "attribute_type": "name", "index": 2}},
-                {{"header": "Catalyst Batch Number", "row": "CB-2023-001", "attribute_type": "batch number", "index": 3}},  
-                {{"header": "Ionomer", "row": "AQ", "attribute_type": "name", "index": 5}},
-                {{"header": "Ionomer Concentration", "row": "10%", "attribute_type": "concentration", "index": 6}},  
-                {{"header": "Transfer substrate", "row": "Gore HCCM", "attribute_type": "name", "index": 10}},
-                {{"header": "Membrane", "row": "MX10.15", "attribute_type": "name", "index": 12}},
-                {{"header": "MEAID", "row": "MEA-5001", "attribute_type": "identifier",  "index": 13}},
-                {{"header": "id", "row": "AN-5005", "attribute_type": "identifier", "index": 14}}, 
-                {{"header": "Anode", "row": "Gore anode", "attribute_type": "name", "index": 15}},
-                {{"header": "id", "row": "GDL-6006", "attribute_type": "identifier", "index": 16}},  
-                {{"header": "GDL", "row": "HW4 B2.2", "attribute_type": "name", "index": 17}},
-                {{"header": "Station", "row": "Ford", "attribute_type": "name", "index": 18}}]
-                 """},
-
-                              {"role": "system",
-                               "content": f""" 
-
-Following the instructions:
-
-1. Explicit Node Extraction from Table Data:
-    1.1 Check if the table contains names that describe the same node and gather them together:
-    
-    - The table contains the following names:
-    - F50E-HT
-    - PtBased
-    - AQ
-    - Gore HCCM
-    - MX10.15
-    - Gore anode
-    - HW4 B2.2
-    - Ford
-
-   
-    - We can infer the following nodes:
-    - (F50E-HT, PtBased) -> Catalyst
-    - (AQ) -> Ionomer
-    - (Gore HCCM) -> Transfer substrate
-    - (MX10.15) -> Membrane
-    - (Gore anode) -> Anode
-    - (HW4 B2.2) -> GDL
-    
-    1.2 Create a list of nodes that are explicitly mentioned in the table: 
-    Output: 
-    [{{"name": [["PtBased", 3],["F50E-HT", 2]}},
-    {{"name": [["AQ", 5]]}},
-    {{"name": [["Gore HCCM", 10]]}},
-    {{"name": [["MX10.15", 12]]}},
-    {{"name": [["Gore anode", 15]]}},
-    {{"name": [["HW4 B2.2", 17]]}},
-    {{"name": [["Ford", 18]]}}]
-
-2. Node Identification from Context and Structure:
-    2.1. Analyze the table structure and the context of the data to identify all nodes. 
-    - The context is "Fuel Cell Fabrication" and the table contains a "run" column then the node "Fuel Cell" can be inferred as the ID is used to identify the fuel cell
-    - Fuel Cell fabrication involves MEA fabrication, from the ID MEA-5001 we can infer the node MEA
-    
-    Output:
-    [{{"name": [["PtBased", 3],["F50E-HT", 2]}},
-    {{"name": [["AQ", 5]]}},
-    {{"name": [["Gore HCCM", 10]]}},
-    {{"name": [["MX10.15", 12]]}},
-    {{"name": [["Gore anode", 15]]}},
-    {{"name": [["HW4 B2.2", 17]]}},
-    {{"name": [["Ford", 18]]}},
-    {{"name": [["Fuel Cell", "inferred"]]}},
-    {{"name": [["MEA", "inferred"]}}]
-    
-3. Attribute Assignment:
-    Assign attributes to nodes based on the input data, including the column index for each attribute.
-    Add "inferred" for attributes not directly mentioned in the table but deduced from context.
-
-    3.1. Name Assignment:
-        3.1.1 Check all nodes in your node list and check if "names" can be assigned to them using the context or its column header:
-        - The following names can be assigned to the nodes:
-        - Catalyst: Catalyst, index: "inferred"
-        - Ionomer: Ionomer, index: "inferred"
-        - Transfer substrate: Transfer substrate, index: "inferred"
-        - Membrane: Membrane, index: "inferred"
-        - Anode: Anode, index: "inferred"
-        - GDL: GDL, index: "inferred"
-        - Fuel Cell: Fuel Cell, index: "inferred"
-        
-
-    3.2. Identifier Assignment:
-        3.2.1 Check all "identifier" attributes in your input list and assign them to the right nodes:
-        - The following identifiers can be assigned to the nodes:
-        - FuelCell: RN0721-28, index: 0
-        - MEA: MEA-5001, index: 13
-        - Anode: AN-5005, index: 14
-        - GDL: GDL-6006, index: 16
-        
-              
-    3.3. Concentration Assignment:
-        3.3.1 Check all "concentration" attributes in your input list and assign them to the right nodes:
-        - The following concentrations can be assigned to the nodes:
-        - Ionomer: 10%, index: 6
-              
-
-    3.4. Ratio Assignment:
-        3.4.1 Check all "ratio" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-              Each node can only have zero or one ratio.
-        No ratio attributes are given in the input list.
-
-    3.5. Batch Number Assignment:
-        3.5.1 Check all "batch number" attributes in your input list and assign them to the right nodes (use the context and the table structure to infer the right node).
-        Output:
-        [{{"name": [["PtBased", 3],["F50E-HT", 2], ["Catalyst", "inferred"], ["batch number": ["CB-2023-001", 3]]}},
-        {{"name": [["AQ", 5]], ["Ionomer", "inferred"], ["concentration": ["10%", 6]]}},
-        {{"name": [["Gore HCCM", 10]], ["Transfer substrate", "inferred"]}},
-        {{"name": [["MX10.15", 12]], ["Membrane", "inferred"]}},
-        {{"name": [["Gore anode", 15]], ["Anode", "inferred"], ["identifier": ["AN-5005", 14]]}},
-        {{"name": [["HW4 B2.2", 17]], ["GDL", "inferred"], ["identifier": ["GDL-6006", 16]]}},
-        {{"name": [["Ford", 18]], ["Station", "inferred"]}},
-        {{"name": [["Fuel Cell", "inferred"]], ["identifier": ["RN0721-28", 0]]}},
-        {{"name": [["MEA", "inferred"]], ["identifier": ["MEA-5001", 13]]}}]
-        
-5. We create a list of dictionaries that contains the nodes and their attributes:
-
-[{{"name": [["PtBased", 3],["F50E-HT", 2], ["Catalyst", "inferred"], ["batch number": ["CB-2023-001", 3]]}},
-{{"name": [["AQ", 5]], ["Ionomer", "inferred"], ["concentration": ["10%", 6]]}},
-{{"name": [["Gore HCCM", 10]], ["Transfer substrate", "inferred"]}},
-{{"name": [["MX10.15", 12]], ["Membrane", "inferred"]}},
-{{"name": [["Gore anode", 15]], ["Anode", "inferred"], ["identifier": ["AN-5005", 14]]}},
-{{"name": [["HW4 B2.2", 17]], ["GDL", "inferred"], ["identifier": ["GDL-6006", 16]]}},
-{{"name": [["Ford", 18]], ["Station", "inferred"]}},
-{{"name": [["Fuel Cell", "inferred"]], ["identifier": ["RN0721-28", 0]]}},
-{{"name": [["MEA", "inferred"]], ["identifier": ["MEA-5001", 13]]}}]
-"""},
-                              {"role": "user",
-                               "content": f""" 
 Context: Catalyst Fabrication
 
-Headers/Row: [
-{{"header": "id", "row": "CT-1001", "attribute_type": "identifier", "index": 1}},
-{{"header": "MaterialA", "row": "Pt", "attribute_type": "name", "index": 2}},
-{{"header": "MaterialB", "row": "C", "attribute_type": "name", "index": 3}},
-{{"header": "MaterialC", "row": "Pd", "attribute_type": "name", "index": 4}},
-{{"header": "ratioA", "row": "50", "attribute_type": "ratio", "index": 5}},
-{{"header": "ratioB", "row": "30", "attribute_type": "ratio", "index": 6}},
-{{"header": "ratioC", "row": "20", "attribute_type": "ratio", "index": 7}},
+Table:
+id (identifier), material (name), material (name), material (name), ratio (ratio), ratio (ratio), ratio (ratio)
+CT-1001, Pt, C, Pd, 50, 30, 20
+
+REMEMBER:
+
+- Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+- If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+- If only one educt is used to fabricate a node, extract them as a single node
                     """},
                               {"role": "system",
                                "content": f"""
-Following the instructions:                               
 
-1. Explicit Node Extraction from Table Data:
-    1.1 Check if the table contains names that describe the same  node and gather them together:
-    - The table contains the following names:
-    - Pt
-    - C
-    - Pd
-    1.2 Create a list of nodes that are explicitly mentioned in the table
-    Output:
-    [{{"name": [["Pt", 2]]}},
-    {{"name": [["C", 3]]}},
-    {{"name": [["Pd", 4]]}}]
+1. List of all nodes with names:
+- MaterialA, Pt
+- MaterialB, C
+- MaterialC, Pd
+- Catalyst, inferred from CT-1001 (separate node as more than one material is used to fabricate the catalyst)
 
-2. Node Identification from Context and Structure:
-    2.1. Analyze the table structure and the context of the data to identify all nodes:
-    - The context is "Catalyst Fabrication" and the table contains a "id" column then the node "Catalyst" can be inferred as the ID is used to identify the catalyst
-    Output:
-    [{{"name": [["Pt", 2]]}},
-    {{"name": [["C", 3]]}},
-    {{"name": [["Pd", 4]]}},
-    {{"name": [["Catalyst", "inferred"]]}}]
-  
-3. Attribute Assignment:
-    Assign attributes to nodes based on the input data, including the column index for each attribute.
-    Add "inferred" for attributes not directly mentioned in the table but deduced from context.
+2. Attribute Assignment:
+- identifier can be assigned to Catalyst as their column is in close proximity
+    - Catalyst -> CT-1001
+- concentration is not given in the data
+- ratio can be assigned to Pt, Pd, C as their column is in close proximity
+    - Pt -> 50
+    - Pd -> 20
+    - C -> 30
+- batch number is not given in the data
 
-    3.1. Name Assignment:
-        3.1.1 Check all nodes in your node list and check if "names" can be assigned to them using the context or its column header:
-        The following names can be assigned to the nodes:
-        - Catalyst: Catalyst, index: "inferred"
-
-    3.2. Identifier Assignment:
-        3.2.1 Check all "identifier" attributes in your input list and assign them to the right nodes:
-        The following identifiers can be assigned to the nodes:
-        - CT-1001, index: 1
-              
-    3.3. Concentration Assignment:
-        3.3.1 Check all "concentration" attributes in your input list and assign them to the right nodes:
-        No concentration attributes are given in the input list.
-
-    3.4. Ratio Assignment:
-        3.4.1 Check all "ratio" attributes in your input list and assign them to the right nodes:
-        The following ratios can be assigned to the nodes:
-        - Pt: 50, index: 5
-        - C: 30, index: 6
-        - Pd: 20, index: 7
-
-    3.5. Batch Number Assignment:
-        3.5.1 Check all "batch number" attributes in your input list and assign them to the right nodes:
-        No batch number attributes are given in the input list.
-    
-4. Create a list of dictionaries that contains the nodes and their attributes following the given format:
+Now we can create the list of node, by strictly following the results of step 1 and 2:
 
 [{{"name": [["Catalyst", "inferred"]], "identifier": ["CT-1001", 1]}},
 {{"name": [["Pt", 2]], "ratio": ["50", 5]}},
@@ -469,5 +480,4 @@ Following the instructions:
 
 
                               ]
-
 
