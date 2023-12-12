@@ -49,6 +49,21 @@ class ImportingReport(models.Model):
             self.file_link = "None given"
         super().save()
 
+    def delete(self, force_insert=False, force_update=False, using=None,
+             update_fields=None, save_to_file_server = True):
+        print("delete")
+        url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
+        print("URL before request:", url)  # Add a print statement to log the URL
+        payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
+        headers = {'Accept': '*/*'}
+        resp_data = requests.delete(url, headers=headers, data=payload)
+        print(resp_data.text)
+        super().delete()
+
+    def delete_selected(self, **kwargs):
+        print("delete")
+        super().delete_selected
+
     def __str__(self):
         """Return a readable representation of the importing report."""
         return f'Importing Report ({self.type}, {self.date})'
@@ -299,6 +314,7 @@ class ImporterCache(models.Model):
 
     @classmethod
     def update(cls, header, **kwargs):
+        print("update", header, kwargs)
         if cached := cls.objects.filter(header=header).first():
             if not cached.validated:
                 for key, value in kwargs.items():
@@ -312,6 +328,7 @@ class ImporterCache(models.Model):
                     if hasattr(cached, key):
                         if getattr(cached, key) is None:
                             setattr(cached, key, value)
+                            setattr(cached, "validated", False)
                     else:
                         raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
                 cached.save()

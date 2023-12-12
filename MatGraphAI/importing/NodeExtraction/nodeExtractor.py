@@ -1,11 +1,95 @@
+import json
+import re
 from collections import defaultdict
 from pprint import pprint
 
-from importing.NodeExtraction.setupMessages import CONTEXT_GENERATION_MESSAGE
+from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE
 from importing.utils.openai import chat_with_gpt4
 
 from graphutils.general import TableDataTransformer
 from importing.models import NodeExtractionReport
+
+
+
+class NodeAggregator:
+    def __init__(self, data, context, setup_message, additional_context):
+        self.header = [f"{element['header']} ({element['attribute']})" for element in data]
+        self.row = [element['column_values'][0] for element in data]
+        self.setup_message = setup_message
+        self.context = context
+        self.additional_context = additional_context
+        self.conversation = self.setup_message
+
+    def create_query(self):
+        return f"""
+        Context: {self.context}
+    
+        Table:
+        {", ".join(self.header)}
+        {", ".join(self.row)}
+        
+        {self.additional_context}
+        """
+
+
+    def validate(self):
+        pass
+
+    def aggregate(self, query):
+        print("Query to GPT-4:")
+        print(query)
+        setup_message = self.setup_message
+
+        # Send the initial query to ChatGPT and get the initial response
+        query_result = chat_with_gpt4(setup_message, query)
+        self.create_node_list(query_result)
+        print("GPT-4 Initial Response:")
+        self.conversation = [*self.conversation,{"role": "user", "content": query}, {"role": "system", "content": query_result[0]}]
+
+    def create_node_list(self, string):
+        print("String:", string)
+        self.node_list = json.loads(re.findall(r'\[\{.*\}\]', string, re.DOTALL)[0])
+        print("NodeList:", self.node_list)
+
+
+    def run(self):
+        query = self.create_query()
+        self.aggregate(query)
+        self.validate()
+
+
+
+
+
+class MatterAggregator(NodeAggregator):
+    def __init__(self,
+                 data,
+                 context,
+                 setup_message = MATTER_AGGREGATION_MESSAGE,
+                 additional_context = """REMEMBER:
+    
+                - Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
+                - If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
+                - If only one educt is used to fabricate a node, extract them as a single node
+                - do not create duplicate nodes, if not necessary
+                - assign concentrations and ratios to educts not to products
+                - do not create nodes that have exactly the same name if the materials/components/devices they represent do not occur multiple times
+                - only extract the attributes name, concentration, ratio, identifier, and batch number
+                
+                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
+                """):
+        super().__init__(data, context, setup_message, additional_context)
+
+class PropertyAggregator(NodeAggregator):
+    def __init__(self,
+                 data,
+                 context,
+                 setup_message = PROPERTY_AGGREGATION_MESSAGE,
+                 additional_context = """REMEMBER:
+                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
+                """):
+        super().__init__(data, context, setup_message, additional_context)
+
 
 
 class NodeExtractor(TableDataTransformer):
@@ -17,57 +101,9 @@ class NodeExtractor(TableDataTransformer):
 
     def get_table_understanding(self):
         # Existing process to generate the initial query and get response
-        data = self.iterable['Matter']
-        header = [element['header'] for element in data]
-        header_table = [element['header'] + f" ({element['attribute']})" for element in data]
-        row = [element['column_values'][0] for element in data]
-        header_row = [{'column_header': element['header'], 'column_value': element['column_values'][0], 'attribute_type': element['attribute'], "index": element["index"]} for element in data]
-        query = f"""
-    Context: {self.context}
-    
-    Table: 
-    {", ".join(header_table)}
-    {", ".join(row)}
-    
-    REMEMBER:
-    
-    - Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
-    - If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
-    - If only one educt is used to fabricate a node, extract them as a single node
-    - do not create duplicate nodes, if not necessary
-    - assign concentrations and ratios to educts not to products
-    - do not create nodes that have exactly the same name if the materials/components/devices they represent do not occur multiple times
-    """
+        matter_aggregator = MatterAggregator(self.iterable["Matter"], self.context)
+        matter_aggregator.run()
 
-        print("Query to GPT-4:")
-        print(query)
-        setup_message = CONTEXT_GENERATION_MESSAGE
-
-        # Send the initial query to ChatGPT and get the initial response
-        query_result = chat_with_gpt4(setup_message, query)
-
-        # Print the initial response
-        print("\nGPT-4 Initial Response:")
-        for res in query_result:
-            print(res)
-        conversation = [*setup_message,{"role": "user", "content": query}, {"role": "system", "content": query_result[0]}]
-
-        # Now, you can continue the conversation by asking additional prompts
-        while True:
-            user_prompt = input("Your prompt to GPT-4 (or enter 'exit' to end the conversation): ")
-
-            if user_prompt.lower() == 'exit':
-                break
-
-            # Send the user's prompt to ChatGPT
-            query_result = chat_with_gpt4(conversation, user_prompt)
-
-            # Print the response
-            print("\nGPT-4 Response:")
-            for res in query_result:
-                print(res)
-            conversation.append({"role": "user", "content": user_prompt})
-            conversation.append({"role": "system", "content": query_result[0]})
 
 
 

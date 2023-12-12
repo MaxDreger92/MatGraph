@@ -51,8 +51,6 @@ def upload(request):
         file_upload_view = FileUploadView()
         file_upload_view.post(request)
         return redirect('upload_success')
-
-
     else:
             # form = UploadFileForm()
             print("upload")

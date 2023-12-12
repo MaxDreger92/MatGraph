@@ -1,26 +1,18 @@
+import os
 from datetime import date
-from http.client import HTTPResponse
-import magic
+
+import pandas as pd
 import requests
 from django.contrib.auth.decorators import login_required
-from django.core.files.storage import default_storage
-from django.http import JsonResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import render
+from fuzzywuzzy import process
+from neomodel import db
 from rest_framework import views, status, parsers
 from rest_framework.response import Response
 
-from graphutils.models import UploadedFile
-from importing.importer import TableImporter, TableTransformer
-from matgraph.serializers import UploadedFileSerializer
-
-import os
-
-import pandas as pd
-from neomodel import db
-from fuzzywuzzy import process
-from matgraph.models.metadata import *  # Import your models here
-from django.shortcuts import render, redirect
+from importing.importer import TableTransformer
 from matgraph.importer.import_pubchem_json import IMPORT_PUBCHEM
+from matgraph.models.metadata import *  # Import your models here
 
 
 def upload_success(request):

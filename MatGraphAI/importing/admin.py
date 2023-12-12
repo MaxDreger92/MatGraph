@@ -1,3 +1,5 @@
+from django.contrib import admin
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from neomodel import Q
 
@@ -5,12 +7,10 @@ from graphutils.admin import NodeModelAdmin
 from importing.forms import NodeLabelClassifierAdminForm, NodeAttributeClassifierAdminForm, \
     MatterAttributeClassifierAdminForm, MetadataAttributeClassifierAdminForm, ManufacturingAttributeClassifierAdminForm, \
     MeasurementAttributeClassifierAdminForm, ParameterAttributeClassifierAdminForm, PropertyAttributeClassifierAdminForm
-from importing.models import ImportingReport, NodeLabelEmbedding, NodeAttributeEmbedding, LabelClassificationReport, \
+from importing.models import NodeLabelEmbedding, LabelClassificationReport, \
     MatterAttributeEmbedding, ManufacturingAttributeEmbedding, MeasurementAttributeEmbedding, \
     ParameterAttributeEmbedding, PropertyAttributeEmbedding, MetadataAttributeEmbedding, ImporterCache, \
     AttributeClassificationReport
-from django.contrib import admin
-
 from matgraph.models.metadata import File
 
 
@@ -142,15 +142,27 @@ class FileAdmin(NodeModelAdmin):
     def check(self, **kwargs):
         return []
 
+class ReportAdmin(admin.ModelAdmin):
 
-@admin.register(LabelClassificationReport)
-class LabelClassifictionReportAdmin(admin.ModelAdmin):
+    fields = [('context', 'date', 'report_file_link'), ('show_file_link_url', 'show_report_link_url'), 'get_report']
 
-    list_display = ['date', 'file_link']
-    list_filter = ('date','file_link', 'context',)
-    fields = (('file_link', 'context', 'date', 'report_file_link'), 'get_report')
-    readonly_fields = ('date', 'get_report')
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            obj.delete()
 
+
+    list_display = ['date', 'show_file_link_url',  'show_report_link_url']
+    list_filter = ('date', 'file_link', 'context',)
+    readonly_fields = ('date', 'get_report', 'show_file_link_url', 'show_report_link_url')
+
+    def show_file_link_url(self, obj):
+        return format_html("<a href='{url}'>{url}</a>", url=obj.file_link)
+    show_file_link_url.short_description = 'File Link'
+    show_file_link_url.allow_tags = True
+    def show_report_link_url(self, obj):
+        return format_html("<a href='{url}'>{url}</a>", url=obj.report_file_link)
+    show_report_link_url.short_description = 'Report Link'
+    show_report_link_url.allow_tags = True
     def get_report(self, obj):
         return mark_safe(obj.html_report)
     get_report.short_description = 'Report'
@@ -170,34 +182,16 @@ class LabelClassifictionReportAdmin(admin.ModelAdmin):
         may_have_duplicates = False
 
         return queryset, may_have_duplicates
+
+@admin.display(description="FileLink")
+@admin.register(LabelClassificationReport)
+class LabelClassifictionReportAdmin(ReportAdmin):
+    pass
+
 
 @admin.register(AttributeClassificationReport)
 class AttributeClassifictionReportAdmin(admin.ModelAdmin):
-
-    list_display = ['date', 'file_link']
-    list_filter = ('date','file_link', 'context',)
-    fields = (('file_link', 'context', 'date', 'report_file_link'), 'get_report')
-    readonly_fields = ('date', 'get_report')
-
-    def get_report(self, obj):
-        return mark_safe(obj.html_report)
-    get_report.short_description = 'Report'
-
-
-    # needs to be introduced to enable search, actual search is done by get_search_results
-    search_fields = ('name', 'context')
-
-    # Actual search
-    def get_search_results(self, request, queryset, search_term):
-        if search_term:
-            queryset = queryset.filter(
-                Q(name__icontains=search_term) |
-                Q(context__icontains=search_term) |
-                Q(uid=search_term)
-            )
-        may_have_duplicates = False
-
-        return queryset, may_have_duplicates
+    pass
 
 @admin.register(ImporterCache)
 class ImporterCacheAdmin(admin.ModelAdmin):
