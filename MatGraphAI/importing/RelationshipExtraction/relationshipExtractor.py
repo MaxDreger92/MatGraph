@@ -19,7 +19,7 @@ class RelationshipExtractor:
         context (str): Context in which relationships are to be extracted.
     """
 
-    def __init__(self, input_json, setup_message, gpt_chat, label_one, label_two, context, api_key):
+    def __init__(self, input_json, setup_message, gpt_chat, label_one, label_two, context):
         """
         Initializes the RelationshipExtractor with necessary information.
         """
@@ -32,7 +32,6 @@ class RelationshipExtractor:
         self.triples = []
         self.conversation = setup_message
         self.prompt = ""
-        self.api_key = api_key
         print(self.label_two_nodes, self.label_one_nodes)
 
     def check_one_to_one_destination(self, rel):
@@ -100,7 +99,7 @@ class RelationshipExtractor:
     @property
     def isolated_nodes(self):
         """Get a list of nodes that are isolated (not present in relationship triples)."""
-        return [node for node in self.node_ids if node not in self.flatten_relations]
+        return [str(node) for node in self.node_ids if node not in self.flatten_relations]
 
     @property
     def is_connected(self):
@@ -131,7 +130,7 @@ class RelationshipExtractor:
             Only return the revised list!"""
             print("Revise isolated nodes...")
             print(prompt)
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
 
@@ -150,7 +149,7 @@ class RelationshipExtractor:
             prompt += "Only return the revised list."
             print("Revise triples...")
             print(prompt)
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
 
@@ -161,7 +160,7 @@ class RelationshipExtractor:
                       Return only the revised list.""")
             print("Revise connectedness...")
             print(prompt)
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
 
@@ -171,7 +170,7 @@ class RelationshipExtractor:
 
     def initial_extraction(self):
         """Extract the relationships using the initial prompt."""
-        response = self.gpt_chat(self.api_key, self.setup_message, self.prompt)
+        response = self.gpt_chat(self.setup_message, self.prompt)
         print("Response: \n",response)
         self.triples = ast.literal_eval(response.replace(" ", "").replace("{", "").replace("}", ""))
         print("Triples:\n", self.triples)

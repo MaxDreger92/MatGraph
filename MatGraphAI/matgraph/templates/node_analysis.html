@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Node Analysis</title>
+    <style>
+        /* Your CSS styles here */
+    </style>
+</head>
+<body>
+<h1>Node Analysis</h1>
+
+{% if nodes %}
+<form method="post">
+    {% csrf_token %}
+
+    <h2>Nodes</h2>
+    <table>
+        <tr>
+            <th>Node ID</th>
+            <th>Label</th>
+            <th>Attributes</th>
+        </tr>
+        {% for node in nodes.nodes %}
+        <tr>
+            <td>{{ node.node_id }}</td>
+            <td>{{ node.label }}</td>
+            <td>
+                {% for key, values in node.attributes.items %}
+                <div>
+                    <strong>{{ key }}:</strong>
+                    {% for value in values %}
+                    <input type="text" name="attr-{{ node.node_id }}-{{ key }}-value" value="{{ value.0 }}">
+                    <input type="hidden" name="attr-{{ node.node_id }}-{{ key }}-index" value="{{ value.1 }}">
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% if nodes.relationships %}
+    <h2>Relationships</h2>
+    <table>
+        <tr>
+            <th>Relationship Type</th>
+            <th>Connections</th>
+        </tr>
+        {% for relationship in nodes.relationships %}
+        <tr>
+            <td>
+                <input type="text" name="rel-{{ forloop.counter }}-type" value="{{ relationship.rel_type }}">
+            </td>
+            <td>
+                <input type="text" name="rel-{{ forloop.counter }}-connection" value="{{ relationship.connection|join:', ' }}">
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+
+    <input type="submit" value="Submit Changes">
+</form>
+{% else %}
+<p>No nodes data available for analysis.</p>
+{% endif %}
+</body>
+</html>

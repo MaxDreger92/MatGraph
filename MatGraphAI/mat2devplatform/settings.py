@@ -30,7 +30,7 @@ if not SECRET_KEY:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'dal',
     'dal_select2',
+    'rest_framework'
 ]
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'

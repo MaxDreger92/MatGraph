@@ -145,8 +145,6 @@ def flatten_dict(dict):
     return dict
 
 def flatten_json(json_obj):
-    for node in json_obj:
-        node["attributes"] = flatten_dict(node["attributes"])
     return json_obj
 
 

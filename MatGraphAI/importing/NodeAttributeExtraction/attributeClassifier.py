@@ -2,11 +2,13 @@ import os
 from dotenv import load_dotenv
 
 from graphutils.general import ReportBuilder, TableDataTransformer
+from importing.NodeAttributeExtraction.setupMessages import PROPERTY_PARAMETER_MESSAGE
 from importing.models import (NodeAttribute, ManufacturingAttribute,
                               MeasurementAttribute, MatterAttribute,
                               MetadataAttribute, PropertyAttribute,
                               ParameterAttribute, ImporterCache, LabelClassificationReport,
                               AttributeClassificationReport)
+from importing.utils.openai import chat_with_gpt3, chat_with_gpt4
 from mat2devplatform import settings
 
 
@@ -22,7 +24,12 @@ class AttributeClassifier(TableDataTransformer):
 
     def __init__(self, predicted_labels, ReportClass = LabelClassificationReport,  **kwargs):
         kwargs['data'] = predicted_labels
+        self.attribute_type = 'column_attribute'
         super().__init__(ReportClass = LabelClassificationReport, **kwargs)
+
+    def set_labels(self, labels):
+        print("Setting labels")
+        print(labels)
 
     @property
     def iterable(self):
@@ -47,6 +54,23 @@ class AttributeClassifier(TableDataTransformer):
         if self._pre_check(index = kwargs['index'], element = kwargs['element']):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
+            print("attribute cache hit")
+            return
+        elif kwargs['element']['1_label'] == 'Property' or kwargs['element']['1_label'] == 'Parameter':
+            print("Uses GPT4")
+            prompt = f"""
+            Context: {self.context}.
+            Header: {kwargs['element']['header']}
+            Column values: {', '.join(kwargs['element']['column_values'][:4])}
+            """
+            result = chat_with_gpt4(setup_message= PROPERTY_PARAMETER_MESSAGE, prompt = prompt)
+            print(prompt, result)
+            if result == "value" or result == "unit" or result == "error" or result == "standard deviation":
+                ImporterCache.update(kwargs['element']['header'], column_attribute=result, attribute_type=self.attribute_type)
+            else:
+                print("         HIIIII\n\n")
+                result = "value"
+            self._update_with_chat(result = result, input_string = prompt, **kwargs)
             return
         else:
             self._transform(index = kwargs['index'], element = kwargs['element'])
@@ -72,12 +96,25 @@ class AttributeClassifier(TableDataTransformer):
 
         return False
 
+    def _update_with_chat(self, result, input_string, **kwargs):
+        """
+        Update the classification result with a chat result.
+        """
+        print("Chat result", result)
+        self._results.append({
+            **kwargs['element'],
+            "cached": False,
+            "input_string": input_string.replace("\n", "").replace(" ", ""),
+            "1_attribute": result,
+            **{f"{i}_attribute": None for i in range(2, 5)},
+            **{f"{i}_subattributes": None for i in range(1, 5)},
+            **{f"{i}_predicted_attribute_similarities": None for i in range(1, 5)}
+        })
+        ImporterCache.update(kwargs['element']['header'], column_attribute=result, attribute_type=self.attribute_type)
+
 
     def build_results(self):
-        """
-        Build the classification results.
-        """
-        pass
+        self._results = sorted(self._results, key=lambda x: x['index'])
 
 
     def _update_from_cache(self, element):
@@ -125,7 +162,7 @@ class AttributeClassifier(TableDataTransformer):
             **{f"{i+1}_subattribute": r[2] for i, r in enumerate(result)},
             **{f"{i+1}_attribute_silirity": r[1] for i, r in enumerate(result)}
         })
-        ImporterCache.update(element['header'], column_attribute=result[0][0].name)
+        ImporterCache.update(element['header'], column_attribute=result[0][0].name, attribute_type= self.attribute_type)
 
     def _update_with_cache(self, cached, **kwargs):
         """

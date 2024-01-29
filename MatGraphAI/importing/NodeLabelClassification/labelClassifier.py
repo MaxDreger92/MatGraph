@@ -1,3 +1,4 @@
+import _io
 import csv
 import os
 
@@ -25,10 +26,15 @@ class NodeClassifier(TableDataTransformer):
     A classifier that processes a CSV file, extracts headers, and classifies them using a node label model.
     """
     def __init__(self, ReportClass = LabelClassificationReport,  **kwargs):
+        self.attribute_type = "column_label"
+        if type(kwargs['data']) == _io.StringIO:
+            kwargs['data'].seek(0)
+            kwargs['data'] = pd.read_csv(kwargs['data'], header=None)
         kwargs['data'] = [
             {
                 'header': kwargs['data'].iloc[0, i],
-                'column_values': column_values
+                'column_values': column_values,
+                'index': i,
             }
             for i in range(kwargs['data'].shape[1])
             if (column_values := kwargs['data'].iloc[1:, i].dropna().tolist())  # Assign and check in one line
@@ -44,6 +50,25 @@ class NodeClassifier(TableDataTransformer):
         """
         quantities = parser.parse(text)
         return len(quantities) > 0
+
+    def create_data(self):
+        """
+        Method to check the format of the table data.
+        This method should be implemented in subclasses.
+        """
+        print("create data")
+        try:
+            # Reset the file pointer to the start of the file
+            self.file.seek(0)
+
+            # Read the CSV data into a DataFrame
+            self._data = pd.read_csv(self.file, header=None)
+            return True
+
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
 
 
     # def check_if_abbreviation(self, header):
@@ -111,6 +136,7 @@ class NodeClassifier(TableDataTransformer):
         Update the classification result.
         """
         self._results.append({
+            **kwargs['element'],
             "cached": False,
             "input_string": input_string.replace("\n", ""),
             **{f"{i+1}_label": r[0].name for i, r in enumerate(result)},
@@ -118,7 +144,7 @@ class NodeClassifier(TableDataTransformer):
             **{f"{i+1}_similarity": r[1] for i, r in enumerate(result)}
         })
         print("NodeName", result[0][0].name)
-        ImporterCache.update(kwargs['element']['header'], label=result[0][0].name)
+        ImporterCache.update(kwargs['element']['header'], column_label=result[0][0].name, attribute_type=self.attribute_type)
 
     def _llm_request(self, input_string, **kwargs):
         """
@@ -134,7 +160,9 @@ class NodeClassifier(TableDataTransformer):
         """
         Update the classification result with a cached result.
         """
-        self._results.append({
+        self._results.append(
+            {
+            **kwargs['element'],
             "cached": True,
             "input_string": None,
             "1_label": cached[1],
@@ -149,6 +177,7 @@ class NodeClassifier(TableDataTransformer):
         """
         print("Chat result", result)
         self._results.append({
+            **kwargs['element'],
             "cached": False,
             "input_string": input_string.replace("\n", ""),
             "1_label": result,
@@ -156,13 +185,13 @@ class NodeClassifier(TableDataTransformer):
             **{f"{i}_sublabel": None for i in range(1, 5)},
             **{f"{i}_similarities": None for i in range(1, 5)}
         })
-        ImporterCache.update(kwargs['element']['header'], label=result)
+        ImporterCache.update(kwargs['element']['header'], column_label=result, attribute_type=self.attribute_type)
 
     def build_results(self):
         """
         Build the classification results.
         """
-        self._results = [{**results, **data} for results, data in zip(self.results, self.data)]
+        self._results = sorted(self._results, key=lambda x: x['index'])
 
 
 

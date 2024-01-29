@@ -1,3 +1,6 @@
+from asyncio import sleep
+from concurrent.futures import ThreadPoolExecutor
+
 import pandas as pd
 from django.template.loader import render_to_string
 
@@ -24,9 +27,7 @@ class ReportBuilder:
         self.results = None
 
     def build_results(self):
-        """
-        Builds the results for the report.
-        """
+
         raise NotImplementedError
 
     def build_report(self):
@@ -101,14 +102,21 @@ class TableDataTransformer(ReportBuilder):
             pandas.Series: The headers of the table data.
         """
         return self.data
+
+    def _process_wrapper(self, element_index):
+        element, index = element_index
+        return self._process(element=element, index=index)
+
     def iterate(self):
         """
-        Iterates over each header to transform the data.
+        Iterates over each header to transform the data in parallel using ThreadPoolExecutor.
         """
-        for index, element in enumerate(self.iterable):
-            self._process(element = element, index = index)
+        with ThreadPoolExecutor() as executor:
+            # Create a list of tuples (element, index) for each element in the iterable
+            elements_with_index = [(element, index) for index, element in enumerate(self.iterable)]
 
-
+            # Map the _process_wrapper to each element in the iterable
+            results = list(executor.map(self._process_wrapper, elements_with_index))
     def _process(self, **kwargs):
         """
         Processes each header, checking cache and transforming data as needed.
@@ -135,8 +143,11 @@ class TableDataTransformer(ReportBuilder):
             bool: True if cached data is used.
         """
         column_value = kwargs['element']['column_values'][0]
+        print(self.attribute_type)
 
-        if cached := ImporterCache.fetch(kwargs['element']['header'], column_value ):
+        if cached := ImporterCache.fetch(kwargs['element']['header'], column_value, attribute_type= self.attribute_type ):
+            print(f"Caching {kwargs['element']['header']} getting {cached}")
+
             self._update_with_cache(cached, **kwargs)
             return True
         return False

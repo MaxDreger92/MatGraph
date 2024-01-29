@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 from graphutils.models import UploadedFile
 from matgraph.views.uploadDataViews import FileUploadView
@@ -42,19 +43,7 @@ def upload_success(request):
     return HttpResponse("File uploaded successfully!")
 
 
-@login_required
-def upload(request):
-    print("upload")
-    print(request)
-    if request.method == 'POST':
-        form = UploadedFile(request.FILES, request.FILES['file'].name)
-        file_upload_view = FileUploadView()
-        file_upload_view.post(request)
-        return redirect('upload_success')
-    else:
-            # form = UploadFileForm()
-            print("upload")
-            return render(request, 'upload.html')
+
 
 @login_required
 def download(request):

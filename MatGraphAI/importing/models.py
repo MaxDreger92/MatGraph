@@ -11,6 +11,7 @@ from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
 from matgraph.models.embeddings import ModelEmbedding
 
 
+
 class ImportingReport(models.Model):
     """
     Model to store reports of data importing processes.
@@ -18,7 +19,7 @@ class ImportingReport(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     report = models.TextField(default='None given')
     html_report = models.TextField(default='None given')
-    context = models.CharField(max_length= 140, default='None given')
+    context = models.TextField(null=True, blank=True, max_length= 140, default='None given')
     file_link = models.CharField(max_length= 100, default='None given')
     report_file_link = models.CharField(max_length= 100, default='None given')
     file_name = models.CharField(max_length= 100, default='None given')
@@ -289,23 +290,30 @@ class ImporterCache(models.Model):
         ('No attribute', 'No attribute'),
         (None, 'None'),
         ]
-
+    # headers = models.
     header = models.CharField(max_length=200,  db_index=True, unique=True)
-    label = models.CharField(max_length=200,choices=LABEL_CHOICES, null = True, blank=True)  # List of labels
+    column_label = models.CharField(max_length=200,choices=LABEL_CHOICES, null = True, blank=True)  # List of labels
     header_attribute = models.CharField(max_length=200,choices=ATTRIBUTE_CHOICES, null = True, blank=True)  # List of header attributes
     column_attribute = models.CharField(max_length=200,choices=ATTRIBUTE_CHOICES, null = True, blank=True)  # List of column attributes
     sample_column = models.CharField(max_length=200)  # List of sample columns
-    validated = models.BooleanField(default=False)
+    validated_column_label = models.BooleanField(default=False, verbose_name="Validated Col-label")
+    validated_column_attribute = models.BooleanField(default=False, verbose_name="Validated Col-attribute")
+    validated_header_attribute = models.BooleanField(default=False, verbose_name="Validated Header-attribute")
 
+    def get_validation_state(self, attribute_type):
+        # Construct the attribute name based on the attribute_type
+        attribute_name = f"validated_{attribute_type}"
 
+        # Return the attribute value if it exists in the class
+        return getattr(self, attribute_name, None)
 
     @classmethod
-    def fetch(cls, header,  column_value):
+    def fetch(cls, header,  column_value, attribute_type):
 
         # cache lookup
         if cached := cls.objects.filter(header=header).first():
-            if cached.validated:
-                return  (cached.sample_column, cached.label, cached.header_attribute, cached.column_attribute)
+            if cached.get_validation_state(attribute_type):
+                return  (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
         else:
             # store in cache
             cls.objects.create(
@@ -313,22 +321,20 @@ class ImporterCache(models.Model):
                 sample_column=column_value[:200])
 
     @classmethod
-    def update(cls, header, **kwargs):
-        print("update", header, kwargs)
+    def update(cls, header, attribute_type, **kwargs):
         if cached := cls.objects.filter(header=header).first():
-            if not cached.validated:
+            if not cached.get_validation_state(attribute_type):
                 for key, value in kwargs.items():
                     if hasattr(cached, key):
                         setattr(cached, key, value)
                     else:
                         raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
                 cached.save()
-            if cached.validated:
+            else:
                 for key, value in kwargs.items():
                     if hasattr(cached, key):
-                        if getattr(cached, key) is None:
-                            setattr(cached, key, value)
-                            setattr(cached, "validated", False)
+                        setattr(cached, key, value)
+                        setattr(cached, f"validated_{attribute_type}", False)
                     else:
                         raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
                 cached.save()

@@ -33,11 +33,8 @@ class hasManufacturingExtractor(RelationshipExtractor):
             prompt = f"""- These matter have multiple "has_output" edges two different manufacturing nodes this result 
             does not follow the rules we defined. Please find another solution following the rules: 
             {self.check_one_to_one_destination("has_output")} \n \n Only return the revised list"""
-            print("Revise has_output...")
-            print(prompt)
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
-            print(response)
             self.update_triples(response)
             self.conversation.append({"role": "user", "content": prompt})
             self.conversation.append({"role": "assistant", "content": response})
@@ -70,29 +67,20 @@ class hasManufacturingExtractor(RelationshipExtractor):
                     Suggest another reasonable solution in which matter nodes share do not share 'is_input' and 'has_output' 
                     edges with one and the same manufacturing node. 
                     \n \n Only return the revised list"""
-            print("Revise manufacturing cycles...")
-            print(prompt)
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation.append({"role": "user", "content": prompt})
             self.conversation.append({"role": "assistant", "content": response})
-            print(response)
             self.revise_manufacturing_cycles()
 
     def refine_results(self):
         """ Validate the extracted relationships. """
         print("Refining results...")
-        print(self.triples)
         self.revise_triples()
-        print(self.triples)
         self.revise_manufacturing_cycles()
-        print(self.triples)
         self.revise_has_output()
-        print(self.triples)
         self.revise_isolated_nodes()
-        print(self.triples)
         self.revise_connectedness()
-        print(self.triples)
 
 
     def generate_result(self):

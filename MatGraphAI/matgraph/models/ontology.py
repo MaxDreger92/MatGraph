@@ -1,12 +1,11 @@
 from neomodel import RelationshipTo, RelationshipFrom, ArrayProperty, FloatProperty, One, ZeroOrMore, \
     StringProperty
 
-from graphutils.models import EmbeddingSearcher
 from matgraph.models.abstractclasses import OntologyNode, UIDDjangoNode
 from matgraph.models.relationships import IsARel
 
 
-class EMMOQuantity(OntologyNode, EmbeddingSearcher):
+class EMMOQuantity(OntologyNode):
     """
     Class representing EMMO quantity in the knowledge graph. This node is part of the European Materials Modelling
     Ontology (EMMO).
@@ -27,7 +26,7 @@ class EMMOQuantity(OntologyNode, EmbeddingSearcher):
                                    cardinality=ZeroOrMore)
 
 
-class EMMOMatter(OntologyNode, EmbeddingSearcher):
+class EMMOMatter(OntologyNode):
     """
     Class representing EMMO matter in the knowledge graph. This node is also part of the European Materials Modelling
     Ontology (EMMO).
@@ -70,7 +69,7 @@ class EMMOMatter(OntologyNode, EmbeddingSearcher):
 
 
 
-class EMMOProcess(OntologyNode, EmbeddingSearcher):
+class EMMOProcess(OntologyNode):
     """
     Class representing EMMO process in the knowledge graph. This node is a component of the European Materials Modelling Ontology (EMMO).
     """

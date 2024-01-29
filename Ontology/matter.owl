@@ -56,6 +56,16 @@
   <rdfs:comment>A material is any substance that has a defined chemical composition and physical properties. In the context of hydrogen technologies, materials are used in various applications such as fuel cells, electrolyzers, and hydrogen storage. Examples of materials used in these applications include metals, ceramics, polymers, and composites.</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#Matter">
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Material</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PhysicalSubstance</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stuff</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Substance</alternative_label>
+  <alternative_labels>['Substance', 'Material', 'Physical Substance', 'Stuff']</alternative_labels>
+  <onto_name>Matter</onto_name>
+  <rdfs:comment>Matter is anything that has mass and takes up space. It can exist in three states: solid, liquid, or gas. In materials science, matter is studied to understand its properties and behavior, and to develop new materials with desired properties.</rdfs:comment>
+</owl:Class>
+
 <owl:Class rdf:about="#Acid">
   <rdfs:subClassOf rdf:resource="#ChemicalSubstance"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AcidicElectrolyte</alternative_label>
@@ -143,6 +153,123 @@
   <rdfs:comment>An electrolyte solution is a liquid or gel that contains ions and can conduct electricity. It is used in batteries, fuel cells, and other electrochemical devices to facilitate the movement of ions between the electrodes and maintain charge balance.</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#LiquidElectrolyte">
+  <rdfs:subClassOf rdf:resource="#Electrolyte"/>
+  <owl:disjointWith rdf:resource="#SolidElectrolyte"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveLiquid</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyteLiquid</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidElectrolyticSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidIonicConductor</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidSalt</alternative_label>
+  <alternative_labels>['Liquid Electrolytic Solution', 'Conductive Liquid', 'Electrolyte Liquid', 'Liquid Ionic Conductor', 'Liquid Salt']</alternative_labels>
+  <onto_name>LiquidElectrolyte</onto_name>
+  <rdfs:comment>A Liquid Electrolyte is a conductive solution used in batteries and fuel cells to facilitate the movement of ions between the electrodes. It is typically composed of a solvent and a dissolved salt or other ionic compound, and can be either aqueous or non-aqueous.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#LiquidSolution">
+  <rdfs:subClassOf rdf:resource="#Solution"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousLiquidMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidHomogeneousMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidPhaseSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidSolventMixture</alternative_label>
+  <alternative_labels>['Homogeneous Liquid Mixture', 'Liquid Solvent Mixture', 'Liquid Phase Solution', 'Liquid Homogeneous Mixture']</alternative_labels>
+  <onto_name>LiquidSolution</onto_name>
+  <rdfs:comment>A liquid solution is a homogeneous mixture of two or more substances in which the molecules or atoms of the substances are evenly distributed. The solvent is the substance that dissolves the solute(s) to form the solution. Liquid solutions are commonly used in chemical reactions, separations, and as solvents for other substances.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Electrolyte">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalMaterial"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticMedium</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicConductor</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicSolution</alternative_label>
+  <alternative_labels>['Ionic Solution', 'Conductive Solution', 'Electrolytic Solution', 'Ionic Conductor', 'Electrolytic Medium']</alternative_labels>
+  <onto_name>Electrolyte</onto_name>
+  <rdfs:comment>An electrolyte is a substance that conducts electricity when dissolved in a solvent, typically water. In electrochemical devices, such as batteries and fuel cells, electrolytes are used to transport ions between the electrodes, enabling the flow of electrical current.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#SolidElectrolyte">
+  <rdfs:subClassOf rdf:resource="#Electrolyte"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonLiquidElectrolyte</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidIonicConductor</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidStateElectrolyte</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidStateIonConductor</alternative_label>
+  <alternative_labels>['Solid-State Electrolyte', 'Non-Liquid Electrolyte', 'Solid Ionic Conductor', 'Solid-State Ion Conductor']</alternative_labels>
+  <onto_name>SolidElectrolyte</onto_name>
+  <rdfs:comment>A solid electrolyte is a non-liquid material that can conduct ions. It is used in batteries and fuel cells as an alternative to liquid electrolytes, offering improved safety, stability, and performance. Solid electrolytes can be made from a variety of materials, including ceramics, polymers, and composites.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Solution">
+  <rdfs:subClassOf rdf:resource="#Mixture"/>
+  <rdfs:subClassOf rdf:resource="#PhaseHomogeneousMixture"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticSolution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicSolution</alternative_label>
+  <alternative_labels>['Ionic Solution', 'Conductive Solution', 'Electrolytic Solution']</alternative_labels>
+  <onto_name>Solution</onto_name>
+  <rdfs:comment>An electrolyte is a substance that produces ions when dissolved in a solvent, typically a liquid. Electrolytes are used in electrochemical cells to facilitate the movement of ions between the anode and cathode, allowing for the flow of electrical current.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalMaterial">
+  <rdfs:subClassOf rdf:resource="#FunctionalMaterial"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectroactiveMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicallyActiveMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrodeMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyteMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RedoxMaterial</alternative_label>
+  <alternative_labels>['Electroactive Material', 'Electrode Material', 'Electrolyte Material', 'Redox Material', 'Electrochemically Active Material']</alternative_labels>
+  <onto_name>ElectrochemicalMaterial</onto_name>
+  <rdfs:comment>An electrochemical material is a substance that can undergo electrochemical reactions, such as oxidation and reduction, in an electrochemical cell. These materials are used in batteries, fuel cells, and other electrochemical devices to store and convert energy.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Mixture">
+  <rdfs:subClassOf rdf:resource="#Continuum"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Blend</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Colloid</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HeterogeneousMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Solution</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Suspension</alternative_label>
+  <alternative_labels>['Blend', 'Solution', 'Suspension', 'Colloid', 'Heterogeneous Mixture', 'Homogeneous Mixture']</alternative_labels>
+  <onto_name>Mixture</onto_name>
+  <rdfs:comment>A mixture is a combination of two or more substances that are not chemically bonded and can be separated by physical means. Mixtures can be homogeneous or heterogeneous and can exist in any state of matter.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PhaseHomogeneousMixture">
+  <rdfs:subClassOf rdf:resource="#Mixture"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SinglePhaseMixture</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">UniformMixture</alternative_label>
+  <alternative_labels>['Homogeneous Mixture', 'Single-Phase Mixture', 'Uniform Mixture']</alternative_labels>
+  <onto_name>PhaseHomogeneousMixture</onto_name>
+  <rdfs:comment>A phase homogeneous mixture is a type of mixture where the components are uniformly distributed throughout the mixture, resulting in a single phase. The composition of the mixture is the same throughout and the properties of the mixture are uniform. Examples of phase homogeneous mixtures include solutions and alloys.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#FunctionalMaterial">
+  <rdfs:subClassOf rdf:resource="#Material"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdvancedMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ApplicationSpecificMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FunctionalizedMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SmartMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TailoredMaterial</alternative_label>
+  <alternative_labels>['Functionalized Material', 'Tailored Material', 'Application-Specific Material', 'Advanced Material', 'Smart Material']</alternative_labels>
+  <onto_name>FunctionalMaterial</onto_name>
+  <rdfs:comment>A functional material is a material that has specific properties or functions that make it useful for a particular application. These materials are designed to have specific physical, chemical, or biological properties that can be tailored to meet the needs of a particular application. Examples of functional materials include catalysts, semiconductors, superconductors, and biomaterials.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Continuum">
+  <rdfs:subClassOf rdf:resource="#Matter"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuousFieldModel</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuousMaterial</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumApproximation</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumHypothesis</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumMechanics</alternative_label>
+  <alternative_labels>['Continuous Material', 'Continuum Mechanics', 'Continuous Field Model', 'Continuum Approximation', 'Continuum Hypothesis']</alternative_labels>
+  <onto_name>Continuum</onto_name>
+  <rdfs:comment>In materials science, a continuum refers to a continuous substance or material that can be modeled as a continuous field, without considering the discrete nature of its molecular or atomic structure. Continuum mechanics is a branch of mechanics that deals with the behavior of materials modeled as continua.</rdfs:comment>
+</owl:Class>
+
 <owl:Class rdf:about="#Actinium">
   <rdfs:subClassOf rdf:resource="#Atom"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ac</alternative_label>
@@ -176,30 +303,6 @@
   <alternative_labels>['Electrode Active Material', 'Battery Active Material', 'Active Cathode Material', 'Active Anode Material']</alternative_labels>
   <onto_name>ActiveMaterial</onto_name>
   <rdfs:comment>An active material is a substance that undergoes electrochemical reactions during charge and discharge cycles in a battery or electrochemical cell. It is responsible for storing and releasing electrical energy in the device. Examples of active materials include lithium cobalt oxide, graphite, and sulfur.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#ElectrochemicalMaterial">
-  <rdfs:subClassOf rdf:resource="#FunctionalMaterial"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectroactiveMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicallyActiveMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrodeMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyteMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RedoxMaterial</alternative_label>
-  <alternative_labels>['Electroactive Material', 'Electrode Material', 'Electrolyte Material', 'Redox Material', 'Electrochemically Active Material']</alternative_labels>
-  <onto_name>ElectrochemicalMaterial</onto_name>
-  <rdfs:comment>An electrochemical material is a substance that can undergo electrochemical reactions, such as oxidation and reduction, in an electrochemical cell. These materials are used in batteries, fuel cells, and other electrochemical devices to store and convert energy.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#FunctionalMaterial">
-  <rdfs:subClassOf rdf:resource="#Material"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AdvancedMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ApplicationSpecificMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FunctionalizedMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SmartMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TailoredMaterial</alternative_label>
-  <alternative_labels>['Functionalized Material', 'Tailored Material', 'Application-Specific Material', 'Advanced Material', 'Smart Material']</alternative_labels>
-  <onto_name>FunctionalMaterial</onto_name>
-  <rdfs:comment>A functional material is a material that has specific properties or functions that make it useful for a particular application. These materials are designed to have specific physical, chemical, or biological properties that can be tailored to meet the needs of a particular application. Examples of functional materials include catalysts, semiconductors, superconductors, and biomaterials.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Aerosol">
@@ -274,19 +377,6 @@
   <rdfs:comment>A suspension is a type of heterogeneous mixture in which solid particles are dispersed in a liquid medium. The solid particles are usually insoluble in the liquid and will settle over time if left undisturbed. Suspensions are commonly used in various industrial applications, such as in the production of paints, pigments, and pharmaceuticals.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#Mixture">
-  <rdfs:subClassOf rdf:resource="#Continuum"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Blend</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Colloid</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HeterogeneousMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Solution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Suspension</alternative_label>
-  <alternative_labels>['Blend', 'Solution', 'Suspension', 'Colloid', 'Heterogeneous Mixture', 'Homogeneous Mixture']</alternative_labels>
-  <onto_name>Mixture</onto_name>
-  <rdfs:comment>A mixture is a combination of two or more substances that are not chemically bonded and can be separated by physical means. Mixtures can be homogeneous or heterogeneous and can exist in any state of matter.</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#Air">
   <rdfs:subClassOf rdf:resource="#SolidSolution"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AirMixture</alternative_label>
@@ -320,17 +410,6 @@
   <alternative_labels>['Solid Blend', 'Solid Composite', 'Solid Solution', 'Solid Suspension', 'Solid Heterogeneous Mixture']</alternative_labels>
   <onto_name>SolidMixture</onto_name>
   <rdfs:comment>A Solid Mixture is a combination of two or more solid materials that are physically mixed together, but not chemically bonded. Solid mixtures can be homogeneous or heterogeneous and are commonly used in materials science for tailoring properties such as strength, conductivity, and thermal stability.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Solution">
-  <rdfs:subClassOf rdf:resource="#Mixture"/>
-  <rdfs:subClassOf rdf:resource="#PhaseHomogeneousMixture"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicSolution</alternative_label>
-  <alternative_labels>['Ionic Solution', 'Conductive Solution', 'Electrolytic Solution']</alternative_labels>
-  <onto_name>Solution</onto_name>
-  <rdfs:comment>An electrolyte is a substance that produces ions when dissolved in a solvent, typically a liquid. Electrolytes are used in electrochemical cells to facilitate the movement of ions between the anode and cathode, allowing for the flow of electrical current.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Alcohol">
@@ -431,6 +510,40 @@
   <rdfs:comment>Homocyclic Organic Molecules are organic compounds that contain only carbon atoms in their rings. These molecules are also known as carbocyclic compounds and are classified based on the number of carbon atoms in their rings. They have various applications in organic synthesis, pharmaceuticals, and materials science.</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#OrganicMolceule">
+  <rdfs:subClassOf rdf:resource="#Molecule"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicCarbonCompound</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicHydrocarbon</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicOrganicChemistry</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicOrganicCompound</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RingedOrganicMolecule</alternative_label>
+  <alternative_labels>['Cyclic Organic Compound', 'Ringed Organic Molecule', 'Cyclic Organic Chemistry', 'Cyclic Carbon Compound', 'Cyclic Hydrocarbon']</alternative_labels>
+  <onto_name>OrganicMolceule</onto_name>
+  <rdfs:comment>A cyclic organic molecule is a type of organic molecule that contains a closed ring of atoms in its structure. These molecules have a wide range of applications in materials science, including as building blocks for polymers, pharmaceuticals, and agrochemicals.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#OpenChainOrganicMolecules">
+  <rdfs:subClassOf rdf:resource="#OrganicMolceule"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AcyclicOrganicMolecules</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AliphaticOrganicMolecules</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BranchedOrganicMolecules</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LinearOrganicMolecules</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonCyclicOrganicMolecules</alternative_label>
+  <alternative_labels>['Acyclic Organic Molecules', 'Aliphatic Organic Molecules', 'Linear Organic Molecules', 'Branched Organic Molecules', 'Non-Cyclic Organic Molecules']</alternative_labels>
+  <onto_name>OpenChainOrganicMolecules</onto_name>
+  <rdfs:comment>Open-chain organic molecules, also known as acyclic or aliphatic molecules, are organic compounds that do not contain a cyclic structure. They are characterized by a linear or branched chain of carbon atoms, and can include functional groups such as alkanes, alkenes, and alkynes. Open-chain organic molecules have a wide range of applications in organic chemistry, materials science, and biochemistry.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Molecule">
+  <rdfs:subClassOf rdf:resource="#MolecularEntity"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ChemicalCompound</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ChemicalMolecule</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MolecularCompound</alternative_label>
+  <alternative_labels>['Chemical Molecule', 'Molecular Compound', 'Chemical Compound']</alternative_labels>
+  <onto_name>Molecule</onto_name>
+  <rdfs:comment>A molecule is a group of two or more atoms held together by chemical bonds. It is the smallest fundamental unit of a chemical compound that can take part in a chemical reaction.</rdfs:comment>
+</owl:Class>
+
 <owl:Class rdf:about="#AlicyclicHomocylclicOrganicMolecules">
   <rdfs:subClassOf rdf:resource="#HomocyclicOrganicMolecules"/>
   <owl:disjointWith rdf:resource="#AromaticAlicyclicOrganicMolecules"/>
@@ -477,30 +590,6 @@
   <alternative_labels>['Saturated Hydrocarbons', 'Paraffins', 'Aliphatic Hydrocarbons', 'Alkane Compounds', 'Methane Series']</alternative_labels>
   <onto_name>Alkanes</onto_name>
   <rdfs:comment>Alkanes are a family of organic compounds consisting of carbon and hydrogen atoms, with only single covalent bonds between the atoms. They are commonly used as fuels and solvents in hydrogen technologies, and can be converted into hydrogen gas through steam reforming or other processes.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#OpenChainOrganicMolecules">
-  <rdfs:subClassOf rdf:resource="#OrganicMolceule"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AcyclicOrganicMolecules</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AliphaticOrganicMolecules</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BranchedOrganicMolecules</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LinearOrganicMolecules</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonCyclicOrganicMolecules</alternative_label>
-  <alternative_labels>['Acyclic Organic Molecules', 'Aliphatic Organic Molecules', 'Linear Organic Molecules', 'Branched Organic Molecules', 'Non-Cyclic Organic Molecules']</alternative_labels>
-  <onto_name>OpenChainOrganicMolecules</onto_name>
-  <rdfs:comment>Open-chain organic molecules, also known as acyclic or aliphatic molecules, are organic compounds that do not contain a cyclic structure. They are characterized by a linear or branched chain of carbon atoms, and can include functional groups such as alkanes, alkenes, and alkynes. Open-chain organic molecules have a wide range of applications in organic chemistry, materials science, and biochemistry.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#OrganicMolceule">
-  <rdfs:subClassOf rdf:resource="#Molecule"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicCarbonCompound</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicHydrocarbon</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicOrganicChemistry</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CyclicOrganicCompound</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">RingedOrganicMolecule</alternative_label>
-  <alternative_labels>['Cyclic Organic Compound', 'Ringed Organic Molecule', 'Cyclic Organic Chemistry', 'Cyclic Carbon Compound', 'Cyclic Hydrocarbon']</alternative_labels>
-  <onto_name>OrganicMolceule</onto_name>
-  <rdfs:comment>A cyclic organic molecule is a type of organic molecule that contains a closed ring of atoms in its structure. These molecules have a wide range of applications in materials science, including as building blocks for polymers, pharmaceuticals, and agrochemicals.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Alkenes">
@@ -584,16 +673,6 @@
   <rdfs:comment>An Anisotropic Material is a material that exhibits different properties in different directions. It has physical or mechanical properties that vary with the direction of measurement. Anisotropic materials are commonly used in fuel cell and battery components, such as electrodes and membranes, to optimize their performance in specific directions.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#Matter">
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Material</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PhysicalSubstance</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stuff</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Substance</alternative_label>
-  <alternative_labels>['Substance', 'Material', 'Physical Substance', 'Stuff']</alternative_labels>
-  <onto_name>Matter</onto_name>
-  <rdfs:comment>Matter is anything that has mass and takes up space. It can exist in three states: solid, liquid, or gas. In materials science, matter is studied to understand its properties and behavior, and to develop new materials with desired properties.</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#Anolyte">
   <rdfs:subClassOf rdf:resource="#ElectrolyteSolution"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AnodeElectrolyte</alternative_label>
@@ -603,30 +682,6 @@
   <alternative_labels>['Anode Electrolyte', 'Oxidation Half-Cell Electrolyte', 'Positive Electrolyte', 'Anodic Solution']</alternative_labels>
   <onto_name>Anolyte</onto_name>
   <rdfs:comment>An anolyte is an electrolyte solution that is located at the anode of an electrochemical cell. It is responsible for providing ions to the anode and facilitating the electrochemical reactions that occur at the anode during cell operation.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#LiquidElectrolyte">
-  <rdfs:subClassOf rdf:resource="#Electrolyte"/>
-  <owl:disjointWith rdf:resource="#SolidElectrolyte"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveLiquid</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyteLiquid</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidElectrolyticSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidIonicConductor</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidSalt</alternative_label>
-  <alternative_labels>['Liquid Electrolytic Solution', 'Conductive Liquid', 'Electrolyte Liquid', 'Liquid Ionic Conductor', 'Liquid Salt']</alternative_labels>
-  <onto_name>LiquidElectrolyte</onto_name>
-  <rdfs:comment>A Liquid Electrolyte is a conductive solution used in batteries and fuel cells to facilitate the movement of ions between the electrodes. It is typically composed of a solvent and a dissolved salt or other ionic compound, and can be either aqueous or non-aqueous.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#LiquidSolution">
-  <rdfs:subClassOf rdf:resource="#Solution"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousLiquidMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidHomogeneousMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidPhaseSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LiquidSolventMixture</alternative_label>
-  <alternative_labels>['Homogeneous Liquid Mixture', 'Liquid Solvent Mixture', 'Liquid Phase Solution', 'Liquid Homogeneous Mixture']</alternative_labels>
-  <onto_name>LiquidSolution</onto_name>
-  <rdfs:comment>A liquid solution is a homogeneous mixture of two or more substances in which the molecules or atoms of the substances are evenly distributed. The solvent is the substance that dissolves the solute(s) to form the solution. Liquid solutions are commonly used in chemical reactions, separations, and as solvents for other substances.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Antimony">
@@ -744,6 +799,18 @@
   <rdfs:comment>Ionomers are a class of materials that contain ionic groups, which can conduct ions. They are used in fuel cells and other electrochemical devices as membranes or coatings to facilitate ion transport. Aquivion is a type of ionomer that is based on perfluorosulfonic acid and is known for its high proton conductivity and chemical stability.</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#PerfluorinatedMembrane">
+  <rdfs:subClassOf rdf:resource="#Membrane"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FluoropolymerMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PFSAMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PFSAPEM</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedProtonExchangeMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorosulfonicAcidMembrane</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['PFSA Membrane', 'Perfluorosulfonic Acid Membrane', 'Fluoropolymer Membrane', 'Perfluorinated Proton Exchange Membrane', 'PFSA PEM']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedMembrane</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Perfluorinated membranes are a type of ion-conducting membrane used in fuel cells, consisting of a fluoropolymer material with a high concentration of sulfonic acid groups. They offer high proton conductivity, chemical stability, and durability under harsh operating conditions.</rdfs:comment>
+</owl:Class>
+
 <owl:Class rdf:about="http://www.semanticweb.org/maxdreger/ontologies/2022/6/FCFabChar#Polymer">
   <rdfs:subClassOf rdf:resource="#Material"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Macromolecule</alternative_label>
@@ -753,6 +820,40 @@
   <alternative_labels>['Polymeric Material', 'Polymeric Compound', 'Polymeric Substance', 'Macromolecule']</alternative_labels>
   <onto_name>Polymer</onto_name>
   <rdfs:comment>A polymer is a large molecule composed of repeating subunits called monomers. Polymers have a wide range of applications in hydrogen technologies, including as electrolyte membranes, ionomers, and electrode binders in fuel cells and batteries.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Membrane">
+  <rdfs:subClassOf rdf:resource="#Component"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonExchangeMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PEM</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProtonExchangeMembrane</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SelectivePermeableMembrane</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Membrane', 'Proton Exchange Membrane', 'PEM', 'Ion-Exchange Membrane', 'Selective Permeable Membrane']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Membrane</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A membrane is a thin, selectively permeable material that separates the anode and cathode compartments in a fuel cell. It allows the transport of ions while preventing the mixing of fuel and oxidant gases. Membranes are a critical component of proton exchange membrane fuel cells (PEMFCs) and direct methanol fuel cells (DMFCs).</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Component">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FabricatedElement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IndustrialComponent</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ManufacturedPart</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProducedComponent</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Manufactured Part', 'Produced Component', 'Fabricated Element', 'Industrial Component']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Component</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A manufactured component is a part or element of a device or system that has been produced through a manufacturing process. In the context of hydrogen technologies, manufactured components can include fuel cell stacks, electrolyzers, hydrogen storage tanks, and other system components.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Manufactured">
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IndustrialScaleProduction</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LargeScaleManufacturing</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ManufacturingProcess</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MassProduced</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProductionProcess</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Mass-Produced', 'Industrial-Scale Production', 'Large-Scale Manufacturing', 'Production Process', 'Manufacturing Process']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured refers to the process of making a product on a large scale using machinery and standardized processes. In the context of hydrogen technologies, it typically involves the production of materials, components, or systems used in fuel cells, electrolyzers, and other hydrogen-related applications.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#AquivionD72-25BS">
@@ -926,17 +1027,6 @@
   <rdfs:comment>A Single Metal Catalyst is a type of catalyst that consists of only one type of metal, such as platinum, palladium, or iridium. It is used in various chemical reactions, including hydrogenation, oxidation, and reduction, to increase the rate of the reaction and improve its efficiency.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#BinaryCatalyst">
-  <rdfs:subClassOf rdf:resource="#ElectroCatalyst"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BimetallicCatalyst</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BinaryAlloyCatalyst</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DualComponentCatalyst</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TwoComponentCatalyst</alternative_label>
-  <alternative_labels>['Two-Component Catalyst', 'Dual-Component Catalyst', 'Binary Alloy Catalyst', 'Bimetallic Catalyst']</alternative_labels>
-  <onto_name>BinaryCatalyst</onto_name>
-  <rdfs:comment>A binary catalyst is a type of catalyst composed of two different elements or compounds. In hydrogen technologies, binary catalysts are commonly used in fuel cells to promote the electrochemical reactions that convert hydrogen and oxygen into water and electricity. Examples of binary catalysts include platinum-ruthenium, platinum-tin, and platinum-cobalt.</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#ElectroCatalyst">
   <rdfs:subClassOf rdf:resource="#Catalyst"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalyticElectrode</alternative_label>
@@ -958,6 +1048,17 @@
   <alternative_labels>['Chemical Catalyst', 'Electrochemical Catalyst', 'Reaction Catalyst', 'Catalytic Material']</alternative_labels>
   <onto_name>Catalyst</onto_name>
   <rdfs:comment>A catalyst is a substance that increases the rate of a chemical reaction without undergoing any permanent chemical change itself. In hydrogen technologies, catalysts are used to facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells and electrolyzers.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#BinaryCatalyst">
+  <rdfs:subClassOf rdf:resource="#ElectroCatalyst"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BimetallicCatalyst</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BinaryAlloyCatalyst</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DualComponentCatalyst</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TwoComponentCatalyst</alternative_label>
+  <alternative_labels>['Two-Component Catalyst', 'Dual-Component Catalyst', 'Binary Alloy Catalyst', 'Bimetallic Catalyst']</alternative_labels>
+  <onto_name>BinaryCatalyst</onto_name>
+  <rdfs:comment>A binary catalyst is a type of catalyst composed of two different elements or compounds. In hydrogen technologies, binary catalysts are commonly used in fuel cells to promote the electrochemical reactions that convert hydrogen and oxygen into water and electricity. Examples of binary catalysts include platinum-ruthenium, platinum-tin, and platinum-cobalt.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#BinaryMaterial">
@@ -1255,18 +1356,6 @@
   <rdfs:comment>A Conducting Polymer Supported Platinum Catalyst is a composite material consisting of a conducting polymer matrix and platinum nanoparticles. It is used as a catalyst in fuel cells and offers improved catalytic activity, stability, and durability compared to other catalysts.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#Continuum">
-  <rdfs:subClassOf rdf:resource="#Matter"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuousFieldModel</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuousMaterial</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumApproximation</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumHypothesis</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ContinuumMechanics</alternative_label>
-  <alternative_labels>['Continuous Material', 'Continuum Mechanics', 'Continuous Field Model', 'Continuum Approximation', 'Continuum Hypothesis']</alternative_labels>
-  <onto_name>Continuum</onto_name>
-  <rdfs:comment>In materials science, a continuum refers to a continuous substance or material that can be modeled as a continuous field, without considering the discrete nature of its molecular or atomic structure. Continuum mechanics is a branch of mechanics that deals with the behavior of materials modeled as continua.</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#Copernicium">
   <rdfs:subClassOf rdf:resource="#Atom"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cn</alternative_label>
@@ -1344,16 +1433,6 @@
   <alternative_labels>['Cm', 'Actinide Element Cm', 'Synthetic Element Cm', 'Radioactive Element Cm']</alternative_labels>
   <onto_name>Curium</onto_name>
   <rdfs:comment>Curium is a radioactive, synthetic element with the symbol Cm and atomic number 96. It is a member of the actinide series of elements and is named after Marie and Pierre Curie. Curium is used in the production of heavier actinides and as a source of alpha particles for nuclear physics research.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Molecule">
-  <rdfs:subClassOf rdf:resource="#MolecularEntity"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ChemicalCompound</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ChemicalMolecule</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MolecularCompound</alternative_label>
-  <alternative_labels>['Chemical Molecule', 'Molecular Compound', 'Chemical Compound']</alternative_labels>
-  <onto_name>Molecule</onto_name>
-  <rdfs:comment>A molecule is a group of two or more atoms held together by chemical bonds. It is the smallest fundamental unit of a chemical compound that can take part in a chemical reaction.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Darmstadtium">
@@ -1563,29 +1642,6 @@
   <alternative_labels>['Intercalation Cathode Material', 'Rechargeable Battery Cathode', 'Intercalation Anode Material', 'Electrode Intercalation Material', 'Intercalation Compound']</alternative_labels>
   <onto_name>ElectrochemicalIntercalationMaterial</onto_name>
   <rdfs:comment>An Electrochemical Intercalation Material is a material that can reversibly intercalate ions into its structure during electrochemical reactions. These materials are commonly used as cathodes in rechargeable batteries, and can store and release large amounts of energy. Examples include lithium cobalt oxide and lithium iron phosphate.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Electrolyte">
-  <rdfs:subClassOf rdf:resource="#ElectrochemicalMaterial"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ConductiveSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticMedium</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrolyticSolution</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicConductor</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonicSolution</alternative_label>
-  <alternative_labels>['Ionic Solution', 'Conductive Solution', 'Electrolytic Solution', 'Ionic Conductor', 'Electrolytic Medium']</alternative_labels>
-  <onto_name>Electrolyte</onto_name>
-  <rdfs:comment>An electrolyte is a substance that conducts electricity when dissolved in a solvent, typically water. In electrochemical devices, such as batteries and fuel cells, electrolytes are used to transport ions between the electrodes, enabling the flow of electrical current.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#SolidElectrolyte">
-  <rdfs:subClassOf rdf:resource="#Electrolyte"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NonLiquidElectrolyte</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidIonicConductor</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidStateElectrolyte</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SolidStateIonConductor</alternative_label>
-  <alternative_labels>['Solid-State Electrolyte', 'Non-Liquid Electrolyte', 'Solid Ionic Conductor', 'Solid-State Ion Conductor']</alternative_labels>
-  <onto_name>SolidElectrolyte</onto_name>
-  <rdfs:comment>A solid electrolyte is a non-liquid material that can conduct ions. It is used in batteries and fuel cells as an alternative to liquid electrolytes, offering improved safety, stability, and performance. Solid electrolytes can be made from a variety of materials, including ceramics, polymers, and composites.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#ElementalSubstance">
@@ -2372,16 +2428,6 @@
   <alternative_labels>['Suspension', 'Heterogeneous Mixture', 'Liquid-Solid Mixture', 'Liquid-Solid Dispersion']</alternative_labels>
   <onto_name>LiquidSolidSuspension</onto_name>
   <rdfs:comment>A Liquid-Solid Suspension is a heterogeneous mixture consisting of a liquid phase and solid particles that are suspended in the liquid. The solid particles are insoluble in the liquid and can settle over time. These suspensions are used in various applications, such as in the chemical industry, pharmaceuticals, and food industry.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#PhaseHomogeneousMixture">
-  <rdfs:subClassOf rdf:resource="#Mixture"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HomogeneousMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SinglePhaseMixture</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">UniformMixture</alternative_label>
-  <alternative_labels>['Homogeneous Mixture', 'Single-Phase Mixture', 'Uniform Mixture']</alternative_labels>
-  <onto_name>PhaseHomogeneousMixture</onto_name>
-  <rdfs:comment>A phase homogeneous mixture is a type of mixture where the components are uniformly distributed throughout the mixture, resulting in a single phase. The composition of the mixture is the same throughout and the properties of the mixture are uniform. Examples of phase homogeneous mixtures include solutions and alloys.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#Lithium">
@@ -3727,6 +3773,29 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical cell is a device that converts chemical energy into electrical energy through electrochemical reactions. It consists of two electrodes (anode and cathode) and an electrolyte that facilitates the movement of ions between the electrodes. Electrochemical cells are used in batteries, fuel cells, and other energy storage devices.</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#ElectrochemicalDevice">
+  <rdfs:subClassOf rdf:resource="#Device"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalApparatus</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalEquipment</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalMachine</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSystem</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical System', 'Electrochemical Apparatus', 'Electrochemical Equipment', 'Electrochemical Machine']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalDevice</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical device is a device that converts chemical energy into electrical energy through electrochemical reactions. Examples include batteries, fuel cells, and electrochemical sensors.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Device">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenApparatus</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenDevice</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenEquipment</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenSystem</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenTechnologyDevice</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Device', 'Hydrogen Technology Device', 'Hydrogen System', 'Hydrogen Apparatus', 'Hydrogen Equipment']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Device</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A device is a physical object or system designed to perform a specific function or task. In the context of hydrogen technologies, devices can include fuel cells, electrolyzers, hydrogen storage tanks, and hydrogen sensors, among others.</rdfs:comment>
+</owl:Class>
+
 <owl:Class rdf:about="#AlkalineElectrochemicalCell">
   <rdfs:subClassOf rdf:resource="#AqueousElectrochemicalCell"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineBattery</alternative_label>
@@ -3748,17 +3817,6 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Zinc-Air Battery', 'Alkaline Air Battery', 'Zinc-Air Cell', 'Alkaline Air Cell', 'Zinc-Oxygen Battery']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AlkalineZincAirElectrochemicalCell</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Alkaline Zinc-Air Electrochemical Cell is a type of primary battery that uses zinc as the anode, oxygen from the air as the cathode, and an alkaline electrolyte. It is used in hearing aids, watches, and other small electronic devices, offering high energy density, long shelf life, and low cost.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#ElectrochemicalDevice">
-  <rdfs:subClassOf rdf:resource="#Device"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalApparatus</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalEquipment</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalMachine</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSystem</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical System', 'Electrochemical Apparatus', 'Electrochemical Equipment', 'Electrochemical Machine']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalDevice</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical device is a device that converts chemical energy into electrical energy through electrochemical reactions. Examples include batteries, fuel cells, and electrochemical sensors.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#AlkalineZincManganeseDioxideElectrochemicalCell">
@@ -3844,6 +3902,41 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Bipolar Plate', 'Stack Connector Plate', 'Gas Distributor Plate', 'Current Collector Plate', 'BPP']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BipolarPlate</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Bipolar Plate is a key component of a fuel cell, used to connect individual cells in a stack and to distribute reactant gases and coolant. It is typically made of a conductive material, such as graphite, metal, or carbon composite, and may be coated with a catalyst layer to enhance electrochemical reactions.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#FuelCellSubcomponent">
+  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellComponent</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellElement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellLayer</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellPart</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellUnit</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Component', 'Fuel Cell Part', 'Fuel Cell Element', 'Fuel Cell Layer', 'Fuel Cell Unit']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellSubcomponent</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Subcomponent is a part of a fuel cell that performs a specific function in the electrochemical reaction. Examples include the anode, cathode, and membrane electrode assembly (MEA).</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#ElectrochemicalSubcomponent">
+  <rdfs:subClassOf rdf:resource="#Subcomponent"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalBuildingBlock</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalComponentSubunit</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalDeviceSubcomponent</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalUnitComponent</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Component Subunit', 'Electrochemical Device Subcomponent', 'Electrochemical Unit Component', 'Electrochemical Building Block']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSubcomponent</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a component of an electrochemical device that performs a specific electrochemical function. Examples include electrodes, membranes, and catalyst layers.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Subcomponent">
+  <rdfs:subClassOf rdf:resource="#Manufactured"/>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalBuildingBlock</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalElement</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalPart</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSubsystem</alternative_label>
+  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalUnit</alternative_label>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Subsystem', 'Electrochemical Building Block', 'Electrochemical Unit', 'Electrochemical Element', 'Electrochemical Part']</alternative_labels>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Subcomponent</onto_name>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a smaller component that is part of a larger electrochemical device or system. It can be a single electrode, a membrane, or a catalyst layer, among others. Subcomponents are designed to perform specific functions and are assembled together to form a complete electrochemical device.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#AluminiumBasedCoductivePolymerCoatedBipolarPlate">
@@ -3972,30 +4065,6 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical component is a device that facilitates electrochemical reactions, such as those that occur in fuel cells, batteries, and electrolyzers. Examples include electrodes, membranes, catalysts, and bipolar plates.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#PerfluorinatedMembrane">
-  <rdfs:subClassOf rdf:resource="#Membrane"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FluoropolymerMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PFSAMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PFSAPEM</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedProtonExchangeMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorosulfonicAcidMembrane</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['PFSA Membrane', 'Perfluorosulfonic Acid Membrane', 'Fluoropolymer Membrane', 'Perfluorinated Proton Exchange Membrane', 'PFSA PEM']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PerfluorinatedMembrane</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Perfluorinated membranes are a type of ion-conducting membrane used in fuel cells, consisting of a fluoropolymer material with a high concentration of sulfonic acid groups. They offer high proton conductivity, chemical stability, and durability under harsh operating conditions.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Membrane">
-  <rdfs:subClassOf rdf:resource="#Component"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IonExchangeMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PEM</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProtonExchangeMembrane</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SelectivePermeableMembrane</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Membrane', 'Proton Exchange Membrane', 'PEM', 'Ion-Exchange Membrane', 'Selective Permeable Membrane']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Membrane</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A membrane is a thin, selectively permeable material that separates the anode and cathode compartments in a fuel cell. It allows the transport of ions while preventing the mixing of fuel and oxidant gases. Membranes are a critical component of proton exchange membrane fuel cells (PEMFCs) and direct methanol fuel cells (DMFCs).</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#Asiplex">
   <rdfs:subClassOf rdf:resource="#PerfluorinatedMembrane"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AsahiGlassAsiplex</alternative_label>
@@ -4018,18 +4087,6 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Secondary Battery', 'Rechargeable Battery', 'Primary Battery', 'Non-rechargeable Battery', 'Energy Storage Device']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Battery</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A battery is an electrochemical device that stores chemical energy and converts it into electrical energy. It consists of one or more electrochemical cells, which contain two electrodes (anode and cathode) and an electrolyte. Batteries are used in a wide range of applications, from portable electronics to electric vehicles and grid-scale energy storage.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Device">
-  <rdfs:subClassOf rdf:resource="#Manufactured"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenApparatus</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenDevice</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenEquipment</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenSystem</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HydrogenTechnologyDevice</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Hydrogen Device', 'Hydrogen Technology Device', 'Hydrogen System', 'Hydrogen Apparatus', 'Hydrogen Equipment']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Device</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A device is a physical object or system designed to perform a specific function or task. In the context of hydrogen technologies, devices can include fuel cells, electrolyzers, hydrogen storage tanks, and hydrogen sensors, among others.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#BatteryCell">
@@ -4068,17 +4125,6 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Structural Subcomponent is a component of an electrochemical device that provides mechanical support and stability to the device. It is typically made of a strong and durable material, such as metal or ceramic, and is designed to withstand the stresses and strains of the device's operation.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#ElectrochemicalSubcomponent">
-  <rdfs:subClassOf rdf:resource="#Subcomponent"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalBuildingBlock</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalComponentSubunit</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalDeviceSubcomponent</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalUnitComponent</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Component Subunit', 'Electrochemical Device Subcomponent', 'Electrochemical Unit Component', 'Electrochemical Building Block']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSubcomponent</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a component of an electrochemical device that performs a specific electrochemical function. Examples include electrodes, membranes, and catalyst layers.</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#BatteryModule">
   <rdfs:subClassOf rdf:resource="#Battery"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BatteryArray</alternative_label>
@@ -4113,18 +4159,6 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A binder is a material used in the manufacture of electrodes for batteries and fuel cells. It is used to hold the active material particles together and to attach them to the current collector. Binders can be organic or inorganic and are typically chosen for their adhesive properties, mechanical strength, and chemical stability.</rdfs:comment>
 </owl:Class>
 
-<owl:Class rdf:about="#FuelCellSubcomponent">
-  <rdfs:subClassOf rdf:resource="#ElectrochemicalSubcomponent"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellComponent</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellElement</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellLayer</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellPart</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellUnit</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Component', 'Fuel Cell Part', 'Fuel Cell Element', 'Fuel Cell Layer', 'Fuel Cell Unit']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellSubcomponent</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Subcomponent is a part of a fuel cell that performs a specific function in the electrochemical reaction. Examples include the anode, cathode, and membrane electrode assembly (MEA).</rdfs:comment>
-</owl:Class>
-
 <owl:Class rdf:about="#BufferBattery">
   <rdfs:subClassOf rdf:resource="#Battery"/>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BackupBattery</alternative_label>
@@ -4157,17 +4191,6 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['NRE211 MEA', 'LiNi0.8Mn0.1Co0.1O2 MEA', 'Nickel-Rich Layered Oxide Cathode MEA', 'High-Nickel Cathode Material MEA']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MembraneElectrodeAssembly</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Membrane Electrode Assembly (MEA) is a key component of a fuel cell, consisting of an ion-conducting membrane sandwiched between two catalyst-coated electrodes (anode and cathode). MEAs facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells. NRE211 is a specific, high-performance nickel-rich layered oxide cathode material used in lithium-ion batteries. It has a chemical formula of LiNi0.8Mn0.1Co0.1O2 and offers improved energy density, thermal stability, and cycle life compared to other cathode materials.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Component">
-  <rdfs:subClassOf rdf:resource="#Manufactured"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FabricatedElement</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IndustrialComponent</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ManufacturedPart</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProducedComponent</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Manufactured Part', 'Produced Component', 'Fabricated Element', 'Industrial Component']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Component</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A manufactured component is a part or element of a device or system that has been produced through a manufacturing process. In the context of hydrogen technologies, manufactured components can include fuel cell stacks, electrolyzers, hydrogen storage tanks, and other system components.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#CarbonBasedCompositeBipolarPlate">
@@ -4228,17 +4251,6 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Catalyst-Coated Membrane', 'Proton Exchange Membrane with Catalyst', 'PEM with Catalyst', 'Catalyst-Coated PEM', 'Ion-Conducting Membrane with Catalyst']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CatalystCoatedMembrane</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Catalyst-Coated Membrane (CCM) is a key component of a fuel cell, consisting of an ion-conducting membrane coated with a thin layer of catalyst material on both sides. CCMs facilitate the electrochemical reactions that convert chemical energy into electrical energy in fuel cells.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Manufactured">
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">IndustrialScaleProduction</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LargeScaleManufacturing</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ManufacturingProcess</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MassProduced</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ProductionProcess</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Mass-Produced', 'Industrial-Scale Production', 'Large-Scale Manufacturing', 'Production Process', 'Manufacturing Process']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufactured refers to the process of making a product on a large scale using machinery and standardized processes. In the context of hydrogen technologies, it typically involves the production of materials, components, or systems used in fuel cells, electrolyzers, and other hydrogen-related applications.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#CatalystLayer">
@@ -4436,18 +4448,6 @@
   <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Current Collector', 'Electrical Collector', 'Conductive Collector', 'Electrode Collector', 'Current Collector Subcomponent']</alternative_labels>
   <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectricCurrentCollector</onto_name>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An Electric Current Collector is a subcomponent of an electrochemical device that collects and conducts electrical current from the active electrode material to the external circuit. It is typically made of a conductive material, such as metal, and is designed to minimize resistance and maximize current flow.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Subcomponent">
-  <rdfs:subClassOf rdf:resource="#Manufactured"/>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalBuildingBlock</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalElement</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalPart</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalSubsystem</alternative_label>
-  <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ElectrochemicalUnit</alternative_label>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrochemical Subsystem', 'Electrochemical Building Block', 'Electrochemical Unit', 'Electrochemical Element', 'Electrochemical Part']</alternative_labels>
-  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Subcomponent</onto_name>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An electrochemical subcomponent is a smaller component that is part of a larger electrochemical device or system. It can be a single electrode, a membrane, or a catalyst layer, among others. Subcomponents are designed to perform specific functions and are assembled together to form a complete electrochemical device.</rdfs:comment>
 </owl:Class>
 
 <owl:Class rdf:about="#ElectrochemicalCapacitor">

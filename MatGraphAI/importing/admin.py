@@ -195,7 +195,7 @@ class AttributeClassifictionReportAdmin(admin.ModelAdmin):
 
 @admin.register(ImporterCache)
 class ImporterCacheAdmin(admin.ModelAdmin):
-    field = (('header', 'label', 'header_attribute', 'column_attribute', 'sample_column', 'validated',))
-    list_display = ('header', 'sample_column', 'label', 'header_attribute', 'column_attribute', 'validated',)
-    list_editable = ('label', 'header_attribute', 'column_attribute', 'validated',)  # Make 'validated' field editable in list view
+    field = (('header', 'sample_column', 'column_label', 'validated_column_label', 'header_attribute', 'column_attribute', 'validated_column_attribute',))
+    list_display = ('header', 'sample_column', 'column_label', 'validated_column_label', 'header_attribute', 'column_attribute', 'validated_column_attribute',)
+    list_editable = ('column_label', 'header_attribute', 'validated_column_label', 'column_attribute', 'validated_column_attribute',)  # Make 'validated' field editable in list view
     pass

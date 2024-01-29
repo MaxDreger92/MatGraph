@@ -185,6 +185,7 @@ def main():
     ontology_folder = "/home/mdreger/Documents/MatGraphAI/Ontology/"
 
     ontology_manager = OntologyManager(api_key, ontology_folder)
+    ontology_manager.import_all_ontologies()
     ontology_manager.update_all_ontologies()
 
 

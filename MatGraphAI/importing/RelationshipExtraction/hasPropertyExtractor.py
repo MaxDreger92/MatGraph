@@ -25,10 +25,8 @@ class hasPropertyExtractor(RelationshipExtractor):
     def revise_property_connectedness(self):
         """ Validate if all properties are connected to the graph. """
         if self.not_all_properties_connected:
-            print(f"The following property nodes are not connected: {self.node_label_two_ids}")
             prompt = f"""- The following property nodes are not connected: {self.node_label_two_ids} \n \n Only return the revised list"""
             response = chat_with_gpt4(self.api_key, self.conversation, prompt)
-            print(response)
             self.conversation[-1]["content"] = response
 
 

@@ -189,20 +189,3 @@ class AlternativeLabel(DjangoNode):
 from django.db import models
 from neo4j import GraphDatabase
 
-class EmbeddingSearcher:
-    # Your model fields here
-
-
-    def query_vector(self, vector, topN=10):
-        query = """
-        CALL db.index.vector.queryNodes($embedding, $topN, $vector)
-        YIELD node AS similarEmbedding, score
-        MATCH (similarEmbedding)-[:FOR]->(n)
-        RETURN n.name AS title, score
-        """
-
-
-        # Connect to the database
-        result, _ = db.cypher_query(query, {'vector': vector, 'embedding': self.embedding, 'topN': topN})
-
-        return result

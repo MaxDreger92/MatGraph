@@ -1,3 +1,7 @@
+import os
+import io
+import requests
+
 from django.db import models
 from neomodel import (
     StringProperty,
@@ -6,6 +10,7 @@ from neomodel import (
     RelationshipTo,
     RelationshipFrom, One,
 )
+from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from matgraph.choices.ChoiceFields import INSTITUTION_TYPE_CHOICEFIELD
 from matgraph.models.abstractclasses import CausalObject, UniqueNode
@@ -144,3 +149,42 @@ class File(CausalObject):
     link = StringProperty(unique=True)
     format = StringProperty(choices=FILE_FORMAT_CHOICES)
     context = StringProperty()
+    file_server_name = StringProperty()
+
+    # @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None, save_to_file_server = True):
+        if save_to_file_server:
+            # Upload report logic
+            self.file.seek(0)
+
+
+
+            url = f"{os.environ.get('FILESERVER_URL_POST')}{self.name}"
+            payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
+            files = [('files', (f"{self.name}_classification_report", self.file.read()))]
+            headers = {'Accept': '*/*'}
+            # resp_data = requests.post(url, headers=headers, data=payload, files=files).json()
+            resp_data = requests.post(url, headers=headers, data=payload, files=files)
+            response = resp_data.json()
+            self.link = f"{os.environ.get('FILESERVER_URL_GET')}{response['filename'][0]}"
+            self.file_server_name = response['filename'][0]
+            self.file = None
+        else:
+            self.link = "None given"
+        super().save()
+
+    def delete(self, force_insert=False, force_update=False, using=None,
+               update_fields=None, save_to_file_server = True):
+        print("delete")
+        url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
+        print("URL before request:", url)  # Add a print statement to log the URL
+        payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
+        headers = {'Accept': '*/*'}
+        resp_data = requests.delete(url, headers=headers, data=payload)
+        print(resp_data.text)
+        super().delete()
+
+    def delete_selected(self, **kwargs):
+        print("delete")
+        super().delete_selected

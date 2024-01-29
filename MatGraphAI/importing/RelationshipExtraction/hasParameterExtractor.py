@@ -18,13 +18,11 @@ class hasParameterExtractor(RelationshipExtractor):
     def revise_has_parameter(self):
         wrong_nodes =self.check_one_to_one_destination("has_parameter")
         if wrong_nodes:
-            print(f"""These parameter nodes are assigned to multiple measurements/manufacturing nodes: {wrong_nodes}""")
             prompt = f"""- These property nodes have multiple "has_output" edges two different measurement nodes this result 
             does not follow the rules we defined. Please find another solution following the rules: 
             {wrong_nodes} \n \n Only return the revised list"""
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
-            print(response)
             self.conversation[-1]["content"] = response
 
     @property
@@ -45,7 +43,7 @@ class hasParameterExtractor(RelationshipExtractor):
             prompt = f"""- The following parameter nodes are not connected: {isolated_parameter_nodes} \n \n 
             Please connect all parameter nodes in a following the rules i gave you!
             Only return the revised list"""
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
+            response = chat_with_gpt4(self.conversation, prompt)
             print(response)
             self.conversation[-1]["content"] = response
 
