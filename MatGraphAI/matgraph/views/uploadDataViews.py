@@ -25,7 +25,7 @@ from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.importer import TableTransformer
-from importing.models import ImporterCache
+from importing.models import ImporterCache, FullTableCache
 from matgraph.importer.import_pubchem_json import IMPORT_PUBCHEM
 from matgraph.models.metadata import *  # Import your models here
 
@@ -100,6 +100,7 @@ class FileUploadView(views.APIView):
         """Set necessary data in the session."""
         request.session['file_id'] = file_id
         if context:
+            print('context is there', context)
             request.session['context'] = context
 
     @staticmethod
@@ -248,6 +249,7 @@ class TableView(TemplateView):
             self.headers = df.iloc[0].tolist()
             data_rows = df.values.tolist()
             context['table'] = [self.headers] + data_rows
+            self.request.session['headers'] = self.headers
         else:
             context['error'] = "Failed to load data."
         return context
@@ -605,7 +607,6 @@ class GraphView(TemplateView):
         if nodes:
             graph = self.extract_relationships(nodes)
             context['nodes'] = graph
-            print("GRAPH:", context['nodes'])
         else:
             context['error'] = "No nodes data available."
 
@@ -619,5 +620,5 @@ class GraphView(TemplateView):
         return relationships
     def post(self, request, *args, **kwargs):
         # Similar to NodeView, but include logic to handle updates to relationships
-        # ...
+        FullImporterCache.update(header=self.request.session['headers'], graph=self.request.session['nodes'])
         return redirect('upload_success')

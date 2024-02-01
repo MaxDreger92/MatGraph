@@ -6,7 +6,7 @@ import openai
 
 
 
-
+@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
 def chat_with_gpt4(setup_message=[], prompt='', api_key=os.environ.get("OPENAI_API_KEY")):
     openai.api_key = api_key
 

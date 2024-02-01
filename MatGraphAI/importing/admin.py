@@ -10,7 +10,7 @@ from importing.forms import NodeLabelClassifierAdminForm, NodeAttributeClassifie
 from importing.models import NodeLabelEmbedding, LabelClassificationReport, \
     MatterAttributeEmbedding, ManufacturingAttributeEmbedding, MeasurementAttributeEmbedding, \
     ParameterAttributeEmbedding, PropertyAttributeEmbedding, MetadataAttributeEmbedding, ImporterCache, \
-    AttributeClassificationReport
+    AttributeClassificationReport, FullTableCache
 from matgraph.models.metadata import File
 
 
@@ -199,3 +199,12 @@ class ImporterCacheAdmin(admin.ModelAdmin):
     list_display = ('header', 'sample_column', 'column_label', 'validated_column_label', 'header_attribute', 'column_attribute', 'validated_column_attribute',)
     list_editable = ('column_label', 'header_attribute', 'validated_column_label', 'column_attribute', 'validated_column_attribute',)  # Make 'validated' field editable in list view
     pass
+
+@admin.register(FullTableCache)
+class FullTableCacheAdmin(admin.ModelAdmin):
+    field =(('header', 'graph',))
+    list_display = ('header', 'graph',)
+    list_editable = ('graph',)
+
+
+

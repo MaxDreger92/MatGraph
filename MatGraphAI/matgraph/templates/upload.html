@@ -9,8 +9,8 @@
         <form method="post" action="{% url 'upload_csv' %}" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             <div class="form-group">
-                <label for="data_context">Specify Data Context:</label>
-                <input type="text" name="data_context" class="form-control" id="data_context" placeholder="Enter the context of the data" required>
+                <label for="context">Specify Data Context:</label>
+                <input type="text" name="context" class="form-control" id="context" placeholder="Enter the context of the data" required>
             </div>
             <div class="form-group">
                 <label for="file">Select File:</label>
