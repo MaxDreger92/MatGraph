@@ -2,13 +2,14 @@ import io
 import os
 
 import requests
-from django.db import models
+from django.db import models, IntegrityError
 from django_neomodel import classproperty
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
 from matgraph.models.embeddings import ModelEmbedding
+from django.contrib.postgres.fields import ArrayField, JSONField
 
 
 
@@ -262,7 +263,53 @@ class MetadataAttributeEmbedding(NodeAttributeEmbedding):
     label = RelationshipTo('importing.models.MetadataAttribute', 'FOR', One)  # Points at NodeAttribute
 
 
-class ImporterCache(models.Model):
+class Cache:
+
+    def get_validation_state(self, attribute_type):
+        # Construct the attribute name based on the attribute_type
+        attribute_name = f"validated_{attribute_type}"
+
+        # Return the attribute value if it exists in the class
+        return getattr(self, attribute_name, None)
+
+    @classmethod
+    def fetch(cls, header, column_value, attribute_type):
+
+        # Attempt to find an existing record
+        cached = cls.objects.filter(header=header).first()
+
+        if cached:
+            if cached.get_validation_state(attribute_type):
+                return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
+        else:
+            new_record = cls.objects.create(
+                header=header[:200],
+                sample_column=column_value[:200])
+            return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
+
+
+    @classmethod
+    def update(cls, header, attribute_type, **kwargs):
+        if cached := cls.objects.filter(header=header).first():
+            if not cached.get_validation_state(attribute_type):
+                for key, value in kwargs.items():
+                    if hasattr(cached, key):
+                        setattr(cached, key, value)
+                    else:
+                        raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
+                cached.save()
+            else:
+                for key, value in kwargs.items():
+                    if hasattr(cached, key):
+                        setattr(cached, key, value)
+                        setattr(cached, f"validated_{attribute_type}", False)
+                    else:
+                        raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
+                cached.save()
+
+
+
+class ImporterCache(Cache, models.Model):
     LABEL_CHOICES = [
         ('Matter', 'Matter'),
         ('Property', 'Property'),
@@ -290,7 +337,6 @@ class ImporterCache(models.Model):
         ('No attribute', 'No attribute'),
         (None, 'None'),
         ]
-    # headers = models.
     header = models.CharField(max_length=200,  db_index=True, unique=True)
     column_label = models.CharField(max_length=200,choices=LABEL_CHOICES, null = True, blank=True)  # List of labels
     header_attribute = models.CharField(max_length=200,choices=ATTRIBUTE_CHOICES, null = True, blank=True)  # List of header attributes
@@ -300,43 +346,8 @@ class ImporterCache(models.Model):
     validated_column_attribute = models.BooleanField(default=False, verbose_name="Validated Col-attribute")
     validated_header_attribute = models.BooleanField(default=False, verbose_name="Validated Header-attribute")
 
-    def get_validation_state(self, attribute_type):
-        # Construct the attribute name based on the attribute_type
-        attribute_name = f"validated_{attribute_type}"
 
-        # Return the attribute value if it exists in the class
-        return getattr(self, attribute_name, None)
-
-    @classmethod
-    def fetch(cls, header,  column_value, attribute_type):
-
-        # cache lookup
-        if cached := cls.objects.filter(header=header).first():
-            if cached.get_validation_state(attribute_type):
-                return  (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
-        else:
-            # store in cache
-            cls.objects.create(
-                header=header[:200],
-                sample_column=column_value[:200])
-
-    @classmethod
-    def update(cls, header, attribute_type, **kwargs):
-        if cached := cls.objects.filter(header=header).first():
-            if not cached.get_validation_state(attribute_type):
-                for key, value in kwargs.items():
-                    if hasattr(cached, key):
-                        setattr(cached, key, value)
-                    else:
-                        raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
-                cached.save()
-            else:
-                for key, value in kwargs.items():
-                    if hasattr(cached, key):
-                        setattr(cached, key, value)
-                        setattr(cached, f"validated_{attribute_type}", False)
-                    else:
-                        raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
-                cached.save()
-
+class FullTableCache(models.Model):
+    header = models.CharField(db_index=True, unique=True, max_length=40000)
+    graph = models.JSONField(default=dict, blank=True)
 

@@ -146,11 +146,11 @@ WSGI_APPLICATION = 'mat2devplatform.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': os.path.join(BASE_DIR, 'user.db'),
-        'ENGINE': 'django.db.backends.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_db',
+        'USER': 'django_user',
+        'PASSWORD': 'herrklo1',
+        'HOST': 'localhost',
     },
     'neo4j': {
         'ENGINE': '',
@@ -158,6 +158,8 @@ DATABASES = {
         'NEOMODEL_NEO4J_BOLT_URL': NEOMODEL_NEO4J_BOLT_URL,
     }
 }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
