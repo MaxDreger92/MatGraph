@@ -203,8 +203,8 @@ class ImporterCacheAdmin(admin.ModelAdmin):
 @admin.register(FullTableCache)
 class FullTableCacheAdmin(admin.ModelAdmin):
     field =(('header', 'graph',))
-    list_display = ('header', 'graph',)
-    list_editable = ('graph',)
+    list_display = ('header', 'graph','validated_graph')
+    list_editable = ('graph','validated_graph')
 
 
 

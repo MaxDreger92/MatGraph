@@ -9,7 +9,7 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
 from matgraph.models.embeddings import ModelEmbedding
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import JSONField
 
 
 
@@ -282,6 +282,7 @@ class Cache:
             if cached.get_validation_state(attribute_type):
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
         else:
+            print(cached)
             new_record = cls.objects.create(
                 header=header[:200],
                 sample_column=column_value[:200])
@@ -294,6 +295,7 @@ class Cache:
             if not cached.get_validation_state(attribute_type):
                 for key, value in kwargs.items():
                     if hasattr(cached, key):
+                        print(f"Setting {key}, {type(key)}, {type(cached)}, {type(value)}")
                         setattr(cached, key, value)
                     else:
                         raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
@@ -347,7 +349,21 @@ class ImporterCache(Cache, models.Model):
     validated_header_attribute = models.BooleanField(default=False, verbose_name="Validated Header-attribute")
 
 
-class FullTableCache(models.Model):
+class FullTableCache(models.Model, Cache):
     header = models.CharField(db_index=True, unique=True, max_length=40000)
-    graph = models.JSONField(default=dict, blank=True)
+    validated_graph = models.BooleanField(default=False, verbose_name="Validated Graph")
+    graph = models.JSONField(null = True)
 
+    @classmethod
+    def fetch(cls, header):
+
+        # Attempt to find an existing record
+        cached = cls.objects.filter(header=header).first()
+
+        if cached:
+            if cached.get_validation_state('graph'):
+                return (cached.graph)
+        else:
+            new_record = cls.objects.create(
+                header=header)
+            new_record.save()
