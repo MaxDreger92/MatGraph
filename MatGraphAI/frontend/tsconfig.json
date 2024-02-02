@@ -24,6 +24,9 @@
     "src"
   ],
   "exclude": [
-    "**/backend"
+    "**/backend",
+    "**/src/alt",
+    // "**/src/components/Header2.tsx",
+    // "/src/components/Header2.tsx"
   ]
 }
