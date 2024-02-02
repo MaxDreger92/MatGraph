@@ -1,16 +1,28 @@
 import { createContext } from "react"
-import IUser from "../types/user.type"
+import {MDB_IUser, SQL_IUser} from "../types/user.type"
 
-const initialUser: IUser = {
+const initialSQLUser: SQL_IUser = {
   id: -1,
   name: "",
+  username: "",
   email: "",
   password: "",
   roles: [""],
-  image: ""
+  institution: "",
+  imgurl: "",
 }
 
-const userContext = createContext<IUser | null | undefined>(initialUser)
+const initialMDBUser: MDB_IUser = {
+  name: "",
+  username: "",
+  email: "",
+  password: "",
+  roles: [""],
+  institution: "",
+  imgurl: "",
+}
+
+const userContext = createContext<MDB_IUser | null | undefined>(initialMDBUser)
 
 export { userContext }
-export { initialUser }
+export { initialMDBUser }
