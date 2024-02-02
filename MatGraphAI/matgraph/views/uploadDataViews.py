@@ -63,7 +63,7 @@ class FileUploadView(views.APIView):
         print("first line", first_line)
 
         if cached := FullTableCache.fetch(first_line):
-            print("full-cache", cached, first_line)
+            print("full-cache", type(cached), cached, first_line)
         else:
             print("no full-cache")
 
