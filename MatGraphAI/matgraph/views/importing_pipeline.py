@@ -13,7 +13,7 @@ from importing.models import FullTableCache
 from matgraph.models.metadata import File
 
 
-class FileRetrieveView(TemplateView):
+class LabelExtractView(TemplateView):
     def post(self, request, *args, **kwargs):
         try:
             if 'file' not in request.FILES:
@@ -65,7 +65,7 @@ class FileRetrieveView(TemplateView):
         file_record.save()
         return file_record
 
-class LabelRetrieveView(TemplateView):
+class AttributeExtractView(TemplateView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
@@ -98,7 +98,7 @@ class LabelRetrieveView(TemplateView):
         self.request.session['node_attributes_output'] = _predicted_attributes
         return self.request.session['attributes']
 
-class AttributeRetrieveView(TemplateView):
+class NodeExtractView(TemplateView):
     def post(self, request, *args, **kwargs):
         try:
             # Parsing JSON data from request body
@@ -134,7 +134,7 @@ class AttributeRetrieveView(TemplateView):
         node_extractor.run()
         return node_extractor.results
 
-class GraphRetrieveView(TemplateView):
+class GraphExtractView(TemplateView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
@@ -163,3 +163,25 @@ class GraphRetrieveView(TemplateView):
         relationships_extractor.run()
         relationships = relationships_extractor.results
         return relationships
+
+class GraphImportView:
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+
+            required_fields = ['graph_json', 'file_link']
+            if not all(field in data for field in required_fields):
+                return response.Response({'error': 'Missing required data'}, status=status.HTTP_400_BAD_REQUEST)
+
+            graph = data['graph_json']
+            file_link = data['file_link']
+
+
+            self.import_graph(file_link, file_name, graph, context)
+            return response.Response({'message': 'Graph imported successfully'})
+
+        except json.JSONDecodeError:
+            return response.Response({'error': 'Invalid JSON'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Log the exception here
+            return response.Response({'error': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
