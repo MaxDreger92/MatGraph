@@ -16,7 +16,7 @@ from importing.models import NodeExtractionReport
 class NodeAggregator:
     def __init__(self, data, context, setup_message, additional_context):
         self.header = [f"{element['header']} ({element['attribute']}, {element['index']})" for element in data]
-        self.row = [element['column_values'][0] for element in data]
+        self.row = [element['column_values'][0] if element['column_values'] else '' for element in data]
         self.setup_message = setup_message
         self.context = context
         self.additional_context = additional_context
@@ -39,18 +39,15 @@ class NodeAggregator:
         pass
 
     def aggregate(self, query):
-        print("Query to GPT-4:")
-        print(query)
         setup_message = self.setup_message
 
         # Send the initial query to ChatGPT and get the initial response
         query_result = chat_with_gpt4(setup_message, query)
+        print("Query Result:", query_result)
         self.create_node_list(query_result)
-        print("GPT-4 Initial Response:")
         self.conversation = [*self.conversation,{"role": "user", "content": query}, {"role": "system", "content": query_result[0]}]
 
     def create_node_list(self, string):
-        print("Original String:", string)
         # Preprocess the string
         processed_string = string
         pattern = r'```python\s+(.*?)\s+```'
@@ -65,19 +62,30 @@ class NodeAggregator:
             for i, node in enumerate(self.node_list):
                 node['label'] = self.label
                 if node['name'][0][1] == "inferred":
-                    node['node_id'] = f"inferred_{self.label}_{i}"
+                    node['id'] = f"inferred_{self.label}_{i}"
                 else:
-                    node['node_id'] = node['name'][0][1]
-                keys_to_keep  = ['label', 'node_id', 'name', 'attributes']
+                    node['id'] = node['name'][0][1]
+                keys_to_keep  = ['label', 'id', 'attributes']
 
                 updated_node = {
-                    'attributes': {key: value for key, value in node.items() if key not in ['label', 'node_id']},
+                    'attributes': {key: value for key, value in node.items() if key not in ['label', 'id']},
                     ** {key: value for key, value in node.items() if key in keys_to_keep}
                 }
                 self.node_list[i] = updated_node
+            for i, node in enumerate(self.node_list):
+                updated_attributes = {}
+                for key, value in node['attributes'].items():
+                    if isinstance(value[0], list):
+                        updated_attributes[key] = []
+                        for attribute in value:
+                            updated_attributes[key].append({'value': attribute[0], 'index': attribute[1]})
+                    else:
+                        print("value", value)
+                        updated_attributes[key] = {'value': value[0], 'index': value[1]}
+                self.node_list[i]['attributes'] = updated_attributes
+            print("Changed Node List:", self.node_list)
 
 
-            print("JSON Loaded Successfully")
         except json.JSONDecodeError as e:
             print("Error parsing JSON:", str(e))
             # Handle the error or return None to indicate failure
@@ -221,77 +229,22 @@ class NodeExtractor(TableDataTransformer):
                 yield aggregator
 
     def get_table_understanding(self):
-        # with ThreadPoolExecutor() as executor:
-        #     # Create a list of future tasks
-        #     future_to_aggregator = {executor.submit(aggregator.run): aggregator for aggregator_type, aggregator_class in [
-        #         ("Matter", MatterAggregator),
-        #         ("Property", PropertyAggregator),
-        #         ("Parameter", ParameterAggregator),
-        #         ("Manufacturing", ManufacturingAggregator),
-        #         ("Measurement", MeasurementAggregator)
-        #     ] for aggregator in self.process_aggregator(aggregator_type, aggregator_class)}
-        #
-        #     # As each task completes, extend the node list
-        #     for future in as_completed(future_to_aggregator):
-        #         aggregator = future_to_aggregator[future]
-        #         self.node_list.extend(aggregator.node_list)
-        #         self.node_list = {"nodes": self.node_list}
-        self._results = {
-                'nodes': [
-                    {'label': 'Manufacturing', 'node_id': 0, 'name': [['Spincoating', 2]], 'attributes': {'name': [['Spincoating', 2]]}},
-                    {'label': 'Manufacturing', 'node_id': 1, 'name': [['Spincoating', 16]], 'attributes': {'name': [['Spincoating', 16]]}},
-                    {'label': 'Manufacturing', 'node_id': 2, 'name': [['Spincoating', 30]], 'attributes': {'name': [['Spincoating', 30]]}},
-                    {'label': 'Manufacturing', 'node_id': 3, 'name': [['Spincoating', 44]], 'attributes': {'name': [['Spincoating', 44]]}},
-                    {'label': 'Manufacturing', 'node_id': 4, 'name': [['Spincoating', 58]], 'attributes': {'name': [['Spincoating', 58]]}},
-                    {'label': 'Manufacturing', 'node_id': 5, 'name': [['Evaporation', 72]], 'attributes': {'name': [['Evaporation', 72]]}},
-                    {'label': 'Manufacturing', 'node_id': 6, 'name': [['Evaporation', 86]], 'attributes': {'name': [['Evaporation', 86]]}},
-                    {'label': 'Matter', 'node_id': 7, 'name': [['ETL', 1]], 'attributes': {'name': [['ETL', 1]], 'identifier': [['13841', 0]], 'ratio': [['1', 8]]}},
-                    {'label': 'Matter', 'node_id': 8, 'name': [['ZnO', 11]], 'attributes': {'name': [['ZnO', 11]], 'material_batch_barcode': [['121800', 10]]}},
-                    {'label': 'Matter', 'node_id': 9, 'name': [['ActiveLayer', 15]], 'attributes': {'name': [['ActiveLayer', 15]], 'identifier': [['13841', 14]]}},
-                    {'label': 'Matter', 'node_id': 10, 'name': [['Donor', 23]], 'attributes': {'name': [['Donor', 23]], 'ratio': [['0.8112', 22]]}},
-                    {'label': 'Matter', 'node_id': 11, 'name': [['PM6', 25]], 'attributes': {'name': [['PM6', 25]], 'concentration': [['19.8846153846154', 18]], 'material_batch_barcode': [['321100', 24]]}},
-                    {'label': 'Matter', 'node_id': 12, 'name': [['Acceptor', 37]], 'attributes': {'name': [['Acceptor', 37]], 'ratio': [['0.2128', 36]]}},
-                    {'label': 'Matter', 'node_id': 13, 'name': [['Y12', 39]], 'attributes': {'name': [['Y12', 39]], 'concentration': [['19.4615384615385', 32]], 'material_batch_barcode': [['321116', 38]]}},
-                    {'label': 'Matter', 'node_id': 14, 'name': [['Acceptor', 51]], 'attributes': {'name': [['Acceptor', 51]], 'ratio': [['0.0234', 50]]}},
-                    {'label': 'Matter', 'node_id': 15, 'name': [['PCBM70', 53]], 'attributes': {'name': [['PCBM70', 53]], 'concentration': [['27.5000000000001', 46]], 'material_batch_barcode': [['321046', 52]]}},
-                    {'label': 'Matter', 'node_id': 16, 'name': [['Solvent', 65]], 'attributes': {'name': [['Solvent', 65]], 'ratio': [['1', 64]]}},
-                    {'label': 'Matter', 'node_id': 17, 'name': [['o-Xylene', 67]], 'attributes': {'name': [['o-Xylene', 67]], 'concentration': [['27.5000000000001', 60]], 'material_batch_barcode': [['5', 66]]}},
-                    {'label': 'Matter', 'node_id': 18, 'name': [['HTL', 71]], 'attributes': {'name': [['HTL', 71]], 'identifier': [['13841', 70]]}},
-                    {'label': 'Matter', 'node_id': 19, 'name': [['MoOx', 81]], 'attributes': {'name': [['MoOx', 81]], 'material_batch_barcode': [['7', 80]]}},
-                    {'label': 'Matter', 'node_id': 20, 'name': [['Electrode', 85]], 'attributes': {'name': [['Electrode', 85]], 'identifier': [['13841', 84]]}},
-                    {'label': 'Matter', 'node_id': 21, 'name': [['Ag', 95]], 'attributes': {'name': [['Ag', 95]], 'material_batch_barcode': [['6', 94]]}},
-                    {'label': 'Parameter', 'node_id': 22, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:46:01', 12]]}},
-                    {'label': 'Parameter', 'node_id': 23, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['180', 13]]}},
-                    {'label': 'Parameter', 'node_id': 24, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['25', 19]]}},
-                    {'label': 'Parameter', 'node_id': 25, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['100', 20]]}},
-                    {'label': 'Parameter', 'node_id': 26, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['600', 21]]}},
-                    {'label': 'Parameter', 'node_id': 27, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 26]]}},
-                    {'label': 'Parameter', 'node_id': 28, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['160', 27]]}},
-                    {'label': 'Parameter', 'node_id': 29, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['24', 33]]}},
-                    {'label': 'Parameter', 'node_id': 30, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['240', 34]]}},
-                    {'label': 'Parameter', 'node_id': 31, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['500', 35]]}},
-                    {'label': 'Parameter', 'node_id': 32, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 40]]}},
-                    {'label': 'Parameter', 'node_id': 33, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['250', 41]]}},
-                    {'label': 'Parameter', 'node_id': 34, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['20', 47]]}},
-                    {'label': 'Parameter', 'node_id': 35, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']],        'unit': [['s', 'inferred']], 'value': [['160', 48]]}},
-                    {'label': 'Parameter', 'node_id': 36, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['500', 49]]}},
-                    {'label': 'Parameter', 'node_id': 37, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 54]]}},
-                    {'label': 'Parameter', 'node_id': 38, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['288', 55]]}},
-                    {'label': 'Parameter', 'node_id': 39, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['22', 61]]}},
-                    {'label': 'Parameter', 'node_id': 40, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['240', 62]]}},
-                    {'label': 'Parameter', 'node_id': 41, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['1600', 63]]}},
-                    {'label': 'Parameter', 'node_id': 42, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 68]]}},
-                    {'label': 'Parameter', 'node_id': 43, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['120', 69]]}},
-                    {'label': 'Parameter', 'node_id': 44, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:20:47', 82]]}},
-                    {'label': 'Parameter', 'node_id': 45, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['100', 83]]}},
-                    {'label': 'Parameter', 'node_id': 46, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:20:47', 96]]}},
-                    {'label': 'Parameter', 'node_id': 47, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['100', 97]]}}
-                ],
-            "relationships": []
-        }
+        with ThreadPoolExecutor() as executor:
+            # Create a list of future tasks
+            future_to_aggregator = {executor.submit(aggregator.run): aggregator for aggregator_type, aggregator_class in [
+                ("Matter", MatterAggregator),
+                ("Property", PropertyAggregator),
+                ("Parameter", ParameterAggregator),
+                ("Manufacturing", ManufacturingAggregator),
+                ("Measurement", MeasurementAggregator)
+            ] for aggregator in self.process_aggregator(aggregator_type, aggregator_class)}
 
-        print("Node List:")
-        pprint(self.node_list, indent = 3)
+            # As each task completes, extend the node list
+            for future in as_completed(future_to_aggregator):
+                aggregator = future_to_aggregator[future]
+                self.node_list.extend(aggregator.node_list)
+            self.node_list = {"nodes": self.node_list, "relationships": []}
+
 
 
     @property

@@ -235,6 +235,7 @@ class NodeLabelView(TemplateView):
             self.request.session.modified = True  # Explicitly mark the session as modified
 
 
+
     def extract_labels(self, file_obj, context, file_link, file_name, file_id):
         table_transformer = TableTransformer(file_obj, context, file_link, file_name)
 

@@ -276,9 +276,21 @@ Output:
 
 ```python[{"name": [["pressure", "inferred"]], "value": ["1.2", 5], "error": ["0.1", 6], "unit": ["pA", "inferred"]}, {"name": [["temperature", "inferred"]], "value": ["27", 7], "unit": ["C", "inferred"]}]}]```
 
+Explanation of the output:
+- pressure is a physical parameter and can be extracted as a node
+- value can be assigned to pressure as their column is in close proximity
+    - pressure -> [1.2, 5]
+- error can be assigned to pressure as their column is in close proximity
+    - pressure -> [0.1, 6]
+- unit is part of the header and can therefore be assigned to pressure
+    - pressure -> [pA, "inferrred"]
+
+    
 REMEMBER:
 You always add the correct unit to each parameter, either by extracting it from the table or by inferring it from the context.
+You always assign the correct index to each parameter, drawing from the table data and your knowledge in materials science.
 The unit needs to match the parameter for this you can use the header content as well as your knowledge in materials science.
+you strictly follow the output format given in the example.
 You only return a list of lists as a python object.
 """},]
 

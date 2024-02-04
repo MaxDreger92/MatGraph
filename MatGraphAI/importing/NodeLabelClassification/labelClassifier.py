@@ -56,7 +56,6 @@ class NodeClassifier(TableDataTransformer):
         Method to check the format of the table data.
         This method should be implemented in subclasses.
         """
-        print("create data")
         try:
             # Reset the file pointer to the start of the file
             self.file.seek(0)
@@ -67,7 +66,6 @@ class NodeClassifier(TableDataTransformer):
 
 
         except Exception as e:
-            print(f"Error: {e}")
             return False
 
 
@@ -91,10 +89,8 @@ class NodeClassifier(TableDataTransformer):
         query = (f"Context: \"{self.context}\".\n"
                  f"Header: of the \"{element['header']}\" \n"
                  f"""Rows: {", ".join(element['column_values'][:4])} \n""")
-        print("Header:", element['header'])
         result = chat_with_gpt4(setup_message= CLASSIFY_PROPERTY_PARAMETERS, prompt = query)
         if result == "Parameter" or result == "Property":
-            print(f"Updating with chat result {result}")
             self._update_with_chat(result = result, input_string = query, index = index, element = element)
 
 
@@ -102,8 +98,6 @@ class NodeClassifier(TableDataTransformer):
         """
         Transform the data.
         """
-        print(f"Processing {kwargs['element']['header']}...")
-        print(f"Column values: {kwargs['element']['column_values'][0]}")
         if self._pre_check(index = kwargs['index'], element = kwargs['element']):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):

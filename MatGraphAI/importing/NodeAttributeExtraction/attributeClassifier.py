@@ -54,21 +54,17 @@ class AttributeClassifier(TableDataTransformer):
         if self._pre_check(index = kwargs['index'], element = kwargs['element']):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
-            print("attribute cache hit")
             return
         elif kwargs['element']['1_label'] == 'Property' or kwargs['element']['1_label'] == 'Parameter':
-            print("Uses GPT4")
             prompt = f"""
             Context: {self.context}.
             Header: {kwargs['element']['header']}
             Column values: {', '.join(kwargs['element']['column_values'][:4])}
             """
             result = chat_with_gpt4(setup_message= PROPERTY_PARAMETER_MESSAGE, prompt = prompt)
-            print(prompt, result)
             if result == "value" or result == "unit" or result == "error" or result == "standard deviation":
                 ImporterCache.update(kwargs['element']['header'], column_attribute=result, attribute_type=self.attribute_type)
             else:
-                print("         HIIIII\n\n")
                 result = "value"
             self._update_with_chat(result = result, input_string = prompt, **kwargs)
             return
@@ -85,16 +81,7 @@ class AttributeClassifier(TableDataTransformer):
         if len(column) == 0:
             return True
         return False
-        if element['1_label'] == 'No label':
-            element.update({
-            f'{i}_attribute': ["No attribute"],
-            f'{i}_subattributes': ["No attribute"],
-            f'{i}_predicted_attribute_similarities': ["No similarities"]}
-            for i in range(1, 5)
-            )
-            return True
 
-        return False
 
     def _update_with_chat(self, result, input_string, **kwargs):
         """

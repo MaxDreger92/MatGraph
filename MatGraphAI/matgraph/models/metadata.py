@@ -188,3 +188,22 @@ class File(CausalObject):
     def delete_selected(self, **kwargs):
         print("delete")
         super().delete_selected
+
+    def get_file(self):
+        url = f"{self.link}"
+
+        # If you still need to send user and password, use params
+        # params = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
+
+        headers = {'Accept': '*/*'}
+
+        # Make the GET request
+        response = requests.get(url, headers=headers)  # Add , params=params if needed
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            return response.content
+        else:
+            # Handle errors (e.g., log them, raise exception)
+            print(f"Failed to download the file: HTTP {response.status_code}")
+            return None
