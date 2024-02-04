@@ -79,17 +79,17 @@ class RelationshipExtractor:
     @property
     def node_ids(self):
         """Get all node IDs from label_one_nodes and label_two_nodes."""
-        return [item['node_id'] for item in [*self.label_one_nodes, *self.label_two_nodes]]
+        return [item['id'] for item in [*self.label_one_nodes, *self.label_two_nodes]]
 
     @property
     def node_label_one_ids(self):
         """Get node IDs from label_one_nodes."""
-        return [item['node_id'] for item in self.label_one_nodes]
+        return [item['id'] for item in self.label_one_nodes]
 
     @property
     def node_label_two_ids(self):
         """Get node IDs from label_two_nodes."""
-        return [item['node_id'] for item in self.label_two_nodes]
+        return [item['id'] for item in self.label_two_nodes]
 
     @property
     def first_prompt(self):

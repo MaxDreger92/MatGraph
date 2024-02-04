@@ -64,10 +64,10 @@ class NodeAggregator:
                 if node['name'][0][1] == "inferred":
                     node['id'] = f"inferred_{self.label}_{i}"
                 else:
-                    node['id'] = node['name'][0][1]
+                    node['id'] = str(node['name'][0][1])
                 keys_to_keep  = ['label', 'id', 'attributes']
 
-                updated_node = {
+                updated_node = {'name': [{'value': name[0], 'index': name[1]} for name in node['name']],
                     'attributes': {key: value for key, value in node.items() if key not in ['label', 'id']},
                     ** {key: value for key, value in node.items() if key in keys_to_keep}
                 }
@@ -119,7 +119,7 @@ class MatterAggregator(NodeAggregator):
                 WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Matter"
+        self.label = "matter"
 
 class PropertyAggregator(NodeAggregator):
     def __init__(self,
@@ -131,7 +131,7 @@ class PropertyAggregator(NodeAggregator):
                 ONLY RETURN THE FINAL LIST OF NODES!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Property"
+        self.label = "property"
 
     def create_node_list(self, string):
         super.create_node_list(string)
@@ -154,7 +154,7 @@ class ParameterAggregator(NodeAggregator):
                 ONLY RETURN THE FINAL LIST OF NODES!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Parameter"
+        self.label = "parameter"
 
 class ManufacturingAggregator(NodeAggregator):
     def __init__(self,
@@ -166,7 +166,7 @@ class ManufacturingAggregator(NodeAggregator):
                 ONLY RETURN THE FINAL LIST OF NODES!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Manufacturing"
+        self.label = "manufacturing"
 
 
 class MeasurementAggregator(NodeAggregator):
@@ -179,7 +179,7 @@ class MeasurementAggregator(NodeAggregator):
                 ONLY RETURN THE FINAL LIST OF NODES!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Measurement"
+        self.label = "measurement"
 
 class MetadataAggregator(NodeAggregator):
     def __init__(self,
@@ -191,7 +191,7 @@ class MetadataAggregator(NodeAggregator):
                 ONLY RETURN THE FINAL LIST OF NODES!
                 """):
         super().__init__(data, context, setup_message, additional_context)
-        self.label = "Metadata"
+        self.label = "metadata"
 
 
 
@@ -276,9 +276,12 @@ class NodeExtractor(TableDataTransformer):
         if element['attribute'] is None:
             return True
         return False
+    def build_results(self):
+        self._results = self.node_list
 
     def run(self):
         self.get_table_understanding()
+        self.build_results()
 
 
 
