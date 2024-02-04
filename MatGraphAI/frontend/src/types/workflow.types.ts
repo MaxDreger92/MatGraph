@@ -1,7 +1,7 @@
 import { Operator, Position } from "./canvas.types"
 
 export type ParsedValOpPair = {
-  value: string | string[]
+  value: string | string[] | string[][]
   operator: Operator
 }
 
@@ -19,7 +19,6 @@ export interface ITempNode {
     rel_type: string
     connection: [string, string]
   }>
-  index?: number
 }
 
 export interface IGraphData {
@@ -32,7 +31,6 @@ export interface IGraphNode {
   label: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
   name: string[]
   attributes: { [key: string]: any }
-  index?: number
 }
 
 export interface IRelationship {

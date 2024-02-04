@@ -113,7 +113,7 @@ export function isAttrDefined(attribute: string | ValOpPair): boolean {
   return false;
 }
 
-function parseAttrOut(attribute: string | ValOpPair): string | string[] | ParsedValOpPair {
+function parseAttrOut(attribute: string | ValOpPair, index?: any): any {
   let stringToParse = "";
 
   // Determine the string to parse based on the type of attribute
@@ -127,23 +127,69 @@ function parseAttrOut(attribute: string | ValOpPair): string | string[] | Parsed
   const splitStrings = stringToParse.split(';').map(s => s.trim()).filter(s => s !== "");
   const parsedString = splitStrings.length === 1 ? splitStrings[0] : splitStrings;
 
-  if (typeof attribute === 'string') {
-    return parsedString;
+  if (index === undefined) {
+    if (typeof attribute === 'string') {
+      return parsedString
+    } else {
+      return {value: parsedString, operator: attribute.operator as Operator} 
+    }
+  }
+  else {
+    if (typeof attribute === 'string') {
+      if (typeof parsedString === 'string') {
+        return [parsedString, index]
+      } else {
+        return parsedString.map((s, i) => [s, index[i]])
+      }
+    } else {
+      if (typeof parsedString === 'string') {
+        return {value: [parsedString, index], operator: attribute.operator as Operator}
+      } else {
+        return {value: parsedString.map((s, i) => [s, index[i]]), operator: attribute.operator as Operator}
+      }
+    }
+  }
+}
+
+function parseAttr(attribute: any): { value: any, index?: any[] } {
+  // Function to process the attribute when it's not an {value, operator} object
+  const processAttributeValue = (attr: any) => {
+    if (typeof attr === 'string') {
+      return { value: attr };
+    } else if (Array.isArray(attr)) {
+      if (typeof attr[0] === 'string') {
+        return { value: attr.join(';') };
+      } else {
+        let values: string[] = [];
+        let indices: any[] = [];
+        attr.forEach(item => {
+          if (typeof item.value === 'string') {
+            values.push(item.value);
+            if (item.index !== undefined) {
+              indices.push(item.index);
+            }
+          }
+        });
+        return { value: values.join(';'), index: indices.length > 0 ? indices : undefined };
+      }
+    } else {
+      return { value: '', index: undefined };
+    }
+  };
+
+  // Check for the additional case where attribute is an object with {value, operator}
+  if (typeof attribute === 'object' && !Array.isArray(attribute) && attribute !== null && 'operator' in attribute) {
+    const processedValue = processAttributeValue(attribute.value);
+    return {
+      value: { value: processedValue.value, operator: attribute.operator },
+      index: processedValue.index
+    };
   } else {
-    return {value: parsedString, operator: attribute.operator as Operator}
+    // Process attribute using the previously defined logic
+    return processAttributeValue(attribute);
   }
-
-  // Return a single string if there's only one, otherwise return the array
 }
 
-function parseStrAttr(attribute: string | string[] | undefined): string {
-  if (typeof attribute === 'string') {
-    return attribute
-  } else if (Array.isArray(attribute)) {
-    return attribute.join(';')
-  }
-  return ""
-}
 
 function parseValOpAttr(attribute: ParsedValOpPair | undefined): ValOpPair {
   if (!attribute) return {value: "", operator: ""}
@@ -181,22 +227,23 @@ export function convertToJSONFormat(
     nodes.map((node) => {
       // Group all attributes under an attributes object
       const attributes: { [key: string]: any } = {};
-      if (isAttrDefined(node.name)) {
-        attributes.name = parseAttrOut(node.name)
+      if (isAttrDefined(node.name.value)) {
+        attributes.name = parseAttrOut(node.name.value, node.name.index)
       } else {
         attributes.name = "MISSING_NAME"
       }
-      if (isAttrDefined(node.value)) {
-        attributes.value = parseAttrOut(node.value)
+      if (isAttrDefined(node.value.value)) {
+        attributes.value = parseAttrOut(node.value.value, node.value.index)
       } else if (["property","parameter"].includes(node.type)) {
-        attributes.value = "MISSING_VALUE"
+        attributes.value = "MISSING_VALUE_OR_OPERATOR"
       } 
-      if (isAttrDefined(node.batch_num)) attributes.batch_num = parseAttrOut(node.batch_num);
-      if (isAttrDefined(node.unit)) attributes.unit = parseAttrOut(node.unit);
-      if (isAttrDefined(node.ratio)) attributes.ratio = parseAttrOut(node.ratio);
-      if (isAttrDefined(node.concentration)) attributes.concentration = parseAttrOut(node.concentration);
-      if (isAttrDefined(node.std)) attributes.std = parseAttrOut(node.std);
-      if (isAttrDefined(node.error)) attributes.error = parseAttrOut(node.error);
+      if (isAttrDefined(node.batch_num.value)) attributes.batch_num = parseAttrOut(node.batch_num.value, node.batch_num.index);
+      if (isAttrDefined(node.unit.value)) attributes.unit = parseAttrOut(node.unit.value, node.unit.index);
+      if (isAttrDefined(node.ratio.value)) attributes.ratio = parseAttrOut(node.ratio.value, node.ratio.index);
+      if (isAttrDefined(node.concentration.value)) attributes.concentration = parseAttrOut(node.concentration.value, node.concentration.index);
+      if (isAttrDefined(node.std.value)) attributes.std = parseAttrOut(node.std.value, node.std.index);
+      if (isAttrDefined(node.error.value)) attributes.error = parseAttrOut(node.error.value, node.error.index);
+      if (isAttrDefined(node.identifier.value)) attributes.identifier = parseAttrOut(node.identifier.value, node.identifier.index)
 
       // Build relationships
       const relationships = (relationshipMap[node.id] || []).map(
@@ -217,8 +264,7 @@ export function convertToJSONFormat(
         id: node.id,
         type: preventMapTypes ? node.type : mapNodeType(node.type),
         attributes,
-        relationships,
-        ...(node.index && {index: node.index}),
+        relationships
       };
     }),
     null,
@@ -235,20 +281,20 @@ export function convertFromJSONFormat(workflow: string) {
   data.forEach((item) => {
     nodes.push({
       id: item.id,
-      name: parseStrAttr(item.attributes.name),
-      value: parseValOpAttr(item.attributes.value),
-      batch_num: parseStrAttr(item.attributes.batch_num),
-      ratio: parseValOpAttr(item.attributes.ratio),
-      concentration: parseValOpAttr(item.attributes.concentration),
-      unit: parseStrAttr(item.attributes.unit),
-      std: parseValOpAttr(item.attributes.std),
-      error: parseValOpAttr(item.attributes.error),
+      name: parseAttr(item.attributes.name),
+      value: parseAttr(item.attributes.value),
+      batch_num: parseAttr(item.attributes.batch_num),
+      ratio: parseAttr(item.attributes.ratio),
+      concentration: parseAttr(item.attributes.concentration),
+      unit: parseAttr(item.attributes.unit),
+      std: parseAttr(item.attributes.std),
+      error: parseAttr(item.attributes.error),
+      identifier: parseAttr(item.attributes.identifier),
       type: item.type,
       position: { x: -100, y: -100 },
       size: 100,
       layer: 0,
       isEditing: false,
-      index: item.index ? item.index : undefined
     })
 
     // Reconstruct relationships
@@ -300,20 +346,20 @@ export function convertFromNewJson(workflow: string) {
   data.nodes.forEach((item) => {
     nodes.push({
       id: item.id,
-      name: parseStrAttr(item.attributes.name),
-      value: {value: parseStrAttr(item.attributes.value), operator: "="},
-      batch_num: parseStrAttr(item.attributes.batch_number),
-      ratio: {value: parseStrAttr(item.attributes.ratio), operator: "="},
-      concentration: {value: parseStrAttr(item.attributes.concentration), operator: "="},
-      unit: parseStrAttr(item.attributes.unit),
-      std: {value: parseStrAttr(item.attributes.std), operator: "="},
-      error: {value: parseStrAttr(item.attributes.error), operator: "="},
+      name: parseAttr(item.attributes.name),
+      value: parseAttr(item.attributes.value),
+      batch_num: parseAttr(item.attributes.batch_number),
+      ratio: parseAttr(item.attributes.ratio),
+      concentration: parseAttr(item.attributes.concentration),
+      unit: parseAttr(item.attributes.unit),
+      std: parseAttr(item.attributes.std),
+      error: parseAttr(item.attributes.error),
+      identifier: parseAttr(item.attributes.identifier),
       type: item.label,
       position: { x: -100, y: -100 },
       size: 100,
       layer: 0,
       isEditing: false,
-      index: item.index ? item.index : undefined
     })
   })
 
