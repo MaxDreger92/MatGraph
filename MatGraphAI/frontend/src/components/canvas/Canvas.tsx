@@ -9,11 +9,11 @@ import { toast } from "react-hot-toast"
 
 import ContextCanvas from "./CanvasContext"
 import Node from "./node/Node"
-import Connection, { TempConnection } from "./connection/Connection"
+import Relationship, { TempRelationship } from "./relationship/Relationship"
 import {
   Rect,
   INode,
-  IConnection,
+  IRelationship,
   Position,
   Vector2D,
   ICanvasButton,
@@ -22,16 +22,16 @@ import {
 import { graphLayouts } from "../../types/canvas.graphLayouts"
 import {
   isConnectableNode,
-  isConnectionLegitimate
+  isRelationshipLegitimate
 } from "../../common/helpers"
 import CanvasButtonGroup from "./CanvasButtons"
 
 interface CanvasProps {
   
   nodes: INode[]
-  connections: IConnection[]
+  relationships: IRelationship[]
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-  setConnections: React.Dispatch<React.SetStateAction<IConnection[]>>
+  setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
   selectedNodes: INode[]
   setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
   saveWorkflow: () => void
@@ -51,9 +51,9 @@ interface CanvasProps {
 export default function Canvas(props: CanvasProps) {
   const {
     nodes,
-    connections,
+    relationships,
     setNodes,
-    setConnections,
+    setRelationships,
     selectedNodes,
     setSelectedNodes,
     saveWorkflow,
@@ -74,8 +74,8 @@ export default function Canvas(props: CanvasProps) {
   const [isLayouting, setIsLayouting] = useState(false)
   const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
   const [connectingNode, setConnectingNode] = useState<INode | null>(null)
-  const [selectedConnectionID, setSelectedConnectionID] = useState<
-    IConnection["id"] | null
+  const [selectedRelationshipID, setSelectedRelationshipID] = useState<
+    IRelationship["id"] | null
   >(null)
   const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 })
   const [navOpen, setNavOpen] = useState(false)
@@ -127,7 +127,7 @@ export default function Canvas(props: CanvasProps) {
 
   // addNode from canvas context menu
   // if created from connector, automatically
-  // add connection between nodes
+  // add relationship between nodes
   const addNode = (type: INode["type"], position: Position) => {
     const id = uuidv4().replaceAll("-", "")
     const layer = 0
@@ -149,7 +149,7 @@ export default function Canvas(props: CanvasProps) {
       isEditing: true,
     }
     if (connectingNode) {
-      addConnection(connectingNode, newNode)
+      addRelationship(connectingNode, newNode)
     } else {
       updateHistory()
     }
@@ -157,14 +157,14 @@ export default function Canvas(props: CanvasProps) {
   }
 
   // handle click (release) on node
-  // adds connection if connecting from other node
+  // adds relationship if connecting from other node
   // selects node (will also open node context)
   const handleNodeClick = (node: INode) => {
     cleanupDrag()
     if (selectionRect) {
       selectNodesBySelectionRect(node)
     } else if (connectingNode) {
-      addConnection(connectingNode, node)
+      addRelationship(connectingNode, node)
       setConnectingNode(null)
     } else {
       if (nodeEditing) return
@@ -172,7 +172,7 @@ export default function Canvas(props: CanvasProps) {
       switch (nodeSelectionStatus(node.id)) {
         case 0:
           if (!navOpen) {
-            setSelectedConnectionID(null)
+            setSelectedRelationshipID(null)
             if (ctrlPressed) {
               setSelectedNodes((selectedNodes) => [...selectedNodes, node])
               return
@@ -290,14 +290,14 @@ export default function Canvas(props: CanvasProps) {
     )
   }
 
-  // initialize node connection
+  // initialize node relationship
   // -> mouse needs to be released on another node
-  //    to create a connection
+  //    to create a relationship
   const handleNodeConnect = (node: INode) => {
     setNavOpen(false)
     setClickPosition(null)
     setSelectedNodes([])
-    setSelectedConnectionID(null)
+    setSelectedRelationshipID(null)
     setConnectingNode(node)
   }
 
@@ -404,10 +404,10 @@ export default function Canvas(props: CanvasProps) {
   const handleNodeDelete = (nodeID: INode["id"]) => {
     updateHistory()
     setNodes((prevNodes) => prevNodes.filter((n) => n.id !== nodeID))
-    setConnections((prevConnections) =>
-      prevConnections.filter(
-        (connection) =>
-          connection.start.id !== nodeID && connection.end.id !== nodeID
+    setRelationships((prevRelationships) =>
+      prevRelationships.filter(
+        (relationship) =>
+          relationship.start.id !== nodeID && relationship.end.id !== nodeID
       )
     )
     setSelectedNodes([])
@@ -504,32 +504,32 @@ export default function Canvas(props: CanvasProps) {
     return 0
   }
 
-  // add connection between two nodes
-  // checks for already existing connections
-  // checks for legitimate connections
-  const addConnection = (start: INode, end: INode) => {
+  // add relationship between two nodes
+  // checks for already existing relationships
+  // checks for legitimate relationships
+  const addRelationship = (start: INode, end: INode) => {
     if (start.id === end.id) return
-    const connectionExists = connections.some(
-      (connection) =>
-        (connection.start.id === start.id && connection.end.id === end.id) ||
-        (connection.start.id === end.id && connection.end.id === start.id)
+    const relationshipExists = relationships.some(
+      (relationship) =>
+        (relationship.start.id === start.id && relationship.end.id === end.id) ||
+        (relationship.start.id === end.id && relationship.end.id === start.id)
     )
-    if (connectionExists || !isConnectionLegitimate(start, end)) {
-      toast.error("Connection invalid!")
+    if (relationshipExists || !isRelationshipLegitimate(start, end)) {
+      toast.error("Relationship invalid!")
       return
     }
     updateHistory()
-    const connectionID = uuidv4().replaceAll("-", "")
-    setConnections((prevConnections) => [
-      ...prevConnections,
-      { start: start, end: end, id: connectionID },
+    const relationshipID = uuidv4().replaceAll("-", "")
+    setRelationships((prevRelationships) => [
+      ...prevRelationships,
+      { start: start, end: end, id: relationshipID },
     ])
   }
 
-  // selects a connection
-  // (will also open connection context menu)
-  const handleConnectionClick = (connectionID: IConnection["id"]) => {
-    setSelectedConnectionID(connectionID)
+  // selects a relationship
+  // (will also open relationship context menu)
+  const handleRelationshipClick = (relationshipID: IRelationship["id"]) => {
+    setSelectedRelationshipID(relationshipID)
     setSelectedNodes([])
     if (navOpen) {
       setNavOpen(false)
@@ -537,24 +537,24 @@ export default function Canvas(props: CanvasProps) {
     }
   }
 
-  // deletes connection
-  const handleConnectionDelete = (connectionID: IConnection["id"]) => {
+  // deletes relationship
+  const handleRelationshipDelete = (relationshipID: IRelationship["id"]) => {
     updateHistory()
-    setConnections((prevConnections) =>
-      prevConnections.filter((connection) => connection.id !== connectionID)
+    setRelationships((prevRelationships) =>
+      prevRelationships.filter((relationship) => relationship.id !== relationshipID)
     )
   }
 
-  // reverses connection direction if possible
-  const handleConnectionReverse = (connectionID: IConnection["id"]) => {
-    setConnections((prevConnections) =>
-      prevConnections.map((c) => {
-        if (c.id === connectionID) {
-          if (isConnectionLegitimate(c.end, c.start)) {
+  // reverses relationship direction if possible
+  const handleRelationshipReverse = (relationshipID: IRelationship["id"]) => {
+    setRelationships((prevRelationships) =>
+      prevRelationships.map((c) => {
+        if (c.id === relationshipID) {
+          if (isRelationshipLegitimate(c.end, c.start)) {
             updateHistory()
             return { ...c, start: c.end, end: c.start }
           } else {
-            toast.error("Connection cannot be reversed!")
+            toast.error("Relationship cannot be reversed!")
             return c
           }
         } else {
@@ -564,20 +564,20 @@ export default function Canvas(props: CanvasProps) {
     )
   }
 
-  // connection action switch
-  const handleConnectionAction = (
-    connectionID: IConnection["id"],
+  // relationship action switch
+  const handleRelationshipAction = (
+    relationshipID: IRelationship["id"],
     action: string
   ) => {
     switch (action) {
       case "click":
-        handleConnectionClick(connectionID)
+        handleRelationshipClick(relationshipID)
         break
       case "reverse":
-        handleConnectionReverse(connectionID)
+        handleRelationshipReverse(relationshipID)
         break
       case "delete":
-        handleConnectionDelete(connectionID)
+        handleRelationshipDelete(relationshipID)
         break
       default:
         break
@@ -604,13 +604,13 @@ export default function Canvas(props: CanvasProps) {
     const cy = cytoscape({
       elements: {
         nodes: nodes.map((node) => ({ data: { id: node.id } })),
-        edges: connections.map((connection) => ({
+        edges: relationships.map((relationship) => ({
           data: {
-            id: connection.id,
-            source: connection.start.id,
-            target: connection.end.id,
+            id: relationship.id,
+            source: relationship.start.id,
+            target: relationship.end.id,
           },
-        })), // Transform connections to Cytoscape format
+        })), // Transform relationships to Cytoscape format
       },
       headless: true,
     })
@@ -692,7 +692,7 @@ export default function Canvas(props: CanvasProps) {
     }, 500);
 
     //add timeout to set islayouting here
-  }, [canvasRect, nodes, connections, setNodes])
+  }, [canvasRect, nodes, relationships, setNodes])
 
   useEffect(() => {
     if (needLayout) {
@@ -754,26 +754,26 @@ export default function Canvas(props: CanvasProps) {
     if (e.key === "Control") {
       setCtrlPressed(false)
     }
-    if (e.key !== "Delete" || (!selectedNodes && !selectedConnectionID)) return
+    if (e.key !== "Delete" || (!selectedNodes && !selectedRelationshipID)) return
     updateHistory()
     if (selectedNodes.length > 0) {
       const nodeIDs = new Set(selectedNodes.map((n) => n.id))
       if (!nodeIDs) return
       setNodes((prevNodes) => prevNodes.filter((n) => !nodeIDs.has(n.id)))
-      setConnections((prevConnections) =>
-        prevConnections.filter(
-          (connection) =>
-            !nodeIDs.has(connection.start.id) && !nodeIDs.has(connection.end.id)
+      setRelationships((prevRelationships) =>
+        prevRelationships.filter(
+          (relationship) =>
+            !nodeIDs.has(relationship.start.id) && !nodeIDs.has(relationship.end.id)
         )
       )
-    } else if (selectedConnectionID) {
-      setConnections((prevConnections) =>
-        prevConnections.filter(
-          (connection) => connection.id !== selectedConnectionID
+    } else if (selectedRelationshipID) {
+      setRelationships((prevRelationships) =>
+        prevRelationships.filter(
+          (relationship) => relationship.id !== selectedRelationshipID
         )
       )
-      // setConnections((prevConnections) =>
-      //   prevConnections.filter((connection) => connection.id !== connectionID)
+      // setRelationships((prevRelationships) =>
+      //   prevRelationships.filter((relationship) => relationship.id !== selectedRelationshipID)
       // )
     }
   }
@@ -829,7 +829,7 @@ export default function Canvas(props: CanvasProps) {
 
     setClickPosition(null)
     setMovingNodeIDs(null)
-    setSelectedConnectionID(null)
+    setSelectedRelationshipID(null)
     cleanupDrag()
 
     if (selectionRect) {
@@ -844,7 +844,7 @@ export default function Canvas(props: CanvasProps) {
         setNavOpen(true)
       } else {
         setConnectingNode(null)
-        toast.error("No possible connection!")
+        toast.error("No possible relationship!")
       }
     }
   }
@@ -901,7 +901,7 @@ export default function Canvas(props: CanvasProps) {
       setNavOpen(true)
     }
     setSelectedNodes([])
-    setSelectedConnectionID(null)
+    setSelectedRelationshipID(null)
     setConnectingNode(null)
   }
 
@@ -953,23 +953,23 @@ export default function Canvas(props: CanvasProps) {
       ref={canvasRef}
       tabIndex={0}
     >
-      {/* Connections */}
-      {connections.map((connection, i) => {
-        const startNode = nodes.find((node) => node.id === connection.start.id)
-        const endNode = nodes.find((node) => node.id === connection.end.id)
+      {/* Relationships */}
+      {relationships.map((relationship, i) => {
+        const startNode = nodes.find((node) => node.id === relationship.start.id)
+        const endNode = nodes.find((node) => node.id === relationship.end.id)
         if (!startNode || !endNode) return null // Skip rendering if nodes are not found
         return (
-          <Connection
+          <Relationship
             key={i}
-            handleConnectionAction={handleConnectionAction}
-            connection={{ start: startNode, end: endNode, id: connection.id }}
-            isSelected={connection.id === selectedConnectionID}
+            handleRelationshipAction={handleRelationshipAction}
+            relationship={{ start: startNode, end: endNode, id: relationship.id }}
+            isSelected={relationship.id === selectedRelationshipID}
           />
         )
       })}
-      {/* Temp Connection */}
+      {/* Temp Relationship */}
       {connectingNode && (
-        <TempConnection
+        <TempRelationship
           startPosition={connectingNode.position}
           endPosition={clickPosition}
           canvasRect={canvasRect}

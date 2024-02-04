@@ -1,19 +1,19 @@
 import { PiAddressBookDuotone } from "react-icons/pi"
 import {
   INode,
-  IConnection,
-  IDConnection,
+  IRelationship,
+  IDRelationship,
   ValOpPair,
   Operator,
 } from "../types/canvas.types"
-import { ITempNode, ParsedValOpPair } from "../types/workflow.types"
+import { IGraphData, ITempNode, ParsedValOpPair } from "../types/workflow.types"
 import toast from "react-hot-toast"
 import client from "../client"
 import { v4 as uuidv4 } from "uuid"
 import React, { useRef } from "react"
 import { valueGetters } from "@mantine/core/lib/Box/style-system-props/value-getters/value-getters"
 
-const connectionToRelType: Record<string, string> = {
+const relationshipToRelType: Record<string, string> = {
   "matter-manufacturing": "IS_MANUFACTURING_INPUT",
   "manufacturing-matter": "IS_MANUFACTURING_OUTPUT",
   "matter-measurement": "IS_MEASUREMENT_INPUT",
@@ -54,11 +54,11 @@ function mapNodeType(type: string): string {
  *
  * @param startType Starting node's type
  * @param endType Ending node's type
- * @returns Corresponding relationship type for the connection
+ * @returns Corresponding relationship type for the relationship
  */
 function determineRelationshipType(startType: string, endType: string): string {
   return (
-    connectionToRelType[`${startType}-${endType}`] || "UNKNOWN_RELATIONSHIP"
+    relationshipToRelType[`${startType}-${endType}`] || "UNKNOWN_RELATIONSHIP"
   )
 }
 
@@ -68,12 +68,12 @@ function determineRelationshipType(startType: string, endType: string): string {
  * @param startType Starting node's type
  * @returns Array of possible end node types for the given start type
  */
-export function possibleConnections(startType: string | undefined): string[] {
+export function possibleRelationships(startType: string | undefined): string[] {
   if (!startType)
     return ["matter", "manufacturing", "parameter", "property", "measurement", "metadata"]
 
   // Filter the keys to find matches and extract the endType
-  return Object.keys(connectionToRelType)
+  return Object.keys(relationshipToRelType)
     .filter((key) => key.startsWith(`${startType}-`))
     .map((key) => key.split("-")[1])
 }
@@ -88,7 +88,7 @@ export function isConnectableNode(nodeType: string | undefined): boolean {
   if (!nodeType) return false
 
   // Check if there's a key that starts with the given nodeType followed by a '-'
-  return Object.keys(connectionToRelType).some((key) =>
+  return Object.keys(relationshipToRelType).some((key) =>
     key.startsWith(`${nodeType}-`)
   )
 }
@@ -157,25 +157,25 @@ function parseValOpAttr(attribute: ParsedValOpPair | undefined): ValOpPair {
 
 export function convertToJSONFormat(
   nodes: INode[],
-  connections: IConnection[],
+  relationships: IRelationship[],
   preventMapTypes?: boolean,
 ): string {
-  // Convert connections into a map for easier lookup
-  const connectionMap = connections.reduce((acc, connection) => {
+  // Convert relationships into a map for easier lookup
+  const relationshipMap = relationships.reduce((acc, relationship) => {
     // Capture relationships where the node is the start point
-    if (!acc[connection.start.id]) {
-      acc[connection.start.id] = [];
+    if (!acc[relationship.start.id]) {
+      acc[relationship.start.id] = [];
     }
-    acc[connection.start.id].push(connection);
+    acc[relationship.start.id].push(relationship);
 
     // Capture relationships where the node is the end point
-    if (!acc[connection.end.id]) {
-      acc[connection.end.id] = [];
+    if (!acc[relationship.end.id]) {
+      acc[relationship.end.id] = [];
     }
-    acc[connection.end.id].push(connection);
+    acc[relationship.end.id].push(relationship);
 
     return acc;
-  }, {} as Record<string, IConnection[]>);
+  }, {} as Record<string, IRelationship[]>);
 
   return JSON.stringify(
     nodes.map((node) => {
@@ -199,13 +199,13 @@ export function convertToJSONFormat(
       if (isAttrDefined(node.error)) attributes.error = parseAttrOut(node.error);
 
       // Build relationships
-      const relationships = (connectionMap[node.id] || []).map(
-        (connection) => ({
+      const relationships = (relationshipMap[node.id] || []).map(
+        (relationship) => ({
           rel_type: determineRelationshipType(
-            connection.start.type,
-            connection.end.type
+            relationship.start.type,
+            relationship.end.type
           ),
-          connection: [connection.start.id, connection.end.id] as [
+          connection: [relationship.start.id, relationship.end.id] as [
             string,
             string
           ],
@@ -230,7 +230,7 @@ export function convertToJSONFormat(
 export function convertFromJSONFormat(workflow: string) {
   const data: ITempNode[] = JSON.parse(workflow)
   const nodes: INode[] = []
-  const connectionsMap: Map<string, IDConnection> = new Map()
+  const relationshipMap: Map<string, IDRelationship> = new Map()
 
   data.forEach((item) => {
     nodes.push({
@@ -251,15 +251,15 @@ export function convertFromJSONFormat(workflow: string) {
       index: item.index ? item.index : undefined
     })
 
-    // Reconstruct connections
+    // Reconstruct relationships
     item.relationships.forEach((rel) => {
-      // Create a unique key to prevent duplicate connections
-      const connectionKey = [rel.connection[0], rel.connection[1]]
+      // Create a unique key to prevent duplicate relationships
+      const relationshipKey = [rel.connection[0], rel.connection[1]]
         .sort()
         .join("_")
 
-      if (!connectionsMap.has(connectionKey)) {
-        connectionsMap.set(connectionKey, {
+      if (!relationshipMap.has(relationshipKey)) {
+        relationshipMap.set(relationshipKey, {
           start: rel.connection[0], // Only ID is used here
           end: rel.connection[1], // Only ID is used here
         })
@@ -267,11 +267,11 @@ export function convertFromJSONFormat(workflow: string) {
     })
   })
 
-  const connections: IConnection[] = Array.from(
-    connectionsMap.values()
-  ).flatMap((con) => {
-    const startNode = nodes.find((n) => n.id === con.start)
-    const endNode = nodes.find((n) => n.id === con.end)
+  const relationships: IRelationship[] = Array.from(
+    relationshipMap.values()
+  ).flatMap((rel) => {
+    const startNode = nodes.find((n) => n.id === rel.start)
+    const endNode = nodes.find((n) => n.id === rel.end)
 
     if (!startNode || !endNode) {
       return []
@@ -288,19 +288,61 @@ export function convertFromJSONFormat(workflow: string) {
 
   return {
     nodes,
-    connections,
+    relationships: relationships,
+  }
+}
+
+export function convertFromNewJson(workflow: string) {
+  const data: IGraphData = JSON.parse(workflow)
+  const nodes: INode[] = []
+  const relationships: IRelationship[] = []
+
+  data.nodes.forEach((item) => {
+    nodes.push({
+      id: item.id,
+      name: parseStrAttr(item.attributes.name),
+      value: {value: parseStrAttr(item.attributes.value), operator: "="},
+      batch_num: parseStrAttr(item.attributes.batch_number),
+      ratio: {value: parseStrAttr(item.attributes.ratio), operator: "="},
+      concentration: {value: parseStrAttr(item.attributes.concentration), operator: "="},
+      unit: parseStrAttr(item.attributes.unit),
+      std: {value: parseStrAttr(item.attributes.std), operator: "="},
+      error: {value: parseStrAttr(item.attributes.error), operator: "="},
+      type: item.label,
+      position: { x: -100, y: -100 },
+      size: 100,
+      layer: 0,
+      isEditing: false,
+      index: item.index ? item.index : undefined
+    })
+  })
+
+  data.relationships.forEach((relationship) => {
+    const [sourceNodeId, targetNodeId] = relationship.relationship
+    const start = nodes.find((node) => node.id === sourceNodeId)
+    const end = nodes.find((node) => node.id === targetNodeId)
+
+    if (start && end) {
+      const id = uuidv4().replaceAll("-", "")
+      relationships.push({ start, end, id })
+    }
+  })
+
+  return {
+    nodes,
+    relationships: relationships,
   }
 }
 
 /**
- * Determine if a connection between two nodes is allowed.
+ * Determine if a relationship between two nodes is allowed.
  *
  * @param start Starting node
  * @param end Ending node
- * @returns true if the connection is legitimate, false otherwise
+ * @returns true if the relationship is legitimate, false otherwise
  */
-export function isConnectionLegitimate(start: INode, end: INode): boolean {
-  const allowedConnections: Array<[string, string]> = [
+export function isRelationshipLegitimate(start: INode, end: INode): boolean {
+  const allowedRelationships: Array<[string, string]> = [
     ["matter", "manufacturing"], // IS_MANUFACTURING_INPUT
     ["manufacturing", "matter"], // IS_MANUFACTURING_OUTPUT
     ["matter", "measurement"], // IS_MEASUREMENT_INPUT
@@ -311,9 +353,9 @@ export function isConnectionLegitimate(start: INode, end: INode): boolean {
     ["measurement", "metadata"], // HAS_METADATA
   ]
 
-  // Check if the [start.type, end.type] tuple exists in the allowed connections array
-  return allowedConnections.some(
-    (connection) => connection[0] === start.type && connection[1] === end.type
+  // Check if the [start.type, end.type] tuple exists in the allowed relationships array
+  return allowedRelationships.some(
+    (relationship) => relationship[0] === start.type && relationship[1] === end.type
   )
 }
 
