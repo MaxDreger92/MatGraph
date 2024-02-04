@@ -7,10 +7,11 @@ import "react-virtualized/styles.css"
 import WorkflowTableDropzone from "./WorkflowTableDropzone"
 import { IconUpload } from "@tabler/icons-react"
 import { Button } from "@mantine/core"
-import { IOuterDictionary, IWorkflow } from "../../types/workflow.types"
-import { IConnection, INode } from "../../types/canvas.types"
+import { IDictionary, IWorkflow } from "../../types/workflow.types"
+import { IRelationship, INode } from "../../types/canvas.types"
 import {
   convertFromJSONFormat,
+  convertFromNewJson,
   convertToJSONFormat,
 } from "../../common/helpers"
 
@@ -19,20 +20,20 @@ interface WorkflowTableProps {
   progress: number
   setProgress: React.Dispatch<React.SetStateAction<number>>
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-  setConnections: React.Dispatch<React.SetStateAction<IConnection[]>>
+  setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
   setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
   workflow: string | null
   workflows: IWorkflow[] | undefined
 }
 
-const exampleLabelDict: IOuterDictionary = {
+const exampleLabelDict: IDictionary = {
   Header1: {Label: "Label1"},
   Header2: {Label: "Label2"},
   Header3: {Label: "Label3"},
   // Add more key-value pairs as needed
 }
 
-const exampleAttrDict: IOuterDictionary = {
+const exampleAttrDict: IDictionary = {
   Header1: {Label: "Label1", Attribute: "Attribute1"},
   Header2: {Label: "Label2", Attribute: "Attribute2"},
   Header3: {Label: "Label3", Attribute: "Attribute3"},
@@ -45,7 +46,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     progress,
     setProgress,
     setNodes,
-    setConnections,
+    setRelationships,
     setNeedLayout,
     workflow,
     workflows,
@@ -120,9 +121,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
       const data = await client.requestExtractLabels(file, context)
 
       if (data.graph_json) {
-        const { nodes, connections } = convertFromJSONFormat(data.graph_json)
+        const { nodes, relationships } = convertFromNewJson(data.graph_json)
         setNodes(nodes)
-        setConnections(connections)
+        setRelationships(relationships)
         setNeedLayout(true)
         setProgress(5)
         return
@@ -193,16 +194,16 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         throw new Error("Error while extracting nodes!")
       }
 
-      const { nodes, connections } = convertFromJSONFormat(data.node_json)
+      const { nodes, relationships } = convertFromNewJson(data.node_json)
       // if (!workflows || !workflows[1]) {
       //   console.log("workflow not found")
       //   return
       // }
-      // const { nodes, connections } = convertFromJSONFormat(
+      // const { nodes, relationships } = convertFromJSONFormat(
       //   workflows[1].workflow
       // )
 
-      setConnections([])
+      setRelationships([])
       setNodes(nodes)
       setNeedLayout(true)
 
@@ -230,18 +231,18 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         throw new Error("Error while extracting graph!")
       }
 
-      const { nodes, connections } = convertFromJSONFormat(data.graph_json)
+      const { nodes, relationships } = convertFromNewJson(data.graph_json)
 
       // if (!workflows || !workflows[2]) {
       //   console.log("workflow not found")
       //   return
       // }
-      // const { nodes, connections } = convertFromJSONFormat(
+      // const { nodes, relationships } = convertFromJSONFormat(
       //   workflows[2].workflow
       // )
 
       setNodes(nodes)
-      setConnections(connections)
+      setRelationships(relationships)
       setNeedLayout(true)
 
       setProgress(5)
@@ -250,7 +251,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
   }
 
-  function dictToArray(dict: IOuterDictionary): string[][] {
+  function dictToArray(dict: IDictionary): string[][] {
     if (!dict || Object.keys(dict).length === 0) {
       return [];
     }
@@ -282,13 +283,13 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     return table.filter(row => row.some(cell => cell !== undefined && cell !== ""));
   }
   
-  function arrayToDict(array: string[][] | null): IOuterDictionary | null {
+  function arrayToDict(array: string[][] | null): IDictionary | null {
     // Validate the input array
     if (!array || array.length < 2 || !Array.isArray(array[0])) {
       return null; // Return null if input is null, has less than 2 rows, or if the first row is not an array
     }
   
-    const dict: IOuterDictionary = {};
+    const dict: IDictionary = {};
     const headers = array[0]; // The first row contains headers
   
     // Initialize dict with headers

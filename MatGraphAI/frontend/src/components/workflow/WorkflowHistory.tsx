@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { IWorkflow } from "../../types/workflow.types"
-import { IConnection, INode } from "../../types/canvas.types"
+import { IRelationship, INode } from "../../types/canvas.types"
 import { convertFromJSONFormat } from "../../common/helpers"
 import { RiDeleteBin2Line } from "react-icons/ri"
 
@@ -8,7 +8,7 @@ interface WorkflowHistoryProps {
   workflows: IWorkflow[] | undefined
   deleteWorkflow: (workflowId: string) => void
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-  setConnections: React.Dispatch<React.SetStateAction<IConnection[]>>
+  setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
   setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
   canvasWidth: number
   canvasHeight: number
@@ -19,7 +19,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
     workflows,
     deleteWorkflow,
     setNodes,
-    setConnections,
+    setRelationships,
     setNeedLayout,
     canvasWidth,
     canvasHeight,
@@ -27,10 +27,10 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
   const [hovered, setHovered] = useState<number | undefined>()
   const [trashHovered, setTrashHovered] = useState(false)
 
-  const setNodesAndConnections = (workflow: string) => {
-    const { nodes, connections } = convertFromJSONFormat(workflow)
+  const setNodesAndRelationships = (workflow: string) => {
+    const { nodes, relationships } = convertFromJSONFormat(workflow)
     setNodes(nodes)
-    setConnections(connections)
+    setRelationships(relationships)
     setNeedLayout(true)
   }
 
@@ -68,7 +68,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
             }}
             onMouseEnter={() => setHovered(index)}
             onMouseLeave={() => setHovered(undefined)}
-            onClick={() => setNodesAndConnections(workflow.workflow)}
+            onClick={() => setNodesAndRelationships(workflow.workflow)}
           >
             {hovered === index && (
               <RiDeleteBin2Line

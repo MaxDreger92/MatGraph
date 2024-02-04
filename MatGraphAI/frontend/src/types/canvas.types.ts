@@ -52,13 +52,13 @@ export interface INode {
   index?: number
 }
 
-export interface IConnection {
+export interface IRelationship {
   start: INode
   end: INode
   id: string
 }
 
-export interface IDConnection {
+export interface IDRelationship {
   start: string
   end: string
 }
