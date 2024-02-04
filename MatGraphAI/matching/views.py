@@ -9,7 +9,6 @@ def workflow_matcher_view(request):
     return render(request, 'index.html')
 
 def workflow_matcher(request):
-    print('workflow_matcher called')
 
     if request.method == 'GET':
         # Retrieve the 'jsonData' from the GET query parameters instead of request body
@@ -19,7 +18,6 @@ def workflow_matcher(request):
             return JsonResponse({'error': 'jsonData is required.'}, status=400)
 
         data = json.loads(string_data)
-        print("DATA:",data)
 
         matcher = FabricationWorkflowMatcher(data, force_report=True)
         matcher.run()

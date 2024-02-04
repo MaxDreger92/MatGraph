@@ -1,6 +1,8 @@
 import json
 
 from django.core.exceptions import ValidationError
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from neomodel import DateTimeProperty
 from rest_framework import response, status
@@ -13,7 +15,9 @@ from importing.models import FullTableCache
 from matgraph.models.metadata import File
 
 
+@method_decorator(csrf_exempt, name='post')
 class LabelExtractView(TemplateView):
+
     def post(self, request, *args, **kwargs):
         try:
             if 'file' not in request.FILES:
@@ -28,7 +32,8 @@ class LabelExtractView(TemplateView):
 
             first_line = str(file_obj.readline().decode('utf-8')).strip().lower()
 
-            if cached := FullTableCache.fetch(first_line, '', 'graph'):
+            if cached := FullTableCache.fetch(first_line):
+                print("full-cache", type(cached), cached, first_line)
                 return response.Response({'graph': cached}, status=status.HTTP_400_BAD_REQUEST)
 
             file_record = self.store_file(file_obj)
