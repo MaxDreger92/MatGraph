@@ -134,14 +134,15 @@ export default function Canvas(props: CanvasProps) {
     const size = 100
     const newNode = {
       id,
-      name: "",
-      value: {value: "", operator: ""},
-      batch_num: "",
-      ratio: {value: "", operator: ""},
-      concentration: {value: "", operator: ""},
-      unit: "",
-      std: {value: "", operator: ""},
-      error: {value: "", operator: ""},
+      name: {value:""},
+      value: {value:{value: "", operator: ""}},
+      batch_num: {value:""},
+      ratio: {value:{value: "", operator: ""}},
+      concentration: {value:{value: "", operator: ""}},
+      unit: {value:""},
+      std: {value:{value: "", operator: ""}},
+      error: {value:{value: "", operator: ""}},
+      identifier: {value:""},
       type,
       position,
       size,
@@ -336,14 +337,15 @@ export default function Canvas(props: CanvasProps) {
           }
           // Check if any fields have changed
           if (
-            node.name !== n.name ||
-            node.value !== n.value ||
-            node.batch_num !== n.batch_num ||
-            node.ratio !== n.ratio ||
-            node.concentration !== n.concentration ||
-            node.unit !== n.unit ||
-            node.std !== n.std ||
-            node.error !== n.error
+            node.name.value !== n.name.value ||
+            node.value.value !== n.value.value ||
+            node.batch_num.value !== n.batch_num.value ||
+            node.ratio.value !== n.ratio.value ||
+            node.concentration.value !== n.concentration.value ||
+            node.unit.value !== n.unit.value ||
+            node.std.value !== n.std.value ||
+            node.error.value !== n.error.value ||
+            node.identifier.value !== n.identifier.value
           ) {
             updateHistory() // Call updateHistory only if a change has occurred
           }

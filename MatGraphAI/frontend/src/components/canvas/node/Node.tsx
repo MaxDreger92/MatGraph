@@ -106,9 +106,9 @@ export default React.memo(function Node(props: NodeProps) {
   // update missing fields
   useEffect(() => {
     if (isValueNode) {
-      setFieldsMissing(!isAttrDefined(node.name) || !isAttrDefined(node.value))
+      setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.value))
     } else {
-      setFieldsMissing(!isAttrDefined(node.name))
+      setFieldsMissing(!isAttrDefined(node.name.value))
     }
   }, [isValueNode, node.name, node.value])
 
@@ -135,16 +135,16 @@ export default React.memo(function Node(props: NodeProps) {
 
   // calculate nodeOptimalSize
   useEffect(() => {
-    if (!isAttrDefined(node.name)) {
+    if (!isAttrDefined(node.name.value)) {
       setNodeOptimalSize(node.size)
       return
     }
 
-    const nameMinimumSize = node.name.length * 11
+    const nameMinimumSize = node.name.value.length * 11
     let nodeMinimumSize = nameMinimumSize
 
-    if (isValueNode && isAttrDefined(node.value)) {
-      const valueMinimumSize = node.value.value.length * 9 + 20
+    if (isValueNode && isAttrDefined(node.value.value)) {
+      const valueMinimumSize = node.value.value.value.length * 9 + 20
       nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
     }
 
@@ -380,8 +380,8 @@ export default React.memo(function Node(props: NodeProps) {
               labelRef={nodeLabelRef}
               hovered={nodeHovered}
               size={nodeActualSize}
-              name={node.name}
-              value={node.value}
+              name={node.name.value}
+              value={node.value.value}
               type={node.type}
               layer={node.layer}
               // hasLabelOverflow={hasLabelOverflow}
