@@ -22,10 +22,24 @@ export interface ITempNode {
   index?: number
 }
 
-export interface IOuterDictionary {
-  [key: string]: IInnerDictionary
+export interface IGraphData {
+  nodes: IGraphNode[]
+  relationships: IRelationship[]
 }
 
-export interface IInnerDictionary {
-  [key: string]: string
+export interface IGraphNode {
+  id: string
+  label: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+  name: string[]
+  attributes: { [key: string]: any }
+  index?: number
+}
+
+export interface IRelationship {
+  rel_type: string
+  relationship: [string, string]
+}
+
+export interface IDictionary {
+  [key: string]: {[key: string]: string}
 }

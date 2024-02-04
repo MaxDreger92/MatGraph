@@ -234,12 +234,12 @@ export default React.memo(function Node(props: NodeProps) {
     }
   }
 
-  // either complete connection between 2 nodes or
+  // either complete relationship between 2 nodes or
   // open node nav menu (if node hasnt been moved significantly)
   const handleMouseUp = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (connecting) {
-      // always carry out node click if a node is trying to connect (favour connection)
+      // always carry out node click if a node is trying to connect (favour relationship)
       handleNodeAction(node, "click")
     } else if (
       // carry out node click if node is not trying to connect
@@ -344,8 +344,8 @@ export default React.memo(function Node(props: NodeProps) {
             : "default",
         }}
         className="node-clickable"
-        onMouseDown={handleMouseDown} // init connection
-        onMouseUp={handleMouseUp} // handleNodeClick (complete connection || open node nav)
+        onMouseDown={handleMouseDown} // init relationship
+        onMouseUp={handleMouseUp} // handleNodeClick (complete relationship || open node nav)
         onMouseEnter={() => setNodeHovered(true)}
         onMouseLeave={() => setNodeHovered(false)}
         onContextMenu={(e) => {

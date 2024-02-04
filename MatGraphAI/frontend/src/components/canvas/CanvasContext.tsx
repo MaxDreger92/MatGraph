@@ -18,7 +18,7 @@ import MetadataIcon from '@mui/icons-material/DataObject';
 import { Position } from "../../types/canvas.types"
 import { colorPalette } from "../../types/colors"
 import { INode } from "../../types/canvas.types"
-import { possibleConnections } from "../../common/helpers"
+import { possibleRelationships } from "../../common/helpers"
 
 interface CanvasContextProps {
   onSelect: (nodeType: INode["type"]) => void
@@ -227,7 +227,7 @@ export default function CanvasContext(props: CanvasContextProps) {
 
   // get all buttons, that should be rendered
   const buttonsToRender = useMemo(() => {
-    const buttonList = possibleConnections(contextRestrict)
+    const buttonList = possibleRelationships(contextRestrict)
     return BUTTON_TYPES.filter(button => 
       buttonList.includes(button.type) || !contextRestrict
     );

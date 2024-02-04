@@ -21,7 +21,7 @@ import WorkflowButtons from "./WorkflowButtons"
 import WorkflowJson from "./WorkflowJson";
 import WorkflowHistory from "./WorkflowHistory";
 import WorkflowTable from "./WorkflowTable";
-import { IConnection, INode } from "../../types/canvas.types";
+import { IRelationship, INode } from "../../types/canvas.types";
 import { convertToJSONFormat } from "../../common/helpers";
 import toast from "react-hot-toast";
 import client from "../../client";
@@ -36,7 +36,7 @@ interface WorkflowProps {
 export default function Workflow(props: WorkflowProps) {
   const { colorIndex } = props
   const [nodes, setNodes] = useState<INode[]>([])
-  const [connections, setConnections] = useState<IConnection[]>([])
+  const [relationships, setRelationships] = useState<IRelationship[]>([])
   const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
   const [workflow, setWorkflow] = useState<string | null>(null)
   const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
@@ -45,12 +45,12 @@ export default function Workflow(props: WorkflowProps) {
 
   const [history, setHistory] = useState<{
     nodes: INode[][]
-    connections: IConnection[][]
-  }>({ nodes: [], connections: [] })
+    relationships: IRelationship[][]
+  }>({ nodes: [], relationships: [] })
   const [future, setFuture] = useState<{
     nodes: INode[][]
-    connections: IConnection[][]
-  }>({ nodes: [], connections: [] })
+    relationships: IRelationship[][]
+  }>({ nodes: [], relationships: [] })
 
   const [canvasWidth, setCanvasWidth] = useState(0)
   const [canvasHeight, setCanvasHeight] = useState(0)
@@ -67,15 +67,15 @@ export default function Workflow(props: WorkflowProps) {
   const [progress, setProgress] = useState<number>(0)
 
   useEffect(() => {
-    setWorkflow(convertToJSONFormat(nodes, connections))
-  }, [nodes, connections])
+    setWorkflow(convertToJSONFormat(nodes, relationships))
+  }, [nodes, relationships])
 
   useEffect(() => {
     fetchWorkflows()
   }, [])
 
   async function saveWorkflow() {
-    const workflow = convertToJSONFormat(nodes, connections, true)
+    const workflow = convertToJSONFormat(nodes, relationships, true)
 
     try {
       await saveWorkflowToHistory(workflow)
@@ -214,61 +214,61 @@ export default function Workflow(props: WorkflowProps) {
     }
   })
 
-  // Get nodes and connections from local storage
+  // Get nodes and relationships from local storage
   useEffect(() => {
     const savedNodes = localStorage.getItem("nodes")
-    const savedConnections = localStorage.getItem("connections")
+    const savedRelationships = localStorage.getItem("relationships")
 
     if (savedNodes) {
       setNodes(JSON.parse(savedNodes))
-      if (savedConnections) setConnections(JSON.parse(savedConnections))
+      if (savedRelationships) setRelationships(JSON.parse(savedRelationships))
     }
-  }, [setNodes, setConnections])
+  }, [setNodes, setRelationships])
 
-  // Save nodes and connections to local storage
+  // Save nodes and relationships to local storage
   useEffect(() => {
     localStorage.setItem("nodes", JSON.stringify(nodes))
-    localStorage.setItem("connections", JSON.stringify(connections))
-  }, [nodes, connections])
+    localStorage.setItem("relationships", JSON.stringify(relationships))
+  }, [nodes, relationships])
 
   const updateHistory = () => {
     setHistory((prev) => ({
       nodes: [...prev.nodes, nodes].slice(-undoSteps),
-      connections: [...prev.connections, connections].slice(-undoSteps),
+      relationships: [...prev.relationships, relationships].slice(-undoSteps),
     }))
-    setFuture({ nodes: [], connections: [] })
+    setFuture({ nodes: [], relationships: [] })
   }
 
   const updateHistoryWithCaution = () => {
     setHistory((prev) => ({
       nodes: [...prev.nodes, nodes].slice(-undoSteps),
-      connections: [...prev.connections, connections].slice(-undoSteps),
+      relationships: [...prev.relationships, relationships].slice(-undoSteps),
     }))
   }
 
   const updateHistoryRevert = () => {
     setHistory((prev) => ({
       nodes: prev.nodes.slice(0, -1),
-      connections: prev.connections.slice(0, -1),
+      relationships: prev.relationships.slice(0, -1),
     }))
   }
 
   const updateHistoryComplete = () => {
-    setFuture({ nodes: [], connections: [] })
+    setFuture({ nodes: [], relationships: [] })
   }
 
   const handleReset = () => {
     if (!nodes.length) return
     updateHistory()
     setNodes([])
-    setConnections([])
+    setRelationships([])
   }
 
   const undo = useCallback(() => {
     if (history.nodes.length) {
       setFuture((prev) => ({
         nodes: [nodes, ...prev.nodes].slice(-undoSteps),
-        connections: [connections, ...prev.connections].slice(-undoSteps),
+        relationships: [relationships, ...prev.relationships].slice(-undoSteps),
       }))
       setNodes(
         history.nodes[history.nodes.length - 1].map((node) => ({
@@ -276,28 +276,28 @@ export default function Workflow(props: WorkflowProps) {
           isEditing: false,
         }))
       )
-      setConnections(history.connections[history.connections.length - 1])
+      setRelationships(history.relationships[history.relationships.length - 1])
       setHistory((prev) => ({
         nodes: prev.nodes.slice(0, -1),
-        connections: prev.connections.slice(0, -1),
+        relationships: prev.relationships.slice(0, -1),
       }))
     }
-  }, [history, nodes, connections, setNodes, setConnections])
+  }, [history, nodes, relationships, setNodes, setRelationships])
 
   const redo = useCallback(() => {
     if (future.nodes.length) {
       setHistory((prev) => ({
         nodes: [...prev.nodes, nodes].slice(-undoSteps),
-        connections: [...prev.connections, connections].slice(-undoSteps),
+        relationships: [...prev.relationships, relationships].slice(-undoSteps),
       }))
       setNodes(future.nodes[0].map((node) => ({ ...node, isEditing: false })))
-      setConnections(future.connections[0])
+      setRelationships(future.relationships[0])
       setFuture((prev) => ({
         nodes: prev.nodes.slice(1),
-        connections: prev.connections.slice(1),
+        relationships: prev.relationships.slice(1),
       }))
     }
-  }, [future, nodes, connections, setNodes, setConnections])
+  }, [future, nodes, relationships, setNodes, setRelationships])
 
   return (
     <div className="workflow" ref={workflowWindowRef}>
@@ -313,9 +313,9 @@ export default function Workflow(props: WorkflowProps) {
         children={
           <Canvas
             nodes={nodes}
-            connections={connections}
+            relationships={relationships}
             setNodes={setNodes}
-            setConnections={setConnections}
+            setRelationships={setRelationships}
             selectedNodes={selectedNodes}
             setSelectedNodes={setSelectedNodes}
             saveWorkflow={saveWorkflow}
@@ -350,7 +350,7 @@ export default function Workflow(props: WorkflowProps) {
             workflows={workflows}
             deleteWorkflow={deleteWorkflow}
             setNodes={setNodes}
-            setConnections={setConnections}
+            setRelationships={setRelationships}
             setNeedLayout={setNeedLayout}
             canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
@@ -382,7 +382,7 @@ export default function Workflow(props: WorkflowProps) {
           progress={progress}
           setProgress={setProgress}
           setNodes={setNodes}
-          setConnections={setConnections}
+          setRelationships={setRelationships}
           setNeedLayout={setNeedLayout}
           workflow={workflow}
           workflows={workflows}
