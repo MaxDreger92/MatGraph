@@ -36,20 +36,20 @@ export interface ValOpPair {
 
 export interface INode {
   id: string
-  name: string // obligatory in json for all nodes
-  value: ValOpPair // obligatory in json for property/parameter nodes
-  batch_num: string
-  ratio: ValOpPair
-  concentration: ValOpPair
-  unit: string
-  std: ValOpPair
-  error: ValOpPair
+  name: {value: string, index?: any}
+  value: {value: ValOpPair, index?: any}
+  batch_num: {value: string, index?: any}
+  ratio: {value: ValOpPair, index?: any}
+  concentration: {value: ValOpPair, index?: any}
+  unit: {value: string, index?: any}
+  std: {value: ValOpPair, index?: any}
+  error: {value: ValOpPair, index?: any}
+  identifier: {value: string, index?: any}
   type: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
   position: {x: number, y: number}
   size: number
   layer: number
   isEditing: boolean
-  index?: number
 }
 
 export interface IRelationship {
