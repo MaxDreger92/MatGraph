@@ -32,7 +32,6 @@ class RelationshipExtractor:
         self.triples = []
         self.conversation = setup_message
         self.prompt = ""
-        print(self.label_two_nodes, self.label_one_nodes)
 
     def check_one_to_one_destination(self, rel):
         """Validate if any node has a 'has_output' relationship with more than one node using NetworkX."""
@@ -128,8 +127,6 @@ class RelationshipExtractor:
         if self.isolated_nodes:
             prompt = f"""Some nodes are still not connected. Please connect the following nodes: {", ".join(self.isolated_nodes)}.
             Only return the revised list!"""
-            print("Revise isolated nodes...")
-            print(prompt)
             response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
@@ -137,7 +134,6 @@ class RelationshipExtractor:
     def revise_triples(self):
         """Revise the triples based on validation results."""
         triples_correct = self.triples_correct
-        print(triples_correct)
 
         if len(triples_correct[0]) != 0 or len(triples_correct[1]) != 0:
 
@@ -147,8 +143,6 @@ class RelationshipExtractor:
             if self.triples_correct[1]:
                 prompt += f"The following {self.label_two} nodes are not in the correct position of the triples: {self.triples_correct[1]}."
             prompt += "Only return the revised list."
-            print("Revise triples...")
-            print(prompt)
             response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
@@ -158,8 +152,6 @@ class RelationshipExtractor:
         if not self.is_connected:
             prompt = ("""The graph is divided into subgraphs. Please try to connect them to form one graph in a meaningful way. 
                       Return only the revised list.""")
-            print("Revise connectedness...")
-            print(prompt)
             response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
@@ -171,9 +163,9 @@ class RelationshipExtractor:
     def initial_extraction(self):
         """Extract the relationships using the initial prompt."""
         response = self.gpt_chat(self.setup_message, self.prompt)
+        print("Prompt: \n",self.prompt)
         print("Response: \n",response)
         self.triples = ast.literal_eval(response.replace(" ", "").replace("{", "").replace("}", ""))
-        print("Triples:\n", self.triples)
         self.conversation.append({"role": "user", "content": self.prompt})
         self.conversation.append({"role": "assistant", "content": response})
 

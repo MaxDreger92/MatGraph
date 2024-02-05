@@ -43,7 +43,6 @@ class NodeAggregator:
 
         # Send the initial query to ChatGPT and get the initial response
         query_result = chat_with_gpt4(setup_message, query)
-        print("Query Result:", query_result)
         self.create_node_list(query_result)
         self.conversation = [*self.conversation,{"role": "user", "content": query}, {"role": "system", "content": query_result[0]}]
 

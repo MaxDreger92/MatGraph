@@ -39,12 +39,10 @@ class hasParameterExtractor(RelationshipExtractor):
         """ Validate if all properties are connected to the graph. """
         isolated_parameter_nodes = self.all_parameter_connected
         if len(isolated_parameter_nodes) != 0:
-            print(f"The following parameter nodes are not connected: {isolated_parameter_nodes}")
             prompt = f"""- The following parameter nodes are not connected: {isolated_parameter_nodes} \n \n 
             Please connect all parameter nodes in a following the rules i gave you!
             Only return the revised list"""
             response = chat_with_gpt4(self.conversation, prompt)
-            print(response)
             self.conversation[-1]["content"] = response
 
 
