@@ -2,8 +2,8 @@ import axios, { AxiosInstance } from "axios"
 import { IDictionary } from "./types/workflow.types"
 
 const USER_API_URL = "https://reactgraphai.ew.r.appspot.com" //google app engine
-const DATA_API_URL =  "http://localhost:8000"
-const API_URL = "http://localhost:8000" // local
+const DATA_API_URL = "http://localhost:8080"
+// const API_URL = "http://localhost:8080" // local
 
 function getCookie(name: string) {
   const cookieValue = document.cookie
@@ -24,7 +24,7 @@ class Client {
     })
 
     this.dataClient = axios.create({
-      baseURL: DATA_API_URL
+      baseURL: DATA_API_URL,
     })
 
     this.getCurrentUser = this.getCurrentUser.bind(this)
@@ -43,7 +43,7 @@ class Client {
         err.message = err.response.data.message
         throw err
       }
-      throw new Error("Unexpected error while logging in!") 
+      throw new Error("Unexpected error while logging in!")
     }
   }
 
@@ -60,7 +60,7 @@ class Client {
         err.message = err.response.data.message
         throw err
       }
-      throw new Error("Unexpected error while registering!") 
+      throw new Error("Unexpected error while registering!")
     }
   }
 
@@ -97,13 +97,17 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch("/api/users/update/name", {
-        name
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.patch(
+        "/api/users/update/name",
+        {
+          name,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       return response
     } catch (err: any) {
@@ -122,13 +126,17 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch("/api/users/update/username", {
-        username
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.patch(
+        "/api/users/update/username",
+        {
+          username,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       return response
     } catch (err: any) {
@@ -152,13 +160,17 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch("/api/users/update/institution", {
-        institution
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.patch(
+        "/api/users/update/institution",
+        {
+          institution,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
+      )
 
       return response
     } catch (err: any) {
@@ -179,19 +191,23 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch("/api/users/update/email", {
-        newMail
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.patch(
+        "/api/users/update/email",
+        {
+          newMail,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       return response
     } catch (err: any) {
       if (err.response) {
         if (err.response.status === 409) {
-          throw new Error('Email is already in use!')
+          throw new Error("Email is already in use!")
         }
         if (err.response.data?.message) {
           err.message = err.response.data.message
@@ -209,14 +225,18 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch("/api/users/update/password", {
-        newPass,
-        oldPass
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.patch(
+        "/api/users/update/password",
+        {
+          newPass,
+          oldPass,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       return response
     } catch (err: any) {
@@ -235,13 +255,17 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.post("/api/users/authpass", {
-        password
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await this.userClient.post(
+        "/api/users/authpass",
+        {
+          password,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       return response
     } catch (err: any) {
@@ -261,13 +285,17 @@ class Client {
       }
 
       const formData = new FormData()
-      formData.append('image', img)
+      formData.append("image", img)
 
-      const response = await this.userClient.post("/api/users/update/img", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await this.userClient.post(
+        "/api/users/update/img",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
+      )
 
       return response
     } catch (err: any) {
@@ -288,13 +316,17 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.post("/api/users/workflows", {
-        workflow
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await this.userClient.post(
+        "/api/users/workflows",
+        {
+          workflow,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
+      )
 
       return response
     } catch (err: any) {
@@ -313,11 +345,14 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.delete(`/api/users/workflows/${workflowId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await this.userClient.delete(
+        `/api/users/workflows/${workflowId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
+      )
 
       return response
     } catch (err: any) {
@@ -338,7 +373,7 @@ class Client {
 
       const response = await this.userClient.get(`/api/users/workflows`, {
         headers: {
-            Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -354,12 +389,15 @@ class Client {
 
   async workflowSearch(workflow: string | null) {
     try {
-      const response = await this.dataClient.get("/api/search/fabrication-workflow", {
-        params: {
-          workflow,
-        },
-        responseType: 'blob'
-      })
+      const response = await this.dataClient.get(
+        "/api/search/fabrication-workflow",
+        {
+          params: {
+            workflow,
+          },
+          responseType: "blob",
+        }
+      )
       return response
     } catch (err: any) {
       if (err.response?.data?.message) {
@@ -370,35 +408,44 @@ class Client {
     }
   }
 
-    async requestExtractLabels(file : File , context : string) {
-        try {
-            // Create an instance of FormData
-            let formData = new FormData();
+  // (file,context) => label_dict, file_link, file_name
+  async requestExtractLabels(file: File, context: string) {
+    try {
+      // Create an instance of FormData
+      let formData = new FormData()
 
-            // Append the file and context to formData
-            formData.append('file', file);
-            formData.append('context', context);
+      // Append the file and context to formData
+      formData.append("file", file)
+      formData.append("context", context)
 
-            // Make the POST request with formData
-            const response = await this.dataClient.post("/api/file-retrieve", formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            if (!response || !response.data) {
-                throw new Error();
-            }
-
-            return response.data;
-        } catch (err) {
-            throw new Error("Unexpected error while extracting labels!");
+      // Make the POST request with formData
+      const response = await this.dataClient.post(
+        "/api/file-retrieve",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-    }
+      )
 
+      if (!response || !response.data) {
+        throw new Error()
+      }
+
+      return response.data
+    } catch (err) {
+      throw new Error("Unexpected error while extracting labels!")
+    }
+  }
 
   // (label_dict, context, file_link, file_name) => attribute_dict
-  async requestExtractAttributes(dict: IDictionary, context: string, link: string, name: string) {
+  async requestExtractAttributes(
+    dict: IDictionary,
+    context: string,
+    link: string,
+    name: string
+  ) {
     try {
       const response = await this.dataClient.post("/api/label-retrieve", {
         params: {
@@ -406,7 +453,7 @@ class Client {
           context: context,
           file_link: link,
           file_name: name,
-        }
+        },
       })
 
       if (!response || !response.data) {
@@ -420,7 +467,12 @@ class Client {
   }
 
   // (attribute_dict, context, file_link, file_name) => node_json
-  async requestExtractNodes(dict: IDictionary, context: string, link: string, name: string) {
+  async requestExtractNodes(
+    dict: IDictionary,
+    context: string,
+    link: string,
+    name: string
+  ) {
     try {
       const response = await this.dataClient.post("/api/attribute-retrieve", {
         params: {
@@ -428,7 +480,7 @@ class Client {
           context: context,
           file_link: link,
           file_name: name,
-        } 
+        },
       })
 
       if (!response || !response.data) {
@@ -442,15 +494,20 @@ class Client {
   }
 
   // (node_json, context, file_link, file_name) => graph_json
-  async requestExtractGraph(nodeJson: string, context: string, link: string, name: string) {
+  async requestExtractGraph(
+    nodeJson: string,
+    context: string,
+    link: string,
+    name: string
+  ) {
     try {
-      const response = await this.dataClient.post("api/node-retrieve", {
+      const response = await this.dataClient.post("/api/", {
         params: {
           node_json: nodeJson,
           context: context,
           file_link: link,
           file_name: name,
-        } 
+        },
       })
 
       if (!response || !response.data) {
@@ -462,11 +519,8 @@ class Client {
       throw new Error("Unexpected error while extracting graph!")
     }
   }
-
 }
-
 
 const client = new Client()
 
 export default client
-
