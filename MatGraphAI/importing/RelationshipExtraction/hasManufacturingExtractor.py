@@ -75,7 +75,6 @@ class hasManufacturingExtractor(RelationshipExtractor):
 
     def refine_results(self):
         """ Validate the extracted relationships. """
-        print("Refining results...")
         self.revise_triples()
         self.revise_manufacturing_cycles()
         self.revise_has_output()

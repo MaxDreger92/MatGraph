@@ -43,8 +43,6 @@ class fullRelationshipsExtractor:
 
     def run(self):
         # Ensure extractors are created
-        print("Running fullRelationshipsExtractor")
-        print("JSON", self.input_json)
         self.create_extractors()
 
         self._relationships = [
@@ -61,9 +59,7 @@ class fullRelationshipsExtractor:
         return self._relationships
     @property
     def results(self):
-        print("Relationships", self.relationships)
         self.input_json = json.loads(self.input_json)
-        print("Node type", type(self.input_json))
         return {"nodes": self.input_json["nodes"], "relationships": self.relationships}
 
 

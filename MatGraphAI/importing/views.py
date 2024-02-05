@@ -42,7 +42,7 @@ class LabelExtractView(APIView):
             print("first_line", first_line)
             if cached := FullTableCache.fetch(first_line):
                 print("cached")
-                # return response.Response({'graph': cached})
+                # return response.Response({'graph_json': cached})
 
             file_record = self.store_file(file_obj)
             labels = self.extract_labels(file, context, file_record.link, file_record.name)
