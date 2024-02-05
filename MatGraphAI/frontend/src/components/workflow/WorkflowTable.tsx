@@ -10,8 +10,7 @@ import { Button } from "@mantine/core"
 import { IDictionary, IWorkflow } from "../../types/workflow.types"
 import { IRelationship, INode } from "../../types/canvas.types"
 import {
-  convertFromJSONFormat,
-  convertFromNewJson,
+  convertFromJsonFormat,
   convertToJSONFormat,
 } from "../../common/helpers"
 
@@ -121,7 +120,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
       const data = await client.requestExtractLabels(file, context)
 
       if (data.graph_json) {
-        const { nodes, relationships } = convertFromNewJson(data.graph_json)
+        const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
         setNodes(nodes)
         setRelationships(relationships)
         setNeedLayout(true)
@@ -194,7 +193,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         throw new Error("Error while extracting nodes!")
       }
 
-      const { nodes, relationships } = convertFromNewJson(data.node_json)
+      const { nodes, relationships } = convertFromJsonFormat(data.node_json)
       // if (!workflows || !workflows[1]) {
       //   console.log("workflow not found")
       //   return
@@ -231,7 +230,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         throw new Error("Error while extracting graph!")
       }
 
-      const { nodes, relationships } = convertFromNewJson(data.graph_json)
+      const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
 
       // if (!workflows || !workflows[2]) {
       //   console.log("workflow not found")

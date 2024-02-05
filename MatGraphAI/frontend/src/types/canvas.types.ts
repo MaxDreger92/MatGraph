@@ -24,29 +24,24 @@ export interface Rect {
 
 export type Operator = "<" | "<=" | "=" | "!=" | ">=" | ">"
 
-export interface NumOpPair {
-  number?: number[]
-  operator?: Operator
-}
-
-export interface ValOpPair {
-  value: string
-  operator: Operator | string
-}
+// export interface NumOpPair {
+//   number?: number[]
+//   operator?: Operator
+// }
 
 export interface INode {
   id: string
-  name: {value: string, index?: any}
-  value: {value: ValOpPair, index?: any}
-  batch_num: {value: string, index?: any}
-  ratio: {value: ValOpPair, index?: any}
-  concentration: {value: ValOpPair, index?: any}
-  unit: {value: string, index?: any}
-  std: {value: ValOpPair, index?: any}
-  error: {value: ValOpPair, index?: any}
-  identifier: {value: string, index?: any}
+  name: NodeAttribute
+  value: NodeValOpAttribute
+  batch_num: NodeAttribute
+  ratio: NodeValOpAttribute
+  concentration: NodeValOpAttribute
+  unit: NodeAttribute
+  std: NodeValOpAttribute
+  error: NodeValOpAttribute
+  identifier: NodeAttribute
   type: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
-  position: {x: number, y: number}
+  position: {x: number; y: number}
   size: number
   layer: number
   isEditing: boolean
@@ -66,3 +61,20 @@ export interface IDRelationship {
 export interface ICanvasButton {
   type: "undo" | "redo" | "reset" | "layout" | "saveWorkflow"
 }
+
+export type NodeAttribute = {
+  value: string
+  index?: NodeIndex | NodeIndex[]
+}
+
+export type NodeValOpAttribute = {
+  value: ValOpPair
+  index?: NodeIndex | NodeIndex[]
+}
+
+export type ValOpPair = {
+  value: string
+  operator: Operator | string
+}
+
+export type NodeIndex = number | string

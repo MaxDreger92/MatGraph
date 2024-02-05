@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { IWorkflow } from "../../types/workflow.types"
 import { IRelationship, INode } from "../../types/canvas.types"
-import { convertFromJSONFormat } from "../../common/helpers"
+import { convertFromJsonFormat } from "../../common/helpers"
 import { RiDeleteBin2Line } from "react-icons/ri"
 
 interface WorkflowHistoryProps {
@@ -28,7 +28,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
   const [trashHovered, setTrashHovered] = useState(false)
 
   const setNodesAndRelationships = (workflow: string) => {
-    const { nodes, relationships } = convertFromJSONFormat(workflow)
+    const { nodes, relationships } = convertFromJsonFormat(workflow)
     setNodes(nodes)
     setRelationships(relationships)
     setNeedLayout(true)
