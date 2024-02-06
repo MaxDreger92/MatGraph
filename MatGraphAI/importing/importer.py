@@ -369,12 +369,12 @@ class TableImporter(Importer):
         self.db_results = None
 
     def map_on_ontology(self):
-        for node in self.data['nodes']:
-            if node['label'] == 'Matter':
+        for i, node in enumerate(self.data['nodes']):
+            if node['label'] == 'matter':
                 node['ontology'] = EMMOMatter.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
-            elif node['label'] == 'Manufacturing' or node['label'] == 'Measurement':
+            elif node['label'] == 'manufacturing' or node['label'] == 'measurement':
                 node['ontology'] = EMMOProcess.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
-            elif node['label'] == 'Parameter' or node['label'] == 'Property':
+            elif node['label'] == 'parameter' or node['label'] == 'property':
                 node['ontology'] = EMMOQuantity.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
             else:
                 continue
@@ -385,41 +385,44 @@ class TableImporter(Importer):
         query_parts = [f"LOAD CSV FROM '{self.file_link}' AS row"]
         ontology_query = []
         self.map_on_ontology()
-        print(self.data)
+        print("data", self.data)
 
         for node_config in self.data['nodes']:
             ontology = node_config['ontology']
             label = node_config['label']
-            id = node_config['node_id']
+            id = node_config['id']
             attributes = node_config['attributes']
             # Construct the Cypher query for this node
             ontology_mapper = {
-                'Matter': 'EMMOMatter',
-                'Manufacturing': 'EMMOProcess',
-                'Measurement': 'EMMOProcess',
-                'Parameter': 'EMMOQuantity',
-                'Property': 'EMMOQuantity'
+                'matter': 'EMMOMatter',
+                'manufacturing': 'EMMOProcess',
+                'measurement': 'EMMOProcess',
+                'parameter': 'EMMOQuantity',
+                'property': 'EMMOQuantity'
             }
             ontology_query.append(f"""MATCH (ontology_{id}:{ontology_mapper[label]}{{uid: '{ontology}'}})""")
 
             query_parts.append(
-                f"CREATE (n{id}:{label} {{uid: randomUUID()}})-[:IS_A]->(ontology_{id})")
+                f"CREATE (n{id}:{label} {{uid: randomUUID(), flag: 'dev'}})-[:IS_A]->(ontology_{id})")
 
             for attr_name, attr_values in attributes.items():
+                if type(attr_values) != list:
+                    attr_values = [attr_values]
                 if attr_name == 'name':
-                    if attr_values[0][1] != 'inferred' and isinstance(attr_values[0][1], int):
+                    print("attr_values", attr_values)
+                    if attr_values[0]['index'] != 'inferred' and (isinstance(attr_values[0]['index'], int) or attr_values[0]['index'].isdigit()):
                         # If the attribute value is in the header, use the attribute name directly
-                        query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values[0][1])}]""")
+                        query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values[0]['index'])}]""")
                     else:
                         # If the attribute value is in a column, use the column index to access the value
-                        query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values[0][0]}'""")
+                        query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values[0]['value']}'""")
                     continue
-                if attr_values[1] != 'inferred' and isinstance(attr_values[1], int):
+                if attr_values[0] != 'inferred' and (isinstance(attr_values[0]['index'], int or attr_values[0]['index'].isdigit())):
                     # If the attribute value is in the header, use the attribute name directly
-                    query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values[1])}]""")
+                    query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values['index'])}]""")
                 else:
                     # If the attribute value is in a column, use the column index to access the value
-                    query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values[0]}'""")
+                    query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values['value']}'""")
         for rel in self.data['relationships']:
             rel_type = rel['rel_type']
             start_node = rel['connection'][0]

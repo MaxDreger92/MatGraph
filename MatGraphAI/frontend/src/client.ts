@@ -501,7 +501,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.dataClient.post("/api/", {
+      const response = await this.dataClient.post("api/node-retrieve", {
         params: {
           node_json: nodeJson,
           context: context,
@@ -519,8 +519,34 @@ class Client {
       throw new Error("Unexpected error while extracting graph!")
     }
   }
-}
 
+    // (graph_json, context, file_link, file_name) => success
+    async requestImportGraph(
+      graphJson: string,
+      context: string,    // Change 'context' parameter name
+      fileLink: string,   // Change 'fileLink' parameter name
+      fileName: string   // Change 'fileName' parameter name
+    ) {
+      try {
+        const response = await this.dataClient.post("api/graph-retrieve", {
+          params: {
+            graph_json: graphJson,
+            context: context,    // Use the corrected parameter name
+            file_link: fileLink, // Use the corrected parameter name
+            file_name: fileName  // Use the corrected parameter name
+          },
+        });
+
+        if (!response || !response.data.success) {
+          throw new Error();
+        }
+
+        return response.data.success;
+      } catch (err: any) {
+        throw new Error("Unexpected error while importing graph!");
+      }
+    }
+  }
 const client = new Client()
 
 export default client

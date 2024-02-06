@@ -232,14 +232,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
       const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
 
-      // if (!workflows || !workflows[2]) {
-      //   console.log("workflow not found")
-      //   return
-      // }
-      // const { nodes, relationships } = convertFromJSONFormat(
-      //   workflows[2].workflow
-      // )
-
       setNodes(nodes)
       setRelationships(relationships)
       setNeedLayout(true)
@@ -249,6 +241,28 @@ export default function WorkflowTable(props: WorkflowTableProps) {
       toast.error(err.message)
     }
   }
+
+    // (graph_json, context, fileLink, fileName) => success
+    async function requestImportGraph() {
+      try {
+        const graphJson = workflow;
+
+        if (!graphJson) return;
+
+        const data = await client.requestImportGraph(
+          graphJson,
+          context,    // Pass context parameter
+          fileLink,   // Pass fileLink parameter
+          fileName    // Pass fileName parameter
+        );
+
+        if (!(data && data.success)) {
+          throw new Error("Error while extracting graph!");
+        }
+      } catch (err: any) {
+        toast.error(err.message);
+      }
+    }
 
   function dictToArray(dict: IDictionary): string[][] {
     if (!dict || Object.keys(dict).length === 0) {
@@ -479,11 +493,17 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                       stroke={1.5}
                       onClick={requestExtractNodes}
                     />
-                  ) : (
+                  ) : progress === 4 ? (
                     <IconUpload
                       size="3rem"
                       stroke={1.5}
                       onClick={requestExtractGraph}
+                    />
+                    ) : (
+                    <IconUpload
+                      size="3rem"
+                      stroke={1.5}
+                      onClick={requestImportGraph}
                     />
                   )}
                   {/* Upload */}

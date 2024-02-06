@@ -42,7 +42,8 @@ class LabelExtractView(APIView):
             print("first_line", first_line)
             if cached := FullTableCache.fetch(first_line):
                 print("cached")
-                # return response.Response({'graph_json': cached})
+                cached = str(cached).replace("'", "\"")
+                return response.Response({'graph_json': cached})
 
             file_record = self.store_file(file_obj)
             labels = self.extract_labels(file, context, file_record.link, file_record.name)
@@ -242,29 +243,27 @@ class GraphImportView(APIView):
 
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
-        try:
-            print("importing")
-            data = json.loads(request.body)
-
-            required_fields = ['graph_json', 'file_link']
-            if not all(field in data for field in required_fields):
-                return response.Response({'error': 'Missing required data'}, status=status.HTTP_400_BAD_REQUEST)
-
-            graph = data['graph_json']
-            file_link = data['file_link']
-            context = data['context']
-            file_name = data['file_name']
+        print("GraphImporter")
+        data = json.loads(request.body)
+        graph = json.loads(data['params']['graph_json'])
+        file_link = data['params']['file_link']
+        file_name = data['params']['file_name']
+        context = data['params']['context']
 
 
-            self.import_graph(file_link, file_name, graph, context)
-            FullTableCache.update(self.request.session.get('first_line'), 'graph', graph=self.request.session['nodes'])
-            return response.Response({'message': 'Graph imported successfully'})
+        required_fields = ['graph_json', 'file_link']
+        if not all(field in data['params'] for field in required_fields):
+            return response.Response({'error': 'Missing required data'}, status=status.HTTP_400_BAD_REQUEST)
 
-        except json.JSONDecodeError:
-            return response.Response({'error': 'Invalid JSON'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            # Log the exception here
-            return response.Response({'error': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        print('start import')
+
+        self.import_graph(file_link, graph)
+        print('imported data')
+        FullTableCache.update(self.request.session.get('first_line'), 'graph', graph=self.request.session['nodes'])
+        print('updated cache')
+        return response.Response({'message': 'Graph imported successfully'})
+
 
     def import_graph(self, file_link, graph):
         importer  = TableImporter(graph, file_link)

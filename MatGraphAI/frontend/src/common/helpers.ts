@@ -210,6 +210,15 @@ function parseAttr(attribute: ParsableAttributes | undefined, isValOp: boolean):
 }
 
 function parseExtractedAttribute(attribute: ExtractedAttribute | ExtractedAttribute[], isValOp: boolean): NodeAttribute | NodeValOpAttribute {
+  // if (Array.isArray(attribute)) {
+  //   console.log("Array: ")
+  //   attribute.forEach(item => {
+  //     console.log(item.index)
+  //   })
+  //   console.log("ArrayEnd")
+  // } else {
+  //   console.log(attribute.index)
+  // }
   if (Array.isArray(attribute)) {
     let values: string[] = []
     let indices: NodeIndex[] = []
@@ -217,10 +226,11 @@ function parseExtractedAttribute(attribute: ExtractedAttribute | ExtractedAttrib
       values.push(item.value)
       indices.push(item.index)
     })
+    const finalIndex = indices.length > 1 ? indices : indices[0]
     if (isValOp) {
-      return { value: {value: values.join(';'), operator: '=' as Operator}, index: indices } as NodeValOpAttribute
+      return { value: {value: values.join(';'), operator: '=' as Operator}, index: finalIndex } as NodeValOpAttribute
     } else {
-      return { value: values.join(';'), index: indices} as NodeAttribute
+      return { value: values.join(';'), index: finalIndex} as NodeAttribute
     }
   } else {
     if (isValOp) {
