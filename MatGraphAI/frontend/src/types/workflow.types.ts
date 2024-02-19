@@ -9,7 +9,7 @@ export interface IWorkflow {
 export interface ITempNode {
   id: string
   attributes: { [key: string]: any }
-  label: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+  label: Label
   relationships: Array<{
     rel_type: string
     connection: [string, string]
@@ -23,7 +23,7 @@ export interface IGraphData {
 
 export interface IGraphNode {
   id: string
-  label: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+  label: Label
   name: any
   attributes: { [key: string]: ParsableAttributes }
 }
@@ -52,3 +52,8 @@ export type ParsableAttributes =
   ExtractedAttribute[] |
   CustomAttribute
 
+export type TableRow = {
+  [key: string]: string | number | boolean
+}
+
+export type Label = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"

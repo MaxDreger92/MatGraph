@@ -14,7 +14,7 @@ export const graphLayouts = [
         rows: 3,
     },
     {
-        name: "fcose",
+        name: "fcose", // old
         animate: false,
         idealEdgeLength: 200,
         nodeSeparation: 2000,
@@ -23,5 +23,24 @@ export const graphLayouts = [
         numIter: 0,
         tile:false,
     },
+    {
+        name: "fcose",
+        animate: false,
+        idealEdgeLength: 200,
+        // nodeSeparation: 2000,
+        nodeRepulsion: 1_000_000,
+        edgeElasticity: 1,
+        numIter: 1000,
+        tile:false,
+        nestingFactor: 0.1,
+        gravity: 0.25,
+        gravityRange: 3.8,
+        gravityCompound: 1,
+        gravityCompoundRange: 1.5,
+        tilingPaddingVertical: 10,
+        tilingPaddingHorizontal: 10,
+        initialEnergyOnIncremental: 0.5,
+    },
+
 ]
 

@@ -56,9 +56,11 @@ export default React.memo(function Node(props: NodeProps) {
   const [isValueNode, setIsValueNode] = useState(false)
   const [nodeOptimalSize, setNodeOptimalSize] = useState<number | null>(null)
   const [nodeActualSize, setNodeActualSize] = useState(100)
+  const [labelFontSize, setLabelFontSize] = useState(16)
   const nodeRef = useRef<HTMLDivElement>(null)
   const nodeLabelRef = useRef<HTMLDivElement>(null)
 
+  // set nodeActualSize (current size of visible node)
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (nodeRef.current) {
@@ -79,24 +81,6 @@ export default React.memo(function Node(props: NodeProps) {
       }
     }
   }, [nodeRef])
-
-  // scale node by mouse wheel
-  // useEffect(() => {
-  //   const nodeCpy = nodeRef.current
-  //   if (!nodeCpy) return
-
-  //   const scaleNode = (e: WheelEvent) => {
-  //     e.preventDefault()
-  //     if (node.isEditing) return
-  //     const delta = Math.sign(e.deltaY)
-  //     handleNodeAction(node, "scale", undefined, delta)
-  //   }
-
-  //   nodeCpy.addEventListener("wheel", scaleNode, { passive: false })
-  //   return () => {
-  //     nodeCpy.removeEventListener("wheel", scaleNode)
-  //   }
-  // }, [node, handleNodeAction])
 
   // setIsValueNode
   useEffect(() => {
@@ -133,23 +117,30 @@ export default React.memo(function Node(props: NodeProps) {
   //   }
   // }, [node.name, node.value, node.size, isValueNode])
 
-  // calculate nodeOptimalSize
+  // calculate nodeOptimalSize (nodesize when hovered)
   useEffect(() => {
     if (!isAttrDefined(node.name.value)) {
       setNodeOptimalSize(node.size)
       return
     }
 
-    const nameMinimumSize = node.name.value.length * 11
+    const characterFactor = 16 - labelFontSize
+
+    const nameMinimumSize = node.name.value.length * (11 - characterFactor)
     let nodeMinimumSize = nameMinimumSize
 
     if (isValueNode && isAttrDefined(node.value.value)) {
-      const valueMinimumSize = node.value.value.value.length * 9 + 20
+      const valueMinimumSize = node.value.value.value.length * (9 - characterFactor) + 20
       nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
     }
 
-    setNodeOptimalSize(nodeMinimumSize > 100 ? nodeMinimumSize : null)
-  }, [node.size, node.name, node.value, isValueNode])
+    setNodeOptimalSize(nodeMinimumSize > node.size ? nodeMinimumSize : null)
+  }, [node.size, node.name, node.value, isValueNode, labelFontSize])
+
+  useEffect(() => {
+    const fontSize = 16 + Math.floor((node.size - 100) / 70)
+    setLabelFontSize(fontSize)
+  }, [node.size, setLabelFontSize])
 
   // setup color array
   useEffect(() => {
@@ -293,7 +284,7 @@ export default React.memo(function Node(props: NodeProps) {
     positionLeft: node.position.x,
     size:
       nodeOptimalSize &&
-      ((nodeHovered && mouseDist < 25) || isSelected === 1 || dragging)
+      ((nodeHovered && mouseDist < 25) || isSelected === 1)
         ? nodeOptimalSize
         : node.size,
     config: {
@@ -380,6 +371,7 @@ export default React.memo(function Node(props: NodeProps) {
               labelRef={nodeLabelRef}
               hovered={nodeHovered}
               size={nodeActualSize}
+              labelFontSize={labelFontSize}
               name={node.name.value}
               value={node.value.value}
               type={node.type}

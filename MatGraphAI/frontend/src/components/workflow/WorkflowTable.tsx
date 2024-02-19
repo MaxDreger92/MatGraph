@@ -1,543 +1,404 @@
-import { useEffect, useRef, useState } from "react"
-import toast from "react-hot-toast"
-import client from "../../client"
-import Papa from "papaparse"
-import { MultiGrid, GridCellProps, Index } from "react-virtualized"
-import "react-virtualized/styles.css"
-import WorkflowTableDropzone from "./WorkflowTableDropzone"
-import { IconUpload } from "@tabler/icons-react"
-import { Button } from "@mantine/core"
-import { IDictionary, IWorkflow } from "../../types/workflow.types"
-import { IRelationship, INode } from "../../types/canvas.types"
+import React, { useRef, useMemo, useEffect, useState } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import {
-  convertFromJsonFormat,
-  convertToJSONFormat,
-} from "../../common/helpers"
+  useReactTable,
+  ColumnDef,
+  getCoreRowModel,
+} from "@tanstack/react-table"
+import { TableRow } from "../../types/workflow.types"
+import { Label } from "../../types/workflow.types"
+import { Select } from "@mantine/core"
+import { getAttributesByLabel } from "../../common/helpers"
 
 interface WorkflowTableProps {
-  tableView: boolean
+  setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
+  setAttributeTable: React.Dispatch<React.SetStateAction<TableRow[]>>
+  setTableRows: React.Dispatch<React.SetStateAction<TableRow[]>>
+  tableRows: TableRow[]
   progress: number
-  setProgress: React.Dispatch<React.SetStateAction<number>>
-  setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-  setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
-  setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
-  workflow: string | null
-  workflows: IWorkflow[] | undefined
+  drawerRect: DOMRect | null
 }
 
-const exampleLabelDict: IDictionary = {
-  Header1: {Label: "Label1"},
-  Header2: {Label: "Label2"},
-  Header3: {Label: "Label3"},
-  // Add more key-value pairs as needed
-}
-
-const exampleAttrDict: IDictionary = {
-  Header1: {Label: "Label1", Attribute: "Attribute1"},
-  Header2: {Label: "Label2", Attribute: "Attribute2"},
-  Header3: {Label: "Label3", Attribute: "Attribute3"},
-  // Add more key-value pairs as needed
-}
+const labelOptions = [
+  { value: "matter", label: "Matter" },
+  { value: "manufacturing", label: "Manufacturing" },
+  { value: "measurement", label: "Measurement" },
+  { value: "parameter", label: "Parameter" },
+  { value: "property", label: "Property" },
+  { value: "metadata", label: "Metadata" },
+]
 
 export default function WorkflowTable(props: WorkflowTableProps) {
   const {
-    tableView,
+    setLabelTable,
+    setAttributeTable,
+    setTableRows,
+    tableRows,
     progress,
-    setProgress,
-    setNodes,
-    setRelationships,
-    setNeedLayout,
-    workflow,
-    workflows,
+    drawerRect,
   } = props
-  const tableViewRef = useRef<HTMLDivElement>(null)
-  const [tableViewRect, setTableViewRect] = useState<DOMRect | null>(null)
-  const [hovered, setHovered] = useState(false)
+  const [selected, setSelected] = useState<{
+    row: number
+    column: string
+  } | null>(null)
+  const [hovered, setHovered] = useState<{
+    row: number
+    column: number
+  } | null>(null)
 
-  const [file, setFile] = useState<File | undefined>()
-  const [fileLink, setFileLink] = useState<string>("Link")
-  const [fileName, setFileName] = useState<string>("Name")
-  const [context, setContext] = useState<string>("")
-  const [csvTable, setCsvTable] = useState<any[] | null>(null)
-  const [labelTable, setLabelTable] = useState<any[] | null>(null)
-  const [attributeTable, setAttributeTable] = useState<any[] | null>(null)
+  const tableRef = useRef<HTMLDivElement>(null)
+  const tableRowsRef = useRef<HTMLDivElement>(null)
+  const [tableRect, setTableRect] = useState<DOMRect | null>(null)
+  const [tableDivHeight, setTableDivHeight] = useState<number | null>(null)
 
-  const multiGridRef = useRef<any>(null)
-  // if (multiGridRef.current) {
-  //   multiGridRef.current.recomputeGridSize()
-  // }
+  const [selectData, setSelectData] = useState<
+    { value: string; label: string }[]
+  >([])
 
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      if (tableViewRef.current) {
-        setTableViewRect(tableViewRef.current.getBoundingClientRect())
+    if (tableRef.current && typeof ResizeObserver === "function") {
+      const observer = new ResizeObserver((entries) => {
+        const [entry] = entries
+        setTableRect(entry.contentRect)
+      })
+
+      observer.observe(tableRef.current)
+
+      return () => observer.disconnect()
+    }
+  }, [tableRef, tableRows])
+
+  useEffect(() => {
+    // 50 + 45 * tableRows
+    if (drawerRect) {
+      const rowHeight = 52 + 45 * tableRows.length
+      const divHeight = drawerRect.height - 90
+      setTableDivHeight(Math.min(rowHeight, divHeight))
+      return
+    }
+    setTableDivHeight(null)
+  }, [tableRows, drawerRect])
+
+  const handleCellClick = (
+    cellData: string | number | boolean,
+    row: number,
+    columnId: string
+  ): void => {
+    if (progress === 2 && row === 0) {
+      if (
+        typeof cellData === "string" &&
+        labelOptions.some((option) => option.value === (cellData as Label))
+      ) {
+        setSelectData(labelOptions)
+        setSelected({ row: row, column: columnId })
       }
+    } else if (progress === 3 && row === 1) {
+      const labelKey = tableRows[0][columnId]
+      if (
+        typeof labelKey === "string" &&
+        labelOptions.some((option) => option.value === (labelKey as Label))
+      ) {
+        const attributes = getAttributesByLabel(labelKey as Label)
+        if (typeof cellData === "string" && attributes.includes(cellData)) {
+          const newAttributeOptions = attributes.map((attr) => ({
+            value: attr,
+            label: capitalizeFirstLetter(attr).toString(),
+          }))
+          setSelectData(newAttributeOptions)
+          setSelected({ row: row, column: columnId })
+        }
+      }
+    }
+  }
+
+  const handleSelectChange = (
+    value: string | null,
+    rowIndex: number,
+    columnId: string
+  ) => {
+    if (!value) return
+    const updatedTableRows = tableRows.map((row, index) => {
+      if (index === rowIndex) {
+        return { ...row, [columnId]: value }
+      }
+      return { ...row }
     })
-
-    const currentView = tableViewRef.current
-    if (currentView) {
-      resizeObserver.observe(currentView)
+    setTableRows(updatedTableRows)
+    if (rowIndex === 0) {
+      setLabelTable(updatedTableRows)
+    } else {
+      setAttributeTable(updatedTableRows)
     }
+  }
 
-    return () => {
-      if (currentView) {
-        resizeObserver.unobserve(currentView)
-      }
+  // Define columns
+  const columns: ColumnDef<TableRow>[] = useMemo(() => {
+    if (tableRows.length === 0) {
+      return []
     }
+    return Object.keys(tableRows[0]).map((key) => ({
+      // Directly use a string or JSX for headers that don't need context
+      header: String(key),
+      accessorFn: (row) => row[key],
+      id: key,
+    }))
+  }, [tableRows])
+
+  const tableInstance = useReactTable({
+    data: tableRows,
+    columns,
+    state: {
+      // Your state here if needed
+    },
+    onStateChange: () => {
+      // Handle state changes if needed
+    },
+    getCoreRowModel: getCoreRowModel(), // Adjusted usage
   })
 
-  const handleContextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const contextString = e.target.value
-    setContext(contextString)
-  }
+  // Setup virtualizers for both rows and columns
+  const rowVirtualizer = useVirtualizer({
+    count: tableRows.length,
+    getScrollElement: () => tableRef.current,
+    estimateSize: () => 45, // Adjust based on your row height
+    overscan: 5,
+  })
 
-  const handleFileView = (file: File) => {
-    if (file) {
-      setFile(file)
-      Papa.parse(file, {
-        header: true,
-        complete: (result) => {
-          setCsvTable(result.data)
-        },
-      })
-    }
-    setProgress(1)
-  }
-
-  // (file,context) => label_dict, file_link, file_name
-  async function requestExtractLabels() {
-    if (!file) {
-      toast.error("File not found!")
-      return
-    }
-    if (!(context && context.length > 0)) {
-      toast.error("Pls enter context!")
-      return
-    }
-
-    try {
-
-      const data = await client.requestExtractLabels(file, context)
-
-      if (data.graph_json) {
-        setFileLink(data.file_link)
-        const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
-        setNodes(nodes)
-        setRelationships(relationships)
-        setNeedLayout(true)
-        setProgress(5)
-        return
+  const columnVirtualizer = useVirtualizer({
+    horizontal: true,
+    count: columns.length,
+    getScrollElement: () => tableRef.current,
+    estimateSize: (index) => {
+      const key = columns[index].id
+      if (key) {
+        return Math.max(key.length * 10, 160)
       }
+      return 160
+    },
+    overscan: 1,
+  })
 
-      if (!(data && data.label_dict && data.file_link && data.file_name)) {
-        throw new Error("Error while extracting labels!")
-      }
-
-      const dictArray = dictToArray(data.label_dict)
-      setLabelTable(dictArray)
-      setFileLink(data.file_link)
-      setFileName(data.file_name)
-
-      // const dictArray = dictToArray(exampleLabelDict)
-      // setLabelTable(dictArray)
-
-      setProgress(2)
-    } catch (err: any) {
-      toast.error(err.message)
-    }
+  function capitalizeFirstLetter(item: string | number | boolean) {
+    if (!(typeof item === "string")) return item
+    return item.charAt(0).toUpperCase() + item.slice(1)
   }
 
-  // (label_dict, context, file_link, file_name) => attribute_dict
-  async function requestExtractAttributes() {
-    try {
-      const dict = arrayToDict(labelTable)
-
-      if (!dict) return
-
-      const data = await client.requestExtractAttributes(
-        dict,
-        context,
-        fileLink,
-        fileName
-      )
-
-      if (!(data && data.attribute_dict)) {
-        throw new Error("Error while extracting attributes!")
-      }
-
-      const dictArray = dictToArray(data.attribute_dict)
-
-      // const dictArray = dictToArray(exampleAttrDict)
-
-      setAttributeTable(dictArray)
-      setProgress(3)
-    } catch (err: any) {
-      toast.error(err.message)
-    }
-  }
-
-  // (attribute_dict, context, file_link, file_name) => node_json
-  async function requestExtractNodes() {
-    try {
-      const dict = arrayToDict(attributeTable)
-
-      if (!dict) return
-
-      const data = await client.requestExtractNodes(
-        dict,
-        context,
-        fileLink,
-        fileName
-      )
-
-      if (!(data && data.node_json)) {
-        throw new Error("Error while extracting nodes!")
-      }
-
-      const { nodes, relationships } = convertFromJsonFormat(data.node_json)
-      // if (!workflows || !workflows[1]) {
-      //   console.log("workflow not found")
-      //   return
-      // }
-      // const { nodes, relationships } = convertFromJSONFormat(
-      //   workflows[1].workflow
-      // )
-
-      setRelationships([])
-      setNodes(nodes)
-      setNeedLayout(true)
-
-      setProgress(4)
-    } catch (err: any) {
-      toast.error(err.message)
-    }
-  }
-
-  // (node_json, context, file_link, file_name) => graph_json
-  async function requestExtractGraph() {
-    try {
-      const nodeJson = workflow
-
-      if (!nodeJson) return
-
-      const data = await client.requestExtractGraph(
-        nodeJson,
-        context,
-        fileLink,
-        fileName
-      )
-
-      if (!(data && data.graph_json)) {
-        throw new Error("Error while extracting graph!")
-      }
-
-      const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
-
-      setNodes(nodes)
-      setRelationships(relationships)
-      setNeedLayout(true)
-
-      setProgress(5)
-    } catch (err: any) {
-      toast.error(err.message)
-    }
-  }
-
-    // (graph_json, context, fileLink, fileName) => success
-    async function requestImportGraph() {
-      try {
-        const graphJson = workflow;
-
-        if (!graphJson) return;
-
-        const data = await client.requestImportGraph(
-          graphJson,
-          context,    // Pass context parameter
-          fileLink,   // Pass fileLink parameter
-          fileName    // Pass fileName parameter
-        );
-
-        if (!(data && data.success)) {
-          throw new Error("Error while extracting graph!");
-        }
-      } catch (err: any) {
-        toast.error(err.message);
-      }
-    }
-
-  function dictToArray(dict: IDictionary): string[][] {
-    if (!dict || Object.keys(dict).length === 0) {
-      return [];
-    }
-  
-    // Extract headers from the outer dictionary keys
-    const headers = Object.keys(dict);
-    
-    // Prepare the first row of the table with these headers
-    const table: string[][] = [headers];
-  
-    // Determine the maximum number of rows needed by finding the longest inner dictionary
-    const maxRows = Math.max(...Object.values(dict).map(innerDict => Object.keys(innerDict).length));
-    
-    // Initialize each row with empty strings to accommodate all headers
-    for (let i = 0; i < maxRows; i++) {
-      table.push(new Array(headers.length).fill(""));
-    }
-  
-    // Populate the table rows with values from each inner dictionary
-    headers.forEach((header, headerIndex) => {
-      const innerDict = dict[header];
-      const keys = Object.keys(innerDict);
-      keys.forEach((key, rowIndex) => {
-        table[rowIndex + 1][headerIndex] = innerDict[key]; // rowIndex + 1 to skip header row
-      });
-    });
-  
-    // Clean up any rows at the end that contain only undefined values
-    return table.filter(row => row.some(cell => cell !== undefined && cell !== ""));
-  }
-  
-  function arrayToDict(array: string[][] | null): IDictionary | null {
-    // Validate the input array
-    if (!array || array.length < 2 || !Array.isArray(array[0])) {
-      return null; // Return null if input is null, has less than 2 rows, or if the first row is not an array
-    }
-  
-    const dict: IDictionary = {};
-    const headers = array[0]; // The first row contains headers
-  
-    // Initialize dict with headers
-    headers.forEach(header => {
-      if (typeof header === "string") {
-        dict[header] = {}; // Each header becomes a key to an empty inner dictionary
-      } else {
-        return null; // Return null if any header is not a string
-      }
-    });
-  
-    // Iterate over each row starting from the second row
-    array.slice(1).forEach((row, rowIndex) => {
-      headers.forEach((header, columnIndex) => {
-        const value = row[columnIndex];
-        if (typeof header === "string" && value !== undefined && value !== null) {
-          // Determine the appropriate key based on rowIndex
-          let key;
-          if (rowIndex === 0) {
-            key = "Label";
-          } else if (rowIndex === 1) {
-            key = "Attribute";
-          } else {
-            key = `Row${rowIndex}`;
-          }
-  
-          // Assign or update the value in the inner dictionary
-          dict[header][key] = value;
-        }
-      });
-    });
-  
-    return dict;
-  }
-  
-  const cellRenderer: React.FC<GridCellProps> = ({
-    columnIndex,
-    key,
-    rowIndex,
-    style,
-  }) => {
-    let content: string | string[] = ""
-
-    if (progress === 1 && csvTable) {
-      content =
-        rowIndex === 0
-          ? Object.keys(csvTable[0])[columnIndex]
-          : csvTable[rowIndex - 1][Object.keys(csvTable[0])[columnIndex]]
-    } else if (progress === 2 && labelTable) {
-      content = labelTable[rowIndex][columnIndex] || ""
-    } else if (progress === 3 && attributeTable) {
-      content = attributeTable[rowIndex][columnIndex] || ""
-    }
-
-    const newStyle = {
-      ...style,
-      border: "1px solid #333",
-      padding: "2px",
-    }
-
-    return (
-      <div key={key} style={newStyle}>
-        {content}
-      </div>
-    )
-  }
-
-  const getColumnCount = (): number => {
-    if (progress === 1 && csvTable) {
-      return csvTable[0] ? Object.keys(csvTable[0]).length : 0
-    } else if (progress === 2 && labelTable) {
-      return labelTable[0] ? Object.keys(labelTable[0]).length : 0
-    } else if (progress === 3 && attributeTable) {
-      return attributeTable[0] ? Object.keys(attributeTable[0]).length : 0
-    }
-    return 0
-  }
-
-  const getRowCount = (): number => {
-    if (progress === 1 && csvTable) {
-      return csvTable.length + 1
-    } else if (progress === 2 && labelTable) {
-      return labelTable.length
-    } else if (progress === 3 && attributeTable) {
-      return attributeTable.length
-    }
-    return 0
-  }
-
-  const getColumnWidth = ( {index} : Index): number => {
-    if (progress === 1 && csvTable) {
-      const headerText = csvTable[0] ? Object.keys(csvTable[0])[index] : ""
-      return Math.max(headerText.length * 15, 90)
-    } else if (progress === 2 && labelTable) {
-      const headerText = labelTable[0] ? labelTable[0][index] : ""
-      return Math.max(headerText.length * 15, 90)
-    } else if (progress === 3 && attributeTable) {
-      const headerText = attributeTable[0] ? attributeTable[0][index] : ""
-      return Math.max(headerText.length * 15, 90)
-    }
-    return 0
-  }
-
+  // Render your table
   return (
-    <>
-      {progress === 0 && (
-        <WorkflowTableDropzone handleFileView={handleFileView} />
-      )}
-      {progress > 0 && (
-        <div
-          className="workflow-table-upload"
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          {progress > 0 && csvTable && (
+    <div
+      key={tableRows.length}
+      ref={tableRef}
+      className="workflow-table"
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        height: tableDivHeight ? tableDivHeight : `calc(100% - 90px)`,
+        width: `calc(100% - 20px)`,
+        left: 10,
+        overflow: "auto",
+        border: "1px solid #333",
+        backgroundColor: "#212226",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          position: "sticky",
+          width: `${columnVirtualizer.getTotalSize()}px`,
+          top: 0,
+          zIndex: 2,
+        }}
+      >
+        {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
+          // Access the header as a direct value
+          const header = String(columns[columnVirtual.index].header)
+          return (
             <div
-              className="workflow-table-specs"
+              key={columnVirtual.key}
               style={{
-                position: "relative",
-                width: "18%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                transform: "translate(0,-20px)",
+                display: "inline-block",
+                position: "absolute",
+                left: `${columnVirtual.start}px`,
+                width: `${columnVirtual.size}px`,
+                height: "50px",
+                borderBottom: "1px solid #333",
+                textAlign: "left",
+                lineHeight: "50px",
+                backgroundColor: "#25262b",
+                color: "#a6a7ab",
+                borderRight: "1px solid #333",
+                paddingLeft: ".5rem",
               }}
             >
+              {header}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Rows */}
+      <div
+        ref={tableRowsRef}
+        style={{
+          position: "relative",
+          height: `${rowVirtualizer.getTotalSize()}px`,
+          width: `${columnVirtualizer.getTotalSize()}px`,
+          top: 50,
+          zIndex: 1,
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((rowVirtual) => (
+          <>
+            <div
+              key={rowVirtual.key}
+              style={{
+                position: "absolute",
+                top: `${rowVirtual.start}px`,
+                height: `${rowVirtual.size}px`,
+                width: "100%",
+                cursor:
+                  progress > 1 && rowVirtual.index === tableRows.length - 1
+                    ? "pointer"
+                    : "default",
+              }}
+            >
+              {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
+                const column = columns[columnVirtual.index]
+                const columnId = column.id // Assuming columnId is always defined based on your column setup
+                if (typeof columnId !== "undefined") {
+                  const cellData = tableRows[rowVirtual.index][columnId] // Safely access cell data using columnId
+                  return (
+                    <div
+                      key={columnVirtual.key}
+                      onMouseEnter={() =>
+                        setHovered({
+                          row: rowVirtual.index,
+                          column: columnVirtual.index,
+                        })
+                      }
+                      onMouseLeave={() => setHovered(null)}
+                      style={{
+                        display: "inline-block",
+                        position: "absolute",
+                        left: `${columnVirtual.start}px`,
+                        width: `${columnVirtual.size}px`,
+                        height: "100%",
+                        backgroundColor:
+                          progress > 1 &&
+                          rowVirtual.index === tableRows.length - 1 &&
+                          hovered &&
+                          hovered.row === rowVirtual.index &&
+                          hovered.column === columnVirtual.index &&
+                          !selected
+                            ? "rgba(24,100,171,0.2)"
+                            : "#212226",
+                        color: "#a6a7ab",
+                        // borderRight: columnVirtual.index + 1 === Object.keys(tableRows[0]).length ? "none" : "1px solid #333",
+                        borderRight: "1px solid #333",
+                        borderBottom:
+                          rowVirtual.index + 1 === tableRows.length
+                            ? "none"
+                            : "1px solid #333",
+                        // borderBottom: "1px solid #333",
+                        paddingTop: 10,
+                        paddingLeft: ".5rem",
+                      }}
+                    >
+                      <div
+                        onClick={
+                          progress > 1
+                            ? () =>
+                                handleCellClick(
+                                  cellData,
+                                  rowVirtual.index,
+                                  columnId
+                                )
+                            : undefined
+                        }
+                        style={{
+                          position: "relative",
+                        }}
+                      >
+                        {selected?.row === rowVirtual.index &&
+                        selected?.column === columnId ? (
+                          <Select
+                            defaultValue={cellData.toString()}
+                            data={selectData}
+                            withinPortal={true}
+                            initiallyOpened={true}
+                            onChange={(value) =>
+                              handleSelectChange(
+                                value,
+                                rowVirtual.index,
+                                columnId
+                              )
+                            }
+                            onDropdownClose={() => setSelected(null)}
+                            onBlur={() => setSelected(null)}
+                            autoFocus={true}
+                            maxDropdownHeight={800}
+                            styles={{
+                              input: {
+                                borderWidth: 0,
+                                "&:focus": {
+                                  outline: "none",
+                                  boxShadow: "none",
+                                },
+                                backgroundColor: "transparent",
+                                fontFamily: "inherit",
+                                fontSize: "inherit",
+                                transform: "translate(-4px,0)",
+                              },
+                            }}
+                            style={{
+                              transform: "translate(calc(-0.5rem), -6px)",
+                              width: "calc(100% + 8px)",
+                              height: 200,
+                            }}
+                          />
+                        ) : (
+                          capitalizeFirstLetter(cellData)
+                        )}
+                      </div>
+                    </div>
+                  )
+                }
+                return null // Or handle the undefined case appropriately
+              })}
+            </div>
+            {progress > 1 && rowVirtual.index === tableRows.length - 1 && (
               <div
                 style={{
-                  width: "75%",
+                  position: "absolute",
+                  width: "100%",
+                  top: `${rowVirtual.start}px`,
+                  height: `${rowVirtual.size}px`,
+                  outline:
+                    progress > 1 && rowVirtual.index === tableRows.length - 1
+                      ? "1px dashed #1971c2"
+                      : "none",
+                  outlineOffset: -1,
+                  pointerEvents: "none",
                 }}
-              >
-                <label
-                  htmlFor="contextInput"
-                  style={{
-                    alignSelf: "flex-start",
-                    marginTop: "15%",
-                    marginBottom: 2,
-                  }}
-                >
-                  Context:
-                </label>
-                <input
-                  type="text"
-                  id="contextInput"
-                  placeholder={"Enter table context..."}
-                  defaultValue={undefined}
-                  onChange={handleContextChange} // write nodeName state
-                  autoFocus={true}
-                />
-                {/* <Button type="submit" radius="xl">
-                  Upload
-                </Button> */}
-                <div
-                  style={{
-                    backgroundColor: hovered ? "#1864ab" : "#1971c2",
-                    height: "55%",
-                    borderRadius: "5px",
-                    border: "2px solid #333",
-                    marginTop: 20,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
-                >
-                  {progress === 1 ? (
-                    <IconUpload
-                      size="3rem"
-                      stroke={1.5}
-                      onClick={requestExtractLabels}
-                    />
-                  ) : progress === 2 ? (
-                    <IconUpload
-                      size="3rem"
-                      stroke={1.5}
-                      onClick={requestExtractAttributes}
-                    />
-                  ) : progress === 3 ? (
-                    <IconUpload
-                      size="3rem"
-                      stroke={1.5}
-                      onClick={requestExtractNodes}
-                    />
-                  ) : progress === 4 ? (
-                    <IconUpload
-                      size="3rem"
-                      stroke={1.5}
-                      onClick={requestExtractGraph}
-                    />
-                    ) : (
-                    <IconUpload
-                      size="3rem"
-                      stroke={1.5}
-                      onClick={requestImportGraph}
-                    />
-                  )}
-                  {/* Upload */}
-                </div>
-              </div>
-            </div>
-          )}
-          <div
-            ref={tableViewRef}
-            className="workflow-table-grid"
-            style={{
-              position: "relative",
-              height: `calc(100%)`,
-              overflow: "hidden",
-              width: "100%",
-            }}
-          >
-            <MultiGrid
-              ref={multiGridRef}
-              columnWidth={getColumnWidth} // Adjust as needed
-              columnCount={getColumnCount()}
-              fixedColumnCount={progress === 1 ? 1 : 0}
-              fixedRowCount={1} // One fixed row for headers
-              height={tableViewRect ? tableViewRect.height - 5 : 0} // Adjust as needed
-              rowHeight={30} // Adjust as needed
-              rowCount={getRowCount()} // One header row and one data row
-              cellRenderer={cellRenderer}
-              width={tableViewRect ? tableViewRect.width - 5 : 0} // Adjust as needed
-              // style={{ border: "1px solid #333" }}
-            />
-          </div>
-        </div>
-      )}
-    </>
+              />
+            )}
+          </>
+        ))}
+      </div>
+
+      {/* Shadow */}
+      <div
+        style={{
+          position: "fixed",
+          width: `calc(100% - 22px)`,
+          height: tableRect ? `${tableRect.height}px` : "100%",
+          boxShadow: "inset 0px 0px 4px rgba(0, 0, 0, 0.3)",
+          zIndex: 3,
+          pointerEvents: "none",
+          // backgroundColor: "rgba(240,100,0,0.5)",
+        }}
+      />
+    </div>
   )
 }

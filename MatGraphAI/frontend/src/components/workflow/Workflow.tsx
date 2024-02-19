@@ -20,7 +20,7 @@ import Canvas from "../canvas/Canvas"
 import WorkflowButtons from "./WorkflowButtons"
 import WorkflowJson from "./WorkflowJson";
 import WorkflowHistory from "./WorkflowHistory";
-import WorkflowTable from "./WorkflowTable";
+import WorkflowDrawer from "./WorkflowDrawer";
 import { IRelationship, INode } from "../../types/canvas.types";
 import { convertToJSONFormat } from "../../common/helpers";
 import toast from "react-hot-toast";
@@ -377,7 +377,7 @@ export default function Workflow(props: WorkflowProps) {
         }}
       >
         
-        <WorkflowTable
+        <WorkflowDrawer
           tableView={tableView}
           progress={progress}
           setProgress={setProgress}
