@@ -1,5 +1,7 @@
+import csv
 from datetime import timezone
 import time
+from io import StringIO
 from pprint import pprint
 
 import pandas as pd
@@ -12,6 +14,7 @@ from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.models import ImportingReport, LabelClassificationReport
+from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
 
 
@@ -364,20 +367,58 @@ class TableImporter(Importer):
         self.paginator = paginator
         self.generate_report = force_report
         self.report = ''
-        self.data = data
+        self.data = self.prepare_data(file_link, data)
         self.file_link = file_link
         self.db_results = None
 
+    def prepare_data(self, file_link, data):
+        file = File.nodes.get(link=file_link)
+        file_obj_bytes = file.get_file()
+
+        # Decode the bytes object to a string
+        file_obj_str = file_obj_bytes.decode('utf-8')
+
+        # Use StringIO on the decoded string
+        file_obj = StringIO(file_obj_str)
+        csv_reader = csv.reader(file_obj)
+        first_row = next(csv_reader)
+
+        # Initialize a list of sets for each column
+        column_values = [set() for _ in range(len(first_row))]
+
+        for row in csv_reader:
+            for i, value in enumerate(row):
+                column_values[i].add(value)
+
+        data['column_values'] = [list(column_set) for column_set in column_values]
+        print("data", data)
+
+        return data
     def map_on_ontology(self):
+        print("map on ontology")
+        print(self.data['nodes'])
         for i, node in enumerate(self.data['nodes']):
-            if node['label'] == 'matter':
-                node['ontology'] = EMMOMatter.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
-            elif node['label'] == 'manufacturing' or node['label'] == 'measurement':
-                node['ontology'] = EMMOProcess.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
-            elif node['label'] == 'parameter' or node['label'] == 'property':
-                node['ontology'] = EMMOQuantity.nodes.get_by_string(string = node['name'], limit = 1)[0].uid
-            else:
-                continue
+            print(type(node['name']))
+            if type(node['name']) != list:
+                node['name'] = [node['name']]
+            for j, name in enumerate(node['name']):
+                if name['index'] == 'inferred':
+                    if node['label'] == 'matter':
+                        ontology = EMMOMatter.nodes.get_by_string(string = name['value'], limit = 5)
+                        node['ontology'] = ontology[0].uid
+                        print(name['value'], ontology)
+                    elif node['label'] == 'manufacturing' or node['label'] == 'measurement':
+                        ontology = EMMOProcess.nodes.get_by_string(string = name['value'], limit = 5)
+                        print(name['value'], ontology)
+                    elif node['label'] == 'parameter' or node['label'] == 'property':
+                        ontology = EMMOQuantity.nodes.get_by_string(string = name['value'], limit = 5)
+                        print(name['value'], ontology)
+                    else:
+                        continue
+                else:
+                    pass
+
+
 
 
     def build_query(self):
@@ -403,26 +444,24 @@ class TableImporter(Importer):
             ontology_query.append(f"""MATCH (ontology_{id}:{ontology_mapper[label]}{{uid: '{ontology}'}})""")
 
             query_parts.append(
-                f"CREATE (n{id}:{label} {{uid: randomUUID(), flag: 'dev'}})-[:IS_A]->(ontology_{id})")
+                f"CREATE (n{id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})-[:IS_A]->(ontology_{id})")
 
             for attr_name, attr_values in attributes.items():
                 if type(attr_values) != list:
                     attr_values = [attr_values]
-                if attr_name == 'name':
-                    print("attr_values", attr_values)
-                    if attr_values[0]['index'] != 'inferred' and (isinstance(attr_values[0]['index'], int) or attr_values[0]['index'].isdigit()):
-                        # If the attribute value is in the header, use the attribute name directly
-                        query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values[0]['index'])}]""")
+                if len(attr_values) == 1:
+                    if attr_values[0]['index'] != 'inferred':
+                        query_parts.append(f"""SET n{id}.{attr_name} = CASE WHEN row[{int(attr_values[0]['index'])}] IS NOT NULL THEN row[{int(attr_values[0]['index'])}] ELSE n{id}.{attr_name} END """)
                     else:
-                        # If the attribute value is in a column, use the column index to access the value
                         query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values[0]['value']}'""")
-                    continue
-                if attr_values[0] != 'inferred' and (isinstance(attr_values[0]['index'], int or attr_values[0]['index'].isdigit())):
-                    # If the attribute value is in the header, use the attribute name directly
-                    query_parts.append(f"""SET n{id}.{attr_name} = row[{int(attr_values['index'])}]""")
                 else:
-                    # If the attribute value is in a column, use the column index to access the value
-                    query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values['value']}'""")
+                    attr_list = []
+                    for attr_value in attr_values:
+                        if attr_value['index'] != 'inferred':
+                            attr_list.append(f"""row[{int(attr_value['index'])}]""")
+                        else:
+                            attr_list.append(f"""'{attr_value['value']}'""")
+                    query_parts.append(f"""SET n{id}.{attr_name} = apoc.coll.removeAll([{','.join(attr_list)}], [null])""")
         for rel in self.data['relationships']:
             rel_type = rel['rel_type']
             start_node = rel['connection'][0]

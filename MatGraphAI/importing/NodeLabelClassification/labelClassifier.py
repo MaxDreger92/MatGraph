@@ -109,7 +109,7 @@ class NodeClassifier(TableDataTransformer):
 
     def _create_input_string(self, index, element):
         first_non_null_value = element['column_values'][0]
-        return f"Define the term \"{element['header']}\" (example: \"{first_non_null_value}\" is a \"{element['header']}\")..."
+        return f"\"{element['header']}\" (example: \"{first_non_null_value}\" is a \"{element['header']}\")"
 
     def _pre_check(self, index, element):
         """

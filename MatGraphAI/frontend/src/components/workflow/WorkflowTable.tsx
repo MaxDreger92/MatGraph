@@ -120,6 +120,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
       const data = await client.requestExtractLabels(file, context)
 
       if (data.graph_json) {
+        setFileLink(data.file_link)
         const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
         setNodes(nodes)
         setRelationships(relationships)
