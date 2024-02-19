@@ -196,6 +196,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         const attrArray = dictToArray(data.attribute_dict)
   
         setAttributeTable(attrArray)
+        setCurrentTable(attrArray)
       }
 
       setProgress(3)
