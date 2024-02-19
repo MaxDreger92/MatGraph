@@ -14,17 +14,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # this method will be called when you run the command
         model_name = options['model_name']
-        try:
-            ModelModule = import_module('matgraph.models.ontology')
-            Model = getattr(ModelModule, model_name)
-            # You would need to provide necessary parameters for the function
-            get_embeddings_for_model(
-                self,
-                Model=Model,
-                fetch_properties= ['name'],
-                combine_func=lambda s: s['name']
-                # add other parameters here...
-            )
-            self.stdout.write(self.style.SUCCESS('Successfully generated embeddings.'))
-        except Exception as e:
-            raise CommandError('Failed to generate embeddings: ' + str(e))
+        ModelModule = import_module('matgraph.models.ontology')
+        Model = getattr(ModelModule, model_name)
+        # You would need to provide necessary parameters for the function
+        get_embeddings_for_model(
+            self,
+            Model=Model,
+            fetch_properties= ['name'],
+            combine_func=lambda s: s['name'],
+            unwind_alternative_labels = True
+            # add other parameters here...
+        )
+        self.stdout.write(self.style.SUCCESS('Successfully generated embeddings.'))
