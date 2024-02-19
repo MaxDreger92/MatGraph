@@ -17,14 +17,13 @@ import {
   Position,
   Vector2D,
   ICanvasButton,
-  ValOpPair,
 } from "../../types/canvas.types"
 import { graphLayouts } from "../../types/canvas.graphLayouts"
 import {
   isConnectableNode,
   isRelationshipLegitimate
 } from "../../common/helpers"
-import CanvasButtonGroup from "./CanvasButtons"
+import CanvasButtonGroup from "./CanvasButtonGroup"
 
 interface CanvasProps {
   
@@ -586,7 +585,7 @@ export default function Canvas(props: CanvasProps) {
     }
   }
 
-    const handleLayoutNodes = useCallback((setLayouting = true, iteration = 0, maxIterations = 10) => {
+  const handleLayoutNodes = useCallback(async (setLayouting = true, iteration = 0, maxIterations = 10) => {
     if (iteration >= maxIterations) {
       // do some warning and stop layout
       return
@@ -600,7 +599,7 @@ export default function Canvas(props: CanvasProps) {
       }
     }
 
-
+    if (!canvasRect) return
 
     cytoscape.use(fcose)
     const cy = cytoscape({
@@ -617,8 +616,12 @@ export default function Canvas(props: CanvasProps) {
       headless: true,
     })
 
-    const layout = cy.layout(graphLayouts[3]) // choose layout
-    layout.run()
+    const layout = cy.layout(graphLayouts[4])
+
+    await new Promise((resolve) => {
+      layout.one('layoutstop', resolve)
+      layout.run()
+    })
 
     const nodePositions = cy.nodes().map((node) => ({
       id: node.id(),
@@ -639,55 +642,62 @@ export default function Canvas(props: CanvasProps) {
       if (node.position.y > bounds.maxY) bounds.maxY = node.position.y
     })
 
-    const width = bounds.maxX - bounds.minX
-    const height = bounds.maxY - bounds.minY
+    const graphWidth = bounds.maxX - bounds.minX
+    const graphHeight = bounds.maxY - bounds.minY
+
+    const nodeSize = 100 - (10 * Math.floor(nodes.length / 10))
+
+    const canvasWidth = canvasRect.width - 200
+    const canvasHeight = canvasRect.height - nodeSize - 50
 
     let rotate = false
-    if (height > width) rotate = true
-
-    if (canvasRect) {
-      // ############# handle nodes out of bounds
-      // let nodeOutOfBounds = false
-      const updatedNodes = nodes.map((node) => {
-        const newNode = { ...node } // Copy node to not mutate the original object
-        const foundPosition = nodePositions.find((np) => np.id === node.id)
-        if (foundPosition) {
-          let xPrime, yPrime
-
-          if (rotate) {
-            xPrime = -foundPosition.position.y
-            yPrime = foundPosition.position.x
-          } else {
-            xPrime = foundPosition.position.x
-            yPrime = foundPosition.position.y
-          }
-
-          newNode.position = {
-            x:
-              xPrime -
-              (rotate ? bounds.minY : bounds.minX) +
-              canvasRect.width / 2 -
-              (rotate ? height / 2 : width / 2),
-            y:
-              yPrime -
-              (rotate ? bounds.minX : bounds.minY) +
-              canvasRect.height / 2 -
-              (rotate ? width / 2 : height / 2) -
-              40,
-          }
-
-          // ############# handle nodes out of bounds
-          // if (
-          //   newNode.position.x < newNode.size / 2 + 10 || newNode.position.x > window.innerWidth - (newNode.size / 2) ||
-          //   newNode.position.y < newNode.size / 2 || newNode.position.y > window.innerHeight - (newNode.size / 2)
-          // ) {
-          //   nodeOutOfBounds = true
-          // }
-        }
-        return newNode
-      })
-      setNodes(updatedNodes)
+    if (canvasWidth > canvasHeight) {
+      if (graphHeight > graphWidth) rotate = true
+    } else {
+      if (graphWidth > graphHeight) rotate = true
     }
+    
+    const scaleX = rotate ? canvasWidth / graphHeight : canvasWidth / graphWidth
+    const scaleY = rotate ? canvasHeight / graphWidth : canvasHeight / graphHeight
+    const scale = Math.min(Math.min(scaleX, scaleY), 1)
+
+
+
+    // ############# handle nodes out of bounds
+    // let nodeOutOfBounds = false
+    const updatedNodes = nodes.map((node) => {
+      const newNode = { ...node } // Copy node to not mutate the original object
+      const foundPosition = nodePositions.find((np) => np.id === node.id)
+      if (foundPosition) {
+        let xPrime, yPrime
+
+        //rotate
+        if (rotate) {
+          xPrime = -foundPosition.position.y * scale
+          yPrime = foundPosition.position.x * scale
+        } else {
+          xPrime = foundPosition.position.x * scale
+          yPrime = foundPosition.position.y * scale
+        }
+
+        newNode.position = {
+          x: xPrime + canvasWidth / 2 + 100,
+          y: yPrime + canvasHeight / 2 + nodeSize / 2 + 25,
+        }
+
+        newNode.size = nodeSize
+
+        // ############# handle nodes out of bounds
+        // if (
+        //   newNode.position.x < newNode.size / 2 + 10 || newNode.position.x > window.innerWidth - (newNode.size / 2) ||
+        //   newNode.position.y < newNode.size / 2 || newNode.position.y > window.innerHeight - (newNode.size / 2)
+        // ) {
+        //   nodeOutOfBounds = true
+        // }
+      }
+      return newNode
+    })
+    setNodes(updatedNodes)
 
     layoutingTimeoutRef.current = setTimeout(() => {
       setIsLayouting(false);
@@ -865,6 +875,7 @@ export default function Canvas(props: CanvasProps) {
         }
         return {
           ...node,
+          size: node.size * (1 - (delta * 0.1)),
           position: newNodePosition,
         }
       })
@@ -978,7 +989,7 @@ export default function Canvas(props: CanvasProps) {
         />
       )}
       {/* Nodes */}
-      {nodes.map((node, i) => (
+      {nodes.map((node) => (
         <Node
           key={node.id}
           node={node}

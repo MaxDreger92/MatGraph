@@ -24,11 +24,6 @@ export interface Rect {
 
 export type Operator = "<" | "<=" | "=" | "!=" | ">=" | ">"
 
-// export interface NumOpPair {
-//   number?: number[]
-//   operator?: Operator
-// }
-
 export interface INode {
   id: string
   name: NodeAttribute
@@ -40,8 +35,8 @@ export interface INode {
   std: NodeValOpAttribute
   error: NodeValOpAttribute
   identifier: NodeAttribute
-  type: "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
-  position: {x: number; y: number}
+  type: NodeType
+  position: Position
   size: number
   layer: number
   isEditing: boolean
@@ -78,3 +73,5 @@ export type ValOpPair = {
 }
 
 export type NodeIndex = number | string
+
+export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"

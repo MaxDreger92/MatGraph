@@ -159,11 +159,11 @@ export default function NodeInput(props: NodeInputProps) {
 
   /**
    *
-   * Matter: Id, Name (str), Batch (str), Ratio (strop), Concentration (strop)
+   * Matter: Identifier, Name (str), Batch (str), Ratio (strop), Concentration (strop)
    *
-   * Property/Parameter: Id, Name (str), Value (strop), Unit (str), Std (strop), Error (strop)
+   * Property/Parameter: Name (str), Value (strop), Unit (str), Std (strop), Error (strop)
    *
-   * Manuf, Measure, Meta: Id, Name (str)
+   * Manuf, Measure, Meta: Identifier, Name (str)
    *
    */
 

@@ -10,6 +10,7 @@ interface NodeLabelsProps {
   labelRef: React.RefObject<HTMLDivElement>
   hovered: boolean
   size: number
+  labelFontSize: number
   name: string
   value: ValOpPair
   type: INode["type"]
@@ -33,6 +34,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
     labelRef,
     hovered,
     size,
+    labelFontSize,
     name,
     value,
     type,
@@ -44,7 +46,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
 
   useEffect(() => {
     if (!isAttrDefined(name)) return
-    const subName = name.substring(0, size / 9.65) // 9.65 = width of 1 char
+    const characterFactor = (16 - labelFontSize) * 0.4
+    const subName = name.substring(0, size / (9.65 - characterFactor)) // 9.65 = width of 1 char
     if (subName.length < name.length) {
       setIsNameSliced(true)
       setSlicedName(subName.slice(0, -2))
@@ -52,7 +55,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
       setIsNameSliced(false)
       setSlicedName(name)
     }
-  }, [name, size])
+  }, [name, size, labelFontSize])
 
   useEffect(() => {
     if (!value?.value || !value.operator) return
@@ -86,7 +89,6 @@ export default function NodeLabel(props: NodeLabelsProps) {
     return operatorCode
   }
 
-
   return (
     <div
       className="node-label-none-wrap"
@@ -106,6 +108,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
           zIndex: layer + 1,
           display: "flex",
           flexDirection: "row",
+          fontSize: labelFontSize,
           // cursor: (isSelected === 1 && labelHovered) ? "text" : "inherit" //not sure about that yet
         }}
       >

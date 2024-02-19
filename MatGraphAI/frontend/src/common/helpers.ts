@@ -9,12 +9,25 @@ import {
   NodeValOpAttribute,
   NodeIndex,
 } from "../types/canvas.types"
-import { IGraphData, ITempNode, ExtractedAttribute, CustomAttribute, ParsableAttributes } from "../types/workflow.types"
+import { IGraphData, ITempNode, ExtractedAttribute, CustomAttribute, ParsableAttributes, Label } from "../types/workflow.types"
 import toast from "react-hot-toast"
 import client from "../client"
 import { v4 as uuidv4 } from "uuid"
 import React, { useRef } from "react"
 import { valueGetters } from "@mantine/core/lib/Box/style-system-props/value-getters/value-getters"
+
+const labelAttributes = {
+  matter: ["name", "identifier", "batch_number", "ratio", "concentration"],
+  manufacturing: ["name", "identifier"],
+  measurement: ["name", "identifier"],
+  parameter: ["name", "value", "unit", "std", "error"],
+  property: ["name", "value", "unit", "std", "error"],
+  metadata: ["name", "identifier"],
+}
+
+export function getAttributesByLabel(label: Label): string[] {
+  return labelAttributes[label]
+}
 
 const relationshipToRelType: Record<string, string> = {
   "matter-manufacturing": "IS_MANUFACTURING_INPUT",
@@ -117,6 +130,7 @@ export function isAttrDefined(attribute: string | ValOpPair): boolean {
 }
 
 function parseAttrOut(attribute: string | ValOpPair, index?: NodeIndex | NodeIndex[]): ParsableAttributes {
+  // console.log(index)
   let stringToParse = "";
 
   // Determine the string to parse based on the type of attribute
@@ -149,50 +163,6 @@ function parseAttrOut(attribute: string | ValOpPair, index?: NodeIndex | NodeInd
   }
 }
 
-// function parseAttr(attribute: any, valOp: boolean): { value: any, index?: any[] } {
-//   // Function to process the attribute when it's not an {value, operator} object
-//   const processAttributeValue = (attr: any) => {
-//     if (typeof attr === 'string') {
-//       return { value: attr };
-//     } else if (Array.isArray(attr)) {
-//       if (typeof attr[0] === 'string') {
-//         return { value: attr.join(';') };
-//       } else {
-//         let values: string[] = [];
-//         let indices: any[] = [];
-//         attr.forEach(item => {
-//           if (typeof item.value === 'string') {
-//             values.push(item.value);
-//             if (item.index !== undefined) {
-//               indices.push(item.index);
-//             }
-//           }
-//         });
-//         return { value: values.join(';'), index: indices.length > 0 ? indices : undefined };
-//       }
-//     } else {
-//       return { value: '', index: undefined };
-//     }
-//   };
-
-//   // Check for the additional case where attribute is an object with {value, operator}
-//   if (typeof attribute === 'object' && !Array.isArray(attribute) && attribute !== null) {
-//     const processedValue = processAttributeValue(attribute.value);
-//     const op = attribute.operator ? attribute.operator : '='
-//     return {
-//       value: { value: processedValue.value, operator: op },
-//       index: processedValue.index
-//     }
-//   } else if (attribute !== undefined) {
-//     // Process attribute using the previously defined logic
-//     return processAttributeValue(attribute);
-//   }
-//   if (valOp) {
-//     return {value: {value: "", operator: ""}}
-//   }
-//   return {value: ""}
-// }
-
 function parseAttr(attribute: ParsableAttributes | undefined, isValOp: boolean): NodeAttribute | NodeValOpAttribute {
   if (attribute === undefined) {
     if (isValOp) {
@@ -210,15 +180,6 @@ function parseAttr(attribute: ParsableAttributes | undefined, isValOp: boolean):
 }
 
 function parseExtractedAttribute(attribute: ExtractedAttribute | ExtractedAttribute[], isValOp: boolean): NodeAttribute | NodeValOpAttribute {
-  // if (Array.isArray(attribute)) {
-  //   console.log("Array: ")
-  //   attribute.forEach(item => {
-  //     console.log(item.index)
-  //   })
-  //   console.log("ArrayEnd")
-  // } else {
-  //   console.log(attribute.index)
-  // }
   if (Array.isArray(attribute)) {
     let values: string[] = []
     let indices: NodeIndex[] = []
@@ -330,8 +291,6 @@ export function convertFromJsonFormat(workflow: string) {
   const nodes: INode[] = []
   const relationships: IRelationship[] = []
 
-  console.log('read everything')
-
   data.nodes.forEach((item) => {
     nodes.push({
       id: item.id,
@@ -393,20 +352,6 @@ export function isRelationshipLegitimate(start: INode, end: INode): boolean {
     (relationship) => relationship[0] === start.type && relationship[1] === end.type
   )
 }
-
-// export async function saveToHistory(workflow: string) {
-//   // create timestamp
-//   // save to history -> backend (workflow + timestamp)
-//   try {
-//     const response = await client.saveWorkflow(workflow)
-
-//     if (response) {
-//       toast.success(response.data.message)
-//     }
-//   } catch (err: any) {
-//     toast.error(err.message)
-//   }
-// }
 
 export function saveToFile(
   data: string,
