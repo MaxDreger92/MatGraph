@@ -87,7 +87,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     if (progress === 2 && row === 0) {
       if (
         typeof cellData === "string" &&
-        labelOptions.some((option) => option.value === (cellData as Label))
+        labelOptions.some((option) => option.value === (cellData.toLowerCase() as Label))
       ) {
         setSelectData(labelOptions)
         setSelected({ row: row, column: columnId })
@@ -96,10 +96,10 @@ export default function WorkflowTable(props: WorkflowTableProps) {
       const labelKey = tableRows[0][columnId]
       if (
         typeof labelKey === "string" &&
-        labelOptions.some((option) => option.value === (labelKey as Label))
+        labelOptions.some((option) => option.value === (labelKey.toLowerCase() as Label))
       ) {
         const attributes = getAttributesByLabel(labelKey as Label)
-        if (typeof cellData === "string" && attributes.includes(cellData)) {
+        if (typeof cellData === "string" && attributes.includes(cellData.toLowerCase())) {
           const newAttributeOptions = attributes.map((attr) => ({
             value: attr,
             label: capitalizeFirstLetter(attr).toString(),
