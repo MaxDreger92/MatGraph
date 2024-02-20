@@ -585,11 +585,7 @@ export default function Canvas(props: CanvasProps) {
     }
   }
 
-  const handleLayoutNodes = useCallback(async (setLayouting = true, iteration = 0, maxIterations = 10) => {
-    if (iteration >= maxIterations) {
-      // do some warning and stop layout
-      return
-    }
+  const handleLayoutNodes = useCallback(async (setLayouting = true) => {
 
     if (setLayouting) {
       setIsLayouting(true)
@@ -708,10 +704,10 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     if (needLayout) {
-      handleLayoutNodes(false)
+      handleLayoutNodes(true)
       setNeedLayout(false)
     }
-  }, [needLayout, setNeedLayout, handleLayoutNodes])
+  }, [needLayout, setNeedLayout])
 
   useEffect(() => {
     const handleCanvasKeyDown = (e: KeyboardEvent) => {
