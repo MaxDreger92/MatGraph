@@ -98,8 +98,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         typeof labelKey === "string" &&
         labelOptions.some((option) => option.value === (labelKey.toLowerCase() as Label))
       ) {
-        const attributes = getAttributesByLabel(labelKey as Label)
-        if (typeof cellData === "string" && attributes.includes(cellData.toLowerCase())) {
+        const attributes = getAttributesByLabel(labelKey.toLowerCase() as Label)
+        if (attributes && typeof cellData === "string" && attributes.includes(cellData.toLowerCase())) {
           const newAttributeOptions = attributes.map((attr) => ({
             value: attr,
             label: capitalizeFirstLetter(attr).toString(),
