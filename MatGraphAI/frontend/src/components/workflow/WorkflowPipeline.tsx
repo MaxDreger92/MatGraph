@@ -6,6 +6,7 @@ import { RxCross2 } from "react-icons/rx";
 interface WorkflowPipelineProps {
   handlePipelineReset: () => void
   handleContextChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  loadNodes: () => void
   requestExtractLabels: () => Promise<void>
   requestExtractAttributes: () => Promise<void>
   requestExtractNodes: () => Promise<void>
@@ -16,6 +17,7 @@ interface WorkflowPipelineProps {
 
 export default function WorkflowPipeline(props: WorkflowPipelineProps) {
   const {
+    loadNodes,
     handlePipelineReset,
     handleContextChange,
     requestExtractLabels,
@@ -136,7 +138,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
             width: buttonWidth,
             padding: 0,
           }}
-          onClick={requestExtractLabels}
+          onClick={loadNodes}
           disabled={progress !== 1}
         >
           {buttonWidth < 100 ? "1" : "Extract Labels"}

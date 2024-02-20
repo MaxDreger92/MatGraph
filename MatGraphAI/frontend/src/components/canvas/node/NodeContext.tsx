@@ -16,6 +16,7 @@ interface NodeContextProps {
   onSelect: (action: string) => void
   isOpen: boolean
   nodeSize: number
+  nodeActualSize: number
   isEditing: boolean
   type: INode["type"]
 }
@@ -69,7 +70,7 @@ function ContextButton(props: ContextButtonProps) {
 }
 
 export default function NodeContext(props: NodeContextProps) {
-  const { onSelect, isOpen, nodeSize, isEditing, type } = props
+  const { onSelect, isOpen, nodeSize, nodeActualSize, isEditing, type } = props
   const [layerPlanetOpen, setLayerPlanetOpen] = useState(false)
 
   const planetClickLocal = (e: React.MouseEvent) => {
@@ -97,7 +98,7 @@ export default function NodeContext(props: NodeContextProps) {
       open={isOpen}
       // autoClose
       hideOrbit
-      orbitRadius={isEditing ? getRadius(type) : nodeSize / 2 + 40}
+      orbitRadius={isEditing ? getRadius(type) : nodeActualSize / 2 + 40}
       rotation={90}
     >
       {/* <div

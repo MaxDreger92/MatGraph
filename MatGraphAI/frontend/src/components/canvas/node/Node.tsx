@@ -317,7 +317,8 @@ export default React.memo(function Node(props: NodeProps) {
           <NodeContext
             onSelect={handleContextActionLocal}
             isOpen={isSelected === 1}
-            nodeSize={nodeActualSize}
+            nodeSize={node.size}
+            nodeActualSize={nodeActualSize}
             isEditing={node.isEditing}
             type={node.type}
           />
