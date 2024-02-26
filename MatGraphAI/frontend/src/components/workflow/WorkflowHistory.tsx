@@ -7,6 +7,7 @@ import { RiDeleteBin2Line } from "react-icons/ri"
 // import jsonData from '../../alt/testGraph.json'
 
 interface WorkflowHistoryProps {
+  uploadMode: boolean
   workflows: IWorkflow[] | undefined
   deleteWorkflow: (workflowId: string) => void
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
@@ -18,6 +19,7 @@ interface WorkflowHistoryProps {
 
 export default function WorkflowHistory(props: WorkflowHistoryProps) {
   const {
+    uploadMode,
     workflows,
     deleteWorkflow,
     setNodes,
@@ -34,7 +36,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
   // }
 
   const setNodesAndRelationships = (workflow: string) => {
-    const { nodes, relationships } = convertFromJsonFormat(workflow)
+    const { nodes, relationships } = convertFromJsonFormat(workflow, uploadMode)
     setNodes(nodes)
     setRelationships(relationships)
     setNeedLayout(true)

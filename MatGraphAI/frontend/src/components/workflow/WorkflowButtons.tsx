@@ -9,6 +9,7 @@ import {
 import { useSpring, animated } from "react-spring"
 
 interface WorkflowButtonProps {
+  uploadMode: boolean
   jsonView: boolean
   jsonViewWidth: number
   historyView: boolean
@@ -20,6 +21,7 @@ interface WorkflowButtonProps {
 
 export default function WorkflowButtons(props: WorkflowButtonProps) {
   const {
+    uploadMode,
     jsonView,
     jsonViewWidth,
     historyView,
@@ -207,7 +209,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
     <>
       {renderHistoryIcon()}
       {renderJsonIcon()}
-      {renderTableIcon()}
+      {uploadMode && renderTableIcon()}
     </>
   )
 }

@@ -12,7 +12,7 @@ interface NodeLabelsProps {
   size: number
   labelFontSize: number
   name: string
-  value: ValOpPair
+  valOp: ValOpPair
   type: INode["type"]
   layer: number
   // hasLabelOverflow: boolean
@@ -36,7 +36,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
     size,
     labelFontSize,
     name,
-    value,
+    valOp,
     type,
     layer,
     // hasLabelOverflow,
@@ -58,21 +58,21 @@ export default function NodeLabel(props: NodeLabelsProps) {
   }, [name, size, labelFontSize])
 
   useEffect(() => {
-    if (!value?.value || !value.operator) return
-    const subValue = value.value.substring(0, (size - 20) / 8.2) // 8.2 = width of 1 char
-    if (subValue.length < value.value.length) {
+    if (!valOp?.value || !valOp.operator) return
+    const subValue = valOp.value.substring(0, (size - 20) / 8.2) // 8.2 = width of 1 char
+    if (subValue.length < valOp.value.length) {
       setIsValueSliced(true)
       setSlicedValue(subValue.slice(0,-2))
     } else {
       setIsValueSliced(false)
-      setSlicedValue(value.value)
+      setSlicedValue(valOp.value)
     }
-  }, [value, size])
+  }, [valOp, size])
 
   const mapOperatorSign = () => {
     let operatorCode: string
-    if (!value?.operator) return ""
-    switch (value.operator) {
+    if (!valOp?.operator) return ""
+    switch (valOp.operator) {
       case "<=":
         operatorCode = "\u2264"
         break
@@ -83,7 +83,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
         operatorCode = "\u2260"
         break
       default:
-        operatorCode = value.operator
+        operatorCode = valOp.operator
         break
     }
     return operatorCode
@@ -100,8 +100,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
         onMouseEnter={() => setLabelHovered(true)}
         onMouseLeave={() => setLabelHovered(false)}
         style={{
-          marginTop: isValueNode && isAttrDefined(value) ? 3 : 0,
-          marginBottom: isValueNode && isAttrDefined(value) ? -3 : 0,
+          marginTop: isValueNode && isAttrDefined(valOp) ? 3 : 0,
+          marginBottom: isValueNode && isAttrDefined(valOp) ? -3 : 0,
           color: ["matter", "measurement", "metadata"].includes(type)
             ? "#1a1b1e"
             : "#ececec",
@@ -123,7 +123,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
       </div>
 
         {/* value label  */}
-      {(isValueNode && isAttrDefined(value)) && (
+      {(isValueNode && isAttrDefined(valOp)) && (
         <div
           className="node-label node-label-value"
           onMouseUp={onMouseUp}
@@ -137,7 +137,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
           }}
         >
           {/* operator */}
-          {value?.operator && 
+          {valOp?.operator && 
             <span children={mapOperatorSign()}/>
           }
           {/* value */}

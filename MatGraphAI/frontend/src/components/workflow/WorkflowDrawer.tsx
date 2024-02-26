@@ -15,7 +15,7 @@ import {
   convertToJSONFormat,
 } from "../../common/helpers"
 import WorkflowTable from "./WorkflowTable"
-import testNodes from '../../alt/testNodesN.json'
+// import testNodes from '../../alt/testNodesN.json'
 
 const USE_MOCK_DATA = false
 
@@ -123,15 +123,15 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   }
 
   const loadNodes = () => {
-    console.log(testNodes)
+    // console.log(testNodes)
 
-    // const nodeString = JSON.stringify(testNodes)
+    // // const nodeString = JSON.stringify(testNodes)
 
-    const { nodes, relationships } = convertFromJsonFormat(JSON.stringify(testNodes))
+    // const { nodes, relationships } = convertFromJsonFormat(JSON.stringify(testNodes), true)
 
-      setRelationships([])
-      setNodes(nodes)
-      setNeedLayout(true)
+    //   setRelationships([])
+    //   setNodes(nodes)
+    //   setNeedLayout(true)
   };
 
   // (file,context) => label_dict, file_link, file_name
@@ -157,7 +157,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         const data = await client.requestExtractLabels(file, context)
 
         if (data.graph_json && data.file_link) {
-          const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
+          const { nodes, relationships } = convertFromJsonFormat(data.graph_json, true)
           setNodes(nodes)
           setRelationships(relationships)
           setNeedLayout(true)
@@ -241,7 +241,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         throw new Error("Error while extracting nodes!")
       }
 
-      const { nodes, relationships } = convertFromJsonFormat(data.node_json)
+      const { nodes, relationships } = convertFromJsonFormat(data.node_json, true)
 
       setRelationships([])
       setNodes(nodes)
@@ -279,7 +279,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         throw new Error("Error while extracting graph!")
       }
 
-      const { nodes, relationships } = convertFromJsonFormat(data.graph_json)
+      const { nodes, relationships } = convertFromJsonFormat(data.graph_json, true)
 
       setNodes(nodes)
       setRelationships(relationships)

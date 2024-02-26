@@ -81,7 +81,8 @@ export default function App() {
         <div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/workflow" element={<Workflow colorIndex={currentColorIndex} />} />
+            <Route path="/upload" element={<Workflow colorIndex={currentColorIndex} uploadMode={true} />} />
+            <Route path="/search" element={<Workflow colorIndex={currentColorIndex} uploadMode={false} />} />
             <Route path="/database" element={<Database />} />
             <Route path="/login" element={<AuthenticationForm />} />
             <Route path="/profile" element={<Profile />} />
