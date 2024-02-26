@@ -91,7 +91,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const tabs = ["Workflow", "Database"];
+const tabs = ["Upload", "Search"];
 
 interface HeaderProps {
   handleHeaderLinkClick: (key: string) => void
@@ -115,7 +115,7 @@ export default function Header(props: HeaderProps) {
     handleLogout();
   };
 
-  const items = tabs.map((tab) => (
+  const items = tabs.map((tab, i) => (
     <Tabs.Tab
       value={tab}
       key={tab}

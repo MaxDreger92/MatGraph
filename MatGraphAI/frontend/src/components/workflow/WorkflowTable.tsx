@@ -161,7 +161,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     count: tableRows.length,
     getScrollElement: () => tableRef.current,
     estimateSize: () => 45, // Adjust based on your row height
-    overscan: 5,
+    overscan: 15,
   })
 
   const columnVirtualizer = useVirtualizer({

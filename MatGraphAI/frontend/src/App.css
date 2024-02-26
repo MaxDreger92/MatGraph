@@ -103,7 +103,7 @@ a:link {
 }
 
 .canvas-btn-wrap {
-  position: absolute;
+  position: fixed;
   display: flex;
   width: auto;
   height: auto;
@@ -241,11 +241,10 @@ a:link {
   background-color: #25262b;
   color: #c1c2c5;
   filter: drop-shadow(1px 1px 1px #111);
-  margin-bottom: 0px;
-  width: auto;
+  height: 40px;
 }
 
-.node-input input[type=number] {
+/* .node-input input[type=number] {
   outline: none;
   border-radius: 3px;
   border: 1px solid #333333;
@@ -254,7 +253,7 @@ a:link {
   color: #c1c2c5;
   filter: drop-shadow(1px 1px 1px #111);
   -moz-appearance: textfield;
-}
+} */
 
 .node-input input::webkit-outer-spin-button,
   input::webkit-inner-spin-button {

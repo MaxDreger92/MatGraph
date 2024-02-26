@@ -31,10 +31,11 @@ const undoSteps = 200
 
 interface WorkflowProps {
   colorIndex: number
+  uploadMode: boolean
 }
 
 export default function Workflow(props: WorkflowProps) {
-  const { colorIndex } = props
+  const { colorIndex, uploadMode } = props
   const [nodes, setNodes] = useState<INode[]>([])
   const [relationships, setRelationships] = useState<IRelationship[]>([])
   const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
@@ -66,10 +67,12 @@ export default function Workflow(props: WorkflowProps) {
 
   const [progress, setProgress] = useState<number>(0)
 
+  // set current workflow (and show in json viewer)
   useEffect(() => {
     setWorkflow(convertToJSONFormat(nodes, relationships, true))
   }, [nodes, relationships])
 
+  // fetch workflows 
   useEffect(() => {
     fetchWorkflows()
   }, [])
@@ -312,6 +315,7 @@ export default function Workflow(props: WorkflowProps) {
         }}
         children={
           <Canvas
+            uploadMode={uploadMode}
             nodes={nodes}
             relationships={relationships}
             setNodes={setNodes}
@@ -347,6 +351,7 @@ export default function Workflow(props: WorkflowProps) {
         }}
         children={
           <WorkflowHistory
+            uploadMode={uploadMode}
             workflows={workflows}
             deleteWorkflow={deleteWorkflow}
             setNodes={setNodes}
@@ -391,6 +396,7 @@ export default function Workflow(props: WorkflowProps) {
 
       <div className="workflow-btn-wrap">
         <WorkflowButtons
+          uploadMode={uploadMode}
           jsonView={jsonView}
           jsonViewWidth={jsonViewWidth}
           historyView={historyView}

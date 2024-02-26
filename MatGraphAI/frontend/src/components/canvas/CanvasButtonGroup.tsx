@@ -84,7 +84,8 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
   const { canvasRect, onSelect } = props
   const [initialized, setInitialized] = useState(false)
   const [positioned, setPositioned] = useState(true)
-  const [position, setPosition] = useState<Position>({ x: 12, y: 12 })
+  const [position, setPosition] = useState<Position>({ x: 12, y: 77 })
+  const [manualPosition, setManualPosition] = useState<Position>({ x: 12, y: 77 })
   const [vertical, setVertical] = useState(true)
   const [left, setLeft] = useState(true)
   const [moveable, setMoveable] = useState(false)
@@ -117,86 +118,89 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
     const vertical = localStorage.getItem("canvasBtnVertical")
     const left = localStorage.getItem("canvasBtnLeft")
 
-    if (!position || !vertical || !positioned || !left) return
+    if (positioned) setPositioned(JSON.parse(positioned))
+    if (position) setManualPosition(JSON.parse(position))
+    if (vertical) setVertical(JSON.parse(vertical))
+    if (left) setLeft(JSON.parse(left))
+    
+    const timer = setTimeout(() => {
+      setInitialized(true)
+    }, 100)
 
-    setPositioned(JSON.parse(positioned))
-    setPosition(JSON.parse(position))
-    setVertical(JSON.parse(vertical))
-    setLeft(JSON.parse(left))
-
-    setInitialized(true)
+    return () => clearTimeout(timer)
   }, [])
 
   // save position to local storage
   useEffect(() => {
     localStorage.setItem("canvasBtnPositioned", JSON.stringify(positioned))
-    localStorage.setItem("canvasBtnPosition", JSON.stringify(position))
+    localStorage.setItem("canvasBtnPosition", JSON.stringify(manualPosition))
     localStorage.setItem("canvasBtnVertical", JSON.stringify(vertical))
     localStorage.setItem("canvasBtnLeft", JSON.stringify(left))
-  }, [positioned, position, vertical, left])
+  }, [positioned, manualPosition, vertical, left])
 
   // automatic positioning (!positioned)
   useEffect(() => {
     if (!canvasRect || !buttonsRef.current || positioned) return
 
     setPosition({
-      x: canvasRect.width / 2 - buttonsRef.current.offsetWidth / 2 - 22,
-      y: 12,
+      x: canvasRect.left + canvasRect.width / 2 - buttonsRef.current.offsetWidth / 2 - 22,
+      y: 77,
     })
+    console.log(canvasRect.right)
     setVertical(false)
     setLeft(false)
-    setInitialized(true)
-    // setIsResizing(false)
   }, [positioned, canvasRect])
 
   // manual positioning (sets positioned)
   const moveButtons = (e: React.MouseEvent) => {
     if (!moveable || !canvasRect) return
 
-    const mouseX = e.clientX - canvasRect.left
-    const mouseY = e.clientY - canvasRect.top
+    const mouseX = e.clientX
+    const mouseY = e.clientY
 
     let btnX, btnY
 
-    if (mouseX <= 90) { // left
+    if (mouseX <= canvasRect.left + 90) { // left
       setVertical(true)
       setLeft(true)
-      btnX = 12
-      btnY = clamp(mouseY - 19, 12, Infinity)
-    } else if (mouseX <= (canvasRect.width - 90)) { // top
+      btnX = canvasRect.left + 12
+      btnY = clamp(mouseY - 19, 77, canvasRect.bottom - 350)
+    } else if (mouseX <= (canvasRect.right - 90)) { // top
       setVertical(false)
       setLeft(false)
-      btnX = clamp(mouseX - 15, 91, canvasRect.width - 350)
-      btnY = 12
+      btnX = clamp(mouseX - 15,canvasRect.left + 91, canvasRect.left + canvasRect.width - 350)
+      btnY = 77
     } else { // right
       setVertical(true)
       setLeft(false)
-      btnX = canvasRect.width - 69
-      btnY = clamp(mouseY - 19, 12, Infinity)
+      btnX = canvasRect.right - 69
+      btnY = clamp(mouseY - 19, 77, canvasRect.bottom - 350)
     }
 
     setPositioned(true)
+    setManualPosition({ x: btnX, y: btnY })
     setPosition({ x: btnX, y: btnY })
   }
 
   // manual positioning automatic fixes
   useEffect(() => {
-    if (!(canvasRect && buttonsRef.current && positioned) || moveable) return
+    if (!(canvasRect && buttonsRef.current && positioned && initialized) || moveable) return
 
     if (vertical && left) {
       setPosition({
-        x: 12,
-        y: position.y
+        x: canvasRect.left + 12,
+        y: clamp(manualPosition.y, 77, canvasRect.bottom - 350)
       })
     } else if (vertical) {
+      console.log(canvasRect.right)
       setPosition({
-        x: canvasRect.width - 69,
-        y: position.y
+        x: canvasRect.right - 69,
+        y: clamp(manualPosition.y, 77, canvasRect.bottom - 350)
       })
     } else {
       setPosition({
-        x: clamp(position.x, 91, (canvasRect.right - canvasRect.left) - 350),
-        y: position.y
+        x: clamp(manualPosition.x, canvasRect.left + 91, canvasRect.right - 350),
+        y: manualPosition.y
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -206,18 +210,18 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
   const resetButtons = () => {
     if (!canvasRect || !buttonsRef.current) return
 
-    let width
-    if (vertical) {
-      width = buttonsRef.current.offsetHeight / 2
-    } else {
-      width = buttonsRef.current.offsetWidth / 2
-    }
+    // let width
+    // if (vertical) {
+    //   width = buttonsRef.current.offsetHeight / 2
+    // } else {
+    //   width = buttonsRef.current.offsetWidth / 2
+    // }
     setPositioned(false)
 
-    setPosition({
-      x: canvasRect.width / 2 - width - 22,
-      y: 12,
-    })
+    // setPosition({
+    //   x: canvasRect.width / 2 - width - 22,
+    //   y: 12,
+    // })
     setVertical(false)
     setLeft(false)
   }

@@ -90,7 +90,7 @@ export default React.memo(function Node(props: NodeProps) {
   // update missing fields
   useEffect(() => {
     if (isValueNode) {
-      setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.value))
+      setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.valOp))
     } else {
       setFieldsMissing(!isAttrDefined(node.name.value))
     }
@@ -129,8 +129,8 @@ export default React.memo(function Node(props: NodeProps) {
     const nameMinimumSize = node.name.value.length * (11 - characterFactor)
     let nodeMinimumSize = nameMinimumSize
 
-    if (isValueNode && isAttrDefined(node.value.value)) {
-      const valueMinimumSize = node.value.value.value.length * (9 - characterFactor) + 20
+    if (isValueNode && isAttrDefined(node.value.valOp)) {
+      const valueMinimumSize = node.value.valOp.value.length * (9 - characterFactor) + 20
       nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
     }
 
@@ -374,7 +374,7 @@ export default React.memo(function Node(props: NodeProps) {
               size={nodeActualSize}
               labelFontSize={labelFontSize}
               name={node.name.value}
-              value={node.value.value}
+              valOp={node.value.valOp}
               type={node.type}
               layer={node.layer}
               // hasLabelOverflow={hasLabelOverflow}

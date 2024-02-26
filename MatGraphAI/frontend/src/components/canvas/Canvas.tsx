@@ -26,7 +26,7 @@ import {
 import CanvasButtonGroup from "./CanvasButtonGroup"
 
 interface CanvasProps {
-  
+  uploadMode: boolean
   nodes: INode[]
   relationships: IRelationship[]
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
@@ -49,6 +49,7 @@ interface CanvasProps {
 
 export default function Canvas(props: CanvasProps) {
   const {
+    uploadMode,
     nodes,
     relationships,
     setNodes,
@@ -133,19 +134,20 @@ export default function Canvas(props: CanvasProps) {
     const size = 100
     const newNode = {
       id,
-      name: {value:""},
-      value: {value:{value: "", operator: ""}},
+      name: {value:"", index: ""},
+      value: {valOp:{value: "", operator: ""}},
       batch_num: {value:""},
-      ratio: {value:{value: "", operator: ""}},
-      concentration: {value:{value: "", operator: ""}},
+      ratio: {valOp:{value: "", operator: ""}},
+      concentration: {valOp:{value: "", operator: ""}},
       unit: {value:""},
-      std: {value:{value: "", operator: ""}},
-      error: {value:{value: "", operator: ""}},
+      std: {valOp:{value: "", operator: ""}},
+      error: {valOp:{value: "", operator: ""}},
       identifier: {value:""},
       type,
+      with_indices: uploadMode,
       position,
       size,
-      layer,
+      layer, 
       isEditing: true,
     }
     if (connectingNode) {
@@ -337,13 +339,13 @@ export default function Canvas(props: CanvasProps) {
           // Check if any fields have changed
           if (
             node.name.value !== n.name.value ||
-            node.value.value !== n.value.value ||
+            node.value.valOp !== n.value.valOp ||
             node.batch_num.value !== n.batch_num.value ||
-            node.ratio.value !== n.ratio.value ||
-            node.concentration.value !== n.concentration.value ||
+            node.ratio.valOp !== n.ratio.valOp ||
+            node.concentration.valOp !== n.concentration.valOp ||
             node.unit.value !== n.unit.value ||
-            node.std.value !== n.std.value ||
-            node.error.value !== n.error.value ||
+            node.std.valOp !== n.std.valOp ||
+            node.error.valOp !== n.error.valOp ||
             node.identifier.value !== n.identifier.value
           ) {
             updateHistory() // Call updateHistory only if a change has occurred

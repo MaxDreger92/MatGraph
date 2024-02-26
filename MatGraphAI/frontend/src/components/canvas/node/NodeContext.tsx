@@ -83,12 +83,11 @@ export default function NodeContext(props: NodeContextProps) {
   const getRadius = (type: INode["type"]) => {
     switch (type) {
       case "matter":
-        return nodeSize / 2 + 88
       case "property":
       case "parameter":
-        return nodeSize / 2 + 88
+        return Math.max(155,nodeActualSize / 2 + 40)
       default:
-        return nodeSize / 2 + 40
+        return nodeActualSize / 2 + 40
     }
   }
 

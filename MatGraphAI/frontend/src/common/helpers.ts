@@ -7,7 +7,7 @@ import {
   Operator,
   NodeAttribute,
   NodeValOpAttribute,
-  NodeIndex,
+  AttributeIndex,
 } from "../types/canvas.types"
 import { IGraphData, ITempNode, ExtractedAttribute, CustomAttribute, ParsableAttributes, Label } from "../types/workflow.types"
 import toast from "react-hot-toast"
@@ -129,7 +129,7 @@ export function isAttrDefined(attribute: string | ValOpPair): boolean {
   return false;
 }
 
-function parseAttrOut(attribute: string | ValOpPair, index?: NodeIndex | NodeIndex[]): ParsableAttributes {
+function parseAttrOut(attribute: string | ValOpPair, index?: AttributeIndex | AttributeIndex[]): ParsableAttributes {
   // console.log(index)
   let stringToParse = "";
 
@@ -166,7 +166,7 @@ function parseAttrOut(attribute: string | ValOpPair, index?: NodeIndex | NodeInd
 function parseAttr(attribute: ParsableAttributes | undefined, isValOp: boolean): NodeAttribute | NodeValOpAttribute {
   if (attribute === undefined) {
     if (isValOp) {
-      return { value: {value: '', operator: ''} } as NodeValOpAttribute
+      return { valOp: {value: '', operator: ''} } as NodeValOpAttribute
     } else {
       return { value: '' } as NodeAttribute
     }
@@ -182,20 +182,20 @@ function parseAttr(attribute: ParsableAttributes | undefined, isValOp: boolean):
 function parseExtractedAttribute(attribute: ExtractedAttribute | ExtractedAttribute[], isValOp: boolean): NodeAttribute | NodeValOpAttribute {
   if (Array.isArray(attribute)) {
     let values: string[] = []
-    let indices: NodeIndex[] = []
+    let indices: AttributeIndex[] = []
     attribute.forEach(item => {
       values.push(item.value)
       indices.push(item.index)
     })
     const finalIndex = indices.length > 1 ? indices : indices[0]
     if (isValOp) {
-      return { value: {value: values.join(';'), operator: '=' as Operator}, index: finalIndex } as NodeValOpAttribute
+      return { valOp: {value: values.join(';'), operator: '=' as Operator}, index: finalIndex } as NodeValOpAttribute
     } else {
       return { value: values.join(';'), index: finalIndex} as NodeAttribute
     }
   } else {
     if (isValOp) {
-      return { value: {value: attribute.value, operator: '=' as Operator}, index: attribute.index } as NodeValOpAttribute
+      return { valOp: {value: attribute.value, operator: '=' as Operator}, index: attribute.index } as NodeValOpAttribute
     } else {
       return { value: attribute.value, index: attribute.index} as NodeAttribute
     }
@@ -206,14 +206,14 @@ function parseCustomAttribute(attribute: CustomAttribute, isValOp: boolean): Nod
   if (Array.isArray(attribute.value)) {
     if (isValOp) {
       const op = attribute.operator ? attribute.operator : '=' as Operator
-      return { value: {value: attribute.value.join(';'), operator: op} } as NodeValOpAttribute
+      return { valOp: {value: attribute.value.join(';'), operator: op} } as NodeValOpAttribute
     } else {
       return { value: attribute.value.join(';') } as NodeAttribute
     }
   } else {
     if (isValOp) {
       const op = attribute.operator ? attribute.operator : '=' as Operator
-      return { value: {value: attribute.value, operator: op} } as NodeValOpAttribute
+      return { valOp: {value: attribute.value, operator: op} } as NodeValOpAttribute
     } else {
       return { value: attribute.value } as NodeAttribute
     }
@@ -251,17 +251,17 @@ export function convertToJSONFormat(
       } else {
         attributes.name = { value: "MISSING_NAME" }
       }
-      if (isAttrDefined(node.value.value)) {
-        attributes.value = parseAttrOut(node.value.value, node.value.index)
+      if (isAttrDefined(node.value.valOp)) {
+        attributes.value = parseAttrOut(node.value.valOp, node.value.index)
       } else if (["property","parameter"].includes(node.type)) {
         attributes.value = { value: "MISSING_VALUE_OR_OPERATOR" }
       } 
       if (isAttrDefined(node.batch_num.value)) attributes.batch_num = parseAttrOut(node.batch_num.value, node.batch_num.index);
       if (isAttrDefined(node.unit.value)) attributes.unit = parseAttrOut(node.unit.value, node.unit.index);
-      if (isAttrDefined(node.ratio.value)) attributes.ratio = parseAttrOut(node.ratio.value, node.ratio.index);
-      if (isAttrDefined(node.concentration.value)) attributes.concentration = parseAttrOut(node.concentration.value, node.concentration.index);
-      if (isAttrDefined(node.std.value)) attributes.std = parseAttrOut(node.std.value, node.std.index);
-      if (isAttrDefined(node.error.value)) attributes.error = parseAttrOut(node.error.value, node.error.index);
+      if (isAttrDefined(node.ratio.valOp)) attributes.ratio = parseAttrOut(node.ratio.valOp, node.ratio.index);
+      if (isAttrDefined(node.concentration.valOp)) attributes.concentration = parseAttrOut(node.concentration.valOp, node.concentration.index);
+      if (isAttrDefined(node.std.valOp)) attributes.std = parseAttrOut(node.std.valOp, node.std.index);
+      if (isAttrDefined(node.error.valOp)) attributes.error = parseAttrOut(node.error.valOp, node.error.index);
       if (isAttrDefined(node.identifier.value)) attributes.identifier = parseAttrOut(node.identifier.value, node.identifier.index)
 
       // Return the node object with id, type, attributes, and relationships
@@ -286,7 +286,7 @@ export function convertToJSONFormat(
   return JSON.stringify(finalStructure, null, 2);
 }
 
-export function convertFromJsonFormat(workflow: string) {
+export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
   const data: IGraphData = JSON.parse(workflow)
   const nodes: INode[] = []
   const relationships: IRelationship[] = []
@@ -304,6 +304,7 @@ export function convertFromJsonFormat(workflow: string) {
       error: parseAttr(item.attributes.error, true) as NodeValOpAttribute,
       identifier: parseAttr(item.attributes.identifier, false) as NodeAttribute,
       type: item.label,
+      with_indices: uploadMode,
       position: { x: -100, y: -100 },
       size: 100,
       layer: 0,
