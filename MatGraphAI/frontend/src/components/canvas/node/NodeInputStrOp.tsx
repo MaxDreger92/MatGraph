@@ -1,4 +1,4 @@
-import { Select } from "@mantine/core"
+import { Select, useMantineColorScheme } from "@mantine/core"
 import React, { RefObject, useEffect, useRef, useState } from "react"
 import { AttributeIndex, Operator } from "../../../types/canvas.types"
 
@@ -37,6 +37,10 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
   const [selectOpen, setSelectOpen] = useState(false)
 
   const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
+
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+  const inputClass = darkTheme ? "input-dark-1" : "input-light-1"
 
   const toggleSelectOpen = () => {
     if (selectOpen) {
@@ -80,6 +84,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         />
       )} */}
       <Select
+        // className={`${inputClass}`}
         ref={getNewRef()}
         onChange={handleOpChangeLocal}
         onKeyUp={handleKeyUp}
@@ -94,16 +99,23 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         styles={{
           input: {
             height: 40,
+            border: darkTheme ? "1px solid #333" : "1px solid #ced4da",
+            filter: darkTheme
+              ? "drop-shadow(1px 1px 1px #111)"
+              : "drop-shadow(1px 1px 1px #ddd)"
           }
         }}
         style={{
           width:60,
           borderRight: "none",
           zIndex: selectOpen ? zIndex + 10 : zIndex,
-          filter: "drop-shadow(1px 1px 1px #111",
+          // filter: "drop-shadow(1px 1px 1px #111)",
+          // border: "1px solid #333",
+          borderRadius: 5,
         }}
       />
       <input
+        className={`${inputClass}`}
         ref={getNewRef()}
         type="text"
         placeholder={placeholder}
@@ -120,6 +132,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
       />
       {showIndices && (
         <input
+          className={`${inputClass}`}
           ref={getNewRef()}
           type="text"
           placeholder="Idx"

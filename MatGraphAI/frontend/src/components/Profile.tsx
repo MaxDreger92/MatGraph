@@ -21,6 +21,7 @@ import {
   TextInput,
   Button,
   PasswordInput,
+  useMantineColorScheme,
 } from "@mantine/core"
 
 import { PiLock, PiLockOpen } from "react-icons/pi"
@@ -360,8 +361,17 @@ export default function Profile(props: PaperProps) {
     },
   })
 
+  // Colors ##################################################
+
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
-    <div>
+    <div
+      style={{
+        backgroundColor: darkTheme ? "transparent" : "#f8f9fa"
+      }}
+    >
       {currentUser && (
         <div className="profile-wrap">
           <div className="profile-paper-img">
@@ -630,7 +640,7 @@ export default function Profile(props: PaperProps) {
                           height: 100,
                           left: 10,
                           position: "absolute",
-                          backgroundColor: "#1a1b1e",
+                          backgroundColor: darkTheme ? "#1a1b1e" : "#fff",
                           opacity: showUnlockPasswordForm ? 1 : 0.5,
                         }}
                       />
