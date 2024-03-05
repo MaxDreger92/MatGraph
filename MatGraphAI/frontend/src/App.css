@@ -65,7 +65,6 @@ a:link {
 .canvas-btn2 {
   position: relative;
   border-radius: 0.25rem;
-  background-color: #25262b;
   align-self: center;
   justify-content: center;
   display: flex;
@@ -73,10 +72,6 @@ a:link {
   /* width: 60px;
   height: 40px; */
   /* color: #222327 */
-}
-
-.canvas-btn-divider {
-  background-color: #333333;
 }
 
 .canvas-btn-handle {
@@ -88,7 +83,6 @@ a:link {
 .canvas-btn-handle-icon {
   position: relative;
   font-size: 26px;
-  color: #a6a7ab;
 }
 
 .canvas-btn-icon {
@@ -97,20 +91,19 @@ a:link {
   color: #a6a7ab;
 }
 
-.canvas-btn-ttip {
+/* .canvas-btn-ttip {
   background-color: #2c2e33 !important;
   color: #c1c2c5 !important;
-}
+} */
 
 .canvas-btn-wrap {
   position: fixed;
   display: flex;
   width: auto;
   height: auto;
-  border: 1px solid #333333;
+  
   border-radius: 0.25rem;
   padding: 5px;
-  background-color: #25262b;
   justify-content: left;
 }
 
@@ -153,7 +146,7 @@ a:link {
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(2px 2px 2px #111);
+  /* filter: drop-shadow(2px 2px 2px #111); */
 }
 
 .ctxt-label {
@@ -164,6 +157,16 @@ a:link {
 .ctxt-planet {
   position: absolute;
   border-radius: 50%;
+}
+
+.header {
+  position: fixed;
+  width: 100vw;
+  height: 65px;
+}
+
+.header-width {
+  max-width: 100%;
 }
 
 .input {
@@ -181,15 +184,35 @@ a:link {
   padding: 0 30px 0 68px;
 }
 
-.header {
-  position: fixed;
-  width: 100vw;
-  height: 65px;
+/* 1 - Canvas */
+/* 2 - Workflow -> Drawer -> Pipeline */
+
+.input-dark-1 { 
+  background-color: #25262b;
+  color: #c1c2c5;
+  filter: drop-shadow(1px 1px 1px #111);
+  border: 1px solid #333333;
 }
 
-.header-width {
-  max-width: 100%;
+.input-dark-2 {
+  background-color: #373a40;
+  color: #c1c2c5;
+  border: 1px solid #333333;
 }
+
+.input-light-1 {
+  background-color: #fff;
+  color: #040404;
+  filter: drop-shadow(1px 1px 1px #ddd);
+  border: 1px solid #ced4da;
+}
+
+.input-light-2 {
+  background-color: #f1f3f5;
+  color: #040404;
+  border: 1px solid #ced4da;
+}
+
 
 .login-logo {
   display: flex;
@@ -198,14 +221,12 @@ a:link {
   margin-left: 17%;
   width: 66%;
   height: auto;
-  filter: drop-shadow(2px 2px 2px #111);
 }
 
 .logo-sm {
   position: "absolute";
   width: 36px;
   height: auto;
-  filter: drop-shadow(1px 1px 0px #222);
 }
 
 .logo-sm-container {
@@ -231,17 +252,6 @@ a:link {
   align-items: center;
   justify-content: center;
   /* filter: drop-shadow(1px 1px 1px #111); */
-}
-
-.workflow .node-input input[type=text] {
-  outline: none;
-  border-radius: 3px;
-  border: 1px solid #333333;
-  padding: 5px;
-  background-color: #25262b;
-  color: #c1c2c5;
-  filter: drop-shadow(1px 1px 1px #111);
-  height: 40px;
 }
 
 /* .node-input input[type=number] {
@@ -490,11 +500,15 @@ a:link {
 .workflow input[type=text] {
   outline: none;
   border-radius: 3px;
-  border: 1px solid #333;
   padding: 5px;
-  background-color: #373A40;
-  color: #C1C2C5;
   width: 100%;
+}
+
+.workflow .node-input input[type=text] {
+  outline: none;
+  border-radius: 3px;
+  padding: 5px;
+  height: 40px;
 }
 
 .workflow-history {
@@ -503,7 +517,6 @@ a:link {
   position: absolute;
   left: 0%;
   overflow: hidden;
-  background-color: #25262b;
 }
 
 .workflow-json {
@@ -512,7 +525,6 @@ a:link {
   position: absolute;
   right: 0%;
   overflow: hidden;
-  background-color: #25262b;
 }
 
 .workflow-json-btn-group {
@@ -530,7 +542,6 @@ a:link {
 .workflow-json-textarea textarea {
   background-color: inherit;
   position: relative;
-  color: #a6a7ab;
   outline: none;
   border: none;
   top: 50px;
@@ -555,7 +566,6 @@ a:link {
   position: absolute;
   bottom: 0%;
   overflow: hidden;
-  background-color: #25262b;
 }
 
 .wrap-input {
@@ -568,9 +578,9 @@ a:link {
 .wrap-login {
   width: 400px;
   position: absolute;
-  top: 200px;
+  top: calc(-45px + 50%);
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
 }
 
 .wrap-navbar {

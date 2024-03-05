@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useMantineColorScheme } from "@mantine/core"
 
 import { IRelationship, Position } from "../../../types/canvas.types"
 import RelationshipContext from "./RelationshipContext"
@@ -40,6 +41,9 @@ export function TempRelationship(props: TempRelationshipProps) {
     }
   }, [endPosition, canvasRect])
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
     <svg
       style={{
@@ -57,7 +61,7 @@ export function TempRelationship(props: TempRelationshipProps) {
           viewBox="0 0 10 10"
           refX="9"
           refY="5"
-          fill="#555"
+          fill={darkTheme ? "#555" : "#868e96"}
           markerWidth="8"
           markerHeight="8"
           orient="auto-start-reverse"
@@ -67,7 +71,7 @@ export function TempRelationship(props: TempRelationshipProps) {
       </defs>
       <path // temporary relationship path
         d={`M ${startPosition.x},${startPosition.y} L ${end.x},${end.y}`}
-        stroke="#555"
+        stroke={darkTheme ? "#555" : "#868e96"}
         strokeWidth="2"
         fill="none"
         markerEnd="url(#arrow)"
@@ -118,7 +122,9 @@ export default function Relationship(props: RelationshipProps) {
     }
     setMid(relationshipPos)
   }, [relationship])
-  
+
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
 
   return (
     <div>
@@ -140,7 +146,7 @@ export default function Relationship(props: RelationshipProps) {
             viewBox="0 0 10 10"
             refX="7"
             refY="5"
-            fill="#6f6f6f"
+            fill={darkTheme ? "#6f6f6f" : "#e9ecef"}
             markerWidth="4"
             markerHeight="8"
             orient="auto-start-reverse"
@@ -153,7 +159,7 @@ export default function Relationship(props: RelationshipProps) {
             viewBox="0 0 10 10"
             refX="9"
             refY="5"
-            fill="#555"
+            fill={darkTheme ? "#555" : "#222"}
             markerWidth="8"
             markerHeight="8"
             orient="auto-start-reverse"
@@ -164,7 +170,7 @@ export default function Relationship(props: RelationshipProps) {
         {isSelected && (
             <path // relationship outline on selection
               d={`M ${start.x},${start.y} L ${end.x},${end.y}`}
-              stroke="#6f6f6f"
+              stroke={darkTheme ? "#6f6f6f" : "#e9ecef"}
               strokeWidth="6"
               fill="none"
               markerEnd="url(#arrowSelect)"
@@ -174,7 +180,7 @@ export default function Relationship(props: RelationshipProps) {
         <path // actual relationship (always visible)
           // d={`M ${isLayouting ? springProps.startX : start.x},${isLayouting ? springProps.startY : start.y} L ${isLayouting ? springProps.endX : end.x},${isLayouting ? springProps.endY : end.y}`}
           d={`M ${start.x},${start.y} L ${end.x},${end.y}`}
-          stroke="#555"
+          stroke={darkTheme ? "#555" : "#222"}
           strokeWidth="2"
           fill="none"
           markerEnd="url(#arrow)"
@@ -194,6 +200,7 @@ export default function Relationship(props: RelationshipProps) {
           <RelationshipContext
             onSelect={handleRelationshipActionLocal}
             isOpen={isSelected}
+            darkTheme={darkTheme}
           />
         </div>
       )}

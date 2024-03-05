@@ -9,11 +9,19 @@ import {
   Menu,
   Tabs,
   rem,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconLogout, IconSettings, IconChevronDown, IconUser } from "@tabler/icons-react";
 import logo_sm from "../img/logo_nodes.png";
+import logo_sm_light from "../img/logo_nodes_light.png"
 import { userContext } from "../common/userContext";
 import { useLocation } from "react-router-dom";
+import {
+  MdOutlineLightMode,
+  MdLightMode,
+  MdOutlineDarkMode,
+  MdDarkMode,
+} from "react-icons/md";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -24,7 +32,7 @@ const useStyles = createStyles((theme) => ({
         ? theme.colors.dark[6]
         : theme.colors.gray[0],
     borderBottom: `${rem(1)} solid ${
-      theme.colorScheme === "dark" ? "#333" : theme.colors.gray[2]
+      theme.colorScheme === "dark" ? "#333" : theme.colors.gray[4]
     }`,
     marginBottom: rem(0),
   },
@@ -40,7 +48,7 @@ const useStyles = createStyles((theme) => ({
 
     "&:hover": {
       backgroundColor:
-        theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.white,
+        theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[1],
     },
 
     [theme.fn.smallerThan("xs")]: {
@@ -50,11 +58,11 @@ const useStyles = createStyles((theme) => ({
 
   userActive: {
     backgroundColor:
-      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[1],
 
     "&:hover": {
       backgroundColor:
-        theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white
+        theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[1]
     }
   },
 
@@ -82,13 +90,14 @@ const useStyles = createStyles((theme) => ({
 
     "&[data-active]": {
       backgroundColor:
-        theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+        theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[1],
       borderColor:
         theme.colorScheme === "dark"
           ? theme.colors.dark[7]
-          : theme.colors.gray[2],
+          : theme.colors.gray[1],
     },
   },
+
 }));
 
 const tabs = ["Upload", "Search"];
@@ -120,16 +129,22 @@ export default function Header(props: HeaderProps) {
       value={tab}
       key={tab}
       onClick={() => handleHeaderLinkClick(tab.toLowerCase())}
-      style={{height:40}}
+      style={{
+        height:40,
+        borderRadius: 3,
+      }}
     >
       {tab}
     </Tabs.Tab>
   ));
 
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
     <div className={classes.header}
       style={{
-        backgroundColor: "#25262b",
+        backgroundColor: darkTheme ? "#25262b" : "#fff",
       }}
     >
       <Container size="default" className={classes.mainSection}>
@@ -138,7 +153,7 @@ export default function Header(props: HeaderProps) {
           <div className="logo-sm-container">
             <Link to="/" onClick={() => setActiveTab("")}>
               <img
-                src={logo_sm}
+                src={darkTheme ? logo_sm : logo_sm_light}
                 alt="mgai"
                 className="logo-sm"
               />
@@ -163,6 +178,7 @@ export default function Header(props: HeaderProps) {
           </Tabs>
 
           {/* User (settings) Menu */}
+
           {user && (
             <div className="user-menu-container">
               <Menu
@@ -194,7 +210,13 @@ export default function Header(props: HeaderProps) {
                     </Group>
                   </UnstyledButton>
                 </Menu.Target>
-                <Menu.Dropdown>
+                <Menu.Dropdown
+                  style={{
+                    border: darkTheme
+                      ? "1px solid #333"
+                      : "1px solid #ced4da",
+                  }}
+                >
                   <Link to="/profile" onClick={() => setActiveTab("")}>
                     <Menu.Item
                       icon={<IconUser size="0.9rem" stroke={1.5} />}
@@ -208,6 +230,13 @@ export default function Header(props: HeaderProps) {
                     onClick={handleLogoutLocal}
                   >
                     Logout
+                  </Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item
+                    icon={darkTheme ? <MdOutlineLightMode /> : <MdOutlineDarkMode />}
+                    onClick={() => toggleColorScheme()}
+                  >
+                    Color Theme
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>

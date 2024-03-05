@@ -19,6 +19,7 @@ interface NodeContextProps {
   nodeActualSize: number
   isEditing: boolean
   type: INode["type"]
+  darkTheme: boolean
 }
 
 interface ContextButtonProps {
@@ -28,10 +29,11 @@ interface ContextButtonProps {
   isSmall?: boolean
   isPlanet?: boolean
   planetOpen?: boolean
+  darkTheme: boolean
 }
 
 function ContextButton(props: ContextButtonProps) {
-  const { onSelect, children, action, isSmall, isPlanet, planetOpen } = props
+  const { onSelect, children, action, isSmall, isPlanet, planetOpen, darkTheme } = props
   const [hovered, setHovered] = useState(false)
 
   const handleSelect = (e: React.MouseEvent) => {
@@ -60,8 +62,10 @@ function ContextButton(props: ContextButtonProps) {
       style={{
         width: isSmall ? 40 : 50,
         height: isSmall ? 40 : 50,
-        backgroundColor: "#666666",
-        cursor: hovered ? "pointer" : "inherit"
+        backgroundColor: darkTheme ? "#666666" : "#fff",
+        cursor: hovered ? "pointer" : "inherit",
+        border: darkTheme ? "none" : "1px solid #ced4da",
+        filter: `drop-shadow(1px 1px 1px ${(darkTheme ? "#111" : "#ddd")})`,
       }}
     >
       {styledChild}
@@ -70,7 +74,7 @@ function ContextButton(props: ContextButtonProps) {
 }
 
 export default function NodeContext(props: NodeContextProps) {
-  const { onSelect, isOpen, nodeSize, nodeActualSize, isEditing, type } = props
+  const { onSelect, isOpen, nodeSize, nodeActualSize, isEditing, type, darkTheme } = props
   const [layerPlanetOpen, setLayerPlanetOpen] = useState(false)
 
   const planetClickLocal = (e: React.MouseEvent) => {
@@ -145,6 +149,7 @@ export default function NodeContext(props: NodeContextProps) {
         onSelect={onSelect}
         children={<CloseIcon />}
         action="delete"
+        darkTheme={darkTheme}
       />
     </Planet>
   )

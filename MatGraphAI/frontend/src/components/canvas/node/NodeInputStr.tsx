@@ -1,5 +1,6 @@
 import { RefObject, useEffect } from "react"
 import { AttributeIndex } from "../../../types/canvas.types"
+import { useMantineColorScheme } from "@mantine/core"
 
 interface NodeInputStrProps {
   handleStrChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
@@ -35,6 +36,10 @@ export default function NodeInputStr(props: NodeInputStrProps) {
 
   const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+  const inputClass = darkTheme ? "input-dark-1" : "input-light-1"
+
   return (
     <div
       style={{
@@ -43,6 +48,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
       }}
     >
       <input
+        className={`${inputClass}`}
         ref={getNewRef()}
         type="text"
         placeholder={placeholder}
@@ -59,6 +65,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
       />
       {showIndices && (
         <input
+          className={`${inputClass}`}
           ref={getNewRef()}
           type="text"
           placeholder="Idx"

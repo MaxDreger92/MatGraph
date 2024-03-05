@@ -13,7 +13,7 @@ import Home from "./components/Home"
 import Workflow from "./components/workflow/Workflow"
 import Database from "./components/Database"
 import Profile from "./components/Profile"
-import AuthenticationForm from "./components/Authentication"
+import Authentication from "./components/Authentication"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
@@ -65,8 +65,6 @@ export default function App() {
     navigate("/login")
   }
 
-  const currentColorIndex = 0 // make colorPalette choosable in settings later
-
   return (
     <div className="app">
       <userContext.Provider value={currentUser}>
@@ -81,10 +79,10 @@ export default function App() {
         <div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/upload" element={<Workflow colorIndex={currentColorIndex} uploadMode={true} />} />
-            <Route path="/search" element={<Workflow colorIndex={currentColorIndex} uploadMode={false} />} />
+            <Route path="/upload" element={<Workflow uploadMode={true} />} />
+            <Route path="/search" element={<Workflow uploadMode={false} />} />
             <Route path="/database" element={<Database />} />
-            <Route path="/login" element={<AuthenticationForm />} />
+            <Route path="/login" element={<Authentication />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>

@@ -15,6 +15,7 @@ interface WorkflowHistoryProps {
   setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
   canvasWidth: number
   canvasHeight: number
+  darkTheme: boolean
 }
 
 export default function WorkflowHistory(props: WorkflowHistoryProps) {
@@ -27,6 +28,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
     setNeedLayout,
     canvasWidth,
     canvasHeight,
+    darkTheme,
   } = props
   const [hovered, setHovered] = useState<number | undefined>()
   const [trashHovered, setTrashHovered] = useState(false)
@@ -75,7 +77,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
               position: "relative",
               width: "100%",
               height: 50,
-              backgroundColor: hovered === index ? "#373A40" : "transparent",
+              backgroundColor: hovered === index ? darkTheme ? "#373A40" : "#f1f3f5" : "transparent",
               justifyContent: "center",
               display: "flex",
               flexDirection: "column",
@@ -95,7 +97,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
                   right: "5%",
                   fontSize: 20,
                   top: 14,
-                  color: trashHovered ? "#ff0000" : "#909296"
+                  color: trashHovered ? "#ff0000" : darkTheme ? "#909296" : "#495057"
                 }}
                 onMouseEnter={() => setTrashHovered(true)}
                 onMouseLeave={() => setTrashHovered(false)}

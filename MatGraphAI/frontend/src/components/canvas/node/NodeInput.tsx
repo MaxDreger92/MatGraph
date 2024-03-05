@@ -1,4 +1,4 @@
-import { Select } from "@mantine/core"
+import { Select, useMantineColorScheme } from "@mantine/core"
 import React, { useEffect, useRef, useState } from "react"
 
 import {
@@ -189,6 +189,9 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
   }
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   /**
    *
    * Matter: Identifier, Name (str), Batch (str), Ratio (strop), Concentration (strop)
@@ -208,7 +211,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         display: "flex",
         flexDirection: "column",
         borderRadius: 3,
-        backgroundColor: "#1a1b1e",
+        backgroundColor: darkTheme ? "#1a1b1e" : "#f8f9fa",
         zIndex: node.layer + 1,
       }}
     >
@@ -284,7 +287,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             id="ratio"
             defaultOp={nodeRatio.valOp.operator}
             defaultVal={nodeRatio.valOp.value}
-            showIndices
+            showIndices={node.with_indices}
             index={nodeRatio.index}
             autoFocus={false}
             zIndex={node.layer + 2}
@@ -299,7 +302,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             id="concentration"
             defaultOp={nodeConcentration.valOp.operator}
             defaultVal={nodeConcentration.valOp.value}
-            showIndices
+            showIndices={node.with_indices}
             index={nodeConcentration.index}
             autoFocus={false}
             zIndex={node.layer + 1}
@@ -319,7 +322,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             id="value"
             defaultOp={nodeValue.valOp.operator}
             defaultVal={nodeValue.valOp.value}
-            showIndices
+            showIndices={node.with_indices}
             index={nodeValue.index}
             autoFocus={
               node.name.value !== "" &&
@@ -352,7 +355,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             id="std"
             defaultOp={nodeStd.valOp.operator}
             defaultVal={nodeStd.valOp.value}
-            showIndices
+            showIndices={node.with_indices}
             index={nodeStd.index}
             autoFocus={false}
             zIndex={node.layer + 2}
@@ -367,7 +370,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             id="error"
             defaultOp={nodeError.valOp.operator}
             defaultVal={nodeError.valOp.value}
-            showIndices
+            showIndices={node.with_indices}
             index={nodeError.index}
             autoFocus={false}
             zIndex={node.layer + 1}

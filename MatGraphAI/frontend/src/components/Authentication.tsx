@@ -17,8 +17,10 @@ import {
   Checkbox,
   Anchor,
   Stack,
+  useMantineColorScheme,
 } from "@mantine/core"
 import logo from "../img/logo.png"
+import logo_light from "../img/logo_light.png"
 
 import {MDB_IUser as IUser} from "../types/user.type"
 import client from "../client"
@@ -30,7 +32,7 @@ import client from "../client"
 //     terms: boolean,
 // }
 
-export default function AuthenticationForm() {
+export default function Authentication() {
   const queryClient = useQueryClient()
   const currentUser = useContext(userContext)
   const navigate = useNavigate()
@@ -122,10 +124,20 @@ export default function AuthenticationForm() {
     }
   }
 
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
     <div className="wrap-login">
       <Paper radius="md" p="xl" withBorder>
-        <img src={logo} alt="matGraphAI Logo" className="login-logo" />
+        <img
+          src={darkTheme ? logo : logo_light}
+          alt="matGraphAI Logo"
+          className="login-logo"
+          style={{
+            filter: `drop-shadow(2px 2px 2px ${darkTheme ? "#111" : "#bbb"})`
+          }}
+        />
         {/* <Text size="lg" weight={500}>
           Welcome to matGraphAI, {type} with
         </Text> */}

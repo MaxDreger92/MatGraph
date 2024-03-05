@@ -17,6 +17,7 @@ interface WorkflowTableProps {
   tableRows: TableRow[]
   progress: number
   drawerRect: DOMRect | null
+  darkTheme: boolean
 }
 
 const labelOptions = [
@@ -36,6 +37,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     tableRows,
     progress,
     drawerRect,
+    darkTheme,
   } = props
   const [selected, setSelected] = useState<{
     row: number
@@ -197,8 +199,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         width: `calc(100% - 20px)`,
         left: 10,
         overflow: "auto",
-        border: "1px solid #333",
-        backgroundColor: "#212226",
+        border: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+        backgroundColor: darkTheme ? "#212226" : "#fff",
       }}
     >
       {/* Header */}
@@ -222,12 +224,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 left: `${columnVirtual.start}px`,
                 width: `${columnVirtual.size}px`,
                 height: "50px",
-                borderBottom: "1px solid #333",
+                borderBottom: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
                 textAlign: "left",
                 lineHeight: "50px",
-                backgroundColor: "#25262b",
-                color: "#a6a7ab",
-                borderRight: "1px solid #333",
+                backgroundColor: darkTheme ? "#25262b" : "#f1f3f5",
+                color: darkTheme ? "#a6a7ab" : "#040404",
+                borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
                 paddingLeft: ".5rem",
               }}
             >
@@ -292,14 +294,14 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                           hovered.column === columnVirtual.index &&
                           !selected
                             ? "rgba(24,100,171,0.2)"
-                            : "#212226",
-                        color: "#a6a7ab",
+                            : darkTheme ? "#212226" : "#f8f9fa",
+                        color: darkTheme ? "#a6a7ab" : "#040404",
                         // borderRight: columnVirtual.index + 1 === Object.keys(tableRows[0]).length ? "none" : "1px solid #333",
-                        borderRight: "1px solid #333",
+                        borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
                         borderBottom:
                           rowVirtual.index + 1 === tableRows.length
                             ? "none"
-                            : "1px solid #333",
+                            : `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
                         // borderBottom: "1px solid #333",
                         paddingTop: 10,
                         paddingLeft: ".5rem",

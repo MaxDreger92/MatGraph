@@ -8,12 +8,14 @@ import toast from "react-hot-toast"
 interface WorkflowJsonProps {
   workflow: string | null
   setWorkflow: React.Dispatch<React.SetStateAction<string | null>>
+  darkTheme: boolean
 }
 
 export default function WorkflowJson(props: WorkflowJsonProps) {
   const {
     workflow,
-    setWorkflow
+    setWorkflow,
+    darkTheme,
   } = props
 
   async function workflowSearch() {
@@ -49,6 +51,7 @@ export default function WorkflowJson(props: WorkflowJsonProps) {
             width: "100%",
             height: "100%",
             resize: "none",
+            color: darkTheme ? "#a6a7ab" : "#040404"
           }}
         />
       </div>

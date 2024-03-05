@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import chroma from "chroma-js"
 import { useSpring, animated } from "react-spring"
+import { useMantineColorScheme } from "@mantine/core"
 
 import NodeContext from "./NodeContext"
 import NodeInput from "./NodeInput"
@@ -14,15 +15,16 @@ import { INode, Position, ValOpPair, Vector2D } from "../../../types/canvas.type
 import { colorPalette } from "../../../types/colors"
 import { isAttrDefined } from "../../../common/helpers"
 
+
 interface NodeProps {
   node: INode
   isSelected: number // 1 = solo selected, 2 = multi selected
   connecting: boolean
-  colorIndex: number
   canvasRect: DOMRect | null
   mousePosition: Position
   isMoving: boolean
   isLayouting: boolean
+  darkTheme: boolean
   handleNodeAction: (
     node: INode,
     action: string,
@@ -35,11 +37,11 @@ export default React.memo(function Node(props: NodeProps) {
     node,
     isSelected,
     connecting,
-    colorIndex,
     canvasRect,
     mousePosition,
     isMoving,
     isLayouting,
+    darkTheme,
     // handleNodeMove,
     handleNodeAction,
   } = props
@@ -144,6 +146,7 @@ export default React.memo(function Node(props: NodeProps) {
 
   // setup color array
   useEffect(() => {
+    const colorIndex = darkTheme ? 0 : 1
     const paletteColors = colorPalette[colorIndex]
 
     setColors([
@@ -151,7 +154,7 @@ export default React.memo(function Node(props: NodeProps) {
       chroma(paletteColors[node.type]).brighten(1).hex(),
       chroma(paletteColors[node.type]).darken(0.5).hex(),
     ])
-  }, [node.type, colorIndex])
+  }, [node.type, darkTheme])
 
   // calculate connector stats (position, and active status)
   // is called when mousePos is inside node bounding box
@@ -321,6 +324,7 @@ export default React.memo(function Node(props: NodeProps) {
             nodeActualSize={nodeActualSize}
             isEditing={node.isEditing}
             type={node.type}
+            darkTheme={darkTheme}
           />
         </div>
       )}

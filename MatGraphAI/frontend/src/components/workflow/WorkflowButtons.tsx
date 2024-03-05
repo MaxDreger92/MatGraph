@@ -17,6 +17,7 @@ interface WorkflowButtonProps {
   tableView: boolean
   tableViewHeight: number
   onSelect: (view: string) => void
+  darkTheme: boolean
 }
 
 export default function WorkflowButtons(props: WorkflowButtonProps) {
@@ -29,8 +30,19 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
     tableView,
     tableViewHeight,
     onSelect,
+    darkTheme,
   } = props
   const [hovered, setHovered] = useState("none")
+  const [btnColor, setBtnColor] = useState("")
+  const [btnHoverColor, setBtnHoverColor] = useState("")
+
+  useEffect(() => {
+    const color = darkTheme ? "#373A40" : "#adb5bd"
+    const hoverColor = darkTheme ? "#909296" : "#343a40"
+
+    setBtnColor(color)
+    setBtnHoverColor(hoverColor)
+  }, [darkTheme])
 
   useEffect(() => {
     setHovered("none")
@@ -80,7 +92,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronRight
               style={{
                 ...iconStyle,
-                color: hovered === "json" ? "#909296" : "#373A40",
+                color: hovered === "json" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("json")}
@@ -90,7 +102,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronLeft
               style={{
                 ...iconStyle,
-                color: hovered === "json" ? "#909296" : "#373A40",
+                color: hovered === "json" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("json")}
@@ -101,7 +113,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
           <TbMinusVertical
             style={{
               ...iconStyle,
-              color: hovered === "json" ? "#909296" : "#373A40",
+              color: hovered === "json" ? btnHoverColor : btnColor,
             }}
             onClick={handleMouseUpLocal}
             onMouseEnter={() => setHovered("json")}
@@ -126,7 +138,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronLeft
               style={{
                 ...iconStyle,
-                color: hovered === "history" ? "#909296" : "#373A40",
+                color: hovered === "history" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("history")}
@@ -136,7 +148,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronRight
               style={{
                 ...iconStyle,
-                color: hovered === "history" ? "#909296" : "#373A40",
+                color: hovered === "history" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("history")}
@@ -147,7 +159,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
           <TbMinusVertical
             style={{
               ...iconStyle,
-              color: hovered === "history" ? "#909296" : "#373A40",
+              color: hovered === "history" ? btnHoverColor : btnColor,
             }}
             onClick={handleMouseUpLocal}
             onMouseEnter={() => setHovered("history")}
@@ -173,7 +185,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronDown
               style={{
                 ...iconStyle,
-                color: hovered === "table" ? "#909296" : "#373A40",
+                color: hovered === "table" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("table")}
@@ -183,7 +195,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
             <FiChevronUp
               style={{
                 ...iconStyle,
-                color: hovered === "table" ? "#909296" : "#373A40",
+                color: hovered === "table" ? btnHoverColor : btnColor,
               }}
               onClick={handleMouseUpLocal}
               onMouseEnter={() => setHovered("table")}
@@ -194,7 +206,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
           <TbMinus
             style={{
               ...iconStyle,
-              color: hovered === "table" ? "#909296" : "#373A40",
+              color: hovered === "table" ? btnHoverColor : btnColor,
             }}
             onClick={handleMouseUpLocal}
             onMouseEnter={() => setHovered("table")}

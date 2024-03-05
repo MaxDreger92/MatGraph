@@ -1,4 +1,7 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { ReactElement, useEffect, useRef, useState } from "react"
+import { useMantineColorScheme } from "@mantine/core"
+
+import { useSpring, animated } from 'react-spring'
 
 import { TbBinaryTree as GraphIcon } from "react-icons/tb"
 import { PiGraph as GraphIcon2 } from "react-icons/pi"
@@ -25,10 +28,12 @@ interface CanvasButtonProps {
   children: React.ReactNode
   vertical: boolean
   tooltipText: string
+  darkTheme: boolean
+  iconStyle: React.CSSProperties
 }
 
 function CanvasButton(props: CanvasButtonProps) {
-  const { onSelect, buttonType, children, vertical, tooltipText } = props
+  const { onSelect, buttonType, children, vertical, tooltipText, darkTheme, iconStyle } = props
   const [buttonHovered, setButtonHovered] = useState<
     ICanvasButton["type"] | null
   >(null)
@@ -46,6 +51,8 @@ function CanvasButton(props: CanvasButtonProps) {
     setButtonDown(null)
   }
 
+  const Icon = React.cloneElement(children as ReactElement, {style: iconStyle })
+
   return (
     <>
     <div
@@ -60,22 +67,27 @@ function CanvasButton(props: CanvasButtonProps) {
       onMouseLeave={handleMouseLeave}
       onMouseDown={() => setButtonDown(buttonType)}
       onMouseUp={() => setButtonDown(null)}
-      children={children}
+      children={Icon}
       style={{
         width: vertical ? 45 : 60,
         height: vertical ? 60 : 40,
         backgroundColor:
           buttonDown === buttonType
-            ? "#1a1b1e"
+            ? darkTheme ? "#1a1b1e" : "#dee2e6"
             : buttonHovered === buttonType
-            ? "#2c2e33"
-            : "#25262b",
+            ? darkTheme ? "#2c2e33" : "#f1f3f5"
+            : darkTheme ? "#25262b" : "#fff",
         // transform: buttonHovered === buttonType ? "scale(1.05)" : "none",
         zIndex: buttonHovered === buttonType ? 10 : 1,
         cursor: buttonHovered === buttonType ? "pointer" : "default",
       }}
     />
-    <Tooltip id="canvas-btn-tooltip" className="canvas-btn-ttip"/>
+    <Tooltip id="canvas-btn-tooltip" className="canvas-btn-ttip"
+      style={{
+        backgroundColor: darkTheme ? "#2c2e33" : "#f1f3f5",
+        color: darkTheme ? "#c1c2c5" : "#343a40",
+      }}
+    />
     </>
   )
 }
@@ -89,27 +101,28 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
   const [vertical, setVertical] = useState(true)
   const [left, setLeft] = useState(true)
   const [moveable, setMoveable] = useState(false)
+  const [btnAnimated, setBtnAnimated] = useState(true)
   const [handleHovered, setHandleHovered] = useState(false)
   const buttonsRef = useRef<HTMLDivElement>(null)
   const [isResizing, setIsResizing] = useState(false)
   const resizeObserver = useRef<ResizeObserver | null>(null)
   const canvasBtnRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    resizeObserver.current = new ResizeObserver(() => {
-      setIsResizing(true)
-    })
+  // useEffect(() => {
+  //   resizeObserver.current = new ResizeObserver(() => {
+  //     setIsResizing(true)
+  //   })
 
-    if (canvasBtnRef.current) {
-      resizeObserver.current.observe(canvasBtnRef.current)
-    }
+  //   if (canvasBtnRef.current) {
+  //     resizeObserver.current.observe(canvasBtnRef.current)
+  //   }
 
-    return () => {
-      if (resizeObserver.current) {
-        resizeObserver.current.disconnect()
-      }
-    }
-  }, [canvasRect])
+  //   return () => {
+  //     if (resizeObserver.current) {
+  //       resizeObserver.current.disconnect()
+  //     }
+  //   }
+  // }, [canvasRect])
 
   // load position from local storage
   useEffect(() => {
@@ -119,7 +132,10 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
     const left = localStorage.getItem("canvasBtnLeft")
 
     if (positioned) setPositioned(JSON.parse(positioned))
-    if (position) setManualPosition(JSON.parse(position))
+    if (position) {
+      setManualPosition(JSON.parse(position))
+      // setPosition(JSON.parse(position))
+    }
     if (vertical) setVertical(JSON.parse(vertical))
     if (left) setLeft(JSON.parse(left))
     
@@ -146,10 +162,10 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
       x: canvasRect.left + canvasRect.width / 2 - buttonsRef.current.offsetWidth / 2 - 22,
       y: 77,
     })
-    console.log(canvasRect.right)
+
     setVertical(false)
     setLeft(false)
-  }, [positioned, canvasRect])
+  }, [positioned, canvasRect, initialized])
 
   // manual positioning (sets positioned)
   const moveButtons = (e: React.MouseEvent) => {
@@ -204,7 +220,7 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasRect, positioned])
+  }, [canvasRect, positioned, initialized])
 
   // reset button positioning (sets !positioned)
   const resetButtons = () => {
@@ -226,6 +242,30 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
     setLeft(false)
   }
 
+  useEffect(() => {
+    if (!moveable) {
+      const timer = setTimeout(() => {
+        setBtnAnimated(true)
+      }, 700)
+  
+      return () => clearTimeout(timer)
+    }
+  }, [moveable])
+
+  const springProps = useSpring({
+    top: position.y,
+    left: position.x,
+    config: {
+      tension: 1000,
+      friction: 100,
+    }
+  })
+
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
+  const iconStyle = { color: darkTheme ? "#a6a7ab" : "#222"}
+
   return (
     <div
       ref={canvasBtnRef}
@@ -243,15 +283,19 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
       }}
     >
       {initialized && (
-        <div
+        <animated.div
           className="canvas-btn-wrap"
           style={{
+            backgroundColor: darkTheme ? "#25262b" : "#fff",
+            border: `1px solid ${(darkTheme ? "#333333" : "#ced4da")}`,
             pointerEvents: "all",
             // transform: `translate(${position.x}px,${position.y}px)`,
-            top: position.y,
-            left: position.x,
+            top: btnAnimated ? springProps.top : position.y,
+            left: btnAnimated ? springProps.left : position.x,
+            // top: position.y,
+            // left: position.x,
             flexDirection: vertical ? "column" : "row",
-            // visibility: initialized ? "visible" : "hidden"
+            // visibility: initialized ? "visible" : "hidden",
           }}
           ref={buttonsRef}
         >
@@ -269,12 +313,14 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
             onMouseDown={(e: React.MouseEvent) => {
               e.stopPropagation()
               setMoveable(true)
+              setBtnAnimated(false)
             }}
             onDoubleClick={resetButtons}
             children={
               <HandleIcon
                 className="canvas-btn-handle-icon"
                 style={{
+                  color: darkTheme ? "#a6a7ab" : "#040404",
                   transform: vertical ? "rotate(90deg)" : "none",
                 }}
               />
@@ -286,6 +332,7 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
               margin: vertical ? "0 -5px 5px -5px" : "-5px 5px -5px 0",
               width: vertical ? 55 : 1,
               height: vertical ? 1 : 50,
+              backgroundColor: darkTheme ? "#333" : "#ced4da"
             }}
           />
           {BUTTON_TYPES.map((button) => (
@@ -296,9 +343,11 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
               children={button.icon}
               vertical={vertical}
               tooltipText={button.tooltip}
+              darkTheme={darkTheme}
+              iconStyle={iconStyle}
             />
           ))}
-        </div>
+        </animated.div>
       )}
     </div>
   )
@@ -309,5 +358,6 @@ const BUTTON_TYPES: { type: ICanvasButton["type"]; icon: JSX.Element; tooltip: s
   { type: "reset", icon: <ResetIcon2 className="canvas-btn-icon" />, tooltip: "Reset Canvas" },
   { type: "redo", icon: <RedoIcon className="canvas-btn-icon" />, tooltip: "Redo" },
   { type: "layout", icon: <GraphIcon2 className="canvas-btn-icon"/>, tooltip: "Layout Nodes" },
-  { type: "saveWorkflow", icon: <VscSave className="canvas-btn-icon" style={{width:25, height:25}}/>, tooltip: "Save Workflow" },
-]
+  { type: "saveWorkflow", icon: <VscSave className="canvas-btn-icon" style={{width:25, height:25}} />, tooltip: "Save Workflow" },
+];
+

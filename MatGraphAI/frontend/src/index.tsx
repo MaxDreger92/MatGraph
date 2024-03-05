@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 //import ReactDOM from 'react-dom'
 import { createRoot } from "react-dom/client"
 import "./index.css"
@@ -7,7 +7,7 @@ import reportWebVitals from "./reportWebVitals"
 import toast from "react-hot-toast"
 import { BrowserRouter, HashRouter } from "react-router-dom"
 import { QueryCache, QueryClient, QueryClientProvider } from "react-query"
-import { MantineProvider } from "@mantine/core"
+import { MantineProvider, ColorSchemeProvider, ColorScheme } from "@mantine/core"
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -25,19 +25,29 @@ const container = document.getElementById("root")
 // @ts-ignore
 const root = createRoot(container)
 
-// console.log(process.env.REACT_APP_PUBLIC_URL)
+const ThemeProvider = () => {
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('dark')
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'))
+
+  return (
+    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+      <MantineProvider
+        theme={{ colorScheme }}
+        withGlobalStyles
+        withNormalizeCSS
+      >
+        <App />
+      </MantineProvider>
+    </ColorSchemeProvider>
+  )
+}
 
 root.render(
   // <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <HashRouter>
-        <MantineProvider
-          theme={{ colorScheme: "dark" }}
-          withGlobalStyles
-          withNormalizeCSS
-        > 
-          <App />
-        </MantineProvider>
+        <ThemeProvider />
       </HashRouter>
     </QueryClientProvider>
   // </React.StrictMode>
