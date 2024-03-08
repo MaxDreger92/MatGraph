@@ -78,7 +78,7 @@ class hasManufacturingExtractor(RelationshipExtractor):
         self.revise_triples()
         self.revise_manufacturing_cycles()
         self.revise_has_output()
-        self.revise_isolated_nodes()
+        # self.revise_isolated_nodes()
         self.revise_connectedness()
 
 

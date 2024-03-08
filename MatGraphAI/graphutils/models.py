@@ -34,11 +34,15 @@ class EmbeddingNodeSet(NodeSet):
 
         #TODO: Needs to have big numbers for limit
         query = """
-        CALL db.index.vector.queryNodes($embedding, $limit, $vector)
-        YIELD node AS similarEmbedding, score
-        MATCH (similarEmbedding)-[:FOR]->(n)
-        RETURN n AS title, score AS score, similarEmbedding.input AS similarEmbedding
-        ORDER BY score DESC
+            CALL db.index.vector.queryNodes($embedding, 15, $vector)
+            YIELD node AS similarEmbedding, score
+            MATCH (similarEmbedding)-[:FOR]->(n)
+            WITH n, similarEmbedding.input AS input, score
+            ORDER BY score DESC
+            WITH n, COLLECT(input)[0] AS mostRelevantInput, MAX(score) AS highestScore
+            RETURN n AS title, highestScore AS score, mostRelevantInput AS similarEmbedding
+            ORDER BY highestScore DESC
+            LIMIT $limit
         """
         kwargs['embedding'] = self.source_class.embedding
 

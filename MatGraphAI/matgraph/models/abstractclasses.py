@@ -15,11 +15,22 @@ OntologyNode is an abstract base class representing ontology nodes in the knowle
 from UIDDjangoNode and contains properties for the name, URI, description, and alternative_label relationship
 of the ontology node according to the EMMO (European Materials & Modelling Ontology).
 """
+import ast
+import json
+
 from django_neomodel import DjangoNode, classproperty
-from neomodel import AliasProperty, StringProperty, UniqueIdProperty, ArrayProperty, RelationshipTo, ZeroOrMore
+from neomodel import AliasProperty, StringProperty, UniqueIdProperty, ArrayProperty, RelationshipTo, ZeroOrMore, \
+    RelationshipFrom, BooleanProperty
 from django.apps import apps
 
-from graphutils.models import EmbeddingNodeSet
+from dbcommunication.ai.setupMessages import MATTER_ONTOLOGY_ASSISTANT_MESSAGES, PROCESS_ONTOLOGY_ASSISTANT_MESSAGES, \
+    QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES, QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES, PROCESS_ONTOLOGY_CONNECTOR_MESSAGES, \
+    MATTER_ONTOLOGY_CONNECTOR_MESSAGES, MATTER_ONTOLOGY_CANDIDATES_MESSAGES, PROCESS_ONTOLOGY_CANDIDATES_MESSAGES, \
+    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
+from graphutils.embeddings import request_embedding
+from graphutils.models import EmbeddingNodeSet, AlternativeLabel
+from importing.utils.openai import chat_with_gpt4
+from matgraph.models.embeddings import QuantityEmbedding, ProcessEmbedding, MatterEmbedding
 
 
 class UIDDjangoNode(DjangoNode):
@@ -111,11 +122,136 @@ class OntologyNode(UIDDjangoNode):
     def nodes(cls):
         return EmbeddingNodeSet(cls)
 
+    ONTOLOGY_MAPPER = {
+        'EMMOMatter': MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
+        'EMMOProcess': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
+        'EMMOQuantity': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
+    }
+
+    EMBEDDING_MODEL_MAPPER = {
+        'EMMOMatter': MatterEmbedding,
+        'EMMOProcess': ProcessEmbedding,
+        'EMMOQuantity': QuantityEmbedding
+    }
+
+
+
+    ONTOLOGY_CANDIDATES = {
+        'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
+        'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
+        'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
+    }
+
+    ONTOLOGY_CONNECTOR = {
+        'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
+        'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
+        'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
+    }
+
+    def save(self, add_labels_create_embeddings = True, connect_to_onotlogy = True, *args, **kwargs):
+        super().save()
+
+        if add_labels_create_embeddings:
+            alternative_labels = chat_with_gpt4(prompt= self.name, setup_message= self.ONTOLOGY_MAPPER[self._meta.object_name])
+            alternative_labels = json.loads(alternative_labels)
+            for label in alternative_labels['alternative_labels']:
+                alternative_label_node = AlternativeLabel(label = label).save()
+                self.alternative_label.connect(alternative_label_node)
+                embedding = request_embedding(label)
+                embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = embedding, input = label).save()
+                self.model_embedding.connect(embedding_node)
+            embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = request_embedding(self.name), input = self.name).save()
+            self.model_embedding.connect(embedding_node)
+            self.validated_labels = False
+        if connect_to_onotlogy:
+            self.connect_to_ontology()
+
+    def connect_to_ontology(self):
+        if len(self.emmo_subclass) == 0 and len(self.emmo_parentclass) == 0:
+            candidates = self.find_candidates()
+            print("Candidates", candidates)
+            find_connection = self.find_connection(candidates)
+            print("Find Connection", find_connection)
+
+
+    def get_subclasses(self, uids):
+        prompt = f"""
+        // Part 1: Return details of `n`
+        MATCH (n:{self._meta.object_name})
+        WHERE n.uid IN {uids}
+        RETURN n.uid AS uid, n.name AS name
+        UNION ALL
+        // Part 2: Return details of `m`
+        MATCH (n:{self._meta.object_name})<-[:EMMO__IS_A*]-(m)
+        WHERE n.uid IN {uids}
+        RETURN m.uid AS uid, m.name AS name
+        """
+        results, meta = self.cypher(prompt)
+        return [(node[0], node[1]) for node in results]
+    def get_superclasses(self, uids):
+        prompt = f"""
+        // Part 1: Return details of `n`
+        MATCH (n:{self._meta.object_name})
+        WHERE n.uid IN {uids}
+        RETURN n.uid AS uid, n.name AS name
+        UNION ALL
+        // Part 2: Return details of `m`
+        MATCH (n:{self._meta.object_name})-[:EMMO__IS_A*]->(m)
+        WHERE n.uid IN {uids}
+        RETURN m.uid AS uid, m.name AS name
+        """
+        results, meta = self.cypher(prompt)
+        return [(node[0], node[1]) for node in results]
+
+    def find_candidates(self):
+        print("Connect to Ontology", self.name)
+        nodes = self.nodes.get_by_string(string = self.name, limit = 8, include_similarity = False)
+        prompt = f"""Input: {self.name}\nCandidates: {", ".join([node.name for node in nodes if node.name != self.name])} \nOnly return the final output!"""
+        ontology_advice = chat_with_gpt4(prompt= prompt, setup_message= self.ONTOLOGY_CANDIDATES[self._meta.object_name])
+        if ontology_advice.lower().strip(" ").strip("\n") == "false":
+            uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
+            return self.get_superclasses(uids)
+        else:
+            print(ontology_advice.replace("\n", ""))
+            gpt_json = json.loads(ontology_advice.replace("\n", ""))
+            print("read json", gpt_json)
+            if gpt_json['input_is_subclass_of_candidate']:
+                print(f"{self.name} is subclass of {gpt_json['candidate']}")
+                candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
+                return self.get_subclasses([candidate_uid])
+            else:
+                print(f"{self.name} is superclass of {gpt_json['candidate']}")
+                candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
+                return self.get_superclasses([candidate_uid])
+
+    def find_connection(self, candidates):
+        prompt = f"""Input: {self.name}\nCandidates: {", ".join([candidate[1] for candidate in candidates])} \nOnly Return The Final List!"""
+        print("Prompt", prompt)
+        connecting_path = chat_with_gpt4(prompt= prompt, setup_message= self.ONTOLOGY_CONNECTOR[self._meta.object_name])
+        return ast.literal_eval(connecting_path)
+
+
+
+    def add_labels_create_embeddings(self):
+        alternative_labels = chat_with_gpt4(prompt= self.name, setup_message= self.ONTOLOGY_MAPPER[self._meta.object_name])
+        alternative_labels = json.loads(alternative_labels)
+        for label in alternative_labels['alternative_labels']:
+            alternative_label_node = AlternativeLabel(label = label).save()
+            self.alternative_label.connect(alternative_label_node)
+            embedding = request_embedding(label)
+            embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = embedding, input = label).save()
+            self.model_embedding.connect(embedding_node)
+        embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = request_embedding(self.name), input = self.name).save()
+        self.model_embedding.connect(embedding_node)
+
 
     name = StringProperty()
     uri = StringProperty()
     description = StringProperty()
     alternative_label =RelationshipTo('graphutils.models.AlternativeLabel', 'HAS_LABEL', cardinality=ZeroOrMore)
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.ModelEmbedding', 'FOR', cardinality=ZeroOrMore)
+    validated_labels = BooleanProperty()
+    validated_ontology = BooleanProperty()
     __abstract_node__ = True
 
     def __str__(self):
