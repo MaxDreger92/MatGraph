@@ -169,7 +169,6 @@ class OntologyNode(UIDDjangoNode):
     def connect_to_ontology(self):
         if len(self.emmo_subclass) == 0 and len(self.emmo_parentclass) == 0:
             candidates = self.find_candidates()
-            print("Candidates", candidates)
             find_connection = self.find_connection(candidates)
             print("Find Connection", find_connection)
 
@@ -184,7 +183,7 @@ class OntologyNode(UIDDjangoNode):
         // Part 2: Return details of `m`
         MATCH (n:{self._meta.object_name})<-[:EMMO__IS_A*]-(m)
         WHERE n.uid IN {uids}
-        RETURN m.uid AS uid, m.name AS name
+        RETURN DISTINCT m.uid AS uid, m.name AS name
         """
         results, meta = self.cypher(prompt)
         return [(node[0], node[1]) for node in results]
@@ -198,13 +197,12 @@ class OntologyNode(UIDDjangoNode):
         // Part 2: Return details of `m`
         MATCH (n:{self._meta.object_name})-[:EMMO__IS_A*]->(m)
         WHERE n.uid IN {uids}
-        RETURN m.uid AS uid, m.name AS name
+        RETURN DISTINCT m.uid AS uid, m.name AS name
         """
         results, meta = self.cypher(prompt)
         return [(node[0], node[1]) for node in results]
 
     def find_candidates(self):
-        print("Connect to Ontology", self.name)
         nodes = self.nodes.get_by_string(string = self.name, limit = 8, include_similarity = False)
         prompt = f"""Input: {self.name}\nCandidates: {", ".join([node.name for node in nodes if node.name != self.name])} \nOnly return the final output!"""
         ontology_advice = chat_with_gpt4(prompt= prompt, setup_message= self.ONTOLOGY_CANDIDATES[self._meta.object_name])
@@ -212,21 +210,16 @@ class OntologyNode(UIDDjangoNode):
             uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
             return self.get_superclasses(uids)
         else:
-            print(ontology_advice.replace("\n", ""))
             gpt_json = json.loads(ontology_advice.replace("\n", ""))
-            print("read json", gpt_json)
             if gpt_json['input_is_subclass_of_candidate']:
-                print(f"{self.name} is subclass of {gpt_json['candidate']}")
                 candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
                 return self.get_subclasses([candidate_uid])
             else:
-                print(f"{self.name} is superclass of {gpt_json['candidate']}")
                 candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
                 return self.get_superclasses([candidate_uid])
 
     def find_connection(self, candidates):
         prompt = f"""Input: {self.name}\nCandidates: {", ".join([candidate[1] for candidate in candidates])} \nOnly Return The Final List!"""
-        print("Prompt", prompt)
         connecting_path = chat_with_gpt4(prompt= prompt, setup_message= self.ONTOLOGY_CONNECTOR[self._meta.object_name])
         return ast.literal_eval(connecting_path)
 
