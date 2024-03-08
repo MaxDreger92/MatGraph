@@ -1,0 +1,965 @@
+{
+  "nodes": [
+    {
+      "id": "2",
+      "name": {
+        "value": "Spincoating",
+        "index": 2
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Spincoating",
+          "index": 2
+        }
+      }
+    },
+    {
+      "id": "16",
+      "name": {
+        "value": "Spincoating",
+        "index": 16
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Spincoating",
+          "index": 16
+        }
+      }
+    },
+    {
+      "id": "30",
+      "name": {
+        "value": "Spincoating",
+        "index": 30
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Spincoating",
+          "index": 30
+        }
+      }
+    },
+    {
+      "id": "44",
+      "name": {
+        "value": "Spincoating",
+        "index": 44
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Spincoating",
+          "index": 44
+        }
+      }
+    },
+    {
+      "id": "58",
+      "name": {
+        "value": "Spincoating",
+        "index": 58
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Spincoating",
+          "index": 58
+        }
+      }
+    },
+    {
+      "id": "72",
+      "name": {
+        "value": "Evaporation",
+        "index": 72
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Evaporation",
+          "index": 72
+        }
+      }
+    },
+    {
+      "id": "86",
+      "name": {
+        "value": "Evaporation",
+        "index": 86
+      },
+      "label": "manufacturing",
+      "attributes": {
+        "name": {
+          "value": "Evaporation",
+          "index": 86
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_0",
+      "name": {
+        "value": "layer_material_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "25",
+          "index": 5
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_1",
+      "name": {
+        "value": "layer_material_stirring_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "100",
+          "index": 6
+        },
+        "unit": {
+          "value": "s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_2",
+      "name": {
+        "value": "layer_material_stirring_speed",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_speed",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "600",
+          "index": 7
+        },
+        "unit": {
+          "value": "rpm",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_3",
+      "name": {
+        "value": "annealing_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "00:46:01",
+          "index": 12
+        },
+        "unit": {
+          "value": "h:min:s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_4",
+      "name": {
+        "value": "annealing_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "180",
+          "index": 13
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_5",
+      "name": {
+        "value": "layer_material_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "24",
+          "index": 19
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_6",
+      "name": {
+        "value": "layer_material_stirring_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "240",
+          "index": 20
+        },
+        "unit": {
+          "value": "s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_7",
+      "name": {
+        "value": "layer_material_stirring_speed",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_speed",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "500",
+          "index": 21
+        },
+        "unit": {
+          "value": "rpm",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_8",
+      "name": {
+        "value": "annealing_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "00:10:15",
+          "index": 26
+        },
+        "unit": {
+          "value": "h:min:s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_9",
+      "name": {
+        "value": "annealing_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "160",
+          "index": 27
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_10",
+      "name": {
+        "value": "layer_material_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "20",
+          "index": 47
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_11",
+      "name": {
+        "value": "layer_material_stirring_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "160",
+          "index": 48
+        },
+        "unit": {
+          "value": "s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_12",
+      "name": {
+        "value": "layer_material_stirring_speed",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_speed",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "500",
+          "index": 49
+        },
+        "unit": {
+          "value": "rpm",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_13",
+      "name": {
+        "value": "annealing_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "00:10:15",
+          "index": 54
+        },
+        "unit": {
+          "value": "h:min:s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_14",
+      "name": {
+        "value": "annealing_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "annealing_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "288",
+          "index": 55
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_15",
+      "name": {
+        "value": "layer_material_temperature",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_temperature",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "22",
+          "index": 61
+        },
+        "unit": {
+          "value": "C",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_16",
+      "name": {
+        "value": "layer_material_stirring_time",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_time",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "240",
+          "index": 62
+        },
+        "unit": {
+          "value": "s",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_parameter_17",
+      "name": {
+        "value": "layer_material_stirring_speed",
+        "index": "inferred"
+      },
+      "label": "parameter",
+      "attributes": {
+        "name": {
+          "value": "layer_material_stirring_speed",
+          "index": "inferred"
+        },
+        "value": {
+          "value": "1600",
+          "index": 63
+        },
+        "unit": {
+          "value": "rpm",
+          "index": "inferred"
+        }
+      }
+    },
+    {
+      "id": "inferred_matter_0",
+      "name": {
+        "value": "Solar Cell",
+        "index": "inferred"
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "Solar Cell",
+          "index": "inferred"
+        },
+        "identifier": {
+          "value": "13841",
+          "index": 0
+        }
+      }
+    },
+    {
+      "id": "1",
+      "name": {
+        "value": "ETL",
+        "index": 1
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "ETL",
+          "index": 1
+        }
+      }
+    },
+    {
+      "id": "11",
+      "name": {
+        "value": "ZnO",
+        "index": 11
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "ZnO",
+          "index": 11
+        },
+        "ratio": {
+          "value": "1",
+          "index": 8
+        }
+      }
+    },
+    {
+      "id": "15",
+      "name": {
+        "value": "ActiveLayer",
+        "index": 15
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "ActiveLayer",
+          "index": 15
+        }
+      }
+    },
+    {
+      "id": "25",
+      "name": {
+        "value": "PM6",
+        "index": 25
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "PM6",
+          "index": 25
+        },
+        "ratio": {
+          "value": "0.8112",
+          "index": 22
+        }
+      }
+    },
+    {
+      "id": "39",
+      "name": {
+        "value": "Y12",
+        "index": 39
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "Y12",
+          "index": 39
+        },
+        "ratio": {
+          "value": "0.2128",
+          "index": 36
+        }
+      }
+    },
+    {
+      "id": "53",
+      "name": {
+        "value": "PCBM70",
+        "index": 53
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "PCBM70",
+          "index": 53
+        },
+        "ratio": {
+          "value": "0.0234",
+          "index": 50
+        }
+      }
+    },
+    {
+      "id": "67",
+      "name": {
+        "value": "o-Xylene",
+        "index": 67
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "o-Xylene",
+          "index": 67
+        },
+        "ratio": {
+          "value": "1",
+          "index": 64
+        }
+      }
+    },
+    {
+      "id": "71",
+      "name": {
+        "value": "HTL",
+        "index": 71
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "HTL",
+          "index": 71
+        }
+      }
+    },
+    {
+      "id": "81",
+      "name": {
+        "value": "MoOx",
+        "index": 81
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "MoOx",
+          "index": 81
+        }
+      }
+    },
+    {
+      "id": "85",
+      "name": {
+        "value": "Electrode",
+        "index": 85
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "Electrode",
+          "index": 85
+        }
+      }
+    },
+    {
+      "id": "95",
+      "name": {
+        "value": "Ag",
+        "index": 95
+      },
+      "label": "matter",
+      "attributes": {
+        "name": {
+          "value": "Ag",
+          "index": 95
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "2",
+        "inferred_parameter_0"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "2",
+        "inferred_parameter_1"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "2",
+        "inferred_parameter_2"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "16",
+        "inferred_parameter_3"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "16",
+        "inferred_parameter_4"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "30",
+        "inferred_parameter_5"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "30",
+        "inferred_parameter_6"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "30",
+        "inferred_parameter_7"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "44",
+        "inferred_parameter_8"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "44",
+        "inferred_parameter_9"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "58",
+        "inferred_parameter_10"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "58",
+        "inferred_parameter_11"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "58",
+        "inferred_parameter_12"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "72",
+        "inferred_parameter_13"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "72",
+        "inferred_parameter_14"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "86",
+        "inferred_parameter_15"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "86",
+        "inferred_parameter_16"
+      ]
+    },
+    {
+      "rel_type": "HAS_PARAMETER",
+      "connection": [
+        "86",
+        "inferred_parameter_17"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "11",
+        "2"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "2",
+        "15"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "25",
+        "16"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "39",
+        "16"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "16",
+        "15"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "53",
+        "30"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "30",
+        "15"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "67",
+        "44"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "44",
+        "15"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "15",
+        "58"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "71",
+        "58"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "58",
+        "71"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "71",
+        "72"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "81",
+        "72"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "72",
+        "81"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "81",
+        "86"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "85",
+        "86"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_INPUT",
+      "connection": [
+        "95",
+        "86"
+      ]
+    },
+    {
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
+      "connection": [
+        "86",
+        "85"
+      ]
+    },
+    {
+      "rel_type": "UNKNOWN_RELATIONSHIP",
+      "connection": [
+        "85",
+        "inferred_matter_0"
+      ]
+    }
+  ]
+}

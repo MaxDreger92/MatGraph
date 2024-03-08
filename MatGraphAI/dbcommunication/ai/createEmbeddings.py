@@ -10,37 +10,13 @@ from neomodel import db
 from pandarallel import pandarallel
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from dbcommunication.ai.config import EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, EMBEDDING_FETCHING_PROCESSES, \
-    EMBEDDING_DB_CHUNK_SIZE
+
 from dbcommunication.ai.utils import split_dataframe
+from graphutils.config import EMBEDDING_FETCHING_PROCESSES, EMBEDDING_DB_CHUNK_SIZE
+from graphutils.embeddings import request_embedding
 from matgraph.models.ontology import EMMOMatter, EMMOQuantity, EMMOProcess
 
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-def request_embedding(text: str) -> List[float]:
-    """
-    Retrieve the embedding of the given text using OpenAI's API.
-
-    This function attempts to generate an embedding for the input text using OpenAI's Embedding API.
-    If the request fails, it will retry up to 6 times, with an exponential backoff strategy for waiting
-    between retries.
-
-    Args:
-        text (str): The input text to get the embedding for.
-
-    Returns:
-        List[float]: A list of floating-point numbers representing the embedding.
-    """
-
-    # Replace newlines in the input text with spaces, as they can negatively affect performance.
-    text = str(text).replace("\n", " ").strip().replace("'", "")
-    # Call the OpenAI Embedding API to create an embedding for the input text.
-    # The API response contains the embedding data in a nested structure.
-    embedding_response = openai.Embedding.create(input=[text], engine=EMBEDDING_MODEL, api_key = settings.OPENAI_API_KEY
-    )
-
-    # Extract the embedding data from the response and return it as a list of floating-point numbers.
-    return embedding_response["data"][0]["embedding"]
 
 
 
@@ -98,12 +74,12 @@ def apply_combine_func(df_all, combine_func, fetch_properties, unwind_alternativ
     :return: DataFrame with combined data
     """
     def combine(item):
-        if 'embedding_string' in fetch_properties and item['embedding_string']:
-            return re.sub(r'\W+', ' ', item['embedding_string'])
-        if unwind_alternative_labels:
-            return re.sub(r'\W+', ' ', combine_func(item) + ' ' + ' '.join(item['alternative_labels']))
-        return re.sub(r'\W+', ' ', combine_func(item))
+        labels = []
+        for alt_label in item['alternative_labels']:
+            labels.append(alt_label.replace("'", ""))
+        return [item['name'], *labels]
     df_all["combined"] = df_all.apply(combine, axis=1)
+    print("DF_ALL", df_all)
     return df_all
 
 def fetch_embedding_from_db(input_string):
@@ -129,12 +105,21 @@ def fetch_embedding_from_db(input_string):
     # If no result was found, return None
     return None
 
+def iterate_over_inputs(input_list):
+    embeddings =[]
+    for input in input_list:
+        if fetch_embedding_from_db(input) == None:
+            embeddings.append(request_embedding(input))
+    return embeddings
+
 def apply_embedding(df_all, resume):
     pandarallel.initialize(nb_workers=EMBEDDING_FETCHING_PROCESSES, progress_bar=True, use_memory_fs=False)
     if resume:
-        df_all['embedding'] = df_all['combined'].apply(lambda x: fetch_embedding_from_db(x) or request_embedding(x))
+        df_all['embedding'] = df_all['combined'].apply(lambda x: iterate_over_inputs(x))
     else:
+        print("APPLY EMBEDDING", df_all.combined.swifter.apply(request_embedding))
         df_all['embedding'] = df_all.combined.swifter.apply(request_embedding)
+        print(df_all)
     return df_all
 
 def generate_ingest_query(Model, id_property):
@@ -153,6 +138,7 @@ def generate_ingest_query(Model, id_property):
                     (emb:ModelEmbedding {{vector: row[1], input: row[2]}})-[:FOR]->(n)
                 ON CREATE SET
                     emb.uid = RandomUUID()
+
             '''
 
 def ingest_data_into_db(chunks, db, query):
@@ -169,9 +155,10 @@ def ingest_data_into_db(chunks, db, query):
         db_rows = [ # to python array
             [r[0], r[1], r[2]] for r in chunk.to_records(index=False)
         ]
+        print("DB ROWS", db_rows)
         db.cypher_query(query, {'vectors': db_rows})
 
-def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_filter='', required_properties=None, resume=True, id_property='uid', unwind_alternative_labels=True):
+def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_filter='', required_properties=None, resume=True, id_property='uid', unwind_alternative_labels=False):
     """
      Retrieve and store embeddings for the specified model using OpenAI's API.
 
@@ -197,10 +184,37 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
     if processable == 0:
         return
 
+    # Apply your functions
     df_all = apply_combine_func(df_all, combine_func, fetch_properties, unwind_alternative_labels)
     df_all = apply_embedding(df_all, resume)
 
-    chunks = split_dataframe(df_all[[id_property, 'embedding', 'combined']], chunk_size=EMBEDDING_DB_CHUNK_SIZE)
+    # Filter out rows where 'embedding' is an empty list
+    df_all = df_all[df_all['embedding'].apply(len) > 0]
+
+    # Continue with your existing code
+    list_length = len(df_all['embedding'][0])
+    min_length = min([len(x) for x in df_all['embedding']])
+    print("HIEHIRHI", min_length)
+
+    # Create a list to hold each chunk dataframe
+    chunks = []
+
+    for i in range(list_length):
+        # Create a new dataframe for each element in the lists
+        chunk_df = df_all[[id_property]].copy()  # Copy the id_property column
+
+        # Safely extract elements from 'embedding', handling out-of-range indices
+        chunk_df['embedding_element_' + str(i)] = df_all['embedding'].apply(
+            lambda x: x[i] if i < len(x) else x[0])  # Changed fallback from x[0] to None
+
+        # Safely extract elements from 'combined', handling out-of-range indices
+        chunk_df['combined_element_' + str(i)] = df_all['combined'].apply(
+            lambda x: x[i] if i < len(x) else x[0])  # Changed fallback from x[0] to None
+
+        # Append this new dataframe to the chunks list
+        chunks.append(chunk_df)
+
+    # Continue with the rest of your code
     query = generate_ingest_query(Model, id_property)
     ingest_data_into_db(chunks, db, query)
 
@@ -214,6 +228,8 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
 
 def main():
     # Get the project root directory
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
+
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Change the current working directory to the project root directory

@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
+
 load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 from decouple import Csv, config
@@ -27,7 +30,7 @@ if not SECRET_KEY:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
@@ -60,7 +63,9 @@ INSTALLED_APPS = [
     'mat2devplatform',
     'matching',
     'usermanagement',
+    'importing',
     'matgraph',
+    'graphutils',
     'colorfield',
     'corsheaders',
     'django.contrib.admin',
@@ -68,7 +73,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'dbcommunication',
-    'graphutils',
     'django_neomodel',
     'django_cleanup.apps.CleanupConfig',
     'django_admin_multiple_choice_list_filter',
@@ -82,6 +86,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'dal',
     'dal_select2',
+    'rest_framework'
 ]
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'
@@ -104,9 +109,9 @@ NEOMODEL_MAX_POOL_SIZE = 50
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -140,11 +145,11 @@ WSGI_APPLICATION = 'mat2devplatform.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'test.db',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_db',
+        'USER': 'django_user',
+        'PASSWORD': 'herrklo1',
+        'HOST': 'localhost',
     },
     'neo4j': {
         'ENGINE': '',
@@ -152,6 +157,8 @@ DATABASES = {
         'NEOMODEL_NEO4J_BOLT_URL': NEOMODEL_NEO4J_BOLT_URL,
     }
 }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -196,7 +203,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/build/static'),
+    os.path.join(BASE_DIR, 'matching/static'),
     ]
+print(STATICFILES_DIRS)
 # Media Files
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'

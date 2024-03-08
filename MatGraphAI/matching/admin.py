@@ -14,3 +14,8 @@ class MatchingReportAdmin(admin.ModelAdmin):
     def get_report(self, obj):
         return mark_safe(obj.report)
     get_report.short_description = 'Report'
+
+    class Media:
+        css = {
+            'all': ('matching/css/admin_overrides.css',)
+        }

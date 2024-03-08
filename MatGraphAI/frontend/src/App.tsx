@@ -3,17 +3,17 @@ import { useQuery, useQueryClient } from "react-query"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Routes, Route} from "react-router-dom"
 import { userContext } from "./common/userContext"
-import { Toaster } from "react-hot-toast"
-import { HeaderTabs } from "./components/header.component"
-import IUser from "./types/user.type"
+import { Toaster, toast } from "react-hot-toast"
+import Header from "./components/Header"
+import {MDB_IUser as IUser} from "./types/user.type"
 
 import client from "./client"
 
-import Home from "./components/home.component"
-import Search from "./components/search.component"
-import History from "./components/history.component"
-import Account from "./components/account.component"
-import AuthenticationForm from "./components/authentication.component"
+import Home from "./components/Home"
+import Workflow from "./components/workflow/Workflow"
+import Database from "./components/Database"
+import Profile from "./components/Profile"
+import Authentication from "./components/Authentication"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
@@ -21,84 +21,76 @@ import "./App.css"
 export default function App() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<string | null>(
-    () => localStorage.getItem("activeTab") || null
+  const version = process.env.REACT_APP_VERSION?.slice(1,-1) ?? "???"
+
+  const {
+    data: currentUser,
+    isLoading,
+    isError,
+    error
+  } = useQuery<IUser | null | undefined>(
+    "getCurrentUser",
+    client.getCurrentUser
   )
 
-  // const {
-  //   data: currentUser,
-  //   isLoading,
-  //   isError
-  // } = useQuery<IUser | null | undefined>(
-  //   "getCurrentUser",
-  //   client.getCurrentUser
-  // )
-
-  // useEffect(() => {
-  //   // navigate to login after getCurrentUser is 
-  //   // resolved and currentUser is undefined
-  //   if (!isLoading && !isError && !currentUser) {
-  //     navigate("/login")
-  //   }
-  // }, [isLoading, isError, currentUser, navigate])
+  useEffect(() => {
+    // navigate to login after getCurrentUser is 
+    // resolved and currentUser is undefined
+    // errors are caught separately
+    if (!isLoading && !currentUser) {
+      navigate("/login")
+    }
+  }, [isLoading, currentUser, navigate])
 
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab || "")
-  }, [activeTab])
+    if (isError) {
+      const err = error as Error
+      console.log(err.message)
+    }
+  }, [isError, error])
 
-  const setTab = (tab: string) => {
-    setActiveTab(tab)
-  }
-
-  // if (isLoading) {
-  //   console.log("loading")
-  //   return <div></div>
-  // }
-
-  // if (isError) {
-  //   console.log("error")
-  //   // handle error
-  // }
-
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     //something
+  //   }
+  // }, [isLoading])
+  
   const handleHeaderLinkClick = (key: string) => {
     navigate(key)
   }
 
   const handleLogout = () => {
     queryClient.setQueryData<IUser | null | undefined>("getCurrentUser", undefined)
-    setActiveTab("")
     document.cookie = "token="
     navigate("/login")
-
   }
 
-  const currentColorIndex = 0 // make colorPalette choosable in settings later
-
   return (
-    <div className="wrap-app">
-      {/* <userContext.Provider value={currentUser}> */}
-        {/* {currentUser && (
+    <div className="app">
+      <userContext.Provider value={currentUser}>
+        {currentUser && (
           <div className="header">
-            <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
+            <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
           </div>
-        )} */}
-        <div className="header">
+        )}
+        {/* <div className="header">
           <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
-        </div>
-        <div className="main-window">
+        </div> */}
+        <div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/search" element={<Search colorIndex={currentColorIndex} />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/login" element={<AuthenticationForm setTab={setTab}/>} />
-            <Route path="/account" element={<Account />} />
+            <Route path="/upload" element={<Workflow uploadMode={true} />} />
+            <Route path="/search" element={<Workflow uploadMode={false} />} />
+            <Route path="/database" element={<Database />} />
+            <Route path="/login" element={<Authentication />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
-      {/* </userContext.Provider> */}
+      </userContext.Provider>
       <Toaster
         position="top-center"
         containerStyle={{
-          top: "105px"
+          top: "75px" // Toast position
         }}
         toastOptions={{
           style: {
@@ -107,6 +99,10 @@ export default function App() {
             color: "#C1C2C5"
           }
         }}
+      />
+      <div
+        className="app-version"
+        children={`v${version}`}
       />
     </div>
   )

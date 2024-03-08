@@ -1,19 +1,33 @@
 <h2>{{ label }}</h2>
 
-<table>
+<style>
+    .scrollable-table table {
+        min-width: 1500px;
+    }
 
-    <tr>
-        {% for head in columns %}
-            <th>{{ head }}</th>
-        {% endfor %}
-    </tr>
+    .scrollable-table {
+        width: 600px;
+        overflow-x: auto;
+        border: 2px solid red; /* temporary, just for visualization */
+    }
 
-    {% for row in rows %}
+</style>
+
+
+<div class="scrollable-table">
+    <table>
         <tr>
-            {% for col in row %}
-                <td>{{ col }}</td>
+            {% for head in columns %}
+            <th>{{ head }}</th>
             {% endfor %}
         </tr>
-    {% endfor %}
 
-</table>
+        {% for row in rows %}
+        <tr>
+            {% for col in row %}
+            <td>{{ col }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>

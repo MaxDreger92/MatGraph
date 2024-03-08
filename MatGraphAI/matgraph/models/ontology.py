@@ -10,11 +10,26 @@ class EMMOQuantity(OntologyNode):
     Class representing EMMO quantity in the knowledge graph. This node is part of the European Materials Modelling
     Ontology (EMMO).
     """
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "quantity-embeddings"
+
     # Relationships
-    emmo_is_a = RelationshipTo("Property", "EMMO__IS_A",
+    property = RelationshipFrom("Property", "IS_A",
                                model=IsARel)  # Represents "IS_A" relationship to another EMMOQuantity
+    parameter = RelationshipFrom("Parameter", "IS_A",
+                          model=IsARel)
     emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOQuantity', 'EMMO__IS_A',
                                    cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOQuantity', 'EMMO__IS_A',
+                                      cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.QuantityEmbedding', 'FOR', cardinality=ZeroOrMore)
+
 
 
 class EMMOMatter(OntologyNode):
@@ -22,6 +37,18 @@ class EMMOMatter(OntologyNode):
     Class representing EMMO matter in the knowledge graph. This node is also part of the European Materials Modelling
     Ontology (EMMO).
     """
+    # Properties
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "matter-embeddings"
+
+
+
 
     class Meta:
         verbose_name_plural = 'EMMO Matter'  # Plural name for admin interface
@@ -34,17 +61,15 @@ class EMMOMatter(OntologyNode):
     is_a_device = RelationshipFrom('matgraph.models.matter.Device', "IS_A", model=IsARel, cardinality=ZeroOrMore)
     is_a_molecule = RelationshipFrom('matgraph.models.matter.Molecule', "IS_A", model=IsARel, cardinality=ZeroOrMore)
 
-    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A', cardinality=ZeroOrMore)
-    is_a = RelationshipFrom('matgraph.models.matter.Matter', "IS_A", model=IsARel, cardinality=ZeroOrMore)
-    # def is_a(self):
-    #     """Returns True if this node is related to other_node via any of the IS_A relationships."""
-    #     return (
-    #             self.is_a_material and
-    #             self.is_a_component and
-    #             self.is_a_device and
-    #             self.is_a_molecule
-    #     )
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.MatterEmbedding', 'FOR', cardinality=ZeroOrMore)
+    # Relationships
+    matter = RelationshipFrom("matgraph.models.matter.Matter", "IS_A",
+                                 model=IsARel)
 
+    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A',
+                                   cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A',
+                                        cardinality=ZeroOrMore)
 
 
 
@@ -52,34 +77,27 @@ class EMMOProcess(OntologyNode):
     """
     Class representing EMMO process in the knowledge graph. This node is a component of the European Materials Modelling Ontology (EMMO).
     """
-
+    @classmethod
+    @property
+    def embedding(self):
+        """
+        Returns the embedding of the node as a numpy array.
+        :return: numpy array
+        """
+        return "process-embeddings"
     class Meta:
         verbose_name_plural = 'EMMO Processes'  # Plural name for admin interface
 
     app_label = 'matgraph'  # App label for django
 
     # Relationships
-    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
-                                   cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.
+
     is_a = RelationshipFrom('matgraph.models.processes.Process', "IS_A",
                             model=IsARel)  # "IS_A" relationship from Process model
 
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.ProcessEmbedding', 'FOR', cardinality=ZeroOrMore)
 
-class ModelEmbedding(UIDDjangoNode):
-    """
-    This class represents a Model Embedding, which holds a vector representation of some object or concept for
-    machine learning purposes.
-    """
-
-    class Meta:
-        app_label = "matgraph"  # App label for django
-
-    # Relationships
-    ontology_node = RelationshipTo('graphutils.models.AlternativeLabel', 'FOR', One)  # Points at OntologyNode
-
-    # Properties
-    vector = ArrayProperty(
-        base_property=FloatProperty(),  # The vector is composed of floats
-        required=True  # This field must be populated
-    )
-    input = StringProperty(required=True)  # The original input used to generate the vector
+    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
+                                   cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
+                                        cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.
