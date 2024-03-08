@@ -313,19 +313,23 @@ MATTER_ONTOLOGY_CONNECTOR_MESSAGES = [
      
      1. Example:
      Question:
-        Input: AtomicVaporDeposition
-        Candidates: ChemicalVaporDeposition, Fabrication, Oxidation
+        Input: MEA
+        Candidates: Component, Membrane, Anode
      Answer:
-        ["ChemicalVaporDeposition", "AtomicLayerDeposition"]
+        ["Component", "FuelCellComponent", "MEA"]
         
         
      2. Example:
      
      Question: 
-        Input: ElectronMicroscopy
-        Candidates: Measurement, Fabrication, XRD
+        Input: PC70BM
+        Candidates: Fullerene, Material, Polymer, Pt
     Answer:
-        ["Measurement", "Imaging", "Microscopy", "ElectronMicroscopy"]
+        ["Fullerene", "PCBM", "PC70BM"]
+        
+    -HINTS:
+    - You need to be precise about sub classes and parent classes. A subclass is a specific type of the parentclass. 
+    - Clases that are part of other classes are not to be set as subclasses (e.g., "Anode" is not a subclass of "MEA")
      """},
     ]
 
@@ -354,6 +358,9 @@ PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [
         Candidates: Measurement, Fabrication, XRD
     Answer:
         ["Measurement", "Imaging", "Microscopy", "ElectronMicroscopy"]
+        
+    HINTS:
+    - a subprocess of a process is not a subclass of the process (e.g., "Heating" is not a subclass of "MEA")
      """},
 ]
 
