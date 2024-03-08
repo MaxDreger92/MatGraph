@@ -17,28 +17,29 @@ from mat2devplatform import settings
 
 
 class fullRelationshipsExtractor:
-    def __init__(self, input_json):
+    def __init__(self, input_json, context):
         self.input_json = input_json
+        self.context = context
 
     def create_extractors(self):
         self.manufacturing_extractor = hasManufacturingExtractor(
             self.input_json, MATTER_MANUFACTURING_MESSAGE, chat_with_gpt4, ["matter"],
-            ["manufacturing"], "Solar Cell fabrication"
+            ["manufacturing"], self.context
         )
 
         self.measurement_extractor = hasMeasurementExtractor(
             self.input_json, PROPERTY_MEASUREMENT_MESSAGE, chat_with_gpt4, ["measurement"], ["property"],
-            "SolarCellFabrication"
+            self.context
         )
 
         self.parameter_extractor = hasParameterExtractor(
             self.input_json, MANUFACTURING_PARAMETER_MESSAGE, chat_with_gpt4,
-            ["manufacturing", "measurement"], ["parameter"], "SolarCellFabrication"
+            ["manufacturing", "measurement"], ["parameter"], self.context
         )
 
         self.property_extractor = hasPropertyExtractor(
             self.input_json, MATTER_PROPERTY_MESSAGE, chat_with_gpt4,
-            ["matter"], ["property"], "SolarCellFabrication"
+            ["matter"], ["property"], self.context
         )
 
     def run(self):

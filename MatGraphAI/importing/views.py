@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
 from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
+from importing.OntologyMapper.OntologyMapper import OntologyMapper
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.importer import TableImporter
 from importing.models import FullTableCache
@@ -184,8 +185,10 @@ class NodeExtractView(APIView):
         file_obj.seek(0)
 
         # Read the first line
-        first_line = file_obj.readline().strip().lower()
+        first_line = file_obj.readline().strip()
         first_line = first_line.split(",")
+        print("Labels:", labels)
+        print("first_line", first_line)
         input = [{'index': i, 'column_values': column_values[i], 'header': header, '1_label': labels[header]['Label'], '1_attribute': labels[header]['Attribute']} for i, header in enumerate(first_line)]
         return input
 
@@ -220,7 +223,7 @@ class GraphExtractView(APIView):
 
         print("node_json", node_json)
 
-        graph = self.extract_relationships(node_json)
+        graph = self.extract_relationships(node_json, context)
         graph = str(graph).replace("'", '"')
         # print("nodes_jooo", graph)
         # print("graph", graph)
@@ -230,8 +233,8 @@ class GraphExtractView(APIView):
 
 
 
-    def extract_relationships(self, nodes):
-        relationships_extractor = fullRelationshipsExtractor(nodes)
+    def extract_relationships(self, nodes, context):
+        relationships_extractor = fullRelationshipsExtractor(nodes, context)
         relationships_extractor.run()
         relationships = relationships_extractor.results
         return relationships
@@ -257,15 +260,17 @@ class GraphImportView(APIView):
 
         print('start import', file_link)
 
-        self.import_graph(file_link, graph)
+        self.import_graph(file_link, graph, context)
         print('imported data')
         FullTableCache.update(self.request.session.get('first_line'), graph)
         print('updated cache')
         return response.Response({'message': 'Graph imported successfully'})
 
 
-    def import_graph(self, file_link, graph):
-        importer  = TableImporter(graph, file_link)
-        importer.run()
+    def import_graph(self, file_link, graph, context):
+        ontology_mapper = OntologyMapper(graph, file_link, context)
+        ontology_mapper.map_on_ontology()
+        # importer  = TableImporter(graph, file_link)
+        # importer.run()
         # Implement the logic to import the graph here
         # Use the file_link, file_name, graph, and context to import the graph

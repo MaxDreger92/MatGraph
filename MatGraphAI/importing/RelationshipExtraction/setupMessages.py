@@ -6,9 +6,13 @@ graph rules is your highest priority:
 1. Every node needs to have at least one edge another node node.
 2. Matter nodes cannot have an 'is_manufacturing_input' and 'is_manufacturing_output' edge with the same manufacturing node.
 3. Matter node cannot have an 'is_manufacturing_output' relationship with two different manufacturing nodes.
+4. Matter nodes mau never be connected to other matter nodes.
 
 - The edge "is_manufacturing_input" connects matter nodes and the manufacturing nodes (e.g., ['Polymer', 'is_manufacturing_input', 'MembraneManufacturing'].
 - The edge "is_manufacturing_output" connects matter nodes and the manufacturing nodes (e.g., ['FuelCellManufacturing', 'is_manufacturing_output', 'FuelCell;'].
+
+
+YOU USE YOUR EXTENSIVE KNOWLEDGE TO CREATE FABRICATION WORKFLOWS THAT REPRESENT THE  FABRICATION OF THE GIVEN DEVICES IN THE BEST WAY POSSIBLE.
 
 """}
     ,
@@ -25,7 +29,6 @@ graph rules is your highest priority:
                                     {'node_id': '12', 'label': 'matter', 'attributes': {'name': ['Solvent'], ['Ethanol']}},
                                     {'node_id': '13', 'label': 'matter', 'attributes': {'name': ['CatalystInk']}},
                                     {'node_id': '10', 'label': 'matter', 'attributes': {'name': ['Catalyst']}}] 
-
 ]
 
 Manufacturing:

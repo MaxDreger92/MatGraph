@@ -20,10 +20,16 @@ class EMMOQuantity(OntologyNode):
         return "quantity-embeddings"
 
     # Relationships
-    emmo_is_a = RelationshipTo("Property", "EMMO__IS_A",
+    property = RelationshipFrom("Property", "IS_A",
                                model=IsARel)  # Represents "IS_A" relationship to another EMMOQuantity
+    parameter = RelationshipFrom("Parameter", "IS_A",
+                          model=IsARel)
     emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOQuantity', 'EMMO__IS_A',
                                    cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOQuantity', 'EMMO__IS_A',
+                                      cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.QuantityEmbedding', 'FOR', cardinality=ZeroOrMore)
+
 
 
 class EMMOMatter(OntologyNode):
@@ -55,17 +61,15 @@ class EMMOMatter(OntologyNode):
     is_a_device = RelationshipFrom('matgraph.models.matter.Device', "IS_A", model=IsARel, cardinality=ZeroOrMore)
     is_a_molecule = RelationshipFrom('matgraph.models.matter.Molecule', "IS_A", model=IsARel, cardinality=ZeroOrMore)
 
-    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A', cardinality=ZeroOrMore)
-    is_a = RelationshipFrom('matgraph.models.matter.Matter', "IS_A", model=IsARel, cardinality=ZeroOrMore)
-    # def is_a(self):
-    #     """Returns True if this node is related to other_node via any of the IS_A relationships."""
-    #     return (
-    #             self.is_a_material and
-    #             self.is_a_component and
-    #             self.is_a_device and
-    #             self.is_a_molecule
-    #     )
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.MatterEmbedding', 'FOR', cardinality=ZeroOrMore)
+    # Relationships
+    matter = RelationshipFrom("matgraph.models.matter.Matter", "IS_A",
+                                 model=IsARel)
 
+    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A',
+                                   cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOMatter', 'EMMO__IS_A',
+                                        cardinality=ZeroOrMore)
 
 
 
@@ -87,10 +91,13 @@ class EMMOProcess(OntologyNode):
     app_label = 'matgraph'  # App label for django
 
     # Relationships
-    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
-                                   cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.
+
     is_a = RelationshipFrom('matgraph.models.processes.Process', "IS_A",
                             model=IsARel)  # "IS_A" relationship from Process model
 
+    model_embedding = RelationshipFrom('matgraph.models.embeddings.ProcessEmbedding', 'FOR', cardinality=ZeroOrMore)
 
-
+    emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
+                                   cardinality=ZeroOrMore)
+    emmo_parentclass = RelationshipFrom('matgraph.models.ontology.EMMOProcess', 'EMMO__IS_A',
+                                        cardinality=ZeroOrMore)  # Represents the possibility of having zero or more subclasses.

@@ -33,7 +33,7 @@ class MatterEmbedding(ModelEmbedding):
         app_label = "matgraph"  # App label for django
 
     # Relationships
-    matter = RelationshipTo('matgraph.models.matter.EMMOMatter', 'FOR', OneOrMore)  # Points at Matter
+    matter = RelationshipTo('matgraph.models.ontology.EMMOMatter', 'FOR', OneOrMore)  # Points at Matter
 
 
 class QuantityEmbedding(ModelEmbedding):
@@ -46,7 +46,7 @@ class QuantityEmbedding(ModelEmbedding):
         app_label = "matgraph"  # App label for django
 
     # Relationships
-    quantity = RelationshipTo('matgraph.models.matter.EMMOQuantity', 'FOR', OneOrMore)
+    quantity = RelationshipTo('matgraph.models.ontology.EMMOQuantity', 'FOR', OneOrMore)
 
 
 class ProcessEmbedding(ModelEmbedding):
@@ -59,4 +59,4 @@ class ProcessEmbedding(ModelEmbedding):
         app_label = "matgraph"  # App label for django
 
     # Relationships
-    process = RelationshipTo('matgraph.models.matter.EMMOProcess', 'FOR', OneOrMore)
+    process = RelationshipTo('matgraph.models.ontology.EMMOProcess', 'FOR', OneOrMore)

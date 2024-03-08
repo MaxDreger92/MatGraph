@@ -43,6 +43,7 @@ class NodeAggregator:
 
         # Send the initial query to ChatGPT and get the initial response
         query_result = chat_with_gpt4(setup_message, query)
+        print("QUERY RESULT", query_result)
         self.create_node_list(query_result)
         self.conversation = [*self.conversation,{"role": "user", "content": query}, {"role": "system", "content": query_result[0]}]
 
@@ -61,6 +62,7 @@ class NodeAggregator:
             for i, node in enumerate(self.node_list):
                 node['label'] = self.label
                 if node['name'][0][1] == "inferred":
+                    print("Node:", node, "i:", i, self.node_list)
                     node['id'] = f"inferred_{self.label}_{i}"
                 else:
                     node['id'] = str(node['name'][0][1])
@@ -92,6 +94,7 @@ class NodeAggregator:
 
     def run(self):
         query = self.create_query()
+        print("Queryy", query)
         self.aggregate(query)
         self.validate()
 
@@ -132,15 +135,15 @@ class PropertyAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "property"
 
-    def create_node_list(self, string):
-        super.create_node_list(string)
-        for node in self.node_list:
-            if "measurement_condition" in node.keys():
-                parameter_node = {
-                    "label": "Parameter",
-                    **node['measurement_condition']
-                }
-                self.node_list.append(parameter_node)
+    # def create_node_list(self, string):
+    #     super.create_node_list(string)
+    #     for node in self.node_list:
+    #         if "measurement_condition" in node.keys():
+    #             parameter_node = {
+    #                 "label": "Parameter",
+    #                 **node['measurement_condition']
+    #             }
+    #             self.node_list.append(parameter_node)
 
 
 class ParameterAggregator(NodeAggregator):
@@ -215,20 +218,16 @@ class NodeExtractor(TableDataTransformer):
     def process_aggregator(self, data_type, aggregator_class):
         if data_type in self.iterable and self.iterable[data_type]:
             data = self.iterable[data_type]
-            if data_type == "Property":
-                # Special handling for properties
-                matter_list = ", ".join([", ".join([name[0] for name in matter['name']]) for matter in self.node_list])
-                context = f"{self.context}. Here are materials and device candidates to which the following properties might belong: {matter_list}"
-            else:
-                context = self.context
+            context = self.context
 
-            grouped_data = self.group_by_prefix(data) if data_type == "Property" else {None: data}
+            grouped_data = self.group_by_prefix(data) if data_type == "property" else {None: data}
             for entries in grouped_data.values():
                 aggregator = aggregator_class(entries, context)
                 yield aggregator
 
     def get_table_understanding(self):
         with ThreadPoolExecutor() as executor:
+            print("DAAATA", self.data)
             # Create a list of future tasks
             future_to_aggregator = {executor.submit(aggregator.run): aggregator for aggregator_type, aggregator_class in [
                 ("Matter", MatterAggregator),
@@ -257,6 +256,7 @@ class NodeExtractor(TableDataTransformer):
 
         # Sort the dictionary by label.
         sorted_grouped_by_label = dict(sorted(grouped_by_label.items()))
+        print("Sorted Grouped by Label", sorted_grouped_by_label)
 
         # Modify data for sorted groups.
         modified_data = {key: [
@@ -269,6 +269,7 @@ class NodeExtractor(TableDataTransformer):
             for index, element in enumerate(value)
         ]
             for key, value in sorted_grouped_by_label.items()}
+        print("Modified", modified_data)
         return modified_data
 
     def _pre_check(self, element, **kwargs):

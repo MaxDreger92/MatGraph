@@ -14,6 +14,7 @@ from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.models import ImportingReport, LabelClassificationReport
+from importing.utils.openai import chat_with_gpt4, chat_with_gpt3
 from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
 
@@ -394,29 +395,7 @@ class TableImporter(Importer):
         print("data", data)
 
         return data
-    def map_on_ontology(self):
-        print("map on ontology")
-        print(self.data['nodes'])
-        for i, node in enumerate(self.data['nodes']):
-            print(type(node['name']))
-            if type(node['name']) != list:
-                node['name'] = [node['name']]
-            for j, name in enumerate(node['name']):
-                if name['index'] == 'inferred':
-                    if node['label'] == 'matter':
-                        ontology = EMMOMatter.nodes.get_by_string(string = name['value'], limit = 5)
-                        node['ontology'] = ontology[0].uid
-                        print(name['value'], ontology)
-                    elif node['label'] == 'manufacturing' or node['label'] == 'measurement':
-                        ontology = EMMOProcess.nodes.get_by_string(string = name['value'], limit = 5)
-                        print(name['value'], ontology)
-                    elif node['label'] == 'parameter' or node['label'] == 'property':
-                        ontology = EMMOQuantity.nodes.get_by_string(string = name['value'], limit = 5)
-                        print(name['value'], ontology)
-                    else:
-                        continue
-                else:
-                    pass
+
 
 
 

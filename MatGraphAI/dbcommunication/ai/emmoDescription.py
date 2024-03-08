@@ -94,7 +94,7 @@ class OntologyManager:
                 if not cls.onto_name:
                     print(f"Need to update class: {cls.name}")
                 try:
-                    output = self.chat_with_gpt3_5(SETUP_MESSAGE[ontology_file], cls.name)
+                    output = self.chat_with_gpt4(SETUP_MESSAGE[ontology_file], cls.name)
                     output = json.loads(output)
                     cls.comment = output["description"]
                     cls.alternative_labels = str(output["alternative_labels"])
