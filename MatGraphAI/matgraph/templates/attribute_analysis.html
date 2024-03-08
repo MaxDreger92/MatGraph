@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attribute Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    .editable-table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px auto;
+        background-color: #fff;
+    }
+    .editable-table th {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+    }
+    .editable-table td {
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        color: #333;
+    }
+    .editable-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .editable-table select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: white;
+        color: #333;
+    }
+    input[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    </head>
+    <body>
+    <h1>Attribute Analysis</h1>
+
+    {% if attributes %}
+    <form method="post" id="attribute-form">
+        {% csrf_token %}
+
+        <table class="editable-table">
+            <tr>
+                <th>Column Header</th>
+                <th>Node Label</th>
+                <th>Proposed Attribute</th>
+            </tr>
+            {% for header, label_attributes in attributes.items %}
+            <tr>
+                <td>{{ header }}</td>
+                <td>{{ label_attributes.label }}</td>
+                <td>
+                    <select name="{{ header }}">
+                        {% for attribute in label_attributes.attributes %}
+                        <option value="{{ attribute }}" {% if attribute == label_attributes.selected_attribute %} selected {% endif %}>
+                            {{ attribute }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <input type="submit" value="Submit Changes">
+    </form>
+    {% else %}
+    <p>No data available for analysis.</p>
+    {% endif %}
+    </body>
+    </html>

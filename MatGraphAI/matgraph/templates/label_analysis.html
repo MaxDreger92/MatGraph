@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Label Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+border-radius: 8px;
+}
+.editable-table {
+border-collapse: collapse;
+width: 100%;
+margin: 10px auto;
+background-color: #fff;
+}
+.editable-table th {
+background-color: #4CAF50;
+color: white;
+padding: 12px 15px;
+text-align: left;
+}
+.editable-table td {
+border: 1px solid #ddd;
+padding: 10px 15px;
+color: #333;
+}
+.editable-table tr:nth-child(even) {
+background-color: #f2f2f2;
+}
+.editable-table select {
+width
+
+: 100%;
+padding: 8px;
+border-radius: 4px;
+border: 1px solid #ccc;
+background-color: white;
+color: #333;
+}
+input[type="submit"] {
+background-color: #4CAF50;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 16px;
+display: block;
+width: 100%;
+margin-top: 20px;
+}
+input[type="submit"]:hover {
+background-color: #45a049;
+}</style>
+</head>
+<body>
+<h1>Label Analysis</h1>
+
+{% if analysis_results %}
+<form method="post" id="test">
+    {% csrf_token %}
+
+    <table>
+        <tr>
+            <th>Column Header</th>
+            <th>Assigned Label</th>
+        </tr>
+        {% for header, current_label in analysis_results.items %}
+        <tr>
+            <td>{{ header }}</td>
+            <td>
+                <select name="{{ header }}">
+                    <option value="Matter" {% if current_label == "Matter" %} selected {% endif %}>Matter</option>
+                    <option value="Property" {% if current_label == "Property" %} selected {% endif %}>Property</option>
+                    <option value="Parameter" {% if current_label == "Parameter" %} selected {% endif %}>Parameter</option>
+                    <option value="Measurement" {% if current_label == "Measurement" %} selected {% endif %}>Measurement</option>
+                    <option value="Manufacturing" {% if current_label == "Manufacturing" %} selected {% endif %}>Manufacturing</option>
+                    <option value="Metadata" {% if current_label == "Metadata" %} selected {% endif %}>Metadata</option>
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <input type="submit" value="Submit Changes">
+</form>
+{% else %}
+<p>No data available for analysis.</p>
+{% endif %}
+</body>
+</html>

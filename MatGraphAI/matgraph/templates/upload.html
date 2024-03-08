@@ -6,18 +6,11 @@
 <h1 class="text-center">Upload CSV</h1>
 <div class="row">
     <div class="col-md-6 offset-md-3">
-        <form method="post" enctype="multipart/form-data" id="uploadForm">
+        <form method="post" action="{% url 'upload_csv' %}" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             <div class="form-group">
-                <label for="data_type">Select Data Type:</label>
-                <select name="data_type" class="form-control" id="data_type" required>
-                    <option value="">Choose a data type</option>
-                    <option value="measurement">Measurement Data</option>
-                    <option value="materials">Materials Data</option>
-                    <option value="simulation">Simulation Data</option>
-                    <option value="fabrication">Fabrication Data</option>
-                    <option value="metadata">Metadata</option>
-                </select>
+                <label for="context">Specify Data Context:</label>
+                <input type="text" name="context" class="form-control" id="context" placeholder="Enter the context of the data" required>
             </div>
             <div class="form-group">
                 <label for="file">Select File:</label>
@@ -30,7 +23,6 @@
         </form>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_css %}

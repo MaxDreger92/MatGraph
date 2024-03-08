@@ -1,12 +1,18 @@
 from dal import autocomplete
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.urls import reverse
+
+from graphutils.models import UploadedFile
+from matgraph.views.uploadDataViews import FileUploadView
+
+
 class MyProtectedView(LoginRequiredMixin, TemplateView):
     template_name = 'my_protected_view.html'
+
 class AutocompleteView(autocomplete.Select2QuerySetView):
     model = None
 
@@ -30,9 +36,14 @@ class AutocompleteView(autocomplete.Select2QuerySetView):
 def home(request):
     return render(request, 'home.html')
 
-@login_required
-def upload(request):
-    return render(request, 'upload.html')
+
+
+def upload_success(request):
+    # You can render a success template or return any response
+    return HttpResponse("File uploaded successfully!")
+
+
+
 
 @login_required
 def download(request):
