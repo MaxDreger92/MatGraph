@@ -9,6 +9,7 @@ import { TableRow } from "../../types/workflow.types"
 import { Label } from "../../types/workflow.types"
 import { Select } from "@mantine/core"
 import { getAttributesByLabel } from "../../common/helpers"
+import { INode } from "../../types/canvas.types"
 
 interface WorkflowTableProps {
   setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
@@ -16,7 +17,7 @@ interface WorkflowTableProps {
   setTableRows: React.Dispatch<React.SetStateAction<TableRow[]>>
   tableRows: TableRow[]
   progress: number
-  drawerRect: DOMRect | null
+  tableHeight: number | null
   darkTheme: boolean
 }
 
@@ -36,7 +37,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     setTableRows,
     tableRows,
     progress,
-    drawerRect,
+    tableHeight,
     darkTheme,
   } = props
   const [selected, setSelected] = useState<{
@@ -72,14 +73,14 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
   useEffect(() => {
     // 50 + 45 * tableRows
-    if (drawerRect) {
+    if (tableHeight) {
       const rowHeight = 52 + 45 * tableRows.length
-      const divHeight = drawerRect.height - 90
+      const divHeight = tableHeight - 90
       setTableDivHeight(Math.min(rowHeight, divHeight))
       return
     }
     setTableDivHeight(null)
-  }, [tableRows, drawerRect])
+  }, [tableRows, tableHeight])
 
   const handleCellClick = (
     cellData: string | number | boolean,
@@ -187,220 +188,225 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
   // Render your table
   return (
-    <div
-      key={tableRows.length}
-      ref={tableRef}
-      className="workflow-table"
-      style={{
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        height: tableDivHeight ? tableDivHeight : `calc(100% - 90px)`,
-        width: `calc(100% - 20px)`,
-        left: 10,
-        overflow: "auto",
-        border: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
-        backgroundColor: darkTheme ? "#212226" : "#fff",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          position: "sticky",
-          width: `${columnVirtualizer.getTotalSize()}px`,
-          top: 0,
-          zIndex: 2,
-        }}
-      >
-        {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
-          // Access the header as a direct value
-          const header = String(columns[columnVirtual.index].header)
-          return (
-            <div
-              key={columnVirtual.key}
-              style={{
-                display: "inline-block",
-                position: "absolute",
-                left: `${columnVirtual.start}px`,
-                width: `${columnVirtual.size}px`,
-                height: "50px",
-                borderBottom: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
-                textAlign: "left",
-                lineHeight: "50px",
-                backgroundColor: darkTheme ? "#25262b" : "#f1f3f5",
-                color: darkTheme ? "#a6a7ab" : "#040404",
-                borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
-                paddingLeft: ".5rem",
-              }}
-            >
-              {header}
-            </div>
-          )
-        })}
-      </div>
+    <div>
 
-      {/* Rows */}
+      {/* Main Table */}
       <div
-        ref={tableRowsRef}
+        key={tableRows.length}
+        ref={tableRef}
+        className="workflow-table"
         style={{
           position: "relative",
-          height: `${rowVirtualizer.getTotalSize()}px`,
-          width: `${columnVirtualizer.getTotalSize()}px`,
-          top: 50,
-          zIndex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: tableDivHeight ? tableDivHeight : `calc(100% - 90px)`,
+          width: `calc(100% - 20px)`,
+          left: 10,
+          overflow: "auto",
+          border: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+          backgroundColor: darkTheme ? "#212226" : "#fff",
         }}
       >
-        {rowVirtualizer.getVirtualItems().map((rowVirtual) => (
-          <>
-            <div
-              key={rowVirtual.key}
-              style={{
-                position: "absolute",
-                top: `${rowVirtual.start}px`,
-                height: `${rowVirtual.size}px`,
-                width: "100%",
-                cursor:
-                  progress > 1 && rowVirtual.index === tableRows.length - 1
-                    ? "pointer"
-                    : "default",
-              }}
-            >
-              {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
-                const column = columns[columnVirtual.index]
-                const columnId = column.id // Assuming columnId is always defined based on your column setup
-                if (typeof columnId !== "undefined") {
-                  const cellData = tableRows[rowVirtual.index][columnId] // Safely access cell data using columnId
-                  return (
-                    <div
-                      key={columnVirtual.key}
-                      onMouseEnter={() =>
-                        setHovered({
-                          row: rowVirtual.index,
-                          column: columnVirtual.index,
-                        })
-                      }
-                      onMouseLeave={() => setHovered(null)}
-                      style={{
-                        display: "inline-block",
-                        position: "absolute",
-                        left: `${columnVirtual.start}px`,
-                        width: `${columnVirtual.size}px`,
-                        height: "100%",
-                        backgroundColor:
-                          progress > 1 &&
-                          rowVirtual.index === tableRows.length - 1 &&
-                          hovered &&
-                          hovered.row === rowVirtual.index &&
-                          hovered.column === columnVirtual.index &&
-                          !selected
-                            ? "rgba(24,100,171,0.2)"
-                            : darkTheme ? "#212226" : "#f8f9fa",
-                        color: darkTheme ? "#a6a7ab" : "#040404",
-                        // borderRight: columnVirtual.index + 1 === Object.keys(tableRows[0]).length ? "none" : "1px solid #333",
-                        borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
-                        borderBottom:
-                          rowVirtual.index + 1 === tableRows.length
-                            ? "none"
-                            : `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
-                        // borderBottom: "1px solid #333",
-                        paddingTop: 10,
-                        paddingLeft: ".5rem",
-                      }}
-                    >
+        {/* Header */}
+        <div
+          style={{
+            position: "sticky",
+            width: `${columnVirtualizer.getTotalSize()}px`,
+            top: 0,
+            zIndex: 2,
+          }}
+        >
+          {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
+            // Access the header as a direct value
+            const header = String(columns[columnVirtual.index].header)
+            return (
+              <div
+                key={columnVirtual.key}
+                style={{
+                  display: "inline-block",
+                  position: "absolute",
+                  left: `${columnVirtual.start}px`,
+                  width: `${columnVirtual.size}px`,
+                  height: "50px",
+                  borderBottom: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+                  textAlign: "left",
+                  lineHeight: "50px",
+                  backgroundColor: darkTheme ? "#25262b" : "#f1f3f5",
+                  color: darkTheme ? "#a6a7ab" : "#040404",
+                  borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+                  paddingLeft: ".5rem",
+                }}
+              >
+                {header}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Rows */}
+        <div
+          ref={tableRowsRef}
+          style={{
+            position: "relative",
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: `${columnVirtualizer.getTotalSize()}px`,
+            top: 50,
+            zIndex: 1,
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((rowVirtual) => (
+            <>
+              <div
+                key={rowVirtual.key}
+                style={{
+                  position: "absolute",
+                  top: `${rowVirtual.start}px`,
+                  height: `${rowVirtual.size}px`,
+                  width: "100%",
+                  cursor:
+                    progress > 1 && rowVirtual.index === tableRows.length - 1
+                      ? "pointer"
+                      : "default",
+                }}
+              >
+                {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
+                  const column = columns[columnVirtual.index]
+                  const columnId = column.id // Assuming columnId is always defined based on your column setup
+                  if (typeof columnId !== "undefined") {
+                    const cellData = tableRows[rowVirtual.index][columnId] // Safely access cell data using columnId
+                    return (
                       <div
-                        onClick={
-                          progress > 1
-                            ? () =>
-                                handleCellClick(
-                                  cellData,
+                        key={columnVirtual.key}
+                        onMouseEnter={() =>
+                          setHovered({
+                            row: rowVirtual.index,
+                            column: columnVirtual.index,
+                          })
+                        }
+                        onMouseLeave={() => setHovered(null)}
+                        style={{
+                          display: "inline-block",
+                          position: "absolute",
+                          left: `${columnVirtual.start}px`,
+                          width: `${columnVirtual.size}px`,
+                          height: "100%",
+                          backgroundColor:
+                            progress > 1 &&
+                            rowVirtual.index === tableRows.length - 1 &&
+                            hovered &&
+                            hovered.row === rowVirtual.index &&
+                            hovered.column === columnVirtual.index &&
+                            !selected
+                              ? "rgba(24,100,171,0.2)"
+                              : darkTheme ? "#212226" : "#f8f9fa",
+                          color: darkTheme ? "#a6a7ab" : "#040404",
+                          // borderRight: columnVirtual.index + 1 === Object.keys(tableRows[0]).length ? "none" : "1px solid #333",
+                          borderRight: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+                          borderBottom:
+                            rowVirtual.index + 1 === tableRows.length
+                              ? "none"
+                              : `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+                          // borderBottom: "1px solid #333",
+                          paddingTop: 10,
+                          paddingLeft: ".5rem",
+                        }}
+                      >
+                        <div
+                          onClick={
+                            progress > 1
+                              ? () =>
+                                  handleCellClick(
+                                    cellData,
+                                    rowVirtual.index,
+                                    columnId
+                                  )
+                              : undefined
+                          }
+                          style={{
+                            position: "relative",
+                          }}
+                        >
+                          {selected?.row === rowVirtual.index &&
+                          selected?.column === columnId ? (
+                            <Select
+                              defaultValue={cellData.toString()}
+                              data={selectData}
+                              withinPortal={true}
+                              initiallyOpened={true}
+                              onChange={(value) =>
+                                handleSelectChange(
+                                  value,
                                   rowVirtual.index,
                                   columnId
                                 )
-                            : undefined
-                        }
-                        style={{
-                          position: "relative",
-                        }}
-                      >
-                        {selected?.row === rowVirtual.index &&
-                        selected?.column === columnId ? (
-                          <Select
-                            defaultValue={cellData.toString()}
-                            data={selectData}
-                            withinPortal={true}
-                            initiallyOpened={true}
-                            onChange={(value) =>
-                              handleSelectChange(
-                                value,
-                                rowVirtual.index,
-                                columnId
-                              )
-                            }
-                            onDropdownClose={() => setSelected(null)}
-                            onBlur={() => setSelected(null)}
-                            autoFocus={true}
-                            maxDropdownHeight={800}
-                            styles={{
-                              input: {
-                                borderWidth: 0,
-                                "&:focus": {
-                                  outline: "none",
-                                  boxShadow: "none",
+                              }
+                              onDropdownClose={() => setSelected(null)}
+                              onBlur={() => setSelected(null)}
+                              autoFocus={true}
+                              maxDropdownHeight={800}
+                              styles={{
+                                input: {
+                                  borderWidth: 0,
+                                  "&:focus": {
+                                    outline: "none",
+                                    boxShadow: "none",
+                                  },
+                                  backgroundColor: "transparent",
+                                  fontFamily: "inherit",
+                                  fontSize: "inherit",
+                                  transform: "translate(-4px,0)",
                                 },
-                                backgroundColor: "transparent",
-                                fontFamily: "inherit",
-                                fontSize: "inherit",
-                                transform: "translate(-4px,0)",
-                              },
-                            }}
-                            style={{
-                              transform: "translate(calc(-0.5rem), -6px)",
-                              width: "calc(100% + 8px)",
-                              height: 200,
-                            }}
-                          />
-                        ) : (
-                          capitalizeFirstLetter(cellData)
-                        )}
+                              }}
+                              style={{
+                                transform: "translate(calc(-0.5rem), -6px)",
+                                width: "calc(100% + 8px)",
+                                height: 200,
+                              }}
+                            />
+                          ) : (
+                            capitalizeFirstLetter(cellData)
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )
-                }
-                return null // Or handle the undefined case appropriately
-              })}
-            </div>
-            {progress > 1 && rowVirtual.index === tableRows.length - 1 && (
-              <div
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  top: `${rowVirtual.start}px`,
-                  height: `${rowVirtual.size}px`,
-                  outline:
-                    progress > 1 && rowVirtual.index === tableRows.length - 1
-                      ? "1px dashed #1971c2"
-                      : "none",
-                  outlineOffset: -1,
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-          </>
-        ))}
+                    )
+                  }
+                  return null // Or handle the undefined case appropriately
+                })}
+              </div>
+              {progress > 1 && rowVirtual.index === tableRows.length - 1 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    top: `${rowVirtual.start}px`,
+                    height: `${rowVirtual.size}px`,
+                    outline:
+                      progress > 1 && rowVirtual.index === tableRows.length - 1
+                        ? "1px dashed #1971c2"
+                        : "none",
+                    outlineOffset: -1,
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+            </>
+          ))}
+        </div>
+
+        {/* Shadow */}
+        <div
+          style={{
+            position: "fixed",
+            width: `calc(100% - 22px)`,
+            height: tableRect ? `${tableRect.height}px` : "100%",
+            boxShadow: "inset 0px 0px 4px rgba(0, 0, 0, 0.3)",
+            zIndex: 3,
+            pointerEvents: "none",
+            // backgroundColor: "rgba(240,100,0,0.5)",
+          }}
+        />
       </div>
 
-      {/* Shadow */}
-      <div
-        style={{
-          position: "fixed",
-          width: `calc(100% - 22px)`,
-          height: tableRect ? `${tableRect.height}px` : "100%",
-          boxShadow: "inset 0px 0px 4px rgba(0, 0, 0, 0.3)",
-          zIndex: 3,
-          pointerEvents: "none",
-          // backgroundColor: "rgba(240,100,0,0.5)",
-        }}
-      />
     </div>
   )
 }

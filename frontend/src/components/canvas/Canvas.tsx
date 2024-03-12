@@ -35,6 +35,7 @@ interface CanvasProps {
   setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
   selectedNodes: INode[]
   setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
+  setHighlightedNode: React.Dispatch<React.SetStateAction<INode | undefined>>
   saveWorkflow: () => void
   updateHistory: () => void
   updateHistoryWithCaution: () => void
@@ -58,6 +59,7 @@ export default function Canvas(props: CanvasProps) {
     setRelationships,
     selectedNodes,
     setSelectedNodes,
+    setHighlightedNode,
     saveWorkflow,
     updateHistory,
     updateHistoryWithCaution,
@@ -1010,6 +1012,7 @@ export default function Canvas(props: CanvasProps) {
           darkTheme={darkTheme}
           // handleNodeMove={handleNodeMove}
           handleNodeAction={handleNodeAction}
+          setHighlightedNode={setHighlightedNode}
         />
       ))}
       {/* Selection rectangle */}

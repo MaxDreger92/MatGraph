@@ -30,6 +30,7 @@ interface NodeProps {
     action: string,
     conditional?: boolean
   ) => void
+  setHighlightedNode: React.Dispatch<React.SetStateAction<INode | undefined>>
 }
 
 export default React.memo(function Node(props: NodeProps) {
@@ -44,6 +45,7 @@ export default React.memo(function Node(props: NodeProps) {
     darkTheme,
     // handleNodeMove,
     handleNodeAction,
+    setHighlightedNode,
   } = props
   const [fieldsMissing, setFieldsMissing] = useState(true)
   const [dragging, setDragging] = useState(false)
@@ -342,8 +344,14 @@ export default React.memo(function Node(props: NodeProps) {
         className="node-clickable"
         onMouseDown={handleMouseDown} // init relationship
         onMouseUp={handleMouseUp} // handleNodeClick (complete relationship || open node nav)
-        onMouseEnter={() => setNodeHovered(true)}
-        onMouseLeave={() => setNodeHovered(false)}
+        onMouseEnter={() => {
+          setNodeHovered(true)
+          setHighlightedNode(node)
+        }}
+        onMouseLeave={() => {
+          setNodeHovered(false)
+          setHighlightedNode(undefined)
+        }}
         onContextMenu={(e) => {
           e.stopPropagation()
           e.preventDefault()

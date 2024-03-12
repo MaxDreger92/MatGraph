@@ -39,6 +39,8 @@ export default function Workflow(props: WorkflowProps) {
   const [nodes, setNodes] = useState<INode[]>([])
   const [relationships, setRelationships] = useState<IRelationship[]>([])
   const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
+  const [highlightedNode, setHighlightedNode] = useState<INode>()
+  const [highlightedNodes, setHighlightedNodes] = useState<INode[]>([])
   const [workflow, setWorkflow] = useState<string | null>(null)
   const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
 
@@ -141,6 +143,17 @@ export default function Workflow(props: WorkflowProps) {
       toast.error(err.message)
     }
   }
+
+  useEffect(() => {
+    if (progress < 4) return
+
+    const nodes: INode[] = highlightedNode 
+      ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
+          index === self.findIndex((t) => t.id === node.id))
+      : [...selectedNodes];
+
+    setHighlightedNodes(nodes)
+  }, [progress, highlightedNode, selectedNodes])
 
   // WINDOW STUFF ########################################################
 
@@ -356,6 +369,7 @@ export default function Workflow(props: WorkflowProps) {
             setRelationships={setRelationships}
             selectedNodes={selectedNodes}
             setSelectedNodes={setSelectedNodes}
+            setHighlightedNode={setHighlightedNode}
             saveWorkflow={saveWorkflow}
             updateHistory={updateHistory}
             updateHistoryWithCaution={updateHistoryWithCaution}
@@ -447,6 +461,7 @@ export default function Workflow(props: WorkflowProps) {
             setNeedLayout={setNeedLayout}
             workflow={workflow}
             workflows={workflows}
+            highlightedNodes={highlightedNodes}
             darkTheme={darkTheme}
           />
         </animated.div>
