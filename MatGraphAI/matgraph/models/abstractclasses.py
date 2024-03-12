@@ -150,8 +150,7 @@ class OntologyNode(UIDDjangoNode):
 
     def save(self, add_labels_create_embeddings = True, connect_to_ontology = True, *args, **kwargs):
         super().save()
-        print(self.name, connect_to_ontology, add_labels_create_embeddings)
-
+        print(f"saving {self.name}")
         if add_labels_create_embeddings:
             self.add_labels_create_embeddings()
 
@@ -176,26 +175,19 @@ class OntologyNode(UIDDjangoNode):
         if len(self.emmo_subclass) == 0 and len(self.emmo_parentclass) == 0:
             candidates = self.find_candidates()
             find_connection = self.find_connection(candidates)
-            print("Find Connection", find_connection)
             previous_node = None
             for i, name in enumerate(find_connection):
                 results = self.nodes.get_by_string(string=name, limit=8, include_similarity=True)
-                print(name, "Results", results)
                 if results and results[0][1] > 0.98:
                     node = results[0][0]  # Assuming the first element is the node
-                    print(f"""FOUND NODE FOR {name} and got {" ".join([result[0].name for result in results])}""")
                 else:
                     # Create new node if not found or similarity < 0.98
-                    print(self)
-                    print(self.nodes)
                     node = self.__class__(name= name)
                     node.save(add_labels_create_embeddings=True, connect_to_ontology=False)
-                    print(node, self.__class__)
-                    print(f"""NO NODE FOUND FOR {name} - CREATED NEW NODE""")
 
                 # Connect this node to the previous node in the chain with emmo_is_a relationship
-                if previous_node:
-                    node.emmo_parentclass.connect(previous_node)
+                if previous_node and previous_node != node:
+                    previous_node.emmo_parentclass.connect(node)
                 previous_node = node
 
 
@@ -238,7 +230,6 @@ class OntologyNode(UIDDjangoNode):
         else:
             gpt_json = json.loads(ontology_advice.replace("\n", ""))
             if gpt_json['input_is_subclass_of_candidate']:
-                print(gpt_json)
                 candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
                 return self.get_subclasses([candidate_uid])
             else:
@@ -247,9 +238,7 @@ class OntologyNode(UIDDjangoNode):
 
     def find_connection(self, candidates):
         prompt = f"""Input: {self.name}\nCandidates: {", ".join([candidate[1] for candidate in candidates])} \nOnly Return The Final List!"""
-        print("prompt",prompt)
         connecting_path = chat_with_gpt4(prompt= prompt, setup_message= self.ONTOLOGY_CONNECTOR[self._meta.object_name])
-        print(connecting_path)
         return ast.literal_eval(connecting_path)
 
 

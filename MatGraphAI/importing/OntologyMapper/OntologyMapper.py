@@ -85,11 +85,11 @@ class OntologyMapper:
 
     def get_label(self, input, label):
         ontology = self.ONTOLOGY_MAPPER[label].nodes.get_by_string(string = input, limit = 8, include_similarity = True)
-        print(input, ontology)
         if ontology[0][1] < 0.97:
+            print(f"did not find label for {input}")
             return self.extend_ontology(input, ontology, label)
-
         else:
+            print(f"found label for {input}: {ontology[0][0].name} {ontology[0][1]} {ontology[0][2]}")
             # ontology[0][0].connect_to_ontology()
             pass
 
@@ -97,10 +97,10 @@ class OntologyMapper:
         prompt = "Input: " + input + "\nContext: " + self.context + "\nCandidates: " + ', '.join([ont[0].name for ont in ontology])
         output = chat_with_gpt3(prompt= prompt, setup_message= self.SETUP_MASSAGES[label])
         nodes = self.ONTOLOGY_MAPPER[label].nodes.get_by_string(string = output, limit = 15, include_similarity = True)
-        print(nodes)
         if nodes[0][1] < 0.97:
-            print("test", output, nodes)
+            print(f"did not find label for {output}")
             ontology_node = self.ONTOLOGY_MAPPER[label](name = output).save()
-            return output
+            return ontology_node
         else:
+            print(f"found label for {output}: {nodes[0][0].name} {nodes[0][1]}")
             return nodes[0][0].name

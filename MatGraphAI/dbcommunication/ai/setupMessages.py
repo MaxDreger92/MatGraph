@@ -322,14 +322,15 @@ MATTER_ONTOLOGY_CONNECTOR_MESSAGES = [
      2. Example:
      
      Question: 
-        Input: PC70BM
+        Input: PC61BM
         Candidates: Fullerene, Material, Polymer, Pt
     Answer:
-        ["Fullerene", "PCBM", "PC70BM"]
+        ["Fullerene", "PCBM", "PC61BM"]
         
     -HINTS:
     - You need to be precise about sub classes and parent classes. A subclass is a specific type of the parentclass. 
     - Clases that are part of other classes are not to be set as subclasses (e.g., "Anode" is not a subclass of "MEA")
+    - always choose the best fit among the candidates
      """},
     ]
 
