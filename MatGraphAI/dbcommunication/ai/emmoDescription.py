@@ -53,7 +53,7 @@ class OntologyManager:
             "quantities.owl": EMMOQuantity,
             "manufacturing.owl": EMMOProcess}
 
-    def chat_with_gpt3_5(self, setup_message=[], prompt=''):
+    def chat_with_gpt4(self, setup_message=[], prompt=''):
         openai.api_key = self.api_key
 
         conversation_history = setup_message
@@ -106,6 +106,7 @@ class OntologyManager:
             onto.save(ontology_path1, format="rdfxml")
 
     def import_to_neo4j(self, ontology_file):
+        print("Import to Neo4j", ontology_file)
 
         ontology_path = os.path.join(self.ontology_folder, ontology_file)
         onto = get_ontology(ontology_path).load()
@@ -121,12 +122,14 @@ class OntologyManager:
             try:
                 cls_instance = self.file_to_model[ontology_file].nodes.get(uri=class_uri)
                 cls_instance.name = class_name
+                cls_instance.validated_labels = True
+                cls_instance.validated_ontology = True
                 cls_instance.description = class_comment
-                cls_instance.save()
+                cls_instance.save(add_labels_create_embeddings = False, connect_to_ontology = False)
             except:
                 cls_instance = self.file_to_model[ontology_file](uri=class_uri, name=class_name,
                                                                  description=class_comment)
-                cls_instance.save()
+                cls_instance.save(add_labels_create_embeddings = False, connect_to_ontology = False)
 
             if cls.alternative_labels:
                 print("hier")
@@ -158,13 +161,13 @@ class OntologyManager:
                     subclass_instance = self.file_to_model[ontology_file].nodes.get(uri=subclass_uri)
                     subclass_instance.name = subclass_name
                     subclass_instance.description = subclass_comment
-                    subclass_instance.save()
+                    subclass_instance.save(add_labels_create_embeddings = False, connect_to_onotlogy = False)
                     subclass_instance.emmo_subclass.connect(cls_instance)
 
                 except:
                     subclass_instance = self.file_to_model[ontology_file](uri=subclass_uri, name=subclass_name,
                                                                           description=subclass_comment)
-                    subclass_instance.save()
+                    subclass_instance.save(add_labels_create_embeddings = False, connect_to_ontology = False)
                     subclass_instance.emmo_subclass.connect(cls_instance)
 
     def update_all_ontologies(self):
@@ -198,8 +201,7 @@ def main():
     ontology_folder = "/home/mdreger/Documents/MatGraphAI/Ontology/"
 
     ontology_manager = OntologyManager(api_key, ontology_folder)
-    # ontology_manager.update_all_ontologies()
-    ontology_manager.import_all_ontologies()
+    ontology_manager.import_to_neo4j("matter.owl")
 
 
 

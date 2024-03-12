@@ -346,7 +346,7 @@ PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [
      1. Example:
      Question:
         Input: AtomicVaporDeposition
-        Candidates: ChemicalVaporDeposition, Fabrication, Oxidation
+        Candidates: ChemicalVaporDeposition, Process, Oxidation
      Answer:
         ["ChemicalVaporDeposition", "AtomicLayerDeposition"]
         
@@ -361,6 +361,7 @@ PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [
         
     HINTS:
     - a subprocess of a process is not a subclass of the process (e.g., "Heating" is not a subclass of "MEA")
+    - always connect to one of the candidates
      """},
 ]
 

@@ -7490,9 +7490,7 @@
     
 
 
-    <!-- http://www.semanticweb.org/maxdreger/ontologies/2022/10/matter#alternative_label -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/maxdreger/ontologies/2022/10/matter#alternative_label"/>
     
 
 
