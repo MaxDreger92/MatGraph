@@ -20,9 +20,9 @@ class EMMOQuantity(OntologyNode):
         return "quantity-embeddings"
 
     # Relationships
-    property = RelationshipFrom("Property", "IS_A",
+    property = RelationshipFrom("matgraph.models.properties.Property", "IS_A",
                                model=IsARel)  # Represents "IS_A" relationship to another EMMOQuantity
-    parameter = RelationshipFrom("Parameter", "IS_A",
+    parameter = RelationshipFrom("matgraph.models.properties.Parameter", "IS_A",
                           model=IsARel)
     emmo_subclass = RelationshipTo('matgraph.models.ontology.EMMOQuantity', 'EMMO__IS_A',
                                    cardinality=ZeroOrMore)
@@ -53,7 +53,6 @@ class EMMOMatter(OntologyNode):
     class Meta:
         verbose_name_plural = 'EMMO Matter'  # Plural name for admin interface
 
-    app_label = 'matgraph'  # App label for django
 
     # Relationships
     is_a_material = RelationshipFrom('matgraph.models.matter.Material', "IS_A", model=IsARel, cardinality=ZeroOrMore)  # "IS_A" relationship from Matter model
@@ -88,7 +87,6 @@ class EMMOProcess(OntologyNode):
     class Meta:
         verbose_name_plural = 'EMMO Processes'  # Plural name for admin interface
 
-    app_label = 'matgraph'  # App label for django
 
     # Relationships
 
