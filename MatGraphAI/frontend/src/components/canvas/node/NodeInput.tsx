@@ -11,7 +11,7 @@ import {
 } from "../../../types/canvas.types"
 import NodeInputStr from "./NodeInputStr"
 import NodeInputStrOp from "./NodeInputStrOp"
-import { useAutoIncrementRefs } from "../../../common/helpers"
+import { useAutoIncrementInputRefs } from "../../../common/helpers"
 
 interface NodeInputProps {
   isValueNode: boolean
@@ -37,7 +37,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     node.identifier
   )
 
-  const { getNewRef, refs } = useAutoIncrementRefs()
+  const { getNewRef, refs } = useAutoIncrementInputRefs()
 
   const handleBlur = () => {
     setTimeout(() => {

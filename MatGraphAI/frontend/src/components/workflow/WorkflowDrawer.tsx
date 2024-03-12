@@ -9,7 +9,7 @@ import WorkflowPipeline from "./WorkflowPipeline"
 import { IconUpload } from "@tabler/icons-react"
 import { Button } from "@mantine/core"
 import { TableRow, IDictionary, IWorkflow } from "../../types/workflow.types"
-import { IRelationship, INode } from "../../types/canvas.types"
+import { IRelationship, INode, NodeAttribute, NodeValOpAttribute } from "../../types/canvas.types"
 import {
   convertFromJsonFormat,
   convertToJSONFormat,
@@ -39,6 +39,7 @@ interface WorkflowDrawerProps {
   setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
   workflow: string | null
   workflows: IWorkflow[] | undefined
+  highlightedNodes: INode[]
   darkTheme: boolean
 }
 
@@ -52,6 +53,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     setNeedLayout,
     workflow,
     workflows,
+    highlightedNodes,
     darkTheme,
   } = props
 
@@ -63,8 +65,9 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   const [labelTable, setLabelTable] = useState<TableRow[]>([])
   const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
   const [currentTable, setCurrentTable] = useState<TableRow[]>([])
+  const [additionalTables, setAdditionalTables] = useState<number[][]>([])
 
-  const [drawerRect, setDrawerRect] = useState<DOMRect | null>(null)
+  const [tableHeight, setTableHeight] = useState<number | null>(null)
   const workflowDrawerRef = useRef<HTMLDivElement>(null)
 
   // Load tables and progress from local storage
@@ -103,7 +106,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     if (workflowDrawerRef.current && typeof ResizeObserver === 'function') {
       const observer = new ResizeObserver(entries => {
         const [entry] = entries;
-        setDrawerRect(entry.contentRect);
+        setTableHeight(entry.contentRect.height);
       });
 
       observer.observe(workflowDrawerRef.current);
@@ -414,6 +417,44 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   
     return dict;
   }
+
+  // Additional tables for highlighted Nodes ########################################
+  useEffect(() => {
+    const newAdditionalTables = highlightedNodes.map(node => {
+      // Initialize an empty array for each node to store indices
+      let indices: number[] = [];
+
+      // Function to extract and add number indices from attributes
+      const addIndices = (attr: NodeAttribute | NodeValOpAttribute) => {
+        if (typeof attr.index === 'number') {
+          indices.push(attr.index);
+        } else if (Array.isArray(attr.index)) {
+          attr.index.forEach(index => {
+            if (typeof index === 'number') {
+              indices.push(index);
+            }
+          });
+        }
+      };
+
+      // Extract indices from each relevant attribute of the node
+      addIndices(node.name);
+      addIndices(node.value);
+      addIndices(node.batch_num);
+      addIndices(node.ratio);
+      addIndices(node.concentration);
+      addIndices(node.unit);
+      addIndices(node.std);
+      addIndices(node.error);
+      addIndices(node.identifier);
+
+      // Return the indices array for this node
+      return indices;
+    });
+
+    // Update state with the newly generated arrays of indices
+    setAdditionalTables(newAdditionalTables);
+  }, [highlightedNodes]);
   
 
   return (
@@ -448,15 +489,35 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
               darkTheme={darkTheme}
             />
           )}
-          <WorkflowTable
-            setLabelTable={setLabelTable}
-            setAttributeTable={setAttributeTable}
-            setTableRows={setCurrentTable}
-            tableRows={currentTable}
-            progress={progress}
-            drawerRect={drawerRect}
-            darkTheme={darkTheme}
-          />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            {/* Additional Tables */}
+            
+
+            {/* CSV Table */}
+            <div 
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+              }}
+            >
+              <WorkflowTable
+                setLabelTable={setLabelTable}
+                setAttributeTable={setAttributeTable}
+                setTableRows={setCurrentTable}
+                tableRows={currentTable}
+                progress={progress}
+                tableHeight={tableHeight}
+                darkTheme={darkTheme}
+              />
+            </div>
+
+          </div>
         </div>
       )}
     </>

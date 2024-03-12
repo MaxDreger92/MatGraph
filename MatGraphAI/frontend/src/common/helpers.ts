@@ -412,7 +412,7 @@ export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
-export function useAutoIncrementRefs() {
+export function useAutoIncrementInputRefs() {
   const refs = useRef<React.RefObject<HTMLInputElement>[]>([])
   const getNewRef = () => {
     const newRef = React.createRef<HTMLInputElement>()
@@ -422,3 +422,4 @@ export function useAutoIncrementRefs() {
 
   return { getNewRef, refs: refs.current }
 }
+
