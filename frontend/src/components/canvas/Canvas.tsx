@@ -146,7 +146,7 @@ export default function Canvas(props: CanvasProps) {
       unit: {value:""},
       std: {valOp:{value: "", operator: ""}},
       error: {valOp:{value: "", operator: ""}},
-      identifier: {value:""},
+      identifier: {value:"", index: ""},
       type,
       with_indices: uploadMode,
       position,
@@ -360,7 +360,7 @@ export default function Canvas(props: CanvasProps) {
       })
     )
     setNodeEditing(false)
-    setSelectedNodes([])
+    // setSelectedNodes([])
   }
 
   // deprecated

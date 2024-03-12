@@ -33,7 +33,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
   const [nodeUnit, setNodeUnit] = useState<NodeAttribute>(node.unit)
   const [nodeStd, setNodeStd] = useState<NodeValOpAttribute>(node.std)
   const [nodeError, setNodeError] = useState<NodeValOpAttribute>(node.error)
-  const [nodeIdentfier, setNodeIdentifier] = useState<NodeAttribute>(
+  const [nodeIdentifier, setNodeIdentifier] = useState<NodeAttribute>(
     node.identifier
   )
 
@@ -55,7 +55,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         unit: nodeUnit,
         std: nodeStd,
         error: nodeError,
-        identifier: nodeIdentfier,
+        identifier: nodeIdentifier,
       }
       handleNodeRename(updatedNode)
     }, 100)
@@ -74,7 +74,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         unit: nodeUnit,
         std: nodeStd,
         error: nodeError,
-        identifier: nodeIdentfier,
+        identifier: nodeIdentifier,
       }
       handleNodeRename(updatedNode)
     }
@@ -97,7 +97,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         setNodeUnit({ value: input_value, index: nodeUnit.index })
         break
       case "identifier":
-        setNodeIdentifier({ value: input_value, index: nodeIdentfier.index })
+        setNodeIdentifier({ value: input_value, index: nodeIdentifier.index })
         break
       default:
         break
@@ -154,7 +154,12 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
   }
 
   const handleIndexChangeLocal = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const input_value = e.target.value
+    const input_string = e.target.value
+
+    let input_value: string | number
+
+    const numericValue = parseFloat(input_string)
+    input_value = isNaN(numericValue) ? input_string : numericValue
 
     switch (id) {
       case "name":
@@ -181,8 +186,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
       case "error":
         setNodeError({valOp: {value: nodeError.valOp.value, operator: nodeError.valOp.operator}, index: input_value})
         break
-      case "identfier":
-        setNodeIdentifier({value: nodeIdentfier.value, index: input_value})
+      case "identifier":
+        setNodeIdentifier({value: nodeIdentifier.value, index: input_value})
         break
       default:
         break
@@ -238,7 +243,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
           handleBlur={handleBlur}
           getNewRef={getNewRef}
           id="identifier"
-          defaultValue={nodeIdentfier.value}
+          defaultValue={nodeIdentifier.value}
           showIndices={node.with_indices}
           index={node.identifier.index}
           autoFocus={false}
@@ -256,9 +261,9 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleBlur={handleBlur}
             getNewRef={getNewRef}
             id="identifier"
-            defaultValue={nodeIdentfier.value}
+            defaultValue={nodeIdentifier.value}
             showIndices={node.with_indices}
-            index={nodeIdentfier.index}
+            index={nodeIdentifier.index}
             autoFocus={false}
             add={true}
             zIndex={node.layer + 3}

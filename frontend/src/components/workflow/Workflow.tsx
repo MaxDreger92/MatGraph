@@ -145,15 +145,15 @@ export default function Workflow(props: WorkflowProps) {
   }
 
   useEffect(() => {
-    if (progress < 4) return
+    // if (progress < 4) return
 
-    const nodes: INode[] = highlightedNode 
-      ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
-          index === self.findIndex((t) => t.id === node.id))
-      : [...selectedNodes];
+    // const nodes: INode[] = highlightedNode 
+    //   ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
+    //       index === self.findIndex((t) => t.id === node.id))
+    //   : [...selectedNodes];
 
-    setHighlightedNodes(nodes)
-  }, [progress, highlightedNode, selectedNodes])
+    setHighlightedNodes(selectedNodes)
+  }, [progress, selectedNodes])
 
   // WINDOW STUFF ########################################################
 

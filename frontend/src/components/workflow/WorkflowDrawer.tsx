@@ -455,7 +455,40 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     // Update state with the newly generated arrays of indices
     setAdditionalTables(newAdditionalTables);
   }, [highlightedNodes]);
-  
+
+  // Define a function to filter csvTable based on additionalTables
+  function filterCsvTable(csvTable: TableRow[], additionalTables: number[][]): TableRow[][] {
+    const filteredTables: TableRow[][] = [];
+
+    // Iterate through each entry in additionalTables
+    additionalTables.forEach((columnsToInclude: number[]) => {
+      // Create a new table with only the specified columns
+      const filteredTable: TableRow[] = [];
+      const rowIndexMap: Map<string, number> = new Map(); // Map to store row index based on row content
+
+      columnsToInclude.forEach((columnIndex: number) => {
+        // Get the column name from the index
+        const columnName = Object.keys(csvTable[0])[columnIndex];
+        // Iterate through each row in csvTable and copy the selected column values
+        csvTable.forEach((row: TableRow, index: number) => {
+          const rowKey = JSON.stringify(row); // Convert the row object to a string to use as key
+          // Check if the row already exists in the filtered table
+          if (!rowIndexMap.has(rowKey)) {
+            // If the row doesn't exist, create a new row in the filtered table
+            filteredTable.push({}); // Push an empty object to represent the new row
+            rowIndexMap.set(rowKey, filteredTable.length - 1); // Store the index of the new row
+          }
+          const rowIndex = rowIndexMap.get(rowKey)!; // Get the index of the row in the filtered table
+          // Copy the column value to the filtered table
+          filteredTable[rowIndex][columnName] = row[columnName];
+        });
+      });
+      // Add the filtered table to the result
+      filteredTables.push(filteredTable);
+    });
+
+    return filteredTables;
+  }
 
   return (
     <>
@@ -496,14 +529,46 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             }}
           >
             {/* Additional Tables */}
+
+            <div
+              style={{
+
+                overflowX: "auto",
+
+              }}
+            >
             
+            {filterCsvTable(csvTable, additionalTables).map((table, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  minWidth: "fit-content"
+                }}
+              >
+                <WorkflowTable
+                  setLabelTable={setLabelTable}
+                  setAttributeTable={setAttributeTable}
+                  setTableRows={setCurrentTable}
+                  tableRows={table}
+                  progress={progress}
+                  tableHeight={tableHeight}
+                  darkTheme={darkTheme}
+                />
+              </div>
+            ))}
+
+          </div>
 
             {/* CSV Table */}
             <div 
               style={{
                 display: "flex",
                 flexDirection: "column",
-                width: "100%",
+                flex: "1 1 auto",
+                minWidth: "40%",
+                overflow: "hidden"
               }}
             >
               <WorkflowTable
