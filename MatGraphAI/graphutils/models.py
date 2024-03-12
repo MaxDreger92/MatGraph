@@ -37,11 +37,8 @@ class EmbeddingNodeSet(NodeSet):
             CALL db.index.vector.queryNodes($embedding, 15, $vector)
             YIELD node AS similarEmbedding, score
             MATCH (similarEmbedding)-[:FOR]->(n)
-            WITH n, similarEmbedding.input AS input, score
+            RETURN n, score, similarEmbedding.input
             ORDER BY score DESC
-            WITH n, COLLECT(input)[0] AS mostRelevantInput, MAX(score) AS highestScore
-            RETURN n AS title, highestScore AS score, mostRelevantInput AS similarEmbedding
-            ORDER BY highestScore DESC
             LIMIT $limit
         """
         kwargs['embedding'] = self.source_class.embedding
@@ -62,7 +59,7 @@ class EmbeddingNodeSet(NodeSet):
             if include_similarity and include_input_string:
                 return [[n[0], n[1], n[2]] for n in results]
             elif include_similarity:
-                return [[n[0], n[1]] for n in results]
+                return [[n[0], n[1], n[2]] for n in results]
             elif include_input_string:
                 return [[n[0], n[2]] for n in results]
 
