@@ -128,7 +128,6 @@ export default function Profile(props: PaperProps) {
 
       if (formValues.username !== "") {
         if (formValues.username !== currentUser?.username) {
-          console.log(formValues.username, currentUser?.username)
           usernameMutation.mutate(formValues)
         }
       }
