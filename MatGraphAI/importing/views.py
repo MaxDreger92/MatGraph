@@ -2,10 +2,8 @@ import csv
 import json
 from io import StringIO
 
-from django.core.exceptions import ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView
 from neomodel import DateTimeProperty
 from rest_framework import response, status
 from rest_framework.views import APIView
@@ -13,7 +11,6 @@ from rest_framework.views import APIView
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
 from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
-from importing.OntologyMapper.OntologyMapper import OntologyMapper
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.importer import TableImporter
 from importing.models import FullTableCache
@@ -268,9 +265,6 @@ class GraphImportView(APIView):
 
 
     def import_graph(self, file_link, graph, context):
-        ontology_mapper = OntologyMapper(graph, file_link, context)
-        ontology_mapper.map_on_ontology()
-        # importer  = TableImporter(graph, file_link)
-        # importer.run()
-        # Implement the logic to import the graph here
-        # Use the file_link, file_name, graph, and context to import the graph
+        importer = TableImporter(graph, file_link, context)
+        importer.run()
+
