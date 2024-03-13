@@ -12,6 +12,7 @@ from neomodel import db
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
 from importing.NodeExtraction.nodeExtractor import NodeExtractor
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
+from importing.OntologyMapper.OntologyMapper import OntologyMapper
 from importing.RelationshipExtraction.completeRelExtractor import fullRelationshipsExtractor
 from importing.models import ImportingReport, LabelClassificationReport
 from importing.utils.openai import chat_with_gpt4, chat_with_gpt3
@@ -35,6 +36,7 @@ class Importer:
             paginator: Paginator instance to apply pagination on query result.
             force_report (bool): Flag to determine whether to generate report or not.
         """
+
         self.paginator = paginator
         self.generate_report = force_report
         self.report = ''
@@ -357,7 +359,7 @@ class TableImporter(Importer):
 
     type = 'generic'  # type attribute for Importer. It's 'generic' for base Importer class.
 
-    def __init__(self, data, file_link, paginator=None, force_report=False):
+    def __init__(self, data, file_link, context, paginator=None, force_report=False):
         """
         Initialize the Importer instance.
 
@@ -365,12 +367,20 @@ class TableImporter(Importer):
             paginator: Paginator instance to apply pagination on query result.
             force_report (bool): Flag to determine whether to generate report or not.
         """
+        self.ontology_mapper = OntologyMapper(data, file_link, context)
         self.paginator = paginator
         self.generate_report = force_report
         self.report = ''
         self.data = self.prepare_data(file_link, data)
         self.file_link = file_link
         self.db_results = None
+        self.ontology_mapper = {
+            'matter': 'EMMOMatter',
+            'manufacturing': 'EMMOProcess',
+            'measurement': 'EMMOProcess',
+            'parameter': 'EMMOQuantity',
+            'property': 'EMMOQuantity'
+        }
 
     def prepare_data(self, file_link, data):
         file = File.nodes.get(link=file_link)
@@ -392,7 +402,10 @@ class TableImporter(Importer):
                 column_values[i].add(value)
 
         data['column_values'] = [list(column_set) for column_set in column_values]
-        print("data", data)
+
+
+        self.ontology_mapper.run()
+        self.mapping = self.ontology_mapper.mapping
 
         return data
 
@@ -401,54 +414,62 @@ class TableImporter(Importer):
 
 
     def build_query(self):
-        # Iterate through the list of nodes in the configuration
-        query_parts = [f"LOAD CSV FROM '{self.file_link}' AS row"]
-        ontology_query = []
-        self.map_on_ontology()
-        print("data", self.data)
+        # Base query part for loading the CSV
+        query_parts = [f"""
+        CALL apoc.load.csv('http://134.94.199.40/neo4j/f6fab112908e7c081a256ec7394a0c50') YIELD lineNo, list AS row"""]
 
-        for node_config in self.data['nodes']:
-            ontology = node_config['ontology']
-            label = node_config['label']
-            id = node_config['id']
-            attributes = node_config['attributes']
-            # Construct the Cypher query for this node
-            ontology_mapper = {
-                'matter': 'EMMOMatter',
-                'manufacturing': 'EMMOProcess',
-                'measurement': 'EMMOProcess',
-                'parameter': 'EMMOQuantity',
-                'property': 'EMMOQuantity'
-            }
-            ontology_query.append(f"""MATCH (ontology_{id}:{ontology_mapper[label]}{{uid: '{ontology}'}})""")
+        nodes = self.data['nodes']
+        relationships = self.data['relationships']
 
-            query_parts.append(
-                f"CREATE (n{id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})-[:IS_A]->(ontology_{id})")
+        # Function to handle attribute value setting
+        def attr_value_string(attr_value):
+            return f"row[{int(attr_value['index'])}]" if attr_value['index'] != 'inferred' else f"'{attr_value['value']}'"
 
-            for attr_name, attr_values in attributes.items():
-                if type(attr_values) != list:
-                    attr_values = [attr_values]
+
+
+
+
+        add_ontology = f"""WITH * UNWIND {str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")} as input
+        MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess), (n:Matter|Parameter|Manufacturing|Measurement|Property)
+        WHERE ontology.id = input.id and (n.name = input.key or input.key in n.name)
+        MERGE (n)-[:IS_A]->(ontology)
+        """
+
+        def add_attribute(attr_name, attr_values, id):
+            setter = f"SET n{id}.{attr_name} = " if len(attr_values) == 1 else f"SET n{id}.{attr_name} = apoc.coll.removeAll(["
+
+            for value in attr_values:
                 if len(attr_values) == 1:
-                    if attr_values[0]['index'] != 'inferred':
-                        query_parts.append(f"""SET n{id}.{attr_name} = CASE WHEN row[{int(attr_values[0]['index'])}] IS NOT NULL THEN row[{int(attr_values[0]['index'])}] ELSE n{id}.{attr_name} END """)
-                    else:
-                        query_parts.append(f"""SET n{id}.{attr_name} = '{attr_values[0]['value']}'""")
+                    setter += f"'{value['value']}'" if value['index'] == 'inferred' else f"row[{value['index']}]"
+                    return setter
                 else:
-                    attr_list = []
-                    for attr_value in attr_values:
-                        if attr_value['index'] != 'inferred':
-                            attr_list.append(f"""row[{int(attr_value['index'])}]""")
-                        else:
-                            attr_list.append(f"""'{attr_value['value']}'""")
-                    query_parts.append(f"""SET n{id}.{attr_name} = apoc.coll.removeAll([{','.join(attr_list)}], [null])""")
-        for rel in self.data['relationships']:
-            rel_type = rel['rel_type']
-            start_node = rel['connection'][0]
-            end_node = rel['connection'][1]
-            query_parts.append(f"""MERGE (n{start_node})-[r{start_node}{end_node}:{rel_type}]->(n{end_node})""")
-    
-        query = '\n'.join([*ontology_query, *query_parts])
-        print("QUERYY \n ", query)
+                    setter +=  f" '{value['value']}', " if value['index'] == 'inferred' else f" row[{value['index']}],"
+            setter = setter[:-1] + "], [null])"
+            return setter
+
+
+
+        # Building ontology queries and node creations
+        for node_config in nodes:
+            id, label = node_config['id'], node_config['label']
+            query_parts.append(f"CREATE (n{id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})")
+
+            for attr_name, attr_values in node_config['attributes'].items():
+                attr_values = [attr_values] if type(attr_values) is not list else attr_values
+                setter = add_attribute(attr_name, attr_values, id)
+                query_parts.append(setter)
+
+        # Building relationship queries
+        relationships = [
+            f"MERGE (n{rel['connection'][0]})-[r{rel['connection'][0]}{rel['connection'][1]}:{rel['rel_type']}]->(n{rel['connection'][1]})"
+            for rel in self.data['relationships']
+        ]
+
+        # Combining all parts of the query
+        query = '\n'.join([*query_parts, *relationships,add_ontology])
+        print("query", query)
+
+
         return query, {}
 
     def ingest_data(self):
