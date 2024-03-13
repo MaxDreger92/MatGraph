@@ -65,6 +65,44 @@ function mapNodeType(type: string): string {
   }
 }
 
+export function mapNodeTypeNumerical(type: string): number {
+  switch (type) {
+    case "matter":
+      return 0
+    case "manufacturing":
+      return 1
+    case "measurement":
+      return 2
+    case "parameter":
+      return 3
+    case "property":
+      return 4
+    case "metadata":
+      return 5
+    default:
+      return 69
+  }
+}
+
+export function mapNodeTypeString(type: number): string {
+  switch (type) {
+    case 0:
+      return "matter"
+    case 1:
+      return "manufacturing"
+    case 2:
+      return "measurement"
+    case 3:
+      return "parameter"
+    case 4:
+      return "property"
+    case 5:
+      return "metadata"
+    default:
+      return "unknownType"
+  }
+}
+
 /**
  * Determines the relationship type based on the start and end node types.
  *
@@ -130,7 +168,6 @@ export function isAttrDefined(attribute: string | ValOpPair): boolean {
 }
 
 function parseAttrOut(attribute: string | ValOpPair, index?: AttributeIndex | AttributeIndex[]): ParsableAttributes {
-  // console.log(index)
   let stringToParse = "";
 
   // Determine the string to parse based on the type of attribute

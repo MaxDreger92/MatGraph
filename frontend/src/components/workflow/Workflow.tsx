@@ -359,6 +359,7 @@ export default function Workflow(props: WorkflowProps) {
           left: 0,
           width: "100%",
           height: "100%",
+          zIndex: 0,
         }}
         children={
           <Canvas
@@ -401,6 +402,7 @@ export default function Workflow(props: WorkflowProps) {
               : "1px solid #ced4da"
             : "none",
           backgroundColor: darkTheme ? "#25262b" : "#fff",
+          zIndex: 1,
         }}
         children={
           <WorkflowHistory
@@ -428,6 +430,7 @@ export default function Workflow(props: WorkflowProps) {
               : "1px solid #ced4da"
             : "none",
           backgroundColor: darkTheme ? "#25262b" : "#fff",
+          zIndex: 1,
         }}
         children={
           <WorkflowJson
@@ -450,10 +453,12 @@ export default function Workflow(props: WorkflowProps) {
                 : "1px solid #ced4da"
               : "none",
             backgroundColor: darkTheme ? "#25262b" : "#fff",
+            zIndex: 1,
           }}
         >
           <WorkflowDrawer
             tableView={tableView}
+            tableViewHeight={tableViewHeight}
             progress={progress}
             setProgress={setProgress}
             setNodes={setNodes}
@@ -467,7 +472,7 @@ export default function Workflow(props: WorkflowProps) {
         </animated.div>
       )}
 
-      <div className="workflow-btn-wrap">
+      <div className="workflow-btn-wrap" style={{zIndex: 1}}>
         <WorkflowButtons
           uploadMode={uploadMode}
           jsonView={jsonView}

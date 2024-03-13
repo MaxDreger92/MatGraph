@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react"
+import { useSpring, animated } from "react-spring"
 import toast from "react-hot-toast"
 import client from "../../client"
 import Papa from "papaparse"
@@ -13,6 +14,7 @@ import { IRelationship, INode, NodeAttribute, NodeValOpAttribute } from "../../t
 import {
   convertFromJsonFormat,
   convertToJSONFormat,
+  mapNodeTypeNumerical,
 } from "../../common/helpers"
 import WorkflowTable from "./WorkflowTable"
 // import testNodes from '../../alt/testNodesN.json'
@@ -32,6 +34,7 @@ const exampleAttrDict: IDictionary = {
 
 interface WorkflowDrawerProps {
   tableView: boolean
+  tableViewHeight: number
   progress: number
   setProgress: React.Dispatch<React.SetStateAction<number>>
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
@@ -46,6 +49,7 @@ interface WorkflowDrawerProps {
 export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   const {
     tableView,
+    tableViewHeight,
     progress,
     setProgress,
     setNodes,
@@ -66,9 +70,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
   const [currentTable, setCurrentTable] = useState<TableRow[]>([])
   const [additionalTables, setAdditionalTables] = useState<number[][]>([])
-
-  const [tableHeight, setTableHeight] = useState<number | null>(null)
-  const workflowDrawerRef = useRef<HTMLDivElement>(null)
 
   // Load tables and progress from local storage
   // useEffect(() => {
@@ -101,19 +102,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     localStorage.setItem("upload-label-table", JSON.stringify(labelTable))
     localStorage.setItem("upload-attribute-table", JSON.stringify(attributeTable))
   })
-
-  useEffect(() => {
-    if (workflowDrawerRef.current && typeof ResizeObserver === 'function') {
-      const observer = new ResizeObserver(entries => {
-        const [entry] = entries;
-        setTableHeight(entry.contentRect.height);
-      });
-
-      observer.observe(workflowDrawerRef.current);
-
-      return () => observer.disconnect();
-    }
-  }, [workflowDrawerRef, currentTable]);
 
   const handlePipelineReset = () => {
     setCsvTable([])
@@ -187,7 +175,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
     try {
       if (USE_MOCK_DATA) {
-        console.log('test')
         const dictArray = dictToArray(exampleLabelDict)
         setLabelTable(dictArray)
         setCurrentTable(dictArray)
@@ -437,6 +424,10 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         }
       };
 
+      // First entry nodeType
+      const numericalNodeType = mapNodeTypeNumerical(node.type)
+      indices.push(numericalNodeType)
+
       // Extract indices from each relevant attribute of the node
       addIndices(node.name);
       addIndices(node.value);
@@ -461,16 +452,18 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const filteredTables: TableRow[][] = [];
 
     // Iterate through each entry in additionalTables
-    additionalTables.forEach((columnsToInclude: number[]) => {
+    additionalTables.forEach((additionalTable: number[]) => {
       // Create a new table with only the specified columns
       const filteredTable: TableRow[] = [];
       const rowIndexMap: Map<string, number> = new Map(); // Map to store row index based on row content
+      // Remove first element as it is the node type
+      const columnsToInclude = additionalTable.slice(1)
 
       columnsToInclude.forEach((columnIndex: number) => {
         // Get the column name from the index
         const columnName = Object.keys(csvTable[0])[columnIndex];
         // Iterate through each row in csvTable and copy the selected column values
-        csvTable.forEach((row: TableRow, index: number) => {
+        csvTable.forEach((row: TableRow) => {
           const rowKey = JSON.stringify(row); // Convert the row object to a string to use as key
           // Check if the row already exists in the filtered table
           if (!rowIndexMap.has(rowKey)) {
@@ -497,7 +490,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       )}
       {progress > 0 && (
         <div
-          ref={workflowDrawerRef}
           className="workflow-drawer"
           style={{
             position: "relative",
@@ -522,66 +514,96 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
               darkTheme={darkTheme}
             />
           )}
+
+          {/* All Tables */}
           <div
             style={{
+              position: "relative",
               display: "flex",
               flexDirection: "row",
+              width: "100%",
             }}
           >
-            {/* Additional Tables */}
 
+            {/* Additional Tables */}
+            {additionalTables.length > 0 && (
+              <div
+                style={{
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                  maxWidth: "60%",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "row",
+                    overflowX: "auto",
+                  }}
+                >
+                  {filterCsvTable(csvTable, additionalTables).map((table, index) => (
+                    <div
+                      id={"portalRoot" + index}
+                      key={index}
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden",
+                        paddingLeft: index > 0 ? 10 : 0,
+                        minWidth: "fit-content",
+                      }}
+                    >
+                      <WorkflowTable
+                        setLabelTable={setLabelTable}
+                        setAttributeTable={setAttributeTable}
+                        setTableRows={setCurrentTable}
+                        tableRows={table}
+                        progress={progress}
+                        outerTableHeight={tableViewHeight}
+                        darkTheme={darkTheme}
+                        tableIndex={index}
+                        filteredColumns={additionalTables[index].slice(1)}
+                        numericalNodeType={additionalTables[index][0]}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CSV Table */}
             <div
               style={{
-
-                overflowX: "auto",
-
+                position: "relative",
+                minWidth: "40%",
+                flex: "1 1 40%",
+                paddingLeft: 10,
+                paddingRight: 25,
               }}
             >
-            
-            {filterCsvTable(csvTable, additionalTables).map((table, index) => (
-              <div
-                key={index}
+              <div 
                 style={{
+                  position: "relative",
                   display: "flex",
                   flexDirection: "column",
-                  minWidth: "fit-content"
+                  maxWidth: "fit-content",
+                  minWidth: "100%"
                 }}
               >
                 <WorkflowTable
                   setLabelTable={setLabelTable}
                   setAttributeTable={setAttributeTable}
                   setTableRows={setCurrentTable}
-                  tableRows={table}
+                  tableRows={currentTable}
                   progress={progress}
-                  tableHeight={tableHeight}
+                  outerTableHeight={tableViewHeight}
                   darkTheme={darkTheme}
                 />
               </div>
-            ))}
-
-          </div>
-
-            {/* CSV Table */}
-            <div 
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                flex: "1 1 auto",
-                minWidth: "40%",
-                overflow: "hidden"
-              }}
-            >
-              <WorkflowTable
-                setLabelTable={setLabelTable}
-                setAttributeTable={setAttributeTable}
-                setTableRows={setCurrentTable}
-                tableRows={currentTable}
-                progress={progress}
-                tableHeight={tableHeight}
-                darkTheme={darkTheme}
-              />
             </div>
-
           </div>
         </div>
       )}
