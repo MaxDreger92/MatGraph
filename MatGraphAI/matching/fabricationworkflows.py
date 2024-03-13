@@ -92,11 +92,11 @@ class FabricationWorkflowMatcher(Matcher):
         self.query_list = [
             {
                 **node,
-                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name'], limit = 1)[0].uid if node['type'] == 'EMMOMatter' else
-                EMMOProcess.nodes.get_by_string(string = node['attributes']['name'], limit = 1)[0].uid if node['type'] == 'EMMOProcess' else
-                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name'], limit = 1)[0].uid if node['type'] == 'EMMOQuantity' else 'nope'
+                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOMatter' else
+                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOProcess' else
+                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOQuantity' else 'nope'
             }
-            for node in workflow_list
+            for node in workflow_list['nodes']
         ]
         self.count = count
         super().__init__(**kwargs)
