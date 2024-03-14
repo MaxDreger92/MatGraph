@@ -136,7 +136,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
           ref={getNewRef()}
           type="text"
           placeholder="Idx"
-          defaultValue={index ? index.toString() : ""}
+          defaultValue={index !== undefined ? index.toString() : ""}
           onChange={(e) => handleIndexChange(id, e)}
           onKeyUp={handleKeyUp}
           onBlur={handleBlur}

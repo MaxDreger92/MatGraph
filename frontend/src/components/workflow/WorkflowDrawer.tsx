@@ -70,38 +70,54 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
   const [currentTable, setCurrentTable] = useState<TableRow[]>([])
   const [additionalTables, setAdditionalTables] = useState<number[][]>([])
+  const [columnLength, setColumnLength] = useState(0)
 
+  // #################################### Saving tables to local storage should only be preliminary measure
   // Load tables and progress from local storage
-  // useEffect(() => {
-  //   const storedProgress = localStorage.getItem("upload-progress")
-  //   const storedCsvTable = localStorage.getItem("upload-input-table")
-  //   const storedLabelTable = localStorage.getItem("upload-label-table")
-  //   const storedAttributeTable = localStorage.getItem("upload-attribute-table")
+  useEffect(() => {
+    const storedProgress = localStorage.getItem("upload-progress")
+    const storedCsvTable = localStorage.getItem("upload-input-table")
+    const storedLabelTable = localStorage.getItem("upload-label-table")
+    const storedAttributeTable = localStorage.getItem("upload-attribute-table")
 
-  //   if (storedCsvTable) setCsvTable(JSON.parse(storedCsvTable))
-  //   if (storedLabelTable) setLabelTable(JSON.parse(storedLabelTable))
-  //   if (storedAttributeTable) setAttributeTable(JSON.parse(storedAttributeTable))
-  //   if (storedProgress) {
-  //     setProgress(JSON.parse(storedProgress))
-  //     switch (JSON.parse(storedProgress)) {
-  //       case 1:
-  //         if (storedCsvTable)
-  //         setCurrentTable(JSON.parse(storedCsvTable))
-  //         break
-  //       case 2:
-  //         if (storedLabelTable)
-  //         setCurrentTable(JSON.parse(storedLa))
-  //     }
-  //   }
-  // }, [progress, setProgress, csvTable, labelTable, attributeTable])
+    if (storedCsvTable) setCsvTable(JSON.parse(storedCsvTable))
+    if (storedLabelTable) setLabelTable(JSON.parse(storedLabelTable))
+    if (storedAttributeTable) setAttributeTable(JSON.parse(storedAttributeTable))
+    if (storedProgress) {
+      setProgress(JSON.parse(storedProgress))
+      switch (JSON.parse(storedProgress)) {
+        case 1:
+          if (storedCsvTable)
+          setCurrentTable(JSON.parse(storedCsvTable))
+          break
+        case 2:
+          if (storedLabelTable)
+          setCurrentTable(JSON.parse(storedLabelTable))
+          break
+        case 3:
+          if (storedAttributeTable)
+          setCurrentTable(JSON.parse(storedAttributeTable))
+          break
+        default:
+          setCsvTable([])
+          setCurrentTable([])
+          setProgress(0)
+      }
+    }
+  }, [])
 
   // Save tables and progress to local storage
   useEffect(() => {
     localStorage.setItem("upload-progress", JSON.stringify(progress))
-    localStorage.setItem("upload-input-table", JSON.stringify(csvTable))
+  }, [progress])
+
+  useEffect(() => {
     localStorage.setItem("upload-label-table", JSON.stringify(labelTable))
+  }, [labelTable])
+
+  useEffect(() => {
     localStorage.setItem("upload-attribute-table", JSON.stringify(attributeTable))
-  })
+  }, [attributeTable])
 
   const handlePipelineReset = () => {
     setCsvTable([])
@@ -140,6 +156,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
           })
           setCsvTable(typedData)
           setCurrentTable(typedData)
+          setColumnLength(Object.keys(typedData[0]).length)
+          localStorage.setItem("upload-input-table", JSON.stringify(typedData))
         },
         skipEmptyLines: true,
       })
@@ -414,6 +432,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       // Function to extract and add number indices from attributes
       const addIndices = (attr: NodeAttribute | NodeValOpAttribute) => {
         if (typeof attr.index === 'number') {
+          console.log(attr.index)
           indices.push(attr.index);
         } else if (Array.isArray(attr.index)) {
           attr.index.forEach(index => {
@@ -438,6 +457,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       addIndices(node.std);
       addIndices(node.error);
       addIndices(node.identifier);
+
+      console.log(node.error.index)
 
       // Return the indices array for this node
       return indices;
@@ -543,7 +564,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                     overflowX: "auto",
                   }}
                 >
-                  {filterCsvTable(csvTable, additionalTables).map((table, index) => (
+                  {filterCsvTable(csvTable, additionalTables).map((additionalTable, index) => (
                     <div
                       id={"portalRoot" + index}
                       key={index}
@@ -560,11 +581,11 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         setLabelTable={setLabelTable}
                         setAttributeTable={setAttributeTable}
                         setTableRows={setCurrentTable}
-                        tableRows={table}
+                        tableRows={additionalTable}
                         progress={progress}
                         outerTableHeight={tableViewHeight}
                         darkTheme={darkTheme}
-                        tableIndex={index}
+                        columnsLength={Object.keys(additionalTable[0]).length}
                         filteredColumns={additionalTables[index].slice(1)}
                         numericalNodeType={additionalTables[index][0]}
                       />
@@ -601,7 +622,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                   progress={progress}
                   outerTableHeight={tableViewHeight}
                   darkTheme={darkTheme}
-                  additionalTables={additionalTables.flat()}
+                  columnsLength={columnLength}
+                  additionalTables={additionalTables}
                 />
               </div>
             </div>
