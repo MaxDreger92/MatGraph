@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect, useState } from "react";
+import React, { useRef, useMemo, useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useReactTable, ColumnDef, getCoreRowModel } from "@tanstack/react-table";
@@ -17,10 +17,17 @@ interface WorkflowTableProps {
 	progress: number;
 	outerTableHeight: number | null;
 	darkTheme: boolean;
-	tableIndex?: number
+	columnsLength: number
+
+	// ################################ for additional table
+	// columns of additional table
 	filteredColumns?: number[]
+	// numericalNodeType of additional table
 	numericalNodeType?: number
-	additionalTables?: number[]
+
+	// ################################ for csvTable
+	// all additional tables
+	additionalTables?: number[][]
 }
 
 const labelOptions = [
@@ -41,11 +48,14 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		progress,
 		outerTableHeight,
 		darkTheme,
-		tableIndex,
+		columnsLength,
 		filteredColumns,
 		numericalNodeType,
 		additionalTables,
 	} = props;
+
+	const partialTable = numericalNodeType !== undefined
+	const tableRef = useRef<HTMLDivElement>(null);
 
 	const [selected, setSelected] = useState<{
 		row: number;
@@ -56,31 +66,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		column: number;
 	} | null>(null);
 
-	const tableRef = useRef<HTMLDivElement>(null);
-	const tableRowsRef = useRef<HTMLDivElement>(null);
-	const [tableRect, setTableRect] = useState<DOMRect | null>(null);
 	const [innerTableHeight, setInnerTableHeight] = useState<number | string>("");
-
 	const [selectData, setSelectData] = useState<{ value: string; label: string }[]>([]);
 
-	const [tableColors, setTableColors] = useState<{ [key: string]: string }>({})
-
-	const partialTable = numericalNodeType !== undefined
+	const [highlightedColumns, setHighlightedColumns] = useState<{[key: number]: number}>({})
 
 	const { getNewRef, refs } = useAutoIncrementInputRefs()
-
-	useEffect(() => {
-		if (tableRef.current && typeof ResizeObserver === "function") {
-			const observer = new ResizeObserver((entries) => {
-				const [entry] = entries;
-				setTableRect(entry.contentRect);
-			});
-
-			observer.observe(tableRef.current);
-
-			return () => observer.disconnect();
-		}
-	}, [tableRef, tableRows]);
 
 	useEffect(() => {
 		// 52 + 45 * tableRows
@@ -92,6 +83,18 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		}
 		setInnerTableHeight(`calc(100% - 90px)`);
 	}, [tableRows, outerTableHeight]);
+
+	useEffect(() => {
+		if (!additionalTables) return
+
+		const columns: { [key: number]: number } = {}
+
+		additionalTables.map((table) => {
+			table.slice(1).map((column) => columns[column] = table[0])
+		})
+
+		setHighlightedColumns(columns)
+	}, [additionalTables])
 
 	const handleCellClick = (cellData: string | number | boolean, row: number, columnId: string): void => {
 		if (progress === 2 && row === 0) {
@@ -184,18 +187,19 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		overscan: 1,
 	});
 
+	const capitalizeFirstLetter = (item: string | number | boolean) => {
+		if (!(typeof item === "string")) return item;
+		return item.charAt(0).toUpperCase() + item.slice(1);
+	}
+
 	const getAdditionalColumnNum = (index: number): number | string => {
 		if (!(filteredColumns && filteredColumns.length > 0)) return "isNaN"
 
 		return filteredColumns[index]
 	}
 
-	const capitalizeFirstLetter = (item: string | number | boolean) => {
-		if (!(typeof item === "string")) return item;
-		return item.charAt(0).toUpperCase() + item.slice(1);
-	}
-
-	const getRowBackgroundColor = (rowIndex: number, columnIndex: number): string => {
+	// needs revamp
+	const getRowHoverColor = (rowIndex: number, columnIndex: number): string => {
 		if (rowIndex === tableRows.length - 1 &&
 			hovered && hovered.row === rowIndex &&
 			hovered.column === columnIndex &&
@@ -206,27 +210,38 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 			}
 	}
 
-	const getHeaderBackgroundColor = (bypass?: boolean): string => {
-		if (!partialTable && !bypass) {
+	const getHeaderBackgroundColor = (columnIndex: number): string => {
+		if (!partialTable && !(columnIndex in highlightedColumns)) {
 			return darkTheme ? "#25262b" : "#f1f3f5"
 		}
 
 		const colorIndex = darkTheme ? 0 : 1
-		const colors = colorPalette[colorIndex]
-		let stringNodeType = ""
-		if (partialTable) {
-			stringNodeType = mapNodeTypeString(numericalNodeType)
-		} else {
+		const colors =  colorPalette[colorIndex]
+		let nodeType = ""
 
+		if (partialTable) {
+			nodeType = mapNodeTypeString(numericalNodeType)
+		} else {
+			nodeType = mapNodeTypeString(highlightedColumns[columnIndex])
 		}
-		
-		return colors[stringNodeType]
+
+		return colors[nodeType]
 	}
 
-	const getHeaderColor = (): string => {
-		if (!partialTable) {
+	const getHeaderTextColor = (columnIndex: number): string => {
+		if (!partialTable && !(columnIndex in highlightedColumns)) {
 			return darkTheme ? "#a6a7ab" : "#040404"
-		} else if ([0,2,5].includes(numericalNodeType)) {
+		}
+
+		let numNodeType = 69
+
+		if (partialTable) {
+			numNodeType = numericalNodeType
+		} else {
+			numNodeType = highlightedColumns[columnIndex]
+		}
+		
+		if ([0,2,5].includes(numNodeType)) {
 			return "#1a1b1e"
 		}
 		return "#ececec"
@@ -244,32 +259,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		// return specialBorderColor
 
 		return darkTheme ? "#333" : "#ced4da"
-	}
-
-	useEffect(() => {
-		const colors: { [key: string]: string } = {}
-
-		// Populate colors dictionary
-			// Border
-			colors["borderColor"] = getBorderColor()
-			// Header Background
-			console.log("calculating backgroundColor")
-			colors["headerBackgroundColor"] = getHeaderBackgroundColor()
-			// Header Text
-			colors["headerColor"] = getHeaderColor()
-		
-		setTableColors(colors)
-
-	}, [numericalNodeType, darkTheme])
-
-	const getTableColor = (key: string, index: number) => {
-		let color = tableColors[key]
-
-		if (key === "headerBackgroundColor" && additionalTables?.includes(index)) {
-			color = getHeaderBackgroundColor(true)
-		}
-
-		return color
 	}
 
 	// Render your table
@@ -313,34 +302,50 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 								left: `${columnVirtual.start}px`,
 								width: `${columnVirtual.size}px`,
 								height: "50px",
-								borderBottom: `1px solid ${tableColors["borderColor"]}`,
+								borderBottom: `1px solid ${getBorderColor}`,
 								textAlign: "left",
 								lineHeight: "50px",
-								backgroundColor: tableColors["headerBackgroundColor"],
-								color: tableColors["headerColor"],
-								// borderRight: `1px solid ${tableColors["borderColor"]}`,
+								backgroundColor: getHeaderBackgroundColor(columnVirtual.index), // add hover to signalize interaction possibility
+								color: getHeaderTextColor(columnVirtual.index),
+								borderRight: `1px solid ${getBorderColor}`,
 								paddingLeft: ".5rem",
 							}}
 						>
 							{partialTable && (
 								<div
-								className="thisOne"
 									style={{
 										position: "absolute",
-										top: -11,
+										top: -12,
+										left: 4,
 										display: "flex",
 										width: "calc(100% - 12px)",
 										fontWeight: "bold",
 									}}
 								>
-									{"Column " + getAdditionalColumnNum(columnVirtual.index)}
+									{getAdditionalColumnNum(columnVirtual.index)}
+								</div>
+							)}
+
+							{!partialTable && (
+								<div
+									style={{
+										position: "absolute",
+										top: -12,
+										left: 4,
+										display: "flex",
+										width: "calc(100% - 12px)",
+										fontWeight: "bold",
+									}}
+								>
+									{columnVirtual.index}
 								</div>
 							)}
 
 							<div
 								style={{
 									position: "absolute",
-									top: partialTable ? 11 : 0
+									top: 11,
+									left: 11,
 								}}
 							>
 								{header}
@@ -352,7 +357,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
 			{/* Rows */}
 			<div
-				ref={tableRowsRef}
 				style={{
 					position: "relative",
 					height: `${rowVirtualizer.getTotalSize()}px`,
@@ -397,16 +401,16 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 												left: `${columnVirtual.start}px`,
 												width: `${columnVirtual.size}px`,
 												height: "100%",
-												backgroundColor: progress <= 1 && progress < 4
+												backgroundColor: progress > 1 && progress < 4
 													? darkTheme ? "#212226" : "#f8f9fa"
-													: getRowBackgroundColor(rowVirtual.index, columnVirtual.index),
+													: getRowHoverColor(rowVirtual.index, columnVirtual.index),
 												color: darkTheme ? "#a6a7ab" : "#040404",
-												// borderRight: columnVirtual.index + 1 === Object.keys(tableRows[0]).length ? "none" : "1px solid #333",
+												borderRight: columnVirtual.index + 1 === columnsLength ? "none" : "1px solid #333",
 												// borderRight: `1px solid ${tableColors["borderColor"]}`,
 												borderBottom:
 													rowVirtual.index + 1 === tableRows.length
 														? "none"
-														: `1px solid ${darkTheme ? "#333" : "#ced4da"}`,
+														: `1px solid ${getBorderColor}`,
 												// borderBottom: "1px solid #333",
 												paddingTop: 10,
 												paddingLeft: ".5rem",
