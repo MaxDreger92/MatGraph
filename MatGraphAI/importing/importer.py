@@ -416,7 +416,7 @@ class TableImporter(Importer):
     def build_query(self):
         # Base query part for loading the CSV
         query_parts = [f"""
-        CALL apoc.load.csv('http://134.94.199.40/neo4j/f6fab112908e7c081a256ec7394a0c50') YIELD lineNo, list AS row"""]
+        CALL apoc.load.csv('{self.file_link}') YIELD lineNo, list AS row"""]
 
         nodes = self.data['nodes']
         relationships = self.data['relationships']
@@ -431,7 +431,7 @@ class TableImporter(Importer):
 
         add_ontology = f"""WITH * UNWIND {str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")} as input
         MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess), (n:Matter|Parameter|Manufacturing|Measurement|Property)
-        WHERE ontology.id = input.id and (n.name = input.key or input.key in n.name)
+        WHERE ontology.uid = input.id and (n.name = input.name or input.name in n.name)
         MERGE (n)-[:IS_A]->(ontology)
         """
 

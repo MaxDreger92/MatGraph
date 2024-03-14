@@ -62,9 +62,12 @@ QUERY_BY_VALUE = """"""
 from matching.matcher import Matcher
 from matgraph.models.ontology import *
 
-ONTOMAPPER = {"EMMOMatter": "Matter",
-              "EMMOProcess": "Process",
-                "EMMOQuantity": "Quantity"}
+ONTOMAPPER = {"matter": "EMMOMatter",
+              "manufacturing": "EMMOProcess",
+              "measurement": "EMMOProcess",
+              "property": "EMMOQuantity",
+                "parameter": "EMMOQuantity"
+              }
 
 RELAMAPPER = {"IS_MANUFACTURING_INPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT",
               "IS_MANUFACTURING_OUTPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT",
@@ -92,12 +95,13 @@ class FabricationWorkflowMatcher(Matcher):
         self.query_list = [
             {
                 **node,
-                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOMatter' else
-                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOProcess' else
-                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if node['label'] == 'EMMOQuantity' else 'nope'
+                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOMatter' else
+                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOProcess' else
+                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOQuantity' else 'nope'
             }
             for node in workflow_list['nodes']
         ]
+        self.relationships = workflow_list['relationships']
         self.count = count
         super().__init__(**kwargs)
 
@@ -114,23 +118,22 @@ class FabricationWorkflowMatcher(Matcher):
         with_onto_query = []
         match_only_onto_query = []
         for node in self.query_list:
-            match_only_onto_query.append(f"""(onto_{node['id']}:{node['type']}{{uid: '{node['uid']}'}})""")
+            match_only_onto_query.append(f"""(onto_{node['id']}:{ONTOMAPPER[node['label']]}{{uid: '{node['uid']}'}})""")
             where_query.append(f""" full_onto_{node['id']}.uid IN tree_uid_{node['id']}""")
             match_onto_query.append(f"""(tree_onto_{node['id']})-[:EMMO__IS_A*..]->(onto_{node['id']})""")
             with_onto_query.append(f"""apoc.coll.union(collect(tree_onto_{node['id']}), collect(onto_{node['id']})) as tree_{node['id']}, apoc.coll.union(collect( tree_onto_{node['id']}.uid), collect(onto_{node['id']}.uid)) as tree_uid_{node['id']}""")
             with_query.append(f""" node_{node['id']}""")
-            if node['type'] == 'EMMOQuantity':
-                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{ONTOMAPPER[node['type']]})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
+            if node['label'] == 'EMMOQuantity':
+                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{node['label'].capitalize()})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
                 where_query.append(f""" rel_{node['id']}.float_value {node['operator']} {node['value']}""")
             else:
-                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{ONTOMAPPER[node['type']]})""")
+                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{node['label'].capitalize()})""")
 
 
         # Constructing the relationship paths                m
-            for rel in node["relationships"]:
-                if rel['connection'][0] == node['id']:
-                    relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = ((node_{rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->(node_{rel['connection'][1]}))""")
-                    with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
+        for rel in self.relationships:
+            relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = ((node_{rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->(node_{rel['connection'][1]}))""")
+            with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
         # 1. Create two dictionaries: one for path starts and one for path ends.
         path_groups_start = defaultdict(list)
         path_groups_end = defaultdict(list)
@@ -186,8 +189,8 @@ class FabricationWorkflowMatcher(Matcher):
     WITH DISTINCT {', '.join(with_query)}, pathNodes, [node IN pathNodes | node.uid] + [x IN pathNodes | head([(x)-[:IS_A]->(neighbor) | neighbor.name])] as combinations
     UNWIND pathNodes AS pathNode 
     CALL apoc.case([
-        pathNode:{ONTOMAPPER["EMMOMatter"]}, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info',
-        pathNode:{ONTOMAPPER["EMMOProcess"]}, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info'
+        pathNode:Matter, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info',
+        pathNode:Process, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info'
     ])
     YIELD value as node_info
     WITH DISTINCT collect(DISTINCT node_info["node_info"]) as node_info, combinations
