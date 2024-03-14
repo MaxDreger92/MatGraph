@@ -5,7 +5,7 @@ import { useReactTable, ColumnDef, getCoreRowModel } from "@tanstack/react-table
 import { TableRow } from "../../types/workflow.types";
 import { Label } from "../../types/workflow.types";
 import { Select } from "@mantine/core";
-import { getAttributesByLabel, mapNodeTypeString } from "../../common/helpers";
+import { getAttributesByLabel, mapNodeTypeString, useAutoIncrementInputRefs } from "../../common/helpers";
 import { INode } from "../../types/canvas.types";
 import { colorPalette } from "../../types/colors";
 
@@ -20,6 +20,7 @@ interface WorkflowTableProps {
 	tableIndex?: number
 	filteredColumns?: number[]
 	numericalNodeType?: number
+	additionalTables?: number[]
 }
 
 const labelOptions = [
@@ -43,6 +44,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		tableIndex,
 		filteredColumns,
 		numericalNodeType,
+		additionalTables,
 	} = props;
 
 	const [selected, setSelected] = useState<{
@@ -64,6 +66,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 	const [tableColors, setTableColors] = useState<{ [key: string]: string }>({})
 
 	const partialTable = numericalNodeType !== undefined
+
+	const { getNewRef, refs } = useAutoIncrementInputRefs()
 
 	useEffect(() => {
 		if (tableRef.current && typeof ResizeObserver === "function") {
@@ -202,14 +206,20 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 			}
 	}
 
-	const getHeaderBackgroundColor = (): string => {
-		if (!partialTable) {
+	const getHeaderBackgroundColor = (bypass?: boolean): string => {
+		if (!partialTable && !bypass) {
 			return darkTheme ? "#25262b" : "#f1f3f5"
 		}
 
-				const colorIndex = darkTheme ? 0 : 1
+		const colorIndex = darkTheme ? 0 : 1
 		const colors = colorPalette[colorIndex]
-		const stringNodeType = mapNodeTypeString(numericalNodeType)
+		let stringNodeType = ""
+		if (partialTable) {
+			stringNodeType = mapNodeTypeString(numericalNodeType)
+		} else {
+
+		}
+		
 		return colors[stringNodeType]
 	}
 
@@ -250,7 +260,17 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 		
 		setTableColors(colors)
 
-	}, [numericalNodeType])
+	}, [numericalNodeType, darkTheme])
+
+	const getTableColor = (key: string, index: number) => {
+		let color = tableColors[key]
+
+		if (key === "headerBackgroundColor" && additionalTables?.includes(index)) {
+			color = getHeaderBackgroundColor(true)
+		}
+
+		return color
+	}
 
 	// Render your table
 	return (

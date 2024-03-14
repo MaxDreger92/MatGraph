@@ -531,7 +531,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 style={{
                   paddingLeft: 10,
                   paddingRight: 10,
-                  maxWidth: "60%",
+                  maxWidth: "50%",
                   overflow: "hidden",
                 }}
               >
@@ -578,8 +578,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             <div
               style={{
                 position: "relative",
-                minWidth: "40%",
-                flex: "1 1 40%",
+                minWidth: "50%",
+                flex: "1 1 50%",
                 paddingLeft: 10,
                 paddingRight: 25,
               }}
@@ -601,6 +601,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                   progress={progress}
                   outerTableHeight={tableViewHeight}
                   darkTheme={darkTheme}
+                  additionalTables={additionalTables.flat()}
                 />
               </div>
             </div>
