@@ -432,7 +432,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       // Function to extract and add number indices from attributes
       const addIndices = (attr: NodeAttribute | NodeValOpAttribute) => {
         if (typeof attr.index === 'number') {
-          console.log(attr.index)
           indices.push(attr.index);
         } else if (Array.isArray(attr.index)) {
           attr.index.forEach(index => {
@@ -457,8 +456,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       addIndices(node.std);
       addIndices(node.error);
       addIndices(node.identifier);
-
-      console.log(node.error.index)
 
       // Return the indices array for this node
       return indices;
@@ -548,6 +545,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
             {/* Additional Tables */}
             {additionalTables.length > 0 && (
+              <>
               <div
                 style={{
                   paddingLeft: 10,
@@ -593,6 +591,14 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                   ))}
                 </div>
               </div>
+              <div
+                style={{
+                  height: "100%",
+                  width: 2,
+                  backgroundColor: darkTheme ? "#555" : "#ced4da"
+                }}
+              />
+              </>
             )}
 
             {/* CSV Table */}

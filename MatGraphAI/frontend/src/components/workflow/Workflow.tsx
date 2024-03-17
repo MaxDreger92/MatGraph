@@ -27,6 +27,7 @@ import { convertToJSONFormat } from "../../common/helpers"
 import toast from "react-hot-toast"
 import client from "../../client"
 import { IWorkflow } from "../../types/workflow.types"
+import RefContext from "./RefManagerProvider"
 
 const undoSteps = 200
 
@@ -350,6 +351,7 @@ export default function Workflow(props: WorkflowProps) {
   const darkTheme = colorScheme === "dark"
 
   return (
+    <RefManagerProvider>
     <div className="workflow" ref={workflowWindowRef}>
       <div
         className="workflow-canvas"
@@ -486,5 +488,6 @@ export default function Workflow(props: WorkflowProps) {
         />
       </div>
     </div>
+    </RefManagerProvider>
   )
 }

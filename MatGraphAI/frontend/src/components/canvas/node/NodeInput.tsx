@@ -1,5 +1,6 @@
 import { Select, useMantineColorScheme } from "@mantine/core"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, useContext } from "react"
+import RefManagerContext from "../../workflow/RefManagerContext"
 
 import {
   INode,
@@ -8,10 +9,11 @@ import {
   NodeAttribute,
   NodeValOpAttribute,
   AttributeIndex,
+  CustomRef,
 } from "../../../types/canvas.types"
 import NodeInputStr from "./NodeInputStr"
 import NodeInputStrOp from "./NodeInputStrOp"
-import { useAutoIncrementInputRefs } from "../../../common/helpers"
+import { useRefManager } from "../../../common/helpers"
 
 interface NodeInputProps {
   isValueNode: boolean
@@ -37,7 +39,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     node.identifier
   )
 
-  const { getNewRef, refs } = useAutoIncrementInputRefs()
+  const { refs, getNewInputRef, getNewSvgRef, getNewDivRef } = useContext(RefManagerContext)
+
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
 
   const handleBlur = () => {
     setTimeout(() => {
@@ -194,9 +199,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
   }
 
-  const { colorScheme } = useMantineColorScheme()
-  const darkTheme = colorScheme === 'dark'
-
   /**
    *
    * Matter: Identifier, Name (str), Batch (str), Ratio (strop), Concentration (strop)
@@ -209,6 +211,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
   return (
     <div
+      ref={getNewDivRef()}
       className="node-input"
       onClick={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
@@ -225,7 +228,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleIndexChange={handleIndexChangeLocal}
         handleKeyUp={handleKeyUp}
         handleBlur={handleBlur}
-        getNewRef={getNewRef}
+        getNewInputRef={getNewInputRef}
+        getNewSvgRef={getNewSvgRef}
         id="name"
         defaultValue={nodeName.value}
         showIndices={node.with_indices}
@@ -241,7 +245,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
           handleIndexChange={handleIndexChangeLocal}
           handleKeyUp={handleKeyUp}
           handleBlur={handleBlur}
-          getNewRef={getNewRef}
+          getNewInputRef={getNewInputRef}
+          getNewSvgRef={getNewSvgRef}
           id="identifier"
           defaultValue={nodeIdentifier.value}
           showIndices={node.with_indices}
@@ -259,7 +264,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="identifier"
             defaultValue={nodeIdentifier.value}
             showIndices={node.with_indices}
@@ -273,7 +279,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="batch"
             defaultValue={nodeBatchNum.value}
             showIndices={node.with_indices}
@@ -288,7 +295,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="ratio"
             defaultOp={nodeRatio.valOp.operator}
             defaultVal={nodeRatio.valOp.value}
@@ -303,7 +311,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="concentration"
             defaultOp={nodeConcentration.valOp.operator}
             defaultVal={nodeConcentration.valOp.value}
@@ -323,7 +332,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="value"
             defaultOp={nodeValue.valOp.operator}
             defaultVal={nodeValue.valOp.value}
@@ -341,7 +351,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="unit"
             defaultValue={nodeUnit.value}
             showIndices={node.with_indices}
@@ -356,7 +367,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="std"
             defaultOp={nodeStd.valOp.operator}
             defaultVal={nodeStd.valOp.value}
@@ -371,7 +383,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewRef={getNewRef}
+            getNewInputRef={getNewInputRef}
+            getNewSvgRef={getNewSvgRef}
             id="error"
             defaultOp={nodeError.valOp.operator}
             defaultVal={nodeError.valOp.value}

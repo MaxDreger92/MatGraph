@@ -64,6 +64,10 @@ export default React.memo(function Node(props: NodeProps) {
   const nodeRef = useRef<HTMLDivElement>(null)
   const nodeLabelRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    console.log("rerender")
+  }, [mousePosition])
+
   // set nodeActualSize (current size of visible node)
   useEffect(() => {
     const observer = new ResizeObserver(() => {

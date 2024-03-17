@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
-import { userContext } from "../common/userContext"
+import { UserContext } from "../common/UserContext"
 import { useContext } from "react"
 import { toast } from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
@@ -34,7 +34,7 @@ import client from "../client"
 
 export default function Authentication() {
   const queryClient = useQueryClient()
-  const currentUser = useContext(userContext)
+  const currentUser = useContext(UserContext)
   const navigate = useNavigate()
   const [message, setMessage] = useState("")
 

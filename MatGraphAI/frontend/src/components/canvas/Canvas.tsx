@@ -114,6 +114,14 @@ export default function Canvas(props: CanvasProps) {
   //   }
   // }, [canvasRef])
 
+  const calculateMouseNodeDist = () => {
+    if (!canvasRect) return
+
+    nodes.forEach((node) => {
+      
+    })
+  }
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!canvasRect) return
@@ -122,6 +130,8 @@ export default function Canvas(props: CanvasProps) {
         y: e.clientY - canvasRect.top,
       })
     }
+
+
 
     window.addEventListener("mousemove", handleMouseMove)
     return () => {

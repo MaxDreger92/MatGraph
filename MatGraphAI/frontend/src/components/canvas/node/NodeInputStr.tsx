@@ -1,13 +1,16 @@
 import { RefObject, useEffect } from "react"
 import { AttributeIndex } from "../../../types/canvas.types"
 import { useMantineColorScheme } from "@mantine/core"
+import CloseIcon from "@mui/icons-material/Close"
+import { useRefManager } from "../../../common/helpers"
 
 interface NodeInputStrProps {
   handleStrChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleIndexChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
   handleBlur: () => void
-  getNewRef: () => RefObject<HTMLInputElement>
+  getNewInputRef: () => React.RefObject<HTMLInputElement>
+  getNewSvgRef: () => React.RefObject<SVGSVGElement>
   id: string
   defaultValue: string | undefined
   showIndices: boolean
@@ -24,7 +27,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     handleIndexChange,
     handleKeyUp,
     handleBlur,
-    getNewRef,
+    getNewInputRef,
+    getNewSvgRef,
     id,
     defaultValue,
     showIndices,
@@ -49,7 +53,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     >
       <input
         className={`${inputClass}`}
-        ref={getNewRef()}
+        ref={getNewInputRef()}
         type="text"
         placeholder={placeholder}
         defaultValue={defaultValue}
@@ -64,22 +68,35 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         }}
       />
       {showIndices && (
-        <input
-          className={`${inputClass}`}
-          ref={getNewRef()}
-          type="text"
-          placeholder="Idx"
-          defaultValue={index !== undefined ? index.toString() : ""}
-          onChange={(e) => handleIndexChange(id, e)}
-          onKeyUp={handleKeyUp}
-          onBlur={handleBlur}
-          style={{
-            marginTop: add ? 8 : 0,
-            marginLeft: 8,
-            zIndex: zIndex,
-            width: 80,
-          }}
-        />
+        <div style={{position: "relative", display: "flex"}}>
+          <input
+            className={`${inputClass}`}
+            ref={getNewInputRef()}
+            type="text"
+            placeholder="Idx"
+            defaultValue={index !== undefined ? index.toString() : ""}
+            onChange={(e) => handleIndexChange(id, e)}
+            onKeyUp={handleKeyUp}
+            onBlur={handleBlur}
+            style={{
+              marginTop: add ? 8 : 0,
+              marginLeft: 8,
+              zIndex: zIndex,
+              width: 110,
+            }}
+          />
+          <CloseIcon
+            ref={getNewSvgRef()}
+            style={{
+              position: "absolute",
+              right: 0,
+              transform: add ? "translate(0, 4px)" : "none",
+              alignSelf: "center",
+              zIndex: zIndex,
+              color: darkTheme ? "#333" : "#ced4da"
+            }}
+          />
+        </div>
       )}
     </div>
   )

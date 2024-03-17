@@ -76,3 +76,8 @@ export type ValOpPair = {
 export type AttributeIndex = number | string
 
 export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+
+export type CustomRef =
+  React.RefObject<HTMLInputElement> |
+  React.RefObject<SVGSVGElement> |
+  React.RefObject<HTMLElement>

@@ -8,6 +8,7 @@ import {
   NodeAttribute,
   NodeValOpAttribute,
   AttributeIndex,
+  CustomRef,
 } from "../types/canvas.types"
 import { IGraphData, ITempNode, ExtractedAttribute, CustomAttribute, ParsableAttributes, Label } from "../types/workflow.types"
 import toast from "react-hot-toast"
@@ -449,14 +450,34 @@ export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
-export function useAutoIncrementInputRefs() {
-  const refs = useRef<React.RefObject<HTMLInputElement>[]>([])
-  const getNewRef = () => {
-    const newRef = React.createRef<HTMLInputElement>()
-    refs.current.push(newRef)
-    return newRef
-  }
+export function useRefManager() {
+  const refs = useRef<CustomRef[]>([]);
+  
+  const getNewInputRef = () => {
+    // console.log("trying to push an input ref")
+    const newRef = React.createRef<HTMLInputElement>();
+    refs.current.push(newRef);
+    return newRef;
+  };
 
-  return { getNewRef, refs: refs.current }
+  const getNewSvgRef = (): React.RefObject<SVGSVGElement> => {
+    const newRef = React.createRef<SVGSVGElement>();
+    refs.current.push(newRef);
+    return newRef;
+  };
+
+  const getNewDivRef = (): React.RefObject<HTMLDivElement> => {
+    const newRef = React.createRef<HTMLDivElement>();
+    // console.log(refs.current.length)
+    refs.current.push(newRef);
+    // console.log(refs.current.length)
+    return newRef;
+  };
+
+  // const resetRefs = () => {
+  //   refs.current = []
+  // }
+
+  return { getNewDivRef, getNewInputRef, getNewSvgRef, refs: refs.current };
 }
 

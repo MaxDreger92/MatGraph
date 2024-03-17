@@ -1,14 +1,16 @@
 import { Select, useMantineColorScheme } from "@mantine/core"
 import React, { RefObject, useEffect, useRef, useState } from "react"
 import { AttributeIndex, Operator } from "../../../types/canvas.types"
+import { useRefManager } from "../../../common/helpers"
 
 interface NodeInputStrOpProps {
   handleOpChange: (id: string, operator: string) => void
   handleValChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleIndexChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
-  handleBlur: () => void
-  getNewRef: () => RefObject<HTMLInputElement>
+  handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
+  getNewInputRef: () => React.RefObject<HTMLInputElement>
+  getNewSvgRef: () => React.RefObject<SVGSVGElement>
   id: string
   defaultOp: string
   defaultVal: string
@@ -25,7 +27,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     handleIndexChange,
     handleKeyUp,
     handleBlur,
-    getNewRef,
+    getNewInputRef,
+    getNewSvgRef,
     id,
     defaultOp,
     defaultVal,
@@ -85,7 +88,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
       )} */}
       <Select
         // className={`${inputClass}`}
-        ref={getNewRef()}
+        ref={getNewInputRef()}
         onChange={handleOpChangeLocal}
         onKeyUp={handleKeyUp}
         onBlur={handleBlur}
@@ -115,8 +118,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         }}
       />
       <input
+        ref={getNewInputRef()}
         className={`${inputClass}`}
-        ref={getNewRef()}
         type="text"
         placeholder={placeholder}
         defaultValue={defaultVal}
@@ -132,8 +135,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
       />
       {showIndices && (
         <input
+          ref={getNewInputRef()}
           className={`${inputClass}`}
-          ref={getNewRef()}
           type="text"
           placeholder="Idx"
           defaultValue={index !== undefined ? index.toString() : ""}

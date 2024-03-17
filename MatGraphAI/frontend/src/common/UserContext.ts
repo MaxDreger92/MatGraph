@@ -22,7 +22,7 @@ const initialMDBUser: MDB_IUser = {
   imgurl: "",
 }
 
-const userContext = createContext<MDB_IUser | null | undefined>(initialMDBUser)
+const UserContext = createContext<MDB_IUser | null | undefined>(initialMDBUser)
 
-export { userContext }
+export { UserContext }
 export { initialMDBUser }
