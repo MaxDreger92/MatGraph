@@ -1,6 +1,3 @@
-from collections import defaultdict
-from pprint import pprint
-from uuid import UUID
 import os
 
 import pandas as pd
@@ -74,6 +71,15 @@ RELAMAPPER = {"IS_MANUFACTURING_INPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING
               "HAS_PARAMETER": "HAS_PARAMETER",
               "HAS_PROPERTY": "HAS_PROPERTY"}
 
+OPERATOR_MAPPING = {
+    '=': '=',
+    '!=': '<>',
+    '>': '>',
+    '>=': '>=',
+    '<': '<',
+    '<=': '<='
+}
+
 
 FILTER_ONTOLOGY = """
 $id.uid IN $uids
@@ -119,14 +125,26 @@ class FabricationWorkflowMatcher(Matcher):
         }}
         """
 
-    def _build_find_nodes_query(self, node_id, label):
+    def _build_find_nodes_query(self, node_id, label, attributes):
+        label = label.capitalize()
+        if label == 'Property' or label == 'Parameter':
+            value = attributes['value']['value']
+            operator = OPERATOR_MAPPING[attributes['value']['operator']]
+            return f"""CALL {{
+            WITH combined_{node_id}
+            UNWIND combined_{node_id} AS full_onto_{node_id}
+            MATCH (full_onto_{node_id})<-[:IS_A]-(node_{node_id}:{label})
+            WHERE node_{node_id}.value {operator} toFloat({value})
+            RETURN collect(DISTINCT node_{node_id}) AS nodes_{node_id}
+            }}
+            """
         return f"""CALL {{
-        WITH combined_{node_id}
-        UNWIND combined_{node_id} AS full_onto_{node_id}
-        MATCH (full_onto_{node_id})<-[:IS_A]-(node_{node_id}:{label.capitalize()})
-        RETURN collect(DISTINCT node_{node_id}) AS nodes_{node_id}
-        }}
-        """
+            WITH combined_{node_id}
+            UNWIND combined_{node_id} AS full_onto_{node_id}
+            MATCH (full_onto_{node_id})<-[:IS_A]-(node_{node_id}:{label})
+            RETURN collect(DISTINCT node_{node_id}) AS nodes_{node_id}
+            }}
+            """
 
     def _build_path_queries(self):
         path_queries = []
@@ -239,7 +257,7 @@ class FabricationWorkflowMatcher(Matcher):
     def build_query(self):
         ontology_queries = [self._build_ontology_query(node) for node in self.query_list]
         tree_queries = [self._build_tree_query(node['id'], node['label']) for node in self.query_list]
-        find_nodes_queries = [self._build_find_nodes_query(node['id'], node['label']) for node in self.query_list]
+        find_nodes_queries = [self._build_find_nodes_query(node['id'], node['label'], node['attributes']) for node in self.query_list]
         path_queries_and_conditions = self._build_path_queries_and_conditions()
         prepare_results = self._build_results()
 
