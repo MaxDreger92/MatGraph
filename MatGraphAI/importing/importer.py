@@ -60,11 +60,7 @@ class Importer:
             start (float): Start time of query execution.
             end (float): End time of query execution.
         """
-        # config = [
-        #     (k, v('value') if callable(v) else v)
-        #     for k, v in vars(sys.modules['matching.config']).items()
-        #     if not k.startswith('_') and not k.startswith('QUERY')
-        # ]
+
 
         self.report += render_to_string('reports/query.html', {
             'query': query,
@@ -268,67 +264,12 @@ class TableTransformer:
 
     def create_node_list(self):
         print("create node_list attributes")
-
-
-        self._node_list = self._node_list = {
-            'nodes': [
-                {'label': 'Manufacturing', 'node_id': 0, 'name': [['Spincoating', 2]], 'attributes': {'name': [['Spincoating', 2]]}},
-                {'label': 'Manufacturing', 'node_id': 1, 'name': [['Spincoating', 16]], 'attributes': {'name': [['Spincoating', 16]]}},
-                {'label': 'Manufacturing', 'node_id': 2, 'name': [['Spincoating', 30]], 'attributes': {'name': [['Spincoating', 30]]}},
-                {'label': 'Manufacturing', 'node_id': 3, 'name': [['Spincoating', 44]], 'attributes': {'name': [['Spincoating', 44]]}},
-                {'label': 'Manufacturing', 'node_id': 4, 'name': [['Spincoating', 58]], 'attributes': {'name': [['Spincoating', 58]]}},
-                {'label': 'Manufacturing', 'node_id': 5, 'name': [['Evaporation', 72]], 'attributes': {'name': [['Evaporation', 72]]}},
-                {'label': 'Manufacturing', 'node_id': 6, 'name': [['Evaporation', 86]], 'attributes': {'name': [['Evaporation', 86]]}},
-                {'label': 'Matter', 'node_id': 7, 'name': [['ETL', 1]], 'attributes': {'name': [['ETL', 1]], 'identifier': [['13841', 0]], 'ratio': [['1', 8]]}},
-                {'label': 'Matter', 'node_id': 8, 'name': [['ZnO', 11]], 'attributes': {'name': [['ZnO', 11]], 'material_batch_barcode': [['121800', 10]]}},
-                {'label': 'Matter', 'node_id': 9, 'name': [['ActiveLayer', 15]], 'attributes': {'name': [['ActiveLayer', 15]], 'identifier': [['13841', 14]]}},
-                {'label': 'Matter', 'node_id': 10, 'name': [['Donor', 23]], 'attributes': {'name': [['Donor', 23]], 'ratio': [['0.8112', 22]]}},
-                {'label': 'Matter', 'node_id': 11, 'name': [['PM6', 25]], 'attributes': {'name': [['PM6', 25]], 'concentration': [['19.8846153846154', 18]], 'material_batch_barcode': [['321100', 24]]}},
-                {'label': 'Matter', 'node_id': 12, 'name': [['Acceptor', 37]], 'attributes': {'name': [['Acceptor', 37]], 'ratio': [['0.2128', 36]]}},
-                {'label': 'Matter', 'node_id': 13, 'name': [['Y12', 39]], 'attributes': {'name': [['Y12', 39]], 'concentration': [['19.4615384615385', 32]], 'material_batch_barcode': [['321116', 38]]}},
-                {'label': 'Matter', 'node_id': 14, 'name': [['Acceptor', 51]], 'attributes': {'name': [['Acceptor', 51]], 'ratio': [['0.0234', 50]]}},
-                {'label': 'Matter', 'node_id': 15, 'name': [['PCBM70', 53]], 'attributes': {'name': [['PCBM70', 53]], 'concentration': [['27.5000000000001', 46]], 'material_batch_barcode': [['321046', 52]]}},
-                {'label': 'Matter', 'node_id': 16, 'name': [['Solvent', 65]], 'attributes': {'name': [['Solvent', 65]], 'ratio': [['1', 64]]}},
-                {'label': 'Matter', 'node_id': 17, 'name': [['o-Xylene', 67]], 'attributes': {'name': [['o-Xylene', 67]], 'concentration': [['27.5000000000001', 60]], 'material_batch_barcode': [['5', 66]]}},
-                {'label': 'Matter', 'node_id': 18, 'name': [['HTL', 71]], 'attributes': {'name': [['HTL', 71]], 'identifier': [['13841', 70]]}},
-                {'label': 'Matter', 'node_id': 19, 'name': [['MoOx', 81]], 'attributes': {'name': [['MoOx', 81]], 'material_batch_barcode': [['7', 80]]}},
-                {'label': 'Matter', 'node_id': 20, 'name': [['Electrode', 85]], 'attributes': {'name': [['Electrode', 85]], 'identifier': [['13841', 84]]}},
-                {'label': 'Matter', 'node_id': 21, 'name': [['Ag', 95]], 'attributes': {'name': [['Ag', 95]], 'material_batch_barcode': [['6', 94]]}},
-                {'label': 'Parameter', 'node_id': 22, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:46:01', 12]]}},
-                {'label': 'Parameter', 'node_id': 23, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['180', 13]]}},
-                {'label': 'Parameter', 'node_id': 24, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['25', 19]]}},
-                {'label': 'Parameter', 'node_id': 25, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['100', 20]]}},
-                {'label': 'Parameter', 'node_id': 26, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['600', 21]]}},
-                {'label': 'Parameter', 'node_id': 27, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 26]]}},
-                {'label': 'Parameter', 'node_id': 28, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['160', 27]]}},
-                {'label': 'Parameter', 'node_id': 29, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['24', 33]]}},
-                {'label': 'Parameter', 'node_id': 30, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['240', 34]]}},
-                {'label': 'Parameter', 'node_id': 31, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['500', 35]]}},
-                {'label': 'Parameter', 'node_id': 32, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 40]]}},
-                {'label': 'Parameter', 'node_id': 33, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['250', 41]]}},
-                {'label': 'Parameter', 'node_id': 34, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['20', 47]]}},
-                {'label': 'Parameter', 'node_id': 35, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']],        'unit': [['s', 'inferred']], 'value': [['160', 48]]}},
-                {'label': 'Parameter', 'node_id': 36, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['500', 49]]}},
-                {'label': 'Parameter', 'node_id': 37, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 54]]}},
-                {'label': 'Parameter', 'node_id': 38, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['288', 55]]}},
-                {'label': 'Parameter', 'node_id': 39, 'name': [['layer_material_temperature', 'inferred']], 'attributes': {'name': [['layer_material_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['22', 61]]}},
-                {'label': 'Parameter', 'node_id': 40, 'name': [['layer_material_stirring_time', 'inferred']], 'attributes': {'name': [['layer_material_stirring_time', 'inferred']], 'unit': [['s', 'inferred']], 'value': [['240', 62]]}},
-                {'label': 'Parameter', 'node_id': 41, 'name': [['layer_material_stirring_speed', 'inferred']], 'attributes': {'name': [['layer_material_stirring_speed', 'inferred']], 'unit': [['rpm', 'inferred']], 'value': [['1600', 63]]}},
-                {'label': 'Parameter', 'node_id': 42, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:10:15', 68]]}},
-                {'label': 'Parameter', 'node_id': 43, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['120', 69]]}},
-                {'label': 'Parameter', 'node_id': 44, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:20:47', 82]]}},
-                {'label': 'Parameter', 'node_id': 45, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['100', 83]]}},
-                {'label': 'Parameter', 'node_id': 46, 'name': [['annealing_time', 'inferred']], 'attributes': {'name': [['annealing_time', 'inferred']], 'unit': [['h:min:s', 'inferred']], 'value': [['00:20:47', 96]]}},
-                {'label': 'Parameter', 'node_id': 47, 'name': [['annealing_temperature', 'inferred']], 'attributes': {'name': [['annealing_temperature', 'inferred']], 'unit': [['C', 'inferred']], 'value': [['100', 97]]}}
-            ]
-        }
-        # self.node_extractor = NodeExtractor(data = self._predicted_attributes,
-        #                                     context = self.context['context'],
-        #                                     file_link = self.context['file_link'],
-        #                                     file_name = self.context['file_name'])
-        # self.node_extractor.run()
-        # print("node extractor results", self.node_extractor.node_list)
-        # self._node_list = {"nodes": self.node_extractor.node_list}
+        self.node_extractor = NodeExtractor(data = self._predicted_attributes,
+                                            context = self.context['context'],
+                                            file_link = self.context['file_link'],
+                                            file_name = self.context['file_name'])
+        self.node_extractor.run()
+        self._node_list = {"nodes": self.node_extractor.node_list}
     def create_relationship_list(self):
         print("create relationship list")
         # self.relationship_extractor = fullRelationshipsExtractor(self._node_list)
@@ -403,74 +344,66 @@ class TableImporter(Importer):
 
         data['column_values'] = [list(column_set) for column_set in column_values]
 
-
+        print("Run OntologyMapper")
         self.ontology_mapper.run()
         self.mapping = self.ontology_mapper.mapping
 
         return data
 
-
-
-
-
     def build_query(self):
-        # Base query part for loading the CSV
-        query_parts = [f"""
-        CALL apoc.load.csv('http://134.94.199.40/neo4j/f6fab112908e7c081a256ec7394a0c50') YIELD lineNo, list AS row"""]
+        # Construct the base part of the query for loading the CSV
+        base_query = f"CALL apoc.load.csv('{self.file_link}') YIELD lineNo, list AS row"
+        query_parts = [base_query]
 
-        nodes = self.data['nodes']
-        relationships = self.data['relationships']
+        # Function to construct attribute value strings
+        def format_attr_value(attr_value):
+            if attr_value['index'] == 'inferred':
+                return f"'{attr_value['value']}'"
+            return f"row[{int(attr_value['index'])}]"
 
-        # Function to handle attribute value setting
-        def attr_value_string(attr_value):
-            return f"row[{int(attr_value['index'])}]" if attr_value['index'] != 'inferred' else f"'{attr_value['value']}'"
-
-
-
-
-
-        add_ontology = f"""WITH * UNWIND {str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")} as input
+        # Construct the query for adding ontology relations
+        ontology_mapping = str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")
+        add_ontology = f"""WITH * UNWIND {ontology_mapping} as input
         MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess), (n:Matter|Parameter|Manufacturing|Measurement|Property)
-        WHERE ontology.id = input.id and (n.name = input.key or input.key in n.name)
+        WHERE ontology.uid = input.id AND (n.name = input.name OR input.name in n.name)
         MERGE (n)-[:IS_A]->(ontology)
         """
 
-        def add_attribute(attr_name, attr_values, id):
-            setter = f"SET n{id}.{attr_name} = " if len(attr_values) == 1 else f"SET n{id}.{attr_name} = apoc.coll.removeAll(["
+        # Function to add attributes to nodes
+        def construct_setter(attr_name, attr_values, node_id):
+            single_value = len(attr_values) == 1
+            setter_prefix = f"SET n{node_id}.{attr_name} = "
+            if single_value:
+                value = attr_values[0]
+                setter_value = format_attr_value(value)
+                return setter_prefix + setter_value
 
-            for value in attr_values:
-                if len(attr_values) == 1:
-                    setter += f"'{value['value']}'" if value['index'] == 'inferred' else f"row[{value['index']}]"
-                    return setter
-                else:
-                    setter +=  f" '{value['value']}', " if value['index'] == 'inferred' else f" row[{value['index']}],"
-            setter = setter[:-1] + "], [null])"
-            return setter
+            # For multiple values, construct an array and remove nulls
+            value_strings = [format_attr_value(value) for value in attr_values]
+            values_list = ", ".join(value_strings)
+            return f"{setter_prefix}apoc.coll.removeAll([{values_list}], [null])"
 
-
-
-        # Building ontology queries and node creations
-        for node_config in nodes:
-            id, label = node_config['id'], node_config['label']
-            query_parts.append(f"CREATE (n{id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})")
+        # Build queries for nodes and their attributes
+        for node_config in self.data['nodes']:
+            node_id, label = node_config['id'], node_config['label']
+            query_parts.append(f"CREATE (n{node_id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})")
 
             for attr_name, attr_values in node_config['attributes'].items():
-                attr_values = [attr_values] if type(attr_values) is not list else attr_values
-                setter = add_attribute(attr_name, attr_values, id)
-                query_parts.append(setter)
+                attr_values = [attr_values] if not isinstance(attr_values, list) else attr_values
+                attribute_query = construct_setter(attr_name, attr_values, node_id)
+                query_parts.append(attribute_query)
 
-        # Building relationship queries
-        relationships = [
-            f"MERGE (n{rel['connection'][0]})-[r{rel['connection'][0]}{rel['connection'][1]}:{rel['rel_type']}]->(n{rel['connection'][1]})"
+        # Build queries for relationships
+        relationship_queries = [
+            f"MERGE (n{rel['connection'][0]})-[:{rel['rel_type']}]->(n{rel['connection'][1]})"
             for rel in self.data['relationships']
         ]
 
-        # Combining all parts of the query
-        query = '\n'.join([*query_parts, *relationships,add_ontology])
-        print("query", query)
+        # Combine all parts of the query
+        full_query = '\n'.join(query_parts + relationship_queries + [add_ontology])
+        print("query", full_query)
 
-
-        return query, {}
+        return full_query, {}
 
     def ingest_data(self):
         """

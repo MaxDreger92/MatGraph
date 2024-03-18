@@ -8,7 +8,7 @@ from tenacity import wait_random_exponential, retry, stop_after_attempt
 from graphutils.config import EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
 from django.conf import settings
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+@retry(wait=wait_random_exponential(min=1, max=2), stop=stop_after_attempt(6))
 def request_embedding(text: str) -> List[float]:
     """
     Retrieve the embedding of the given text using OpenAI's API.
@@ -23,7 +23,7 @@ def request_embedding(text: str) -> List[float]:
     Returns:
         List[float]: A list of floating-point numbers representing the embedding.
     """
-
+    print("Requesting embedding for text: ", text)
     # Replace newlines in the input text with spaces, as they can negatively affect performance.
     text = str(text).replace("\n", " ").strip().replace("'", "")
     # Call the OpenAI Embedding API to create an embedding for the input text.
