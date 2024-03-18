@@ -36,11 +36,8 @@ class LabelExtractView(APIView):
 
         file_obj.seek(0)
         first_line = str(file_obj.readline().decode('utf-8')).strip().lower()
-        print("first_line", first_line)
         file_record = self.store_file(file_obj)
-        print("labels", file_record.link)
         if cached := FullTableCache.fetch(first_line):
-            print("cached")
             cached = str(cached).replace("'", "\"")
             return response.Response({'graph_json': cached,
                                       'file_link': file_record.link,
@@ -48,7 +45,6 @@ class LabelExtractView(APIView):
                                       })
 
         labels = self.extract_labels(file, context, file_record.link, file_record.name)
-
 
         return response.Response({
             'label_dict': labels,
@@ -69,7 +65,6 @@ class LabelExtractView(APIView):
         node_classifier.run()
         node_classifier.results
         node_labels = {element['header']: [element['1_label']] for element in node_classifier.results}
-
         return node_labels
     def store_file(self, file_obj):
         """Store the uploaded file and return the file record."""

@@ -106,102 +106,149 @@ class FabricationWorkflowMatcher(Matcher):
         super().__init__(**kwargs)
 
 
+
+    def _build_ontology_query(self, node):
+        node_id, label = node['id'], node['label']
+        return f"(onto_{node_id}: {ONTOMAPPER[label]} {{uid: '{node['uid']}'}})"
+
+    def _build_tree_query(self, node_id, label):
+        return f"""CALL {{
+        WITH onto_{node_id}
+        OPTIONAL MATCH (onto_{node_id})<-[:EMMO__IS_A*..]-(tree_onto_{node_id}:{ONTOMAPPER[label]})
+        RETURN collect(DISTINCT tree_onto_{node_id}) + collect(DISTINCT onto_{node_id}) AS combined_{node_id}
+        }}
+        """
+
+    def _build_find_nodes_query(self, node_id, label):
+        return f"""CALL {{
+        WITH combined_{node_id}
+        UNWIND combined_{node_id} AS full_onto_{node_id}
+        MATCH (full_onto_{node_id})<-[:IS_A]-(node_{node_id}:{label.capitalize()})
+        RETURN collect(DISTINCT node_{node_id}) AS nodes_{node_id}
+        }}
+        """
+
+    def _build_path_queries(self):
+        path_queries = []
+        for i, rel in enumerate(self.relationships):
+            source, target = rel['connection']
+            rel_type = rel['rel_type']
+            path_queries.append(self._build_single_path_query(source, target, rel_type, i))
+        return path_queries
+
+    def _build_path_conditions(self, paths, uid_paths, xid_paths, relationships):
+        path_conditions = []
+        return_statements = []
+        idx_list = []
+
+        for idx, rel in enumerate(relationships):
+            idx_var = f"idx{idx}"
+            idx_list.append(idx_var)
+            source, target = rel['connection']
+            uid_path = f"uids_path_{source}_{target}"
+            path = f"path_{source}_{target}"
+            return_statements.append(f"nodes({path}[idx[{idx}]])")
+
+            # Generate path conditions by comparing this relationship to all others
+            for idx2, rel2 in enumerate(relationships):
+                if idx == idx2:
+                    continue  # Avoid self-comparison
+                source2, target2 = rel2['connection']
+                uid_path2 = f"uids_path_{source2}_{target2}"
+
+                # Construct condition strings based on source and target matches
+                if source == source2:
+                    path_conditions.append(f"{uid_path}[{idx_var}][0] = {uid_path2}[idx{idx2}][0]")
+                if target == target2:
+                    path_conditions.append(f"{uid_path}[{idx_var}][-1] = {uid_path2}[idx{idx2}][-1]")
+                if source == target2:
+                    path_conditions.append(f"{uid_path}[{idx_var}][0] = {uid_path2}[idx{idx2}][-1]")
+
+        path_condition = " AND ".join(path_conditions)
+
+        # Constructing the Cypher query with cleaner formatting
+        path_connector = f"""CALL {{
+                WITH {', '.join(uid_paths)}
+                {' '.join([f"UNWIND range(0, size({uid_path})-1) AS idx{i}" for i, uid_path in enumerate(uid_paths)])}
+                WITH *
+                WHERE {path_condition}
+                RETURN collect(DISTINCT [{', '.join(idx_list)}]) AS idxs
+            }}
+    
+            CALL {{
+                WITH idxs, {', '.join(paths)}
+                UNWIND idxs AS idx
+                RETURN apoc.coll.toSet(apoc.coll.flatten([{', '.join(return_statements)}])) AS pathNodes
+            }}
+            """
+        return path_connector
+    def _build_single_path_query(self, source, target, rel_type, index):
+        path = f"path_{source}_{target}"
+        uid_path = f"uids_path_{source}_{target}"
+        return f"""
+        CALL {{
+        WITH nodes_{source}, nodes_{target}
+        UNWIND nodes_{source} AS node_{source}
+        UNWIND nodes_{target} AS node_{target}
+        MATCH {path} = (node_{source})-[:{RELAMAPPER[rel_type]}*..3]->(node_{target})
+        WITH collect(DISTINCT {path}) AS {path}
+        RETURN {path}, [path IN {path} | [nodes(path)[0].uid, nodes(path)[-1].uid]] AS {uid_path}
+        }}
+        """
+    def _build_path_queries_and_conditions(self):
+        paths, uid_paths, xid_paths, path_combinations = [], [], [], []
+        path_queries = []
+
+        for i, rel in enumerate(self.relationships):
+            source, target = rel['connection']
+            rel_type = rel['rel_type']
+            path = f"path_{source}_{target}"
+            uid_path = f"uids_path_{source}_{target}"
+            xid_path = f"idx_uids_path_{source}_{target}"
+
+            paths.append(path)
+            uid_paths.append(uid_path)
+            xid_paths.append(xid_path)
+            path_combinations.append(f"nodes({path})[idx{i}]")
+
+            path_queries.append(self._build_single_path_query(source, target, rel_type, i))
+
+        path_connector = self._build_path_conditions(paths, uid_paths, xid_paths, self.relationships)
+        return "\n".join(path_queries) + "\n" + path_connector
+
+    def _build_results(self):
+        return f"""
+        WITH DISTINCT
+        pathNodes,
+        [NODE IN pathNodes | NODE.uid] + [x IN pathNodes | head([(x)-[:IS_A]->(neighbor) | neighbor.name])] AS combinations
+        UNWIND pathNodes AS pathNode
+        CALL apoc.case([
+        pathNode:Matter,
+        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Property)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info',
+        pathNode:Process,
+        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Parameter)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info'
+        ])
+        YIELD value AS node_info
+        WITH DISTINCT collect(DISTINCT node_info['node_info']) AS node_info, combinations
+        RETURN DISTINCT apoc.coll.toSet(collect(DISTINCT combinations)) AS combinations,
+        apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) AS metadata
+        """
+
+        # Assuming _build_single_path_query remains unchanged
+
     def build_query(self):
-        match_query = []
-        filter_node_query = []
-        relationship_query = []
-        with_query = []
-        with_path_query = []
-        conditions = []
-        where_query = []
-        match_onto_query = []
-        with_onto_query = []
-        match_only_onto_query = []
-        for node in self.query_list:
-            match_only_onto_query.append(f"""(onto_{node['id']}:{ONTOMAPPER[node['label']]}{{uid: '{node['uid']}'}})""")
-            where_query.append(f""" full_onto_{node['id']}.uid IN tree_uid_{node['id']}""")
-            match_onto_query.append(f"""(tree_onto_{node['id']})-[:EMMO__IS_A*..]->(onto_{node['id']})""")
-            with_onto_query.append(f"""apoc.coll.union(collect(tree_onto_{node['id']}), collect(onto_{node['id']})) as tree_{node['id']}, apoc.coll.union(collect( tree_onto_{node['id']}.uid), collect(onto_{node['id']}.uid)) as tree_uid_{node['id']}""")
-            with_query.append(f""" node_{node['id']}""")
-            if node['label'] == 'EMMOQuantity':
-                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{node['label'].capitalize()})<-[rel_{node['id']}:HAS_PARAMETER]-()""")
-                where_query.append(f""" rel_{node['id']}.float_value {node['operator']} {node['value']}""")
-            else:
-                match_query.append(f"""(full_onto_{node['id']})<-[:IS_A]-(node_{node['id']}:{node['label'].capitalize()})""")
+        ontology_queries = [self._build_ontology_query(node) for node in self.query_list]
+        tree_queries = [self._build_tree_query(node['id'], node['label']) for node in self.query_list]
+        find_nodes_queries = [self._build_find_nodes_query(node['id'], node['label']) for node in self.query_list]
+        path_queries_and_conditions = self._build_path_queries_and_conditions()
+        prepare_results = self._build_results()
 
-
-        # Constructing the relationship paths                m
-        for rel in self.relationships:
-            relationship_query.append(f"""path_{rel['connection'][0]}_{rel['connection'][1]} = ((node_{rel['connection'][0]})-[:{RELAMAPPER[rel['rel_type']]}*..5]->(node_{rel['connection'][1]}))""")
-            with_path_query.append(f""" path_{rel['connection'][0]}_{rel['connection'][1]}""")
-        # 1. Create two dictionaries: one for path starts and one for path ends.
-        path_groups_start = defaultdict(list)
-        path_groups_end = defaultdict(list)
-
-        # Group paths by their start and end node ids
-        for path in with_path_query:
-            start, end = path.split("_")[1], path.split("_")[2]
-            path_groups_start[start].append(path)
-            path_groups_end[end].append(path)
-
-        conditions = []
-
-        # 1. Check overlap between the end nodes of paths
-        for end, end_paths in path_groups_end.items():
-            if len(end_paths) > 1:  # More than one path sharing the same end node
-                for i in range(len(end_paths)):
-                    for j in range(i+1, len(end_paths)):
-                        conditions.append(f"nodes({end_paths[i]})[-1].uid = nodes({end_paths[j]})[-1].uid")
-
-                # 1. Check overlap between the end nodes of paths
-        for start, start_paths in path_groups_start.items():
-            if len(start_paths) > 1:  # More than one path sharing the same start node
-                for i in range(len(start_paths)):
-                    for j in range(i+1, len(start_paths)):
-                        conditions.append(f"nodes({start_paths[i]})[0].uid = nodes({start_paths[j]})[0].uid")
-
-        # 2. Check overlap between the start nodes of one path and the end nodes of another path
-        for start, start_paths in path_groups_start.items():
-            for end, end_paths in path_groups_end.items():
-                if start == end:  # Ensure that we're not comparing a path to itself
-                    for start_path in start_paths:
-                        for end_path in end_paths:
-                            conditions.append(f"nodes({start_path})[0].uid = nodes({end_path})[-1].uid")
-
-
-
-
-
-    # Concatenating relationship paths to the nodes, and removing the last "->"
-
-        # Construct the main query parts
-        query = f"""
-    MATCH {', '.join(match_only_onto_query)}
-    WITH *
-    OPTIONAL MATCH {' OPTIONAL MATCH '.join(match_onto_query)}
-    WITH DISTINCT {', '.join(with_onto_query)}
-    MATCH {', '.join(match_query)}
-    WHERE {' AND '.join(where_query)}
-    WITH DISTINCT {', '.join(with_query)}
-    MATCH {' MATCH '.join(relationship_query)}
-    {'WHERE ' + ' AND '.join(conditions) if len(conditions) != 0 else ''}
-    WITH DISTINCT {', '.join(with_query)}, apoc.coll.toSet(apoc.coll.flatten([{', '.join(["nodes("+ path + ")" for path in  with_path_query])}])) as pathNodes
-    WITH DISTINCT {', '.join(with_query)}, pathNodes, [node IN pathNodes | node.uid] + [x IN pathNodes | head([(x)-[:IS_A]->(neighbor) | neighbor.name])] as combinations
-    UNWIND pathNodes AS pathNode 
-    CALL apoc.case([
-        pathNode:Matter, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info',
-        pathNode:Process, 'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Quantity)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, node_p.float_value, onto.name + "_" + property_label.name] as node_info'
-    ])
-    YIELD value as node_info
-    WITH DISTINCT collect(DISTINCT node_info["node_info"]) as node_info, combinations
-    RETURN DISTINCT apoc.coll.toSet(collect(DISTINCT combinations)) as combinations, apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) as metadata"""
-
-        # print(query)
-        # return query
-        node_list = self.query_list
-        params = {"node_list": node_list}
-        print(query)
-        return query, params
+        # Combining all parts into a single query
+        final_query = f"""MATCH {", ".join(ontology_queries)} 
+        {" ".join(tree_queries + find_nodes_queries + [path_queries_and_conditions] + [prepare_results])}
+        """
+        print(final_query)
+        return final_query, {}
 
 
 

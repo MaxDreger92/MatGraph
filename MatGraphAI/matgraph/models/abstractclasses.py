@@ -158,7 +158,9 @@ class OntologyNode(UIDDjangoNode):
             self.connect_to_ontology()
 
     def add_labels_create_embeddings(self):
+        print(f"adding labels and embeddings for {self.name}")
         alternative_labels = chat_with_gpt4(prompt= self.name, setup_message= self.ONTOLOGY_MAPPER[self._meta.object_name])
+        print(alternative_labels)
         alternative_labels = json.loads(alternative_labels)
         for label in alternative_labels['alternative_labels']:
             alternative_label_node = AlternativeLabel(label = label).save()
