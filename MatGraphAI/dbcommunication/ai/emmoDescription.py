@@ -2,7 +2,9 @@ import ast
 import json
 from json import JSONDecodeError
 
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=self.api_key)
 from django.conf import settings
 from dotenv import load_dotenv
 from owlready2 import *
@@ -54,20 +56,17 @@ class OntologyManager:
             "manufacturing.owl": EMMOProcess}
 
     def chat_with_gpt4(self, setup_message=[], prompt=''):
-        openai.api_key = self.api_key
 
         conversation_history = setup_message
         conversation_history.append({"role": "user", "content": prompt})
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4-1106-preview",
-            messages=conversation_history,
-            max_tokens=250,
-            n=1,
-            stop=None,
-            temperature=0,
-        )
-        return response["choices"][0]["message"]["content"]
+        response = client.chat.completions.create(model="gpt-4-1106-preview",
+        messages=conversation_history,
+        max_tokens=250,
+        n=1,
+        stop=None,
+        temperature=0)
+        return response.choices[0].message.content
 
     def update_ontology(self, ontology_file):
         if ontology_file == "matter.owl":
