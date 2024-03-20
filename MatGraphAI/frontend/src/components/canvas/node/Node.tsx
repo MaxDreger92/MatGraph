@@ -253,7 +253,7 @@ export default React.memo(function Node(props: NodeProps) {
         handleNodeAction(node, ctxtAction)
     }
 
-    const handleNodeRename = (updatedNode: INode) => {
+    const handleUpdateNode = (updatedNode: INode) => {
         handleNodeAction(updatedNode, 'setNodeVals')
     }
 
@@ -399,7 +399,7 @@ export default React.memo(function Node(props: NodeProps) {
                     <NodeInput
                         isValueNode={isValueNode}
                         node={node}
-                        handleNodeRename={handleNodeRename}
+                        handleUpdateNode={handleUpdateNode}
                     />
                 )}
                 {/* node warning */}

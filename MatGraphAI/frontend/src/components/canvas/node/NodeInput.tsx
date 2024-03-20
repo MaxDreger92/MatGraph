@@ -9,11 +9,11 @@ import NodeInputStrOp from './NodeInputStrOp'
 interface NodeInputProps {
     isValueNode: boolean
     node: INode
-    handleNodeRename: (node: INode) => void
+    handleUpdateNode: (node: INode) => void
 }
 
 export default React.memo(function NodeInput(props: NodeInputProps) {
-    const { isValueNode, node, handleNodeRename } = props
+    const { isValueNode, node, handleUpdateNode } = props
 
     const [nodeName, setNodeName] = useState<NodeAttribute>(node.name)
     const [nodeValue, setNodeValue] = useState<NodeValOpAttribute>(node.value)
@@ -27,10 +27,28 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const [nodeError, setNodeError] = useState<NodeValOpAttribute>(node.error)
     const [nodeIdentifier, setNodeIdentifier] = useState<NodeAttribute>(node.identifier)
 
+    const [showIndexChoice, setShowIndexChoice] = useState<string>('')
+
     const { refs, getNewDivRef } = useContext(RefContext)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
+
+    const updateNode = () => {
+        const updatedNode: INode = {
+            ...node,
+            name: nodeName,
+            value: nodeValue,
+            batch_num: nodeBatchNum,
+            ratio: nodeRatio,
+            concentration: nodeConcentration,
+            unit: nodeUnit,
+            std: nodeStd,
+            error: nodeError,
+            identifier: nodeIdentifier,
+        }
+        handleUpdateNode(updatedNode)
+    }
 
     const handleBlur = () => {
         setTimeout(() => {
@@ -38,43 +56,18 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             if (refs.some((ref) => document.activeElement === ref.current)) {
                 return
             }
-            const updatedNode: INode = {
-                ...node,
-                name: nodeName,
-                value: nodeValue,
-                batch_num: nodeBatchNum,
-                ratio: nodeRatio,
-                concentration: nodeConcentration,
-                unit: nodeUnit,
-                std: nodeStd,
-                error: nodeError,
-                identifier: nodeIdentifier,
-            }
-            handleNodeRename(updatedNode)
+            updateNode()
         }, 100)
     }
 
     const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault()
-            const updatedNode: INode = {
-                ...node,
-                name: nodeName,
-                value: nodeValue,
-                batch_num: nodeBatchNum,
-                ratio: nodeRatio,
-                concentration: nodeConcentration,
-                unit: nodeUnit,
-                std: nodeStd,
-                error: nodeError,
-                identifier: nodeIdentifier,
-            }
-            handleNodeRename(updatedNode)
+            updateNode()
         }
     }
 
     const handleStrChangeLocal = (id: string, value: string) => {
-
         switch (id) {
             case 'name':
                 setNodeName({ value: value, index: nodeName.index })
@@ -94,7 +87,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
 
     const handleValChangeLocal = (id: string, value: string) => {
-
         switch (id) {
             case 'value':
                 setNodeValue({
@@ -169,6 +161,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
 
     const handleIndexChangeLocal = (id: string, index: string) => {
+        // console.log("Setting new index: " + id + " " + index)
 
         let input_value: string | number
 
@@ -248,7 +241,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 3,
-                backgroundColor: darkTheme ? "#1a1b1e" : "#f8f9fa",
+                backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa',
                 zIndex: node.layer + 1,
                 cursor: 'default',
             }}
@@ -261,7 +254,9 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 id="name"
                 defaultValue={nodeName.value}
                 showIndices={node.with_indices}
-                index={node.name.index}
+                showIndexChoice={showIndexChoice}
+                setShowIndexChoice={setShowIndexChoice}
+                index={nodeName.index}
                 autoFocus={true}
                 add={false}
                 zIndex={node.layer + 4}
@@ -276,7 +271,9 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     id="identifier"
                     defaultValue={nodeIdentifier.value}
                     showIndices={node.with_indices}
-                    index={node.identifier.index}
+                    index={nodeIdentifier.index}
+                    showIndexChoice={showIndexChoice}
+                    setShowIndexChoice={setShowIndexChoice}
                     autoFocus={false}
                     add={true}
                     zIndex={node.layer + 3}
@@ -294,6 +291,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultValue={nodeIdentifier.value}
                         showIndices={node.with_indices}
                         index={nodeIdentifier.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 3}
@@ -307,6 +306,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultValue={nodeBatchNum.value}
                         showIndices={node.with_indices}
                         index={nodeBatchNum.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 3}
@@ -322,6 +323,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultVal={nodeRatio.valOp.value}
                         showIndices={node.with_indices}
                         index={nodeRatio.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         zIndex={node.layer + 2}
                     />
@@ -336,6 +339,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultVal={nodeConcentration.valOp.value}
                         showIndices={node.with_indices}
                         index={nodeConcentration.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         zIndex={node.layer + 1}
                     />
@@ -355,6 +360,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultVal={nodeValue.valOp.value}
                         showIndices={node.with_indices}
                         index={nodeValue.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={
                             node.name.value !== '' && isValueNode && node.value.valOp.value === ''
                         }
@@ -369,6 +376,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultValue={nodeUnit.value}
                         showIndices={node.with_indices}
                         index={nodeUnit.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 2}
@@ -384,6 +393,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultVal={nodeStd.valOp.value}
                         showIndices={node.with_indices}
                         index={nodeStd.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         zIndex={node.layer + 2}
                     />
@@ -398,6 +409,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         defaultVal={nodeError.valOp.value}
                         showIndices={node.with_indices}
                         index={nodeError.index}
+                        showIndexChoice={showIndexChoice}
+                        setShowIndexChoice={setShowIndexChoice}
                         autoFocus={false}
                         zIndex={node.layer + 1}
                     />

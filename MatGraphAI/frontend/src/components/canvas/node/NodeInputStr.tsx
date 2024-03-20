@@ -1,8 +1,10 @@
-import React, { RefObject, useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AttributeIndex } from '../../../types/canvas.types'
 import { useMantineColorScheme } from '@mantine/core'
 import CloseIcon from '@mui/icons-material/Close'
 import RefContext from '../../workflow/context/RefContext'
+import PlusIcon from '@mui/icons-material/Add'
+import MinusIcon from '@mui/icons-material/Remove'
 
 interface NodeInputStrProps {
     handleStrChange: (id: string, value: string) => void
@@ -13,6 +15,8 @@ interface NodeInputStrProps {
     defaultValue: string | undefined
     showIndices: boolean
     index?: AttributeIndex | AttributeIndex[]
+    showIndexChoice: string
+    setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
     autoFocus: boolean
     add: boolean
     zIndex: number
@@ -28,12 +32,17 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         defaultValue,
         showIndices,
         index,
+        showIndexChoice,
+        setShowIndexChoice,
         autoFocus,
         add,
         zIndex,
     } = props
 
+    const [currentIndex, setCurrentIndex] = useState<string | number>("")
     const [indexDeleteHovered, setIndexDeleteHovered] = useState(false)
+    const [indexButtonHovered, setIndexButtonHovered] = useState(false)
+    const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
 
     const { getNewInputRef } = useContext(RefContext)
 
@@ -43,21 +52,52 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     const darkTheme = colorScheme === 'dark'
     const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
 
-    const deleteIndexLocal = () => {
-        if (index === "") return
-        if (index === "inferred") {
-            handleIndexChange(id, "")
+    useEffect(() => {
+        if (!index) return
+        if (Array.isArray(index)) {
+            let indexString = ""
+            index.map((index) => indexString.concat(index.toString()))
+            setCurrentIndex(indexString)
             return
         }
-        handleIndexChange(id, "inferred")
+        setCurrentIndex(index)
+    }, [])
+
+    useEffect(() => {
+        if (currentIndex !== '' && showIndexChoice === id) {
+            setShowIndexChoice('')
+        }
+    }, [currentIndex])
+
+    const deleteIndexLocal = () => {
+        handleIndexChange(id, '')
+        setCurrentIndex('')
         return
+    }
+
+    const handleIndexChoiceModal = () => {
+        if (showIndexChoice === id) {
+            setShowIndexChoice('')
+        } else {
+            setShowIndexChoice(id)
+        }
+    }
+
+    const handleIndexChoice = (choice: string) => {
+        if (choice === 'inferred') {
+            handleIndexChange(id, choice)
+            setCurrentIndex(choice)
+        }
     }
 
     return (
         <div
             style={{
+                position: "relative",
                 display: 'flex',
                 flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
             }}
         >
             <input
@@ -65,7 +105,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                 ref={getNewInputRef()}
                 type="text"
                 placeholder={placeholder}
-                defaultValue={defaultValue}
+                value={defaultValue}
                 onChange={(e) => handleStrChange(id, e.target.value)} // write nodeName state
                 onKeyUp={handleKeyUp} // confirm name with enter
                 onBlur={handleBlur}
@@ -82,47 +122,169 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                         className={`${inputClass}`}
                         ref={getNewInputRef()}
                         type="text"
-                        placeholder="Idx"
-                        defaultValue={index !== undefined ? index.toString() : ''}
-                        onChange={(e) => handleIndexChange(id, e.target.value)}
+                        placeholder="Index"
+                        value={currentIndex}
+                        onChange={(e) => {
+                            handleIndexChange(id, e.target.value)
+                            setCurrentIndex(e.target.value)
+                        }}
                         onKeyUp={handleKeyUp}
                         onBlur={handleBlur}
                         style={{
                             marginTop: add ? 8 : 0,
                             marginLeft: 8,
                             zIndex: zIndex,
-                            width: 110,
+                            width: 100,
                         }}
                     />
-                    <div
-                        onMouseEnter={() => setIndexDeleteHovered(true)}
-                        onMouseLeave={() => setIndexDeleteHovered(false)}
-                        onClick={deleteIndexLocal}
-                        style={{
-                            position: "relative",
-                            display: "flex",
-                            alignSelf: "center",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            transform: add ? 'translate(0, 4px)' : 'none',
-                            width: 30,
-                            height: 30,
-                            zIndex: zIndex + 1,
-                            left: -28,
-                            cursor: 'pointer',
-                            color: indexDeleteHovered ? "#ff0000" : darkTheme ? '#444' : '#ced4da',
-                        }}
-                    >
-                        <CloseIcon
+                    {currentIndex !== '' ? (
+                        <div
+                            onMouseEnter={() => setIndexDeleteHovered(true)}
+                            onMouseLeave={() => setIndexDeleteHovered(false)}
+                            onClick={deleteIndexLocal}
                             style={{
-
-                                color: "inherit",
+                                position: 'absolute',
+                                display: 'flex',
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                transform: add ? 'translate(0, 4px)' : 'none',
+                                width: 30,
+                                height: 30,
+                                zIndex: zIndex + 1,
+                                right: 0,
+                                cursor: 'pointer',
+                                color: indexDeleteHovered
+                                        ? '#ff0000'
+                                        : darkTheme
+                                            ? '#444'
+                                            : '#ced4da',
                             }}
-                        />
-                    </div>
-                    
+                        >
+                            <CloseIcon
+                                style={{
+                                    color: 'inherit',
+                                }}
+                            />
+                        </div>
+                    ) : showIndexChoice !== id ? (
+                        <div
+                            onMouseEnter={() => setIndexButtonHovered(true)}
+                            onMouseLeave={() => setIndexButtonHovered(false)}
+                            onClick={handleIndexChoiceModal}
+                            style={{
+                                position: 'absolute',
+                                display: 'flex',
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: 30,
+                                height: 30,
+                                transform: add ? 'translate(0, 4px)' : 'none',
+                                zIndex: zIndex + 1,
+                                right: 0,
+                                cursor: 'pointer',
+                                color: indexButtonHovered
+                                    ? darkTheme
+                                        ? '#0ff48b'
+                                        : '#97e800'
+                                    : darkTheme
+                                    ? '#444'
+                                    : '#ced4da',
+                            }}
+                        >
+                            <PlusIcon
+                                style={{
+                                    color: 'inherit',
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <div
+                            onMouseEnter={() => setIndexButtonHovered(true)}
+                            onMouseLeave={() => setIndexButtonHovered(false)}
+                            onClick={handleIndexChoiceModal}
+                            style={{
+                                position: 'absolute',
+                                display: 'flex',
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: 30,
+                                height: 30,
+                                transform: add ? 'translate(0, 4px)' : 'none',
+                                zIndex: zIndex + 1,
+                                right: 0,
+                                cursor: 'pointer',
+                                color: indexButtonHovered
+                                    ? darkTheme
+                                        ? '#fff07c'
+                                        : '#ffb400'
+                                    : darkTheme
+                                    ? '#444'
+                                    : '#ced4da',
+                            }}
+                        >
+                            <MinusIcon
+                                style={{
+                                    color: 'inherit',
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
             )}
+            {showIndexChoice === id && (
+                    <div style={{ position: 'relative' }}>
+                        <div
+                            className={`${inputClass}`}
+                            style={{
+                                position: 'absolute',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: 100,
+                                marginLeft: 8,
+                                transform: 'translate(0, -50%)',
+                            }}
+                        >
+                            <div
+                                onMouseEnter={() => setIndexChoiceHovered(1)}
+                                onMouseLeave={() => setIndexChoiceHovered(0)}
+                                onClick={() => handleIndexChoice("inferred")}
+                                style={{
+                                    width: 'calc(100% - 8px)',
+                                    height: 30,
+                                    margin: '4px 4px 0 4px',
+                                    borderRadius: 3,
+                                    backgroundColor:
+                                        indexChoiceHovered === 1 ? '#373A40' : 'inherit',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div style={{ position: 'relative', top: 2 }}>"inferred"</div>
+                            </div>
+                            <div
+                                onMouseEnter={() => setIndexChoiceHovered(2)}
+                                onMouseLeave={() => setIndexChoiceHovered(0)}
+                                style={{
+                                    width: 'calc(100% - 8px)',
+                                    height: 30,
+                                    margin: '0 4px 4px 4px',
+                                    borderRadius: 3,
+                                    backgroundColor:
+                                        indexChoiceHovered === 2 ? '#373A40' : 'inherit',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div style={{ position: 'relative', top: 2 }}>select</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
         </div>
     )
 }
