@@ -192,6 +192,7 @@ a:link {
   color: #c1c2c5;
   filter: drop-shadow(1px 1px 1px #111);
   border: 1px solid #333333;
+  border-radius: 5px;
 }
 
 .input-dark-2 {
@@ -205,6 +206,7 @@ a:link {
   color: #040404;
   filter: drop-shadow(1px 1px 1px #ddd);
   border: 1px solid #ced4da;
+  border-radius: 5px;
 }
 
 .input-light-2 {
