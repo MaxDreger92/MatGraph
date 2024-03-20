@@ -1,4 +1,5 @@
 from importing.RelationshipExtraction.relationshipExtractor import RelationshipExtractor
+from importing.RelationshipExtraction.schema import HasPropertyRelationships
 from importing.utils.openai import chat_with_gpt4
 
 
@@ -12,6 +13,7 @@ class hasPropertyExtractor(RelationshipExtractor):
 
     def __init__(self, *args, **kwargs):
         self.conversation = []
+        self.schema = HasPropertyRelationships
         super().__init__(*args, **kwargs)
 
     @property

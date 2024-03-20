@@ -1,6 +1,10 @@
 import ast
+import os
 
 import networkx as nx
+from langchain.chains.structured_output import create_structured_output_runnable
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.utils.openai import chat_with_gpt4
@@ -19,13 +23,12 @@ class RelationshipExtractor:
         context (str): Context in which relationships are to be extracted.
     """
 
-    def __init__(self, input_json, setup_message, gpt_chat, label_one, label_two, context):
+    def __init__(self, input_json, setup_message, label_one, label_two, context):
         """
         Initializes the RelationshipExtractor with necessary information.
         """
         self.input_json = input_json
         self.setup_message = setup_message
-        self.gpt_chat = gpt_chat
         self.context = context
         self.label_one, self.label_two = label_one, label_two
         self.label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, label_one, label_two)
@@ -156,18 +159,27 @@ class RelationshipExtractor:
             self.update_triples(response)
             self.conversation[-1]["content"] = response
 
-    def generate_first_prompt(self):
+
+
+    def create_query(self):
         """Generate the first prompt for extraction."""
-        self.prompt = f"Now, only the list! \n {self.label_one}: {self.label_one_nodes}, {self.label_two}: {self.label_two_nodes}, Context: {self.context}"
+        prompt = f"""Now, only the list! \n {", ".join(self.label_one)}: {self.label_one_nodes}, \n{', '.join(self.label_two)}: {self.label_two_nodes}, \nContext: {self.context}"""
+        return prompt
 
     def initial_extraction(self):
         """Extract the relationships using the initial prompt."""
-        response = self.gpt_chat(self.setup_message, self.prompt)
-        print("Prompt: \n",self.prompt)
-        print("Response: \n",response)
-        self.triples = ast.literal_eval(response.replace(" ", "").replace("{", "").replace("}", ""))
-        self.conversation.append({"role": "user", "content": self.prompt})
-        self.conversation.append({"role": "assistant", "content": response})
+        query = self.create_query()
+        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
+        setup_message = self.setup_message
+        prompt = ChatPromptTemplate.from_messages(setup_message)
+        chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
+            {"run_name": f"{self.schema}-extraction"})
+        self.intermediate = chain.invoke({"input": query})
+        print(f"Used the following prompt: {query}")
+        print(f"Finished extraction for {self.schema} {self.intermediate}")
+
+        return self
+
 
     def refine_results(self):
         """Base method for validation. Should be implemented in derived classes."""
@@ -177,7 +189,6 @@ class RelationshipExtractor:
         """Run the extraction process."""
         if len(self.label_two_nodes) == 0 or len(self.label_one_nodes) == 0:
             return []
-        self.generate_first_prompt()
         self.initial_extraction()
         self.refine_results()
         return self.generate_result()

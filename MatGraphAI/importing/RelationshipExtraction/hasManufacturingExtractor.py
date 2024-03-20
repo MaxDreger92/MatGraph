@@ -1,6 +1,7 @@
 import networkx as nx
 
 from importing.RelationshipExtraction.relationshipExtractor import RelationshipExtractor
+from importing.RelationshipExtraction.schema import HasManufacturingRelationships
 from importing.utils.openai import chat_with_gpt4
 
 
@@ -14,6 +15,7 @@ class hasManufacturingExtractor(RelationshipExtractor):
 
     def __init__(self, *args, **kwargs):
         self.conversation = []
+        self.schema = HasManufacturingRelationships
         super().__init__(*args, **kwargs)
 
 
@@ -38,6 +40,7 @@ class hasManufacturingExtractor(RelationshipExtractor):
             self.update_triples(response)
             self.conversation.append({"role": "user", "content": prompt})
             self.conversation.append({"role": "assistant", "content": response})
+
     @property
     def manufacturing_cycles(self):
         G = nx.DiGraph()  # Create a directed graph
