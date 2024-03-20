@@ -4,7 +4,8 @@ import re
 from collections import defaultdict
 
 from langchain.chains import create_structured_output_runnable
-from langchain_core.prompts import SystemMessagePromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import SystemMessagePromptTemplate, ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
@@ -46,15 +47,12 @@ class NodeAggregator:
         query = self.create_query()
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
-        prompt = (
-                SystemMessagePromptTemplate.from_template("You are a nice assistant.")
-                + "{input}"
-        )
+        prompt = ChatPromptTemplate.from_messages(setup_message)
         structured_llm = create_structured_output_runnable(self.schema, llm, prompt)
-        setup_message.append(("human", query))
         output = structured_llm.invoke({"input": query})
-        print("Output", output)
-        print(len(output))
+        # print(query)
+        # print(self.__class__, output)
+        # print(self.__class__, len(output.instances))
         return output
 
     def create_node_list(self, string):
@@ -117,19 +115,7 @@ class MatterAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=MATTER_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-    
-                - Extract all distinguishable  Materials, Components, Devices, Chemicals, Intermediates, Products, Layers etc. from the table above.
-                - If a node is fabricated by processing more than one educt, extract the product and the educt as separate nodes
-                - If only one educt is used to fabricate a node, extract them as a single node
-                - do not create duplicate nodes, if not necessary
-                - assign concentrations and ratios to educts not to products
-                - do not create nodes that have exactly the same name if the materials/components/devices they represent do not occur multiple times
-                - only extract the attributes name, concentration, ratio, identifier, and batch number
-                - only return the final list of nodes
-                
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "matter"
         self.schema = Matters
@@ -140,10 +126,7 @@ class PropertyAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=PROPERTY_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                ONLY RETURN THE FINAL LIST OF NODES!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "property"
         self.schema = Properties
@@ -164,10 +147,7 @@ class ParameterAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=PARAMETER_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                ONLY RETURN THE FINAL LIST OF NODES!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "parameter"
         self.schema = Parameters
@@ -178,10 +158,7 @@ class ManufacturingAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=MANUFACTURING_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                ONLY RETURN THE FINAL LIST OF NODES!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "manufacturing"
         self.schema = Manufacturings
@@ -192,10 +169,7 @@ class MeasurementAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=MEASUREMENT_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                ONLY RETURN THE FINAL LIST OF NODES!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "measurement"
         self.schema = Measurements
@@ -206,10 +180,7 @@ class MetadataAggregator(NodeAggregator):
                  data,
                  context,
                  setup_message=PARAMETER_AGGREGATION_MESSAGE,
-                 additional_context="""REMEMBER:
-                WHEN CREATING THE LIST OF NODES STRICTLY FOLLOW THE REASONING FROM STEP 1 AND STEP 2!
-                ONLY RETURN THE FINAL LIST OF NODES!
-                """):
+                 additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "metadata"
         self.schema = Metadata
@@ -229,7 +200,6 @@ def get_aggregator(iterable, data_type, aggregator_class, context):
         context = context
 
         grouped_data = group_by_prefix(data) if data_type == "property" else {None: data}
-        print("Grouped Data", grouped_data)
         for entries in grouped_data.values():
             aggregator = aggregator_class(entries, context)
             return aggregator
@@ -238,7 +208,7 @@ def get_aggregator(iterable, data_type, aggregator_class, context):
 def aggregate_nodes(data, type, aggregator_class):
     if aggregator := get_aggregator(data['input'], type, aggregator_class, data['context']):
         return aggregator.aggregate()
-    return []
+    return
 
 
 @chain
@@ -277,6 +247,7 @@ def validate_matters(data):
 
 @chain
 def validate_properties(data):
+    print("Validating Properties", data)
     return data
 
 
@@ -299,6 +270,60 @@ def validate_measurements(data):
 def validate_metadata(data):
     return data
 
+def attribute_to_dict(obj):
+    # If the object has attributes like 'name' and 'index', but not 'value'.
+    if hasattr(obj, "__dict__") and 'index' in obj.__dict__ and not hasattr(obj, 'value'):
+        name_like_attr = next((attr for attr in obj.__dict__ if attr != 'index'), None)
+        if name_like_attr:
+            return {'value': str(getattr(obj, name_like_attr)), 'index': str(obj.index)}
+
+    # If the object is a list, recursively process each item in the list.
+    elif isinstance(obj, list):
+        # If the list is empty, return None to indicate no value.
+        if len(obj) == 0:
+            return None
+        processed_list = [attribute_to_dict(item) for item in obj]
+        # If the processed list contains only one item, return that item directly instead of a list.
+        return processed_list if len(processed_list) > 1 else processed_list[0]
+
+    # If the object has a __dict__ attribute, indicating it's a class instance.
+    elif hasattr(obj, "__dict__"):
+        result = {}
+        for key, value in obj.__dict__.items():
+            # Process only if the value is not None or the key specifically needs to be included.
+            processed_value = attribute_to_dict(value)
+            if processed_value is not None or key == 'names':
+                result[key] = processed_value
+        # Return the processed dictionary.
+        return result
+
+    # If the object does not match any of the above conditions, return it as is.
+    else:
+        if obj is None:
+            return None
+        return str(obj)
+
+@chain
+def build_results(data):
+    print("Building Results", data)
+    node_list = []
+    uid = 0
+    for list in data.values():
+        if not list:
+            continue
+        for i in list.instances:
+            print(i)
+            print(type(i))
+            node = {
+                'id': str(uid),
+                'label': i.__class__.__name__.lower(),
+                **attribute_to_dict(i)
+            }
+            uid = uid + 1
+            node_list.append(node)
+    print("Node List", node_list)
+
+    return {'nodes': node_list, 'relationships': []}
 
 class NodeExtractor(TableDataTransformer):
 
@@ -327,9 +352,9 @@ class NodeExtractor(TableDataTransformer):
             manufacturings=aggregate_manufacturing | validate_manufacturings,
             measurements=aggregate_measurement | validate_measurements,
             metadata=aggregate_metadata | validate_metadata
-        )
+        ) | build_results
 
-        chain.invoke({'input': self.iterable, 'context': self.context,
+        self.node_list = chain.invoke({'input': self.iterable, 'context': self.context,
                       'additional_context': ["self.additional_context", "miau"]})
 
     @property
