@@ -1,19 +1,16 @@
 import json
-import os
-from pprint import pprint
+
 import django
+
 django.setup()
-from dotenv import load_dotenv
 
 from importing.RelationshipExtraction.hasManufacturingExtractor import hasManufacturingExtractor
 from importing.RelationshipExtraction.hasMeasurementExtractor import hasMeasurementExtractor
 from importing.RelationshipExtraction.hasParameterExtractor import hasParameterExtractor
 from importing.RelationshipExtraction.hasPropertyExtractor import hasPropertyExtractor
-from importing.RelationshipExtraction.input_generator import csv_to_json
 from importing.RelationshipExtraction.setupMessages import MANUFACTURING_PARAMETER_MESSAGE, \
     MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE
 from importing.utils.openai import chat_with_gpt4
-from mat2devplatform import settings
 
 
 class fullRelationshipsExtractor:

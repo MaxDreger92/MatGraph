@@ -1,11 +1,8 @@
-import json
 import os
-import re
 from collections import defaultdict
 
 from langchain.chains import create_structured_output_runnable
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import SystemMessagePromptTemplate, ChatPromptTemplate, PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
@@ -27,6 +24,7 @@ class NodeAggregator:
         self.conversation = self.setup_message
         self.label = None
         self.schema = None
+        self._intermediate = None
 
     def create_query(self):
         return f"""
@@ -39,75 +37,29 @@ class NodeAggregator:
         {self.additional_context}
         """
 
+    @property
+    def intermediate(self):
+        return self._intermediate
+
+    @intermediate.setter
+    def intermediate(self, data):
+        self._intermediate = data
+
     def validate(self):
-        pass
+        print("Validating")
+        print(self.intermediate)
+        return self.intermediate
 
     def aggregate(self):
-        print("Aggregating")
         query = self.create_query()
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
         structured_llm = create_structured_output_runnable(self.schema, llm, prompt)
-        output = structured_llm.invoke({"input": query})
-        # print(query)
-        # print(self.__class__, output)
-        # print(self.__class__, len(output.instances))
-        return output
-
-    def create_node_list(self, string):
-        # Preprocess the string
-        processed_string = string
-        pattern = r'```python\s+(.*?)\s+```'
-        processed_string = re.search(pattern, processed_string, re.DOTALL).group(1)
-
-        # Replace single backslashes with double backslashes
-        processed_string = processed_string.replace('\\', '\\\\')
-
-        # Try to load the JSON to check for errors
-        try:
-            self.node_list = json.loads(processed_string, strict=False)
-            for i, node in enumerate(self.node_list):
-                node['label'] = self.label
-                if node['name'][0][1] == "inferred":
-                    print("Node:", node, "i:", i, self.node_list)
-                    node['id'] = f"inferred_{self.label}_{i}"
-                else:
-                    node['id'] = str(node['name'][0][1])
-                keys_to_keep = ['label', 'id', 'attributes']
-
-                updated_node = {'name': [{'value': name[0], 'index': name[1]} for name in node['name']],
-                                'attributes': {key: value for key, value in node.items() if key not in ['label', 'id']},
-                                **{key: value for key, value in node.items() if key in keys_to_keep}
-                                }
-                self.node_list[i] = updated_node
-            for i, node in enumerate(self.node_list):
-                updated_attributes = {}
-                for key, value in node['attributes'].items():
-                    if isinstance(value[0], list):
-                        updated_attributes[key] = []
-                        for attribute in value:
-                            updated_attributes[key].append({'value': attribute[0], 'index': attribute[1]})
-                    else:
-                        print("value", value)
-                        updated_attributes[key] = {'value': value[0], 'index': value[1]}
-                self.node_list[i]['attributes'] = updated_attributes
-            print("Changed Node List:", self.node_list)
+        self.intermediate = structured_llm.invoke({"input": query})
+        return self
 
 
-        except json.JSONDecodeError as e:
-            print("Error parsing JSON:", str(e))
-            # Handle the error or return None to indicate failure
-
-    @chain
-    def validate(self):
-        pass
-
-    def run(self):
-        query = self.create_query()
-        print("Queryy", query)
-        self.aggregate(query)
-        self.validate()
 
 
 class MatterAggregator(NodeAggregator):
@@ -130,16 +82,6 @@ class PropertyAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "property"
         self.schema = Properties
-
-    # def create_node_list(self, string):
-    #     super.create_node_list(string)
-    #     for node in self.node_list:
-    #         if "measurement_condition" in node.keys():
-    #             parameter_node = {
-    #                 "label": "Parameter",
-    #                 **node['measurement_condition']
-    #             }
-    #             self.node_list.append(parameter_node)
 
 
 class ParameterAggregator(NodeAggregator):
@@ -235,6 +177,7 @@ def aggregate_measurement(data):
 def aggregate_metadata(data):
     return aggregate_nodes(data, "Metadata", MetadataAggregator)
 
+
 @chain
 def aggregate_matters(data):
     return aggregate_nodes(data, "Matter", MatterAggregator)
@@ -246,66 +189,61 @@ def validate_matters(data):
 
 
 @chain
-def validate_properties(data):
-    print("Validating Properties", data)
-    return data
+def validate_properties(aggregator):
+    return aggregator.validate()
 
 
 @chain
-def validate_parameters(data):
-    return data
+def validate_parameters(aggregator):
+    return aggregator.validate()
 
 
 @chain
-def validate_manufacturings(data):
-    return data
+def validate_manufacturings(aggregator):
+    return aggregator.validate()
 
 
 @chain
-def validate_measurements(data):
-    return data
+def validate_measurements(aggregator):
+    return aggregator.validate()
 
 
 @chain
-def validate_metadata(data):
-    return data
+def validate_metadata(aggregator):
+    return aggregator.validate()
+
 
 def attribute_to_dict(obj):
-    # If the object has attributes like 'name' and 'index', but not 'value'.
-    if hasattr(obj, "__dict__") and 'index' in obj.__dict__ and not hasattr(obj, 'value'):
-        name_like_attr = next((attr for attr in obj.__dict__ if attr != 'index'), None)
-        if name_like_attr:
-            return {'value': str(getattr(obj, name_like_attr)), 'index': str(obj.index)}
+    # Handle class instances with specific attributes.
+    if hasattr(obj, "__dict__"):
+        # Special case for objects with 'index' but not 'value'.
+        if 'index' in obj.__dict__ and not hasattr(obj, 'value'):
+            name_attr = next((attr for attr in obj.__dict__ if attr != 'index'), None)
+            if name_attr:
+                return {'value': str(getattr(obj, name_attr)), 'index': str(obj.index)}
 
-    # If the object is a list, recursively process each item in the list.
-    elif isinstance(obj, list):
-        # If the list is empty, return None to indicate no value.
-        if len(obj) == 0:
-            return None
-        processed_list = [attribute_to_dict(item) for item in obj]
-        # If the processed list contains only one item, return that item directly instead of a list.
-        return processed_list if len(processed_list) > 1 else processed_list[0]
-
-    # If the object has a __dict__ attribute, indicating it's a class instance.
-    elif hasattr(obj, "__dict__"):
+        # General case for objects with other attributes.
         result = {}
         for key, value in obj.__dict__.items():
-            # Process only if the value is not None or the key specifically needs to be included.
             processed_value = attribute_to_dict(value)
+            # Include keys with non-None values or explicitly required keys.
             if processed_value is not None or key == 'names':
                 result[key] = processed_value
-        # Return the processed dictionary.
-        return result
+        return result if result else None  # Return None if result is empty.
 
-    # If the object does not match any of the above conditions, return it as is.
-    else:
-        if obj is None:
+    # Handle lists.
+    elif isinstance(obj, list):
+        if not obj:  # Short-circuit for empty lists.
             return None
-        return str(obj)
+        processed_list = [attribute_to_dict(item) for item in obj]
+        return processed_list if len(processed_list) > 1 else processed_list[0]
+
+    # Base case for handling simple data types and None.
+    return None if obj is None else str(obj)
+
 
 @chain
 def build_results(data):
-    print("Building Results", data)
     node_list = []
     uid = 0
     for list in data.values():
@@ -321,9 +259,9 @@ def build_results(data):
             }
             uid = uid + 1
             node_list.append(node)
-    print("Node List", node_list)
 
     return {'nodes': node_list, 'relationships': []}
+
 
 class NodeExtractor(TableDataTransformer):
 
@@ -332,13 +270,11 @@ class NodeExtractor(TableDataTransformer):
         super().__init__(ReportClass=NodeExtractionReport, **kwargs)
 
     def process_aggregator(self, data_type, aggregator_class):
-        print(self.iterable, "Data Type", data_type)
         if data_type in self.iterable and self.iterable[data_type]:
             data = self.iterable[data_type]
             context = self.context
 
             grouped_data = self.group_by_prefix(data) if data_type == "property" else {None: data}
-            print("Grouped Data", grouped_data)
             for entries in grouped_data.values():
                 aggregator = aggregator_class(entries, context)
                 return aggregator
@@ -355,7 +291,7 @@ class NodeExtractor(TableDataTransformer):
         ) | build_results
 
         self.node_list = chain.invoke({'input': self.iterable, 'context': self.context,
-                      'additional_context': ["self.additional_context", "miau"]})
+                                       'additional_context': ["self.additional_context", "miau"]})
 
     @property
     def iterable(self):
