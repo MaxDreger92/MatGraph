@@ -55,11 +55,10 @@ class NodeAggregator:
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        chain = create_structured_output_runnable(self.schema, llm, prompt).with_config({"run_name": f"{self.schema}-extraction"})
+        chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
+            {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
         return self
-
-
 
 
 class MatterAggregator(NodeAggregator):
@@ -233,7 +232,6 @@ def attribute_to_dict(obj):
             name_attr = next((attr for attr in obj.__dict__ if attr != 'index'), None)
             if name_attr:
                 return {'value': str(getattr(obj, name_attr)), 'index': str(obj.index)}
-
         # General case for objects with other attributes.
         result = {}
         for key, value in obj.__dict__.items():
@@ -285,7 +283,6 @@ class NodeExtractor(TableDataTransformer):
         if data_type in self.iterable and self.iterable[data_type]:
             data = self.iterable[data_type]
             context = self.context
-
             grouped_data = self.group_by_prefix(data) if data_type == "property" else {None: data}
             for entries in grouped_data.values():
                 aggregator = aggregator_class(entries, context)
@@ -302,9 +299,10 @@ class NodeExtractor(TableDataTransformer):
             metadata=aggregate_metadata | validate_metadata
         ) | build_results
         chain = chain.with_config({"run_name": "node-extraction"})
-
-        self.node_list = chain.invoke({'input': self.iterable, 'context': self.context,
-                                       'additional_context': ["self.additional_context", "miau"]})
+        self.node_list = chain.invoke({
+            'input': self.iterable,
+            'context': self.context,
+        })
 
     @property
     def iterable(self):
