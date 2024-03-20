@@ -55,8 +55,8 @@ class NodeAggregator:
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        structured_llm = create_structured_output_runnable(self.schema, llm, prompt)
-        self.intermediate = structured_llm.invoke({"input": query})
+        chain = create_structured_output_runnable(self.schema, llm, prompt).with_config({"run_name": f"{self.schema}-extraction"})
+        self.intermediate = chain.invoke({"input": query})
         return self
 
 
@@ -184,33 +184,45 @@ def aggregate_matters(data):
 
 
 @chain
-def validate_matters(data):
-    return data
+def validate_matters(aggregator):
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 @chain
 def validate_properties(aggregator):
-    return aggregator.validate()
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 @chain
 def validate_parameters(aggregator):
-    return aggregator.validate()
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 @chain
 def validate_manufacturings(aggregator):
-    return aggregator.validate()
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 @chain
 def validate_measurements(aggregator):
-    return aggregator.validate()
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 @chain
 def validate_metadata(aggregator):
-    return aggregator.validate()
+    if aggregator:
+        return aggregator.validate()
+    return
 
 
 def attribute_to_dict(obj):
@@ -284,11 +296,12 @@ class NodeExtractor(TableDataTransformer):
         chain = RunnableParallel(
             properties=aggregate_properties | validate_properties,
             matters=aggregate_matters | validate_matters,
-            parameters=aggregate_parameters | validate_matters,
+            parameters=aggregate_parameters | validate_parameters,
             manufacturings=aggregate_manufacturing | validate_manufacturings,
             measurements=aggregate_measurement | validate_measurements,
             metadata=aggregate_metadata | validate_metadata
         ) | build_results
+        chain = chain.with_config({"run_name": "node-extraction"})
 
         self.node_list = chain.invoke({'input': self.iterable, 'context': self.context,
                                        'additional_context': ["self.additional_context", "miau"]})
