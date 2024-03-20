@@ -1,19 +1,14 @@
-import { Select, useMantineColorScheme } from "@mantine/core"
-import React, { useEffect, useRef, useState, useContext } from "react"
-import RefManagerContext from "../../workflow/RefManagerContext"
+import { useMantineColorScheme } from "@mantine/core"
+import React, { useState, useContext } from "react"
+import RefContext from "../../workflow/context/RefContext"
 
 import {
   INode,
-  ValOpPair,
-  Operator,
   NodeAttribute,
   NodeValOpAttribute,
-  AttributeIndex,
-  CustomRef,
 } from "../../../types/canvas.types"
 import NodeInputStr from "./NodeInputStr"
 import NodeInputStrOp from "./NodeInputStrOp"
-import { useRefManager } from "../../../common/helpers"
 
 interface NodeInputProps {
   isValueNode: boolean
@@ -39,32 +34,39 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     node.identifier
   )
 
-  const { refs, getNewInputRef, getNewSvgRef, getNewDivRef } = useContext(RefManagerContext)
+  const { refs, getNewDivRef } = useContext(RefContext)
 
   const { colorScheme } = useMantineColorScheme()
   const darkTheme = colorScheme === 'dark'
 
   const handleBlur = () => {
     setTimeout(() => {
-      // Check if the active element is one of the refs
-      if (refs.some((ref) => document.activeElement === ref.current)) {
-        return
+      // Assuming document.activeElement could be null, which is rare
+      const activeElement = document.activeElement;
+
+      // Check if the activeElement is not one of the refs
+      const isFocusOutsideRefs = !refs.some(ref => ref.current === activeElement);
+
+      if (isFocusOutsideRefs) {
+        // Active element is outside of managed refs, proceed with updating the node
+        const updatedNode = {
+          ...node,
+          name: nodeName,
+          value: nodeValue,
+          batch_num: nodeBatchNum,
+          ratio: nodeRatio,
+          concentration: nodeConcentration,
+          unit: nodeUnit,
+          std: nodeStd,
+          error: nodeError,
+          identifier: nodeIdentifier,
+        };
+        handleNodeRename(updatedNode);
       }
-      const updatedNode: INode = {
-        ...node,
-        name: nodeName,
-        value: nodeValue,
-        batch_num: nodeBatchNum,
-        ratio: nodeRatio,
-        concentration: nodeConcentration,
-        unit: nodeUnit,
-        std: nodeStd,
-        error: nodeError,
-        identifier: nodeIdentifier,
-      }
-      handleNodeRename(updatedNode)
-    }, 100)
-  }
+      // Otherwise, focus is within the refs, do nothing
+    }, 100); // Delay to allow focus update to complete, especially in complex UIs
+};
+
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -212,6 +214,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
   return (
     <div
       ref={getNewDivRef()}
+      tabIndex={0}
       className="node-input"
       onClick={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
@@ -219,8 +222,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         display: "flex",
         flexDirection: "column",
         borderRadius: 3,
-        backgroundColor: darkTheme ? "#1a1b1e" : "#f8f9fa",
+        // backgroundColor: darkTheme ? "#1a1b1e" : "#f8f9fa",
+        backgroundColor: "#ff0000",
         zIndex: node.layer + 1,
+        cursor: "default"
       }}
     >
       <NodeInputStr
@@ -228,8 +233,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleIndexChange={handleIndexChangeLocal}
         handleKeyUp={handleKeyUp}
         handleBlur={handleBlur}
-        getNewInputRef={getNewInputRef}
-        getNewSvgRef={getNewSvgRef}
         id="name"
         defaultValue={nodeName.value}
         showIndices={node.with_indices}
@@ -245,8 +248,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
           handleIndexChange={handleIndexChangeLocal}
           handleKeyUp={handleKeyUp}
           handleBlur={handleBlur}
-          getNewInputRef={getNewInputRef}
-          getNewSvgRef={getNewSvgRef}
           id="identifier"
           defaultValue={nodeIdentifier.value}
           showIndices={node.with_indices}
@@ -264,8 +265,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="identifier"
             defaultValue={nodeIdentifier.value}
             showIndices={node.with_indices}
@@ -279,8 +278,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="batch"
             defaultValue={nodeBatchNum.value}
             showIndices={node.with_indices}
@@ -295,8 +292,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="ratio"
             defaultOp={nodeRatio.valOp.operator}
             defaultVal={nodeRatio.valOp.value}
@@ -311,8 +306,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="concentration"
             defaultOp={nodeConcentration.valOp.operator}
             defaultVal={nodeConcentration.valOp.value}
@@ -332,8 +325,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="value"
             defaultOp={nodeValue.valOp.operator}
             defaultVal={nodeValue.valOp.value}
@@ -351,8 +342,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="unit"
             defaultValue={nodeUnit.value}
             showIndices={node.with_indices}
@@ -367,8 +356,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="std"
             defaultOp={nodeStd.valOp.operator}
             defaultVal={nodeStd.valOp.value}
@@ -383,8 +370,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             handleIndexChange={handleIndexChangeLocal}
             handleKeyUp={handleKeyUp}
             handleBlur={handleBlur}
-            getNewInputRef={getNewInputRef}
-            getNewSvgRef={getNewSvgRef}
             id="error"
             defaultOp={nodeError.valOp.operator}
             defaultVal={nodeError.valOp.value}

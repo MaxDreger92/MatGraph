@@ -104,7 +104,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
           setProgress(0)
       }
     }
-  }, [])
+  }, [setProgress])
 
   // Save tables and progress to local storage
   useEffect(() => {

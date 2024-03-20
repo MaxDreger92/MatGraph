@@ -114,13 +114,13 @@ export default function Canvas(props: CanvasProps) {
   //   }
   // }, [canvasRef])
 
-  const calculateMouseNodeDist = () => {
-    if (!canvasRect) return
+  // const calculateMouseNodeDist = () => {
+  //   if (!canvasRect) return
 
-    nodes.forEach((node) => {
+  //   nodes.forEach((node) => {
       
-    })
-  }
+  //   })
+  // }
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -130,9 +130,7 @@ export default function Canvas(props: CanvasProps) {
         y: e.clientY - canvasRect.top,
       })
     }
-
-
-
+    
     window.addEventListener("mousemove", handleMouseMove)
     return () => {
       window.removeEventListener("mousemove", handleMouseMove)
@@ -723,7 +721,7 @@ export default function Canvas(props: CanvasProps) {
       handleLayoutNodes(true)
       setNeedLayout(false)
     }
-  }, [needLayout, setNeedLayout])
+  }, [needLayout, setNeedLayout, handleLayoutNodes])
 
   useEffect(() => {
     const handleCanvasKeyDown = (e: KeyboardEvent) => {

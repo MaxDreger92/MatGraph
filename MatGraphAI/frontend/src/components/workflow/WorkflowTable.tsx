@@ -99,7 +99,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const columns: { [key: number]: number } = {}
 
     additionalTables.map((table) => {
-      table.slice(1).map((column) => (columns[column] = table[0]))
+      return table.slice(1).map((column) => (columns[column] = table[0]))
     })
 
     setHighlightedColumns(columns)

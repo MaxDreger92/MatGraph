@@ -1,7 +1,8 @@
 import { Select, useMantineColorScheme } from "@mantine/core"
-import React, { RefObject, useEffect, useRef, useState } from "react"
+import React, { RefObject, useContext, useEffect, useRef, useState } from "react"
 import { AttributeIndex, Operator } from "../../../types/canvas.types"
 import { useRefManager } from "../../../common/helpers"
+import RefContext from "../../workflow/context/RefContext"
 
 interface NodeInputStrOpProps {
   handleOpChange: (id: string, operator: string) => void
@@ -9,8 +10,6 @@ interface NodeInputStrOpProps {
   handleIndexChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
   handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
-  getNewInputRef: () => React.RefObject<HTMLInputElement>
-  getNewSvgRef: () => React.RefObject<SVGSVGElement>
   id: string
   defaultOp: string
   defaultVal: string
@@ -27,8 +26,6 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     handleIndexChange,
     handleKeyUp,
     handleBlur,
-    getNewInputRef,
-    getNewSvgRef,
     id,
     defaultOp,
     defaultVal,
@@ -38,6 +35,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     zIndex
   } = props
   const [selectOpen, setSelectOpen] = useState(false)
+
+  const { getNewInputRef, getNewSvgRef } = useContext(RefContext)
 
   const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 

@@ -1,16 +1,14 @@
-import { RefObject, useEffect } from "react"
+import { RefObject, useContext, useEffect } from "react"
 import { AttributeIndex } from "../../../types/canvas.types"
 import { useMantineColorScheme } from "@mantine/core"
 import CloseIcon from "@mui/icons-material/Close"
-import { useRefManager } from "../../../common/helpers"
+import RefContext from "../../workflow/context/RefContext"
 
 interface NodeInputStrProps {
   handleStrChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleIndexChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
   handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
   handleBlur: () => void
-  getNewInputRef: () => React.RefObject<HTMLInputElement>
-  getNewSvgRef: () => React.RefObject<SVGSVGElement>
   id: string
   defaultValue: string | undefined
   showIndices: boolean
@@ -27,8 +25,6 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     handleIndexChange,
     handleKeyUp,
     handleBlur,
-    getNewInputRef,
-    getNewSvgRef,
     id,
     defaultValue,
     showIndices,
@@ -38,11 +34,17 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     zIndex,
   } = props
 
+  const { getNewInputRef, getNewSvgRef } = useContext(RefContext)
+
   const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
   const { colorScheme } = useMantineColorScheme()
   const darkTheme = colorScheme === 'dark'
   const inputClass = darkTheme ? "input-dark-1" : "input-light-1"
+
+  // const deleteIndexLocal = () => {
+  //   if (index = )
+  // }
 
   return (
     <div
@@ -93,7 +95,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
               transform: add ? "translate(0, 4px)" : "none",
               alignSelf: "center",
               zIndex: zIndex,
-              color: darkTheme ? "#333" : "#ced4da"
+              color: darkTheme ? "#333" : "#ced4da",
+              cursor: "pointer"
             }}
           />
         </div>
