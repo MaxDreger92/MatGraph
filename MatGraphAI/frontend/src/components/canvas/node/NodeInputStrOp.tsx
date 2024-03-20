@@ -6,8 +6,8 @@ import RefContext from "../../workflow/context/RefContext"
 
 interface NodeInputStrOpProps {
   handleOpChange: (id: string, operator: string) => void
-  handleValChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
-  handleIndexChange: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void
+  handleValChange: (id: string, value: string) => void
+  handleIndexChange: (id: string, value: string) => void
   handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
   handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
   id: string
@@ -122,7 +122,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         type="text"
         placeholder={placeholder}
         defaultValue={defaultVal}
-        onChange={(e) => handleValChange(id, e)}
+        onChange={(e) => handleValChange(id, e.target.value)}
         onKeyUp={handleKeyUp}
         onBlur={handleBlur}
         autoFocus={autoFocus}
@@ -139,7 +139,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
           type="text"
           placeholder="Idx"
           defaultValue={index !== undefined ? index.toString() : ""}
-          onChange={(e) => handleIndexChange(id, e)}
+          onChange={(e) => handleIndexChange(id, e.target.value)}
           onKeyUp={handleKeyUp}
           onBlur={handleBlur}
           style={{
@@ -148,6 +148,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
             width: 80,
           }}
         />
+        
       )}
     </div>
 
