@@ -18,9 +18,13 @@ import {
     Position,
     Vector2D,
     ICanvasButton,
+    IndexDictionary,
+    AttributeIndex,
+    NodeValOpAttribute,
+    NodeAttribute,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
-import { isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
+import { getAttributeIndices, isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
 import CanvasGrid from './CanvasGrid'
 
@@ -71,6 +75,7 @@ export default function Canvas(props: CanvasProps) {
         canvasRect,
     } = props
 
+    const [indexDict, setIndexDict] = useState<IndexDictionary>({})
     const [nodeEditing, setNodeEditing] = useState(false)
     const [isLayouting, setIsLayouting] = useState(false)
     const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
@@ -312,7 +317,7 @@ export default function Canvas(props: CanvasProps) {
 
     // sets node isEditing field
     // so input field will show
-    const initNodeNameChange = (nodeID: INode['id'], undoHistory?: boolean) => {
+    const initNodeUpdate = (nodeID: INode['id'], undoHistory?: boolean) => {
         cleanupDrag()
         if (nodeEditing || ctrlPressed) return
         if (undoHistory) updateHistoryRevert()
@@ -333,7 +338,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // rename node -> resetting isEditing to false
-    const handleSetNodeVals = (node: INode) => {
+    const handleNodeUpdate = (node: INode) => {
         setNodes((prevNodes) =>
             prevNodes.map((n) => {
                 if (n.id === node.id) {
@@ -473,11 +478,11 @@ export default function Canvas(props: CanvasProps) {
             case 'connect':
                 handleNodeConnect(node)
                 break
-            case 'setNodeVals':
-                handleSetNodeVals(node)
+            case 'nodeUpdate':
+                handleNodeUpdate(node)
                 break
             case 'setIsEditing':
-                initNodeNameChange(node.id, conditional)
+                initNodeUpdate(node.id, conditional)
                 break
             case 'delete':
                 setSelectedNodes([])
@@ -580,6 +585,27 @@ export default function Canvas(props: CanvasProps) {
                 break
         }
     }
+
+    const updateIndexDictionary = () => {
+        const indexDictionary: IndexDictionary = {};
+    
+        nodes.forEach(node => {
+            let indices: number[] = []
+
+            getAttributeIndices(node.name)
+            getAttributeIndices(node.value)
+            getAttributeIndices(node.batch_num)
+            getAttributeIndices(node.ratio)
+            getAttributeIndices(node.concentration)
+            getAttributeIndices(node.unit)
+            getAttributeIndices(node.std)
+            getAttributeIndices(node.error)
+            getAttributeIndices(node.identifier)
+            
+        })
+
+    }
+    
 
     const handleLayoutNodes = useCallback(
         async (setLayouting = true) => {

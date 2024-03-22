@@ -22,7 +22,7 @@ import WorkflowButtons from './WorkflowButtons'
 import WorkflowJson from './WorkflowJson'
 import WorkflowHistory from './WorkflowHistory'
 import WorkflowDrawer from './WorkflowDrawer'
-import { IRelationship, INode } from '../../types/canvas.types'
+import { IRelationship, INode, NodeValOpAttribute, NodeAttribute } from '../../types/canvas.types'
 import { convertToJSONFormat } from '../../common/helpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
@@ -44,6 +44,8 @@ export default function Workflow(props: WorkflowProps) {
     const [highlightedNodes, setHighlightedNodes] = useState<INode[]>([])
     const [workflow, setWorkflow] = useState<string | null>(null)
     const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
+
+    const [selectedTableColumn, setSelectedTableColumn] = useState<number | null>(null)
 
     const [needLayout, setNeedLayout] = useState(false)
 
@@ -340,6 +342,18 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [future, nodes, relationships, setNodes, setRelationships])
 
+    useEffect(() => {
+        if (!selectedTableColumn) return
+
+        nodes.map((node) => {
+            
+        })
+
+        const hasIndex = (attribute: NodeAttribute | NodeValOpAttribute) => {
+            
+        }
+    }, [selectedTableColumn])
+
     // Dark theme
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
@@ -463,6 +477,8 @@ export default function Workflow(props: WorkflowProps) {
                             workflow={workflow}
                             workflows={workflows}
                             highlightedNodes={highlightedNodes}
+                            selectedTableColumn={selectedTableColumn}
+                            setSelectedTableColumn={setSelectedTableColumn}
                             darkTheme={darkTheme}
                         />
                     </animated.div>

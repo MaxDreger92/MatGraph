@@ -77,6 +77,10 @@ export type AttributeIndex = number | string
 
 export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
 
+export type IndexDictionary = {
+    [id: string]: number[]
+}
+
 export type CustomRef =
   React.RefObject<HTMLInputElement> |
   React.RefObject<SVGSVGElement> |

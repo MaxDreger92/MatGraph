@@ -254,7 +254,7 @@ export default React.memo(function Node(props: NodeProps) {
     }
 
     const handleUpdateNode = (updatedNode: INode) => {
-        handleNodeAction(updatedNode, 'setNodeVals')
+        handleNodeAction(updatedNode, 'nodeUpdate')
     }
 
     const handleNameMouseUp = (e: React.MouseEvent) => {

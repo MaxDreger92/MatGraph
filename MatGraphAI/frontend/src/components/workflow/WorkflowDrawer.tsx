@@ -19,7 +19,7 @@ import {
 import WorkflowTable from "./WorkflowTable"
 // import testNodes from '../../alt/testNodesN.json'
 
-const USE_MOCK_DATA = false
+const USE_MOCK_DATA = true
 
 const exampleLabelDict: IDictionary = {
   Header1: { Label: "matter" },
@@ -43,6 +43,8 @@ interface WorkflowDrawerProps {
   workflow: string | null
   workflows: IWorkflow[] | undefined
   highlightedNodes: INode[]
+  selectedTableColumn: number | null
+  setSelectedTableColumn: React.Dispatch<React.SetStateAction<number | null>>
   darkTheme: boolean
 }
 
@@ -58,6 +60,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     workflow,
     workflows,
     highlightedNodes,
+    selectedTableColumn,
+    setSelectedTableColumn,
     darkTheme,
   } = props
 
@@ -84,6 +88,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     if (storedLabelTable) setLabelTable(JSON.parse(storedLabelTable))
     if (storedAttributeTable) setAttributeTable(JSON.parse(storedAttributeTable))
     if (storedProgress) {
+        console.log(progress)
       setProgress(JSON.parse(storedProgress))
       switch (JSON.parse(storedProgress)) {
         case 1:
@@ -265,9 +270,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
   async function requestExtractNodes() {
     try {
       if (USE_MOCK_DATA) {
-        const dict = arrayToDict(attributeTable)
-        console.log(exampleAttrDict)
-        console.log(dict)
+        setCurrentTable(csvTable)
+        setProgress(4)
       } else {
       const attrDict = arrayToDict(attributeTable)
 
@@ -425,7 +429,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
   // Additional tables for highlighted Nodes ########################################
   useEffect(() => {
-    const newAdditionalTables = highlightedNodes.map(node => {
+    const newAdditionalTables = highlightedNodes.reduce<number[][]>((acc,node) => {
       // Initialize an empty array for each node to store indices
       let indices: number[] = [];
 
@@ -457,11 +461,14 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
       addIndices(node.error);
       addIndices(node.identifier);
 
-      // Return the indices array for this node
-      return indices;
-    });
+      if (indices.length > 1) {
+        acc.push(indices)
+      }
+      return acc;
+    }, []);
 
     // Update state with the newly generated arrays of indices
+
     setAdditionalTables(newAdditionalTables);
   }, [highlightedNodes]);
 
@@ -630,6 +637,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                   darkTheme={darkTheme}
                   columnsLength={columnLength}
                   additionalTables={additionalTables}
+                  selectedTableColumn={selectedTableColumn}
+                  setSelectedTableColumn={setSelectedTableColumn}
                 />
               </div>
             </div>

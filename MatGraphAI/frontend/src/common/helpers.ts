@@ -415,6 +415,21 @@ export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
     }
 }
 
+export const getAttributeIndices = (attribute: NodeAttribute | NodeValOpAttribute) => {
+    let indices: number[] = []
+
+    if (attribute.index !== undefined) {
+        if (typeof attribute.index === 'number') {
+            indices.push(attribute.index);
+        } else if (Array.isArray(attribute.index)) {
+            const numericIndices: any[] = attribute.index.filter(index => typeof index === 'number');
+            indices.push(...numericIndices);
+        }
+    }
+
+    return indices
+}
+
 /**
  * Determine if a relationship between two nodes is allowed.
  *
