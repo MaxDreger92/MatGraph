@@ -1,9 +1,9 @@
-from importing.RelationshipExtraction.relationshipExtractor import RelationshipExtractor
+from importing.RelationshipExtraction.relationshipExtractor import relationshipExtractor
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships
 from importing.utils.openai import chat_with_gpt4
 
 
-class hasMeasurementExtractor(RelationshipExtractor):
+class hasMeasurementExtractor(relationshipExtractor):
     """
     Extractor specific to Matter-Manufacturing relationships.
 

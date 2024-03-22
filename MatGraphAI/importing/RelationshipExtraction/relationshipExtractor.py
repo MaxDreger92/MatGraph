@@ -1,7 +1,6 @@
 import ast
 import os
 
-import networkx as nx
 from langchain.chains.structured_output import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
@@ -10,7 +9,7 @@ from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.utils.openai import chat_with_gpt4
 
 
-class RelationshipExtractor:
+class relationshipExtractor:
     """
     Base class for extracting relationships from data.
 
@@ -36,90 +35,10 @@ class RelationshipExtractor:
         self.conversation = setup_message
         self.prompt = ""
 
-    def check_one_to_one_destination(self, rel):
-        """Validate if any node has a 'has_output' relationship with more than one node using NetworkX."""
-
-        # Create a directed graph from the triples
-        g = nx.DiGraph()
-        for src, rel, dst in self.triples:
-            g.add_edge(src, dst, relation=rel)
-        wrong_nodes = {}
-
-        # Check nodes with 'has_output' relationship for multiple outputs
-        for src, dst, data in g.edges(data=True):
-            if data['relation'] == rel and g.in_degree(dst) > 1:
-                if dst in wrong_nodes.keys():
-                    wrong_nodes[dst].append(src)
-                else:
-                    wrong_nodes[dst] = [src]
-        return wrong_nodes if len(wrong_nodes.keys()) != 0 else False
-
-    @property
-    def check_one_to_one_source(self, rel):
-        """Validate if any node has a 'has_output' relationship with more than one node using NetworkX."""
-
-        # Create a directed graph from the triples
-        g = nx.DiGraph()
-        for src, rel, dst in self.triples:
-            g.add_edge(src, dst, relation=rel)
-        wrong_nodes = {}
-
-        # Check nodes with 'has_output' relationship for multiple outputs
-        for src, dst, data in g.edges(data=True):
-            if data['relation'] == rel and g.in_degree(src) > 1:
-                if dst in wrong_nodes.keys():
-                    wrong_nodes[src].append(dst)
-                else:
-                    wrong_nodes[src] = [dst]
-        return wrong_nodes if len(wrong_nodes.keys()) != 0 else False
-
-    @property
-    def flatten_relations(self):
-        """Flatten the relationship triples."""
-        return [item for sublist in self.triples for item in sublist if isinstance(item, (int, str))]
-
-    @property
-    def node_ids(self):
-        """Get all node IDs from label_one_nodes and label_two_nodes."""
-        return [item['id'] for item in [*self.label_one_nodes, *self.label_two_nodes]]
-
-    @property
-    def node_label_one_ids(self):
-        """Get node IDs from label_one_nodes."""
-        return [item['id'] for item in self.label_one_nodes]
-
-    @property
-    def node_label_two_ids(self):
-        """Get node IDs from label_two_nodes."""
-        return [item['id'] for item in self.label_two_nodes]
-
     @property
     def first_prompt(self):
         """Return the first prompt."""
         return self.prompt
-
-    @property
-    def isolated_nodes(self):
-        """Get a list of nodes that are isolated (not present in relationship triples)."""
-        return [str(node) for node in self.node_ids if node not in self.flatten_relations]
-
-    @property
-    def is_connected(self):
-        """Check if the relationship graph is connected."""
-        g = nx.Graph()
-        for triple in self.triples:
-            src, _, dst = triple
-            g.add_edge(src, dst)
-        return nx.is_connected(g)
-
-    @property
-    def triples_correct(self):
-        """
-        Validate the triples to check if they use correct nodes for label_one and label_two.
-        """
-        wrong_second_nodes = [triple[2] for triple in self.triples if triple[2] not in self.node_label_two_ids]
-        wrong_first_nodes = [triple[0] for triple in self.triples if triple[0] not in self.node_label_one_ids]
-        return [wrong_first_nodes, wrong_second_nodes]
 
     def update_triples(self, response):
         """Update the triples based on a response."""
@@ -159,8 +78,6 @@ class RelationshipExtractor:
             self.update_triples(response)
             self.conversation[-1]["content"] = response
 
-
-
     def create_query(self):
         """Generate the first prompt for extraction."""
         prompt = f"""Now, only the list! \n {", ".join(self.label_one)}: {self.label_one_nodes}, \n{', '.join(self.label_two)}: {self.label_two_nodes}, \nContext: {self.context}"""
@@ -172,14 +89,15 @@ class RelationshipExtractor:
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
+        chain = create_structured_output_runnable(
+            self.schema,
+            llm,
+            prompt,
+        ).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
-        print(f"Used the following prompt: {query}")
-        print(f"Finished extraction for {self.schema} {self.intermediate}")
-
+        print(f'Intermediate of {self.schema}: {self.intermediate}')
         return self
-
 
     def refine_results(self):
         """Base method for validation. Should be implemented in derived classes."""
@@ -202,19 +120,3 @@ class RelationshipExtractor:
             }
             for triple in self.triples
         ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
