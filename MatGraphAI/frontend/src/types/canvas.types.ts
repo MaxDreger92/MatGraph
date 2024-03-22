@@ -78,7 +78,7 @@ export type AttributeIndex = number | string
 export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
 
 export type IndexDictionary = {
-    [id: string]: number[]
+    [index: number]: string[]
 }
 
 export type CustomRef =

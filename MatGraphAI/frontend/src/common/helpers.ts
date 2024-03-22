@@ -415,7 +415,7 @@ export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
     }
 }
 
-export const getAttributeIndices = (attribute: NodeAttribute | NodeValOpAttribute) => {
+export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpAttribute) => {
     let indices: number[] = []
 
     if (attribute.index !== undefined) {

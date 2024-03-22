@@ -19,19 +19,14 @@ interface WorkflowTableProps {
     darkTheme: boolean
     columnsLength: number
 
-    // ################################ for additional table
-    // columns of additional table
-    filteredColumns?: number[]
-    // numericalNodeType of additional table
-    numericalNodeType?: number
-
     // ################################ for csvTable
     // all additional tables
     additionalTables?: number[][]
 
     // ################################ for node selection
-    selectedTableColumn?: number | null
-    setSelectedTableColumn?: React.Dispatch<React.SetStateAction<number | null>>
+    setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
+    selectedColumnIndex: number | null
+    setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
 }
 
 const labelOptions = [
@@ -53,14 +48,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         outerTableHeight,
         darkTheme,
         columnsLength,
-        filteredColumns,
-        numericalNodeType,
         additionalTables,
-        selectedTableColumn,
-        setSelectedTableColumn,
+        setHighlightedColumnIndex,
+        selectedColumnIndex,
+        setSelectedColumnIndex,
     } = props
 
-    const partialTable = numericalNodeType !== undefined
     const tableRef = useRef<HTMLDivElement>(null)
 
     const [selected, setSelected] = useState<{
@@ -100,6 +93,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
         setHighlightedColumns(columns)
     }, [additionalTables])
+
+    useEffect(() => {
+        if (!hovered || progress < 4) return
+
+        setHighlightedColumnIndex(hovered.column)
+    }, [hovered, progress, setHighlightedColumnIndex])
 
     // Define columns
     const columns: ColumnDef<TableRow>[] = useMemo(() => {
@@ -185,9 +184,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const handleHeaderClick = (columnIndex: number) => {
-        if (setSelectedTableColumn) {
-            setSelectedTableColumn(columnIndex)
-        }
+        setSelectedColumnIndex(columnIndex)
     }
 
     const handleSelectChange = (value: string | null, rowIndex: number, columnId: string) => {
@@ -209,20 +206,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const resetSelections = () => {
         setSelected(null)
         setSelectData([])
-        if (setSelectedTableColumn) {
-            setSelectedTableColumn(null)
-        }
+        setSelectedColumnIndex(null)
     }
 
     const capitalizeFirstLetter = (item: string | number | boolean) => {
         if (!(typeof item === 'string')) return item
         return item.charAt(0).toUpperCase() + item.slice(1)
-    }
-
-    const getAdditionalColumnNum = (index: number): number | string => {
-        if (!(filteredColumns && filteredColumns.length > 0)) return 'isNaN'
-
-        return filteredColumns[index]
     }
 
     const getRowColor = (rowIndex: number, columnIndex: number): string => {
@@ -238,8 +227,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             } else {
                 return darkTheme ? '#212226' : '#f8f9fa'
             }
-        } else if (progress > 3 && !partialTable) {
-            if (columnIndex === hovered?.column || columnIndex === selectedTableColumn) {
+        } else if (progress > 3) {
+            if (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) {
                 return darkTheme ? '#25262b' : '#ff0000'
             }
         }
@@ -247,35 +236,28 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getHeaderBackgroundColor = (columnIndex: number): string => {
-        if (!partialTable && !(columnIndex in highlightedColumns)) {
+        if (columnIndex in highlightedColumns) {
+            const colorIndex = darkTheme ? 0 : 1
+            const colors = colorPalette[colorIndex]
+            let nodeType = mapNodeTypeString(highlightedColumns[columnIndex])
+
+            return colors[nodeType]
+        } else if (
+            (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) &&
+            progress > 3
+        ) {
+            return darkTheme ? '#373A40' : '#ff0000'
+        } else {
             return darkTheme ? '#25262b' : '#f1f3f5'
         }
-
-        const colorIndex = darkTheme ? 0 : 1
-        const colors = colorPalette[colorIndex]
-        let nodeType = ''
-
-        if (partialTable) {
-            nodeType = mapNodeTypeString(numericalNodeType)
-        } else {
-            nodeType = mapNodeTypeString(highlightedColumns[columnIndex])
-        }
-
-        return colors[nodeType]
     }
 
     const getHeaderTextColor = (columnIndex: number): string => {
-        if (!partialTable && !(columnIndex in highlightedColumns)) {
+        if (!(columnIndex in highlightedColumns)) {
             return darkTheme ? '#a6a7ab' : '#040404'
         }
 
-        let numNodeType = 69
-
-        if (partialTable) {
-            numNodeType = numericalNodeType
-        } else {
-            numNodeType = highlightedColumns[columnIndex]
-        }
+        let numNodeType = highlightedColumns[columnIndex]
 
         if ([0, 2, 5].includes(numNodeType)) {
             return '#1a1b1e'
@@ -284,16 +266,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getBorderColor = (): string => {
-        // if (!partialTable) {
-        // 	const defaultBorderColor = darkTheme ? "#333" : "#ced4da"
-        // 	return defaultBorderColor
-        // }
-        // const colorIndex = darkTheme ? 0 : 1
-        // const colors = colorPalette[colorIndex]
-        // const stringNodeType = mapNodeTypeString(numericalNodeType)
-        // const specialBorderColor = colors[stringNodeType]
-        // return specialBorderColor
-
         return darkTheme ? '#333' : '#ced4da'
     }
 
@@ -307,7 +279,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             onBlur={resetSelections}
             style={{
                 position: 'relative',
-                top: partialTable ? 0 : 0,
+                top: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 height: innerTableHeight,
@@ -361,49 +333,18 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 // paddingLeft: '.5rem',
                             }}
                         >
-                            {!partialTable &&
-                                (columnVirtual.index === hovered?.column ||
-                                    columnVirtual.index === selectedTableColumn) &&
-                                progress > 3 && (
-                                    <div
-                                        style={{
-                                            position: 'absolute',
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: darkTheme ? '#373A40' : '#ff0000',
-                                        }}
-                                    />
-                                )}
-                            {partialTable && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: -12,
-                                        left: 4,
-                                        display: 'flex',
-                                        width: 'calc(100% - 12px)',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {getAdditionalColumnNum(columnVirtual.index)}
-                                </div>
-                            )}
-
-                            {!partialTable && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: -12,
-                                        left: 4,
-                                        display: 'flex',
-                                        width: 'calc(100% - 12px)',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {columnVirtual.index}
-                                </div>
-                            )}
-
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: -12,
+                                    left: 4,
+                                    display: 'flex',
+                                    width: 'calc(100% - 12px)',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                {columnVirtual.index}
+                            </div>
                             <div
                                 style={{
                                     position: 'absolute',
@@ -546,22 +487,25 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 return null // Or handle the undefined case appropriately
                             })}
                         </div>
-                        {progress > 1 && rowVirtual.index === tableRows.length - 1 && (
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    width: '100%',
-                                    top: `${rowVirtual.start}px`,
-                                    height: `${rowVirtual.size}px`,
-                                    outline:
-                                        progress > 1 && rowVirtual.index === tableRows.length - 1
-                                            ? '1px dashed #1971c2'
-                                            : 'none',
-                                    outlineOffset: -1,
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                        )}
+                        {progress > 1 &&
+                            progress < 4 &&
+                            rowVirtual.index === tableRows.length - 1 && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        width: '100%',
+                                        top: `${rowVirtual.start}px`,
+                                        height: `${rowVirtual.size}px`,
+                                        outline:
+                                            progress > 1 &&
+                                            rowVirtual.index === tableRows.length - 1
+                                                ? '1px dashed #1971c2'
+                                                : 'none',
+                                        outlineOffset: -1,
+                                        pointerEvents: 'none',
+                                    }}
+                                />
+                            )}
                     </>
                 ))}
             </div>

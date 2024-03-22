@@ -19,12 +19,9 @@ import {
     Vector2D,
     ICanvasButton,
     IndexDictionary,
-    AttributeIndex,
-    NodeValOpAttribute,
-    NodeAttribute,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
-import { getAttributeIndices, isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
+import { getNumericAttributeIndices, isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
 import CanvasGrid from './CanvasGrid'
 
@@ -36,7 +33,11 @@ interface CanvasProps {
     setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
     selectedNodes: INode[]
     setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
-    setHighlightedNode: React.Dispatch<React.SetStateAction<INode | undefined>>
+    highlightedColumnIndex: number | null
+    selectedColumnIndex: number | null
+    indexDictionary: IndexDictionary
+    setIndexDictionary: React.Dispatch<React.SetStateAction<IndexDictionary>>
+    rebuildIndexDictionary: () => void
     saveWorkflow: () => void
     updateHistory: () => void
     updateHistoryWithCaution: () => void
@@ -60,7 +61,11 @@ export default function Canvas(props: CanvasProps) {
         setRelationships,
         selectedNodes,
         setSelectedNodes,
-        setHighlightedNode,
+        selectedColumnIndex,
+        highlightedColumnIndex,
+        indexDictionary,
+        setIndexDictionary,
+        rebuildIndexDictionary,
         saveWorkflow,
         updateHistory,
         updateHistoryWithCaution,
@@ -75,7 +80,6 @@ export default function Canvas(props: CanvasProps) {
         canvasRect,
     } = props
 
-    const [indexDict, setIndexDict] = useState<IndexDictionary>({})
     const [nodeEditing, setNodeEditing] = useState(false)
     const [isLayouting, setIsLayouting] = useState(false)
     const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
@@ -95,35 +99,6 @@ export default function Canvas(props: CanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    // Resize Observer to get correct canvas bounds and
-    // successively correct mouse positions
-    // useEffect(() => {
-    //   const resizeObserver = new ResizeObserver(() => {
-    //     if (canvasRef.current) {
-    //       setCanvasRect(canvasRef.current.getBoundingClientRect())
-    //     }
-    //   })
-
-    //   const currentCanvas = canvasRef.current
-    //   if (currentCanvas) {
-    //     resizeObserver.observe(currentCanvas)
-    //   }
-
-    //   return () => {
-    //     if (currentCanvas) {
-    //       resizeObserver.unobserve(currentCanvas)
-    //     }
-    //   }
-    // }, [canvasRef])
-
-    // const calculateMouseNodeDist = () => {
-    //   if (!canvasRect) return
-
-    //   nodes.forEach((node) => {
-
-    //   })
-    // }
-
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!canvasRect) return
@@ -138,6 +113,62 @@ export default function Canvas(props: CanvasProps) {
             window.removeEventListener('mousemove', handleMouseMove)
         }
     })
+
+    useEffect(() => {
+        if (!selectedColumnIndex) return
+
+        if (indexDictionary.hasOwnProperty(selectedColumnIndex)) {
+            let nodesWithIndex: INode[] = []
+            indexDictionary[selectedColumnIndex].forEach((nodeId) => {
+                const nodeWithIndex = nodes.find((node) => node.id === nodeId)
+                if (nodeWithIndex) nodesWithIndex.push(nodeWithIndex)
+            })
+            setSelectedNodes(nodesWithIndex)
+        }
+    }, [selectedColumnIndex, indexDictionary, nodes, setSelectedNodes])
+
+    const updateIndexDictionary = (node: INode) => {
+        let updatedIndexDictionary: IndexDictionary = indexDictionary
+
+        const nodeIndices = getNodeIndices(node)
+
+        Object.keys(updatedIndexDictionary).forEach(index => {
+            const indexNumber = parseInt(index)
+            const nodeIndex = indexDictionary[indexNumber].indexOf(node.id)
+            if (nodeIndex > -1) {
+                indexDictionary[indexNumber].splice(nodeIndex, 1)
+                if (indexDictionary[indexNumber].length === 0) {
+                    delete indexDictionary[indexNumber]
+                }
+            }
+        })
+        
+        nodeIndices.forEach(index => {
+            if (!indexDictionary[index]) {
+                indexDictionary[index] = [node.id];
+            } else if (!indexDictionary[index].includes(node.id)) {
+                indexDictionary[index].push(node.id);
+            }
+        });
+
+        setIndexDictionary(updatedIndexDictionary)
+    }
+
+    const getNodeIndices = (node: INode): number[] => {
+        let indices: number[] = []
+
+        indices.push(...getNumericAttributeIndices(node.name))
+        indices.push(...getNumericAttributeIndices(node.value))
+        indices.push(...getNumericAttributeIndices(node.batch_num))
+        indices.push(...getNumericAttributeIndices(node.ratio))
+        indices.push(...getNumericAttributeIndices(node.concentration))
+        indices.push(...getNumericAttributeIndices(node.unit))
+        indices.push(...getNumericAttributeIndices(node.std))
+        indices.push(...getNumericAttributeIndices(node.error))
+        indices.push(...getNumericAttributeIndices(node.identifier))
+
+        return indices
+    }
 
     // addNode from canvas context menu
     // if created from connector, automatically
@@ -230,6 +261,7 @@ export default function Canvas(props: CanvasProps) {
             setMovingNodeIDs(new Set(nodes.map((n) => n.id)))
         } else {
             switch (nodeSelectionStatus(nodeID)) {
+                // 0 not selected; 1 selected alone; 2 selected among others
                 case 0:
                     if (ctrlPressed) {
                         setMovingNodeIDs(new Set(selectedNodes.map((n) => n.id)))
@@ -365,6 +397,7 @@ export default function Canvas(props: CanvasProps) {
                 return n
             })
         )
+        updateIndexDictionary(node)
         setNodeEditing(false)
         // setSelectedNodes([])
     }
@@ -585,26 +618,6 @@ export default function Canvas(props: CanvasProps) {
                 break
         }
     }
-
-    const updateIndexDictionary = () => {
-        const indexDictionary: IndexDictionary = {};
-    
-        nodes.forEach(node => {
-            let indices: number[] = []
-
-            getAttributeIndices(node.name)
-            getAttributeIndices(node.value)
-            getAttributeIndices(node.batch_num)
-            getAttributeIndices(node.ratio)
-            getAttributeIndices(node.concentration)
-            getAttributeIndices(node.unit)
-            getAttributeIndices(node.std)
-            getAttributeIndices(node.error)
-            getAttributeIndices(node.identifier)
-            
-        })
-
-    }
     
 
     const handleLayoutNodes = useCallback(
@@ -714,6 +727,7 @@ export default function Canvas(props: CanvasProps) {
                 return newNode
             })
             setNodes(updatedNodes)
+            rebuildIndexDictionary()
 
             layoutingTimeoutRef.current = setTimeout(() => {
                 setIsLayouting(false)
@@ -721,7 +735,7 @@ export default function Canvas(props: CanvasProps) {
 
             //add timeout to set islayouting here
         },
-        [canvasRect, nodes, relationships, setNodes]
+        [canvasRect, nodes, relationships, setNodes, rebuildIndexDictionary]
     )
 
     useEffect(() => {
@@ -1028,7 +1042,6 @@ export default function Canvas(props: CanvasProps) {
                     darkTheme={darkTheme}
                     // handleNodeMove={handleNodeMove}
                     handleNodeAction={handleNodeAction}
-                    setHighlightedNode={setHighlightedNode}
                 />
             ))}
             {/* Selection rectangle */}

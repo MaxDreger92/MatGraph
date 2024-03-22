@@ -22,8 +22,8 @@ import WorkflowButtons from './WorkflowButtons'
 import WorkflowJson from './WorkflowJson'
 import WorkflowHistory from './WorkflowHistory'
 import WorkflowDrawer from './WorkflowDrawer'
-import { IRelationship, INode, NodeValOpAttribute, NodeAttribute } from '../../types/canvas.types'
-import { convertToJSONFormat } from '../../common/helpers'
+import { IRelationship, INode, NodeValOpAttribute, NodeAttribute, IndexDictionary } from '../../types/canvas.types'
+import { convertToJSONFormat, getNumericAttributeIndices } from '../../common/helpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
@@ -40,12 +40,12 @@ export default function Workflow(props: WorkflowProps) {
     const [nodes, setNodes] = useState<INode[]>([])
     const [relationships, setRelationships] = useState<IRelationship[]>([])
     const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
-    const [highlightedNode, setHighlightedNode] = useState<INode>()
-    const [highlightedNodes, setHighlightedNodes] = useState<INode[]>([])
+
     const [workflow, setWorkflow] = useState<string | null>(null)
     const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
-
-    const [selectedTableColumn, setSelectedTableColumn] = useState<number | null>(null)
+    const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
+    const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
+    const [indexDictionary, setIndexDictionary] = useState<IndexDictionary>({})
 
     const [needLayout, setNeedLayout] = useState(false)
 
@@ -145,16 +145,16 @@ export default function Workflow(props: WorkflowProps) {
         }
     }
 
-    useEffect(() => {
-        // if (progress < 4) return
+    // useEffect(() => {
+    //     // if (progress < 4) return
 
-        // const nodes: INode[] = highlightedNode
-        //   ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
-        //       index === self.findIndex((t) => t.id === node.id))
-        //   : [...selectedNodes];
+    //     // const nodes: INode[] = highlightedNode
+    //     //   ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
+    //     //       index === self.findIndex((t) => t.id === node.id))
+    //     //   : [...selectedNodes];
 
-        setHighlightedNodes(selectedNodes)
-    }, [progress, selectedNodes])
+    //     setHighlightedNodes(selectedNodes)
+    // }, [progress, selectedNodes])
 
     // WINDOW STUFF ########################################################
 
@@ -273,6 +273,35 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [nodes, relationships, uploadMode])
 
+    // Update Index Dictionary
+    const rebuildIndexDictionary = () => {
+        const newIndexDictionary: IndexDictionary = {};
+    
+        nodes.forEach(node => {
+            let indices: number[] = []
+
+            indices.push(...getNumericAttributeIndices(node.name))
+            indices.push(...getNumericAttributeIndices(node.value))
+            indices.push(...getNumericAttributeIndices(node.batch_num))
+            indices.push(...getNumericAttributeIndices(node.ratio))
+            indices.push(...getNumericAttributeIndices(node.concentration))
+            indices.push(...getNumericAttributeIndices(node.unit))
+            indices.push(...getNumericAttributeIndices(node.std))
+            indices.push(...getNumericAttributeIndices(node.error))
+            indices.push(...getNumericAttributeIndices(node.identifier))
+
+            indices.forEach((index) => {
+                if (newIndexDictionary[index]) {
+                    newIndexDictionary[index].push(node.id)
+                } else {
+                    newIndexDictionary[index] = [node.id]
+                }
+            })
+        })
+
+        setIndexDictionary(newIndexDictionary)
+    }
+
     // History
     const updateHistory = () => {
         setHistory((prev) => ({
@@ -342,18 +371,6 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [future, nodes, relationships, setNodes, setRelationships])
 
-    useEffect(() => {
-        if (!selectedTableColumn) return
-
-        nodes.map((node) => {
-            
-        })
-
-        const hasIndex = (attribute: NodeAttribute | NodeValOpAttribute) => {
-            
-        }
-    }, [selectedTableColumn])
-
     // Dark theme
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
@@ -380,7 +397,11 @@ export default function Workflow(props: WorkflowProps) {
                             setRelationships={setRelationships}
                             selectedNodes={selectedNodes}
                             setSelectedNodes={setSelectedNodes}
-                            setHighlightedNode={setHighlightedNode}
+                            highlightedColumnIndex={highlightedColumnIndex}
+                            selectedColumnIndex={selectedColumnIndex}
+                            indexDictionary={indexDictionary}
+                            setIndexDictionary={setIndexDictionary}
+                            rebuildIndexDictionary={rebuildIndexDictionary}
                             saveWorkflow={saveWorkflow}
                             updateHistory={updateHistory}
                             updateHistoryWithCaution={updateHistoryWithCaution}
@@ -476,9 +497,11 @@ export default function Workflow(props: WorkflowProps) {
                             setNeedLayout={setNeedLayout}
                             workflow={workflow}
                             workflows={workflows}
-                            highlightedNodes={highlightedNodes}
-                            selectedTableColumn={selectedTableColumn}
-                            setSelectedTableColumn={setSelectedTableColumn}
+                            selectedNodes={selectedNodes}
+                            setHighlightedColumnIndex={setHighlightedColumnIndex}
+                            selectedColumnIndex={selectedColumnIndex}
+                            setSelectedColumnIndex={setSelectedColumnIndex}
+                            updateIndexDictionary={rebuildIndexDictionary}
                             darkTheme={darkTheme}
                         />
                     </animated.div>
