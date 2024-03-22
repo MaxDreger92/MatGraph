@@ -1,9 +1,9 @@
-from importing.RelationshipExtraction.relationshipExtractor import RelationshipExtractor
+from importing.RelationshipExtraction.relationshipExtractor import relationshipExtractor
 from importing.RelationshipExtraction.schema import HasParameterRelationships
 from importing.utils.openai import chat_with_gpt4
 
 
-class hasParameterExtractor(RelationshipExtractor):
+class hasParameterExtractor(relationshipExtractor):
     """
     Extractor specific to Matter-Manufacturing relationships.
 
@@ -26,14 +26,6 @@ class hasParameterExtractor(RelationshipExtractor):
             response = chat_with_gpt4(self.conversation, prompt)
             self.update_triples(response)
             self.conversation[-1]["content"] = response
-
-    @property
-    def all_parameter_connected(self):
-        # Extract the last part of each triple
-        last_elements = [triple[0] for triple in self.triples]
-        isolated_property_nodes = [node for node in self.node_label_one_ids if node not in last_elements]
-        # Check if all elements are present in the last_elements list
-        return isolated_property_nodes
 
 
 

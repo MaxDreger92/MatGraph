@@ -6,10 +6,7 @@ from importing.RelationshipExtraction.input_generator import flatten_json, remov
 
 django.setup()
 
-from langchain.chains import create_structured_output_runnable
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import chain, RunnableParallel
-from langchain_openai import ChatOpenAI
 
 from importing.RelationshipExtraction.hasManufacturingExtractor import hasManufacturingExtractor
 from importing.RelationshipExtraction.hasMeasurementExtractor import hasMeasurementExtractor
@@ -17,7 +14,7 @@ from importing.RelationshipExtraction.hasParameterExtractor import hasParameterE
 from importing.RelationshipExtraction.hasPropertyExtractor import hasPropertyExtractor
 from importing.RelationshipExtraction.setupMessages import MANUFACTURING_PARAMETER_MESSAGE, \
     MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE
-from importing.utils.openai import chat_with_gpt4
+
 
 def prepare_lists(json_input, label1, label2):
     label_one_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label1]
@@ -72,7 +69,7 @@ def validate_has_property(extractor):
 
 @chain
 def validate_has_measurement(extractor):
-    print("validate_has_property")
+    print("validate_has_measurement")
     print(extractor)
     if extractor:
         return extractor.intermediate
@@ -81,7 +78,7 @@ def validate_has_measurement(extractor):
 
 @chain
 def validate_has_manufacturing(extractor):
-    print("validate_has_property")
+    print("validate_has_manufacturing")
     print(extractor)
     if extractor:
         return extractor.intermediate
@@ -90,27 +87,14 @@ def validate_has_manufacturing(extractor):
 
 @chain
 def validate_has_parameter(extractor):
-    print("validate_has_property")
+    print("validate_has_parameter")
     print(extractor)
     if extractor:
         return extractor.intermediate
     return
 
 
-@chain
-def validate_measurements(extractor):
-    print("validate_has_property")
-    print(extractor)
-    if extractor:
-        return extractor.intermediate
-    return
 
-
-@chain
-def validate_metadata(extractor):
-    if extractor:
-        return extractor.validate()
-    return
 
 @chain
 def build_results(data):
@@ -138,26 +122,6 @@ class fullRelationshipsExtractor:
     def context(self):
         return self._context
 
-    def create_extractors(self):
-        self.manufacturing_extractor = hasManufacturingExtractor(
-            self.data, MATTER_MANUFACTURING_MESSAGE, chat_with_gpt4, ["matter"],
-            ["manufacturing"], self.context
-        )
-
-        self.measurement_extractor = hasMeasurementExtractor(
-            self.data, PROPERTY_MEASUREMENT_MESSAGE, chat_with_gpt4, ["measurement"], ["property"],
-            self.context
-        )
-
-        self.parameter_extractor = hasParameterExtractor(
-            self.data, MANUFACTURING_PARAMETER_MESSAGE, chat_with_gpt4,
-            ["manufacturing", "measurement"], ["parameter"], self.context
-        )
-
-        self.property_extractor = hasPropertyExtractor(
-            self.data, MATTER_PROPERTY_MESSAGE, chat_with_gpt4,
-            ["matter"], ["property"], self.context
-        )
 
     def run(self):
         # Ensure extractors are created
@@ -169,22 +133,22 @@ class fullRelationshipsExtractor:
             has_parameter=extract_has_parameter | validate_has_parameter
         ) | build_results
         chain = chain.with_config({"run_name": "relationship-extraction"})
-        self._relationships = chain.invoke({
+        self.relationships = chain.invoke({
             'input': self.data,
             'context': self.context,
         })
 
-        # self._relationships = [{'rel_type': 'HAS_PARAMETER', 'connection': ['0', '18']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['1', '20']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['2', '21']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['3', '23']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['4', '26']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['5', '28']}, {'rel_type': 'HAS_PARAMETER', 'connection': ['6', '33']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['7', '0']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['8', '1']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['10', '2']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['11', '3']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['12', '4']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['13', '0']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['14', '1']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['15', '2']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['16', '3']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['17', '4']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['18', '5']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['19', '5']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['20', '6']}, {'rel_type': 'IS_MANUFACTURING_INPUT', 'connection': ['21', '6']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['0', '9']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['1', '18']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['2', '9']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['3', '18']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['4', '9']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['5', '20']}, {'rel_type': 'IS_MANUFACTURING_OUTPUT', 'connection': ['6', '20']}]
 
     @property
     def relationships(self):
         return self._relationships
 
+    @relationships.setter
+    def relationships(self, value):
+        self._relationships = value
+
     @property
     def results(self):
-        print(self.relationships)
-        print(self.data)
-        print(type(self.data))
         return {"nodes": self.data["nodes"], "relationships": self.relationships}
 
 
