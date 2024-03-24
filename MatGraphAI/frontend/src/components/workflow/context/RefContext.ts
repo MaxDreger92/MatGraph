@@ -1,4 +1,4 @@
-import { RefObject, createContext } from "react"
+import { RefObject, createContext, useRef } from "react"
 
 import { CustomRef } from "../../../types/canvas.types"
 
@@ -8,6 +8,9 @@ interface RefContextType {
     getNewInputRef: () => RefObject<HTMLInputElement>;
     getNewSvgRef: () => RefObject<SVGSVGElement>;
     getNewDivRef: () => RefObject<HTMLDivElement>;
+    removeRef: (refToRemove: CustomRef) => void
+    removeRefs: (refsToRemove: CustomRef[]) => void
+    resetRefs: () => void
 }
 
 // Initialize with default values that mimic the original functionality
@@ -17,6 +20,9 @@ const defaultContextValue: RefContextType = {
     getNewInputRef: () => ({ current: null }),
     getNewSvgRef: () => ({ current: null }),
     getNewDivRef: () => ({ current: null }),
+    removeRef: (refToRemove: CustomRef) => {},
+    removeRefs: (refsToRemove: CustomRef[]) => {},
+    resetRefs: () => {}
 };
 
 const RefContext = createContext<RefContextType>(defaultContextValue);
