@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useReactTable, ColumnDef, getCoreRowModel } from '@tanstack/react-table'
@@ -8,6 +8,7 @@ import { Select } from '@mantine/core'
 import { getAttributesByLabel, mapNodeTypeString } from '../../common/helpers'
 import { INode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
+import RefContext from './context/RefContext'
 
 interface WorkflowTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
@@ -54,7 +55,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         setSelectedColumnIndex,
     } = props
 
-    const tableRef = useRef<HTMLDivElement>(null)
+    const { getNewDivRef, removeRef } = useContext(RefContext)
+    const tableRef = getNewDivRef()
 
     const [selected, setSelected] = useState<{
         row: number
@@ -95,10 +97,20 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }, [additionalTables])
 
     useEffect(() => {
-        if (!hovered || progress < 4) return
+        if (progress < 4) return
+        if (!hovered) { 
+            setHighlightedColumnIndex(null)
+            return
+        }
 
         setHighlightedColumnIndex(hovered.column)
     }, [hovered, progress, setHighlightedColumnIndex])
+
+    const cleanupRef = () => {
+        if (tableRef.current) {
+            removeRef(tableRef)
+        }
+    }
 
     // Define columns
     const columns: ColumnDef<TableRow>[] = useMemo(() => {
@@ -276,7 +288,10 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             ref={tableRef}
             className="workflow-table"
             tabIndex={0}
-            onBlur={resetSelections}
+            onBlur={() => {
+                resetSelections()
+                removeRef(tableRef)
+            }}
             style={{
                 position: 'relative',
                 top: 0,
@@ -310,7 +325,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                     column: columnVirtual.index,
                                 })
                             }
-                            onMouseLeave={() => setHovered(null)}
+                            onMouseLeave={() => {
+                                setHovered(null)
+                            }}
                             onClick={
                                 progress > 3
                                     ? () => handleHeaderClick(columnVirtual.index)

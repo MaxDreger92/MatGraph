@@ -23,7 +23,7 @@ import WorkflowJson from './WorkflowJson'
 import WorkflowHistory from './WorkflowHistory'
 import WorkflowDrawer from './WorkflowDrawer'
 import { IRelationship, INode, NodeValOpAttribute, NodeAttribute, IndexDictionary } from '../../types/canvas.types'
-import { convertToJSONFormat, getNumericAttributeIndices } from '../../common/helpers'
+import { convertToJSONFormat, getNodeIndices, getNumericAttributeIndices } from '../../common/helpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
@@ -278,17 +278,7 @@ export default function Workflow(props: WorkflowProps) {
         const newIndexDictionary: IndexDictionary = {};
     
         nodes.forEach(node => {
-            let indices: number[] = []
-
-            indices.push(...getNumericAttributeIndices(node.name))
-            indices.push(...getNumericAttributeIndices(node.value))
-            indices.push(...getNumericAttributeIndices(node.batch_num))
-            indices.push(...getNumericAttributeIndices(node.ratio))
-            indices.push(...getNumericAttributeIndices(node.concentration))
-            indices.push(...getNumericAttributeIndices(node.unit))
-            indices.push(...getNumericAttributeIndices(node.std))
-            indices.push(...getNumericAttributeIndices(node.error))
-            indices.push(...getNumericAttributeIndices(node.identifier))
+            const indices = getNodeIndices(node)
 
             indices.forEach((index) => {
                 if (newIndexDictionary[index]) {

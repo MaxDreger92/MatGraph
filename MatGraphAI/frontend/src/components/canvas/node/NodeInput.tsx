@@ -1,15 +1,15 @@
 import { useMantineColorScheme } from '@mantine/core'
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
 import RefContext from '../../workflow/context/RefContext'
 
-import { INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
+import { CustomRef, INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
 import NodeInputStr from './NodeInputStr'
 import NodeInputStrOp from './NodeInputStrOp'
 
 interface NodeInputProps {
     isValueNode: boolean
     node: INode
-    handleUpdateNode: (node: INode) => void
+    handleUpdateNode: (node: INode, endEditing?: boolean) => void
 }
 
 export default React.memo(function NodeInput(props: NodeInputProps) {
@@ -30,11 +30,24 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const [showIndexChoice, setShowIndexChoice] = useState<string>('')
 
     const { refs, getNewDivRef } = useContext(RefContext)
+    const activeElementRef = useRef<Element | null>(null)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
-    const updateNode = () => {
+    // useEffect(() => {
+    //     const updateActiveElement = () => {
+    //         activeElementRef.current = document.activeElement
+    //     }
+
+    //     document.addEventListener('focus', updateActiveElement, true)
+
+    //     return () => {
+    //         document.removeEventListener('focus', updateActiveElement, true)
+    //     }
+    // }, [])
+
+    const updateNode = useCallback(() => {
         const updatedNode: INode = {
             ...node,
             name: nodeName,
@@ -47,8 +60,15 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             error: nodeError,
             identifier: nodeIdentifier,
         }
-        handleUpdateNode(updatedNode)
-    }
+        handleUpdateNode(updatedNode, true)
+    },[node, nodeName, nodeValue, nodeBatchNum, nodeRatio, nodeConcentration, nodeUnit, nodeStd, nodeError, nodeIdentifier, handleUpdateNode])
+
+    useEffect(() => {
+        if (refs.some((ref) => document.activeElement === ref.current)) {
+            return
+        }
+        updateNode()
+    }, [refs, updateNode])
 
     const handleBlur = () => {
         setTimeout(() => {
@@ -168,55 +188,91 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         const numericValue = parseFloat(index)
         input_value = isNaN(numericValue) ? index : numericValue
 
+        // switch (id) {
+        //     case 'name':
+        //         setNodeName({ value: nodeName.value, index: input_value })
+        //         break
+        //     case 'value':
+        //         setNodeValue({
+        //             valOp: { value: nodeValue.valOp.value, operator: nodeValue.valOp.operator },
+        //             index: input_value,
+        //         })
+        //         break
+        //     case 'batch':
+        //         setNodeBatchNum({ value: nodeBatchNum.value, index: input_value })
+        //         break
+        //     case 'ratio':
+        //         setNodeRatio({
+        //             valOp: { value: nodeRatio.valOp.value, operator: nodeRatio.valOp.operator },
+        //             index: input_value,
+        //         })
+        //         break
+        //     case 'concentration':
+        //         setNodeConcentration({
+        //             valOp: {
+        //                 value: nodeConcentration.valOp.value,
+        //                 operator: nodeConcentration.valOp.operator,
+        //             },
+        //             index: input_value,
+        //         })
+        //         break
+        //     case 'unit':
+        //         setNodeUnit({ value: nodeUnit.value, index: input_value })
+        //         break
+        //     case 'std':
+        //         setNodeStd({
+        //             valOp: { value: nodeStd.valOp.value, operator: nodeStd.valOp.operator },
+        //             index: input_value,
+        //         })
+        //         break
+        //     case 'error':
+        //         setNodeError({
+        //             valOp: { value: nodeError.valOp.value, operator: nodeError.valOp.operator },
+        //             index: input_value,
+        //         })
+        //         break
+        //     case 'identifier':
+        //         setNodeIdentifier({ value: nodeIdentifier.value, index: input_value })
+        //         break
+        //     default:
+        //         break
+        // }
+
+        const updatedNode = node
+
         switch (id) {
             case 'name':
-                setNodeName({ value: nodeName.value, index: input_value })
+                updatedNode.name.index = input_value
                 break
             case 'value':
-                setNodeValue({
-                    valOp: { value: nodeValue.valOp.value, operator: nodeValue.valOp.operator },
-                    index: input_value,
-                })
+                updatedNode.value.index = input_value
                 break
             case 'batch':
-                setNodeBatchNum({ value: nodeBatchNum.value, index: input_value })
+                updatedNode.batch_num.index = input_value
                 break
             case 'ratio':
-                setNodeRatio({
-                    valOp: { value: nodeRatio.valOp.value, operator: nodeRatio.valOp.operator },
-                    index: input_value,
-                })
+                updatedNode.ratio.index = input_value
                 break
             case 'concentration':
-                setNodeConcentration({
-                    valOp: {
-                        value: nodeConcentration.valOp.value,
-                        operator: nodeConcentration.valOp.operator,
-                    },
-                    index: input_value,
-                })
+                updatedNode.concentration.index = input_value
                 break
             case 'unit':
-                setNodeUnit({ value: nodeUnit.value, index: input_value })
+                updatedNode.unit.index = input_value
                 break
             case 'std':
-                setNodeStd({
-                    valOp: { value: nodeStd.valOp.value, operator: nodeStd.valOp.operator },
-                    index: input_value,
-                })
+                updatedNode.std.index = input_value
                 break
             case 'error':
-                setNodeError({
-                    valOp: { value: nodeError.valOp.value, operator: nodeError.valOp.operator },
-                    index: input_value,
-                })
+                updatedNode.error.index = input_value
                 break
             case 'identifier':
-                setNodeIdentifier({ value: nodeIdentifier.value, index: input_value })
+                updatedNode.identifier.index = input_value
                 break
             default:
                 break
         }
+
+        handleUpdateNode(updatedNode)
     }
 
     /**

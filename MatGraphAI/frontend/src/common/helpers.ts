@@ -415,6 +415,22 @@ export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
     }
 }
 
+export const getNodeIndices = (node: INode): number[] => {
+    let indices: number[] = []
+
+    indices.push(...getNumericAttributeIndices(node.name))
+    indices.push(...getNumericAttributeIndices(node.value))
+    indices.push(...getNumericAttributeIndices(node.batch_num))
+    indices.push(...getNumericAttributeIndices(node.ratio))
+    indices.push(...getNumericAttributeIndices(node.concentration))
+    indices.push(...getNumericAttributeIndices(node.unit))
+    indices.push(...getNumericAttributeIndices(node.std))
+    indices.push(...getNumericAttributeIndices(node.error))
+    indices.push(...getNumericAttributeIndices(node.identifier))
+
+    return indices
+}
+
 export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpAttribute) => {
     let indices: number[] = []
 
@@ -533,9 +549,17 @@ export function useRefManager() {
         return newRef
     }
 
-    // const resetRefs = () => {
-    //   refs.current = []
-    // }
+    const removeRef = (refToRemove: CustomRef) => {
+        refs.current = refs.current.filter(ref => ref !== refToRemove)
+    }
+    
+    const removeRefs = (refsToRemove: CustomRef[]) => {
+        refsToRemove.forEach(ref => removeRef(ref))
+    }
 
-    return { getNewDivRef, getNewInputRef, getNewSvgRef, refs: refs.current }
+    const resetRefs = () => {
+        refs.current = []
+    }
+
+    return { getNewDivRef, getNewInputRef, getNewSvgRef, removeRef, removeRefs, resetRefs, refs: refs.current}
 }

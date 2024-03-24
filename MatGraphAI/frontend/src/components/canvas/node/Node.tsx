@@ -18,6 +18,7 @@ import { isAttrDefined } from '../../../common/helpers'
 interface NodeProps {
     node: INode
     isSelected: number // 1 = solo selected, 2 = multi selected
+    isHighlighted: boolean
     connecting: boolean
     canvasRect: DOMRect | null
     mousePosition: Position
@@ -31,6 +32,7 @@ export default React.memo(function Node(props: NodeProps) {
     const {
         node,
         isSelected,
+        isHighlighted,
         connecting,
         canvasRect,
         mousePosition,
@@ -43,7 +45,7 @@ export default React.memo(function Node(props: NodeProps) {
     const [fieldsMissing, setFieldsMissing] = useState(true)
     const [dragging, setDragging] = useState(false)
     const [dragStartPos, setDragStartPos] = useState<Position | null>(null)
-    const [nodeHovered, setNodeHovered] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
     const [connectorPos, setConnectorPos] = useState<Position>({ x: 0, y: 0 })
     const [connectorActive, setConnectorActive] = useState(false)
     const [mouseDist, setMouseDist] = useState(0)
@@ -172,12 +174,12 @@ export default React.memo(function Node(props: NodeProps) {
 
         setConnectorPos(connectorPosition)
 
-        if (mouseDist > nodeActualSize / 2 - 5 && nodeHovered) {
+        if (mouseDist > nodeActualSize / 2 - 5 && isHovered) {
             setConnectorActive(true)
         } else {
             setConnectorActive(false)
         }
-    }, [nodeHovered, nodeActualSize, mouseDist, mouseAngle])
+    }, [isHovered, nodeActualSize, mouseDist, mouseAngle])
 
     // ################### handleMouseMove ###################
     // check if mousePos is inside node
@@ -251,8 +253,8 @@ export default React.memo(function Node(props: NodeProps) {
         handleNodeAction(node, ctxtAction)
     }
 
-    const handleUpdateNode = (updatedNode: INode) => {
-        handleNodeAction(updatedNode, 'nodeUpdate')
+    const handleUpdateNode = (updatedNode: INode, endEditing?: boolean) => {
+        handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
     }
 
     const handleNameMouseUp = (e: React.MouseEvent) => {
@@ -277,11 +279,11 @@ export default React.memo(function Node(props: NodeProps) {
         positionTop: node.position.y,
         positionLeft: node.position.x,
         size:
-            nodeOptimalSize && ((nodeHovered && mouseDist < 25) || isSelected === 1)
+            nodeOptimalSize && ((isHovered && mouseDist < 25) || isSelected === 1)
                 ? nodeOptimalSize
                 : node.size,
         config: {
-            tension: nodeHovered && mouseDist < 25 ? 1000 : 200,
+            tension: isHovered && mouseDist < 25 ? 1000 : 200,
             friction: 26,
         },
     })
@@ -323,16 +325,16 @@ export default React.memo(function Node(props: NodeProps) {
                 style={{
                     width: springProps.size.to((size) => size + 20),
                     height: springProps.size.to((size) => size + 20),
-                    cursor: nodeHovered ? (!dragging ? 'pointer' : 'grabbing') : 'default',
+                    cursor: isHovered ? (!dragging ? 'pointer' : 'grabbing') : 'default',
                 }}
                 className="node-clickable"
                 onMouseDown={handleMouseDown} // init relationship
                 onMouseUp={handleMouseUp} // handleNodeClick (complete relationship || open node nav)
                 onMouseEnter={() => {
-                    setNodeHovered(true)
+                    setIsHovered(true)
                 }}
                 onMouseLeave={() => {
-                    setNodeHovered(false)
+                    setIsHovered(false)
                 }}
                 onContextMenu={(e) => {
                     e.stopPropagation()
@@ -350,10 +352,10 @@ export default React.memo(function Node(props: NodeProps) {
                         height: springProps.size,
                         backgroundColor: colors[0],
                         opacity: !fieldsMissing ? 1 : 0.7,
-                        outlineColor: isSelected > 0 || nodeHovered ? colors[1] : colors[2],
+                        outlineColor: isSelected > 0 || isHovered || isHighlighted ? colors[1] : colors[2],
                         outlineStyle: 'solid',
                         outlineWidth: '4px',
-                        outlineOffset: '-1px',
+                        outlineOffset: isHighlighted && isSelected === 0 ? '3px' : '-1px',
                         zIndex: node.layer,
                     }}
                 >
@@ -364,7 +366,7 @@ export default React.memo(function Node(props: NodeProps) {
                             isValueNode={isValueNode}
                             fieldsMissing={fieldsMissing}
                             labelRef={nodeLabelRef}
-                            hovered={nodeHovered}
+                            hovered={isHovered}
                             size={nodeActualSize}
                             labelFontSize={labelFontSize}
                             name={node.name.value}
@@ -404,7 +406,7 @@ export default React.memo(function Node(props: NodeProps) {
                     !node.isEditing && ( // warning: !nodeName
                         <NodeWarning
                             size={nodeActualSize}
-                            hovered={nodeHovered}
+                            hovered={isHovered}
                             color={colors[0]}
                             layer={node.layer}
                         />
