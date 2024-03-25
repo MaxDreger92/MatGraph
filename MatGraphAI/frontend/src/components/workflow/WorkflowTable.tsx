@@ -68,7 +68,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
     const [dragging, setDragging] = useState(false)
 
-    const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex } = useContext(WorkflowContext)
+    const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex, forceEndEditing } = useContext(WorkflowContext)
 
     useEffect(() => {
         // 52 + 45 * tableRows
@@ -226,17 +226,16 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         if (!dragging) return
 
         const handleMouseUp = () => {
-            console.log('falsing')
             setDragging(false)
-            if (tableRef.current === document.activeElement) {
+            if (tableRef.current !== document.activeElement) {
                 handleBlur(true)
+                forceEndEditing()
             }
         }
 
         document.addEventListener('mouseup', handleMouseUp)
 
         return () => {
-            console.log('removing')
             document.removeEventListener('mouseup', handleMouseUp)
         }
     }, [dragging, refs])
@@ -244,7 +243,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const handleBlur = (forceCleanup?: boolean) => {
         resetSelections()
         if (!dragging || forceCleanup) {
-            console.log('blur')
             removeRef(tableRef)
         }
     }

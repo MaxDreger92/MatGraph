@@ -33,6 +33,8 @@ interface CanvasProps {
     selectedNodes: INode[]
     setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
     highlightedNodeIds: Set<string> | null
+    nodeEditing: boolean
+    setNodeEditing: React.Dispatch<React.SetStateAction<boolean>>
     indexDictionary: IndexDictionary
     updateIndexDictionary: (node: INode) => void
     rebuildIndexDictionary: () => void
@@ -60,6 +62,8 @@ export default function Canvas(props: CanvasProps) {
         selectedNodes,
         setSelectedNodes,
         highlightedNodeIds,
+        nodeEditing,
+        setNodeEditing,
         updateIndexDictionary,
         rebuildIndexDictionary,
         saveWorkflow,
@@ -76,7 +80,6 @@ export default function Canvas(props: CanvasProps) {
         canvasRect,
     } = props
 
-    const [nodeEditing, setNodeEditing] = useState(false)
     const [isLayouting, setIsLayouting] = useState(false)
 
     const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
@@ -169,6 +172,7 @@ export default function Canvas(props: CanvasProps) {
 
     // rename node -> resetting isEditing to false
     const handleNodeUpdate = useCallback((node: INode, endEditing?: boolean) => {
+        console.log('update')
         setNodes((prevNodes) =>
             prevNodes.map((n) => {
                 if (n.id === node.id) {

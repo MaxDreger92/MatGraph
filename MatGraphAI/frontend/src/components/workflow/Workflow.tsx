@@ -42,6 +42,7 @@ export default function Workflow(props: WorkflowProps) {
     const [relationships, setRelationships] = useState<IRelationship[]>([])
     const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
+    const [nodeEditing, setNodeEditing] = useState(false)
 
     const [workflow, setWorkflow] = useState<string | null>(null)
     const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
@@ -76,12 +77,6 @@ export default function Workflow(props: WorkflowProps) {
     const [tableViewHeight, setTableViewHeight] = useState(0)
 
     const [progress, setProgress] = useState<number>(0)
-
-    const value = {
-        setHighlightedColumnIndex,
-        selectedColumnIndex,
-        setSelectedColumnIndex,
-    }
 
     // WORKFLOW STUFF ########################################################
 
@@ -343,6 +338,16 @@ export default function Workflow(props: WorkflowProps) {
 
     }, [highlightedColumnIndex, nodes, indexDictionary])
 
+    const forceEndEditing = () => {
+        const updatedNodes = nodes.map(node => {
+            node.isEditing = false
+            return node
+        })
+
+        setNodeEditing(false)
+        setNodes(updatedNodes)
+    }
+
     // History ########################################
     const updateHistory = () => {
         setHistory((prev) => ({
@@ -416,6 +421,14 @@ export default function Workflow(props: WorkflowProps) {
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
+    // Worklow Provider values
+    const value = {
+        setHighlightedColumnIndex,
+        selectedColumnIndex,
+        setSelectedColumnIndex,
+        forceEndEditing,
+    }
+
     return (
         <WorkflowContext.Provider value={value}>
             <RefContextProvider>
@@ -440,6 +453,8 @@ export default function Workflow(props: WorkflowProps) {
                                 selectedNodes={selectedNodes}
                                 setSelectedNodes={setSelectedNodes}
                                 highlightedNodeIds={highlightedNodeIds}
+                                nodeEditing={nodeEditing}
+                                setNodeEditing={setNodeEditing}
                                 indexDictionary={indexDictionary}
                                 updateIndexDictionary={updateIndexDictionary}
                                 rebuildIndexDictionary={rebuildIndexDictionary}
