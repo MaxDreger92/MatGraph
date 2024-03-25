@@ -25,6 +25,7 @@ interface NodeProps {
     isMoving: boolean
     isLayouting: boolean
     darkTheme: boolean
+    initNodeMove: (nodeId: INode['id']) => void
     handleNodeAction: (node: INode, action: string, conditional?: any) => void
 }
 
@@ -39,7 +40,7 @@ export default React.memo(function Node(props: NodeProps) {
         isMoving,
         isLayouting,
         darkTheme,
-        // handleNodeMove,
+        initNodeMove,
         handleNodeAction,
     } = props
     const [fieldsMissing, setFieldsMissing] = useState(true)
@@ -221,7 +222,7 @@ export default React.memo(function Node(props: NodeProps) {
             if (!canvasRect || node.isEditing) return
             setDragging(true)
             setDragStartPos({ x: node.position.x, y: node.position.y })
-            handleNodeAction(node, 'initMove')
+            initNodeMove(node.id)
         }
     }
 
@@ -253,13 +254,9 @@ export default React.memo(function Node(props: NodeProps) {
         handleNodeAction(node, ctxtAction)
     }
 
-    const handleNodeUpdate = (updatedNode: INode, endEditing?: boolean) => {
+    const handleNodeUpdate = useCallback((updatedNode: INode, endEditing?: boolean) => {
         handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
-    }
-
-    const initIndexSelect = (attribute: string) => {
-        handleNodeAction(node, 'awaitIndexSelect', attribute)
-    }
+    }, [handleNodeAction])
 
     const handleNameMouseUp = (e: React.MouseEvent) => {
         if (
@@ -291,10 +288,6 @@ export default React.memo(function Node(props: NodeProps) {
             friction: 26,
         },
     })
-
-    useEffect(() => {
-        console.log('log')
-    }, [node])
 
     return (
         <animated.div
@@ -406,7 +399,6 @@ export default React.memo(function Node(props: NodeProps) {
                         isValueNode={isValueNode}
                         node={node}
                         handleNodeUpdate={handleNodeUpdate}
-                        initIndexSelect={initIndexSelect}
                     />
                 )}
                 {/* node warning */}

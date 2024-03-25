@@ -446,17 +446,6 @@ export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpA
     return indices
 }
 
-export const updateNodeAttributeIndex = (node: INode, attribute: string, index: number): INode => {
-    switch (attribute) {
-        case 'name':
-            node.name.index = index
-            break
-        default:
-    }
-
-    return node
-}
-
 /**
  * Determine if a relationship between two nodes is allowed.
  *
@@ -540,7 +529,6 @@ export function useRefManager() {
     const refs = useRef<CustomRef[]>([])
 
     const getNewInputRef = () => {
-        // console.log("trying to push an input ref")
         const newRef = React.createRef<HTMLInputElement>()
         refs.current.push(newRef)
         return newRef

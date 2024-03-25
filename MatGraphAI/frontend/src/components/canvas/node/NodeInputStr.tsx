@@ -5,6 +5,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import RefContext from '../../workflow/context/RefContext'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
+import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputStrProps {
     handleStrChange: (id: string, value: string) => void
@@ -17,7 +18,6 @@ interface NodeInputStrProps {
     index?: AttributeIndex | AttributeIndex[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
-    initIndexSelect: (attribute: string) => void
     autoFocus: boolean
     add: boolean
     zIndex: number
@@ -35,24 +35,29 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         index,
         showIndexChoice,
         setShowIndexChoice,
-        initIndexSelect,
         autoFocus,
         add,
         zIndex,
     } = props
 
+    const [currentValue, setCurrentValue] = useState<string | undefined>(defaultValue)
     const [currentIndex, setCurrentIndex] = useState<string | number>("")
-    const [indexDeleteHovered, setIndexDeleteHovered] = useState(false)
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
+    const [awaitingIndex, setAwaitingIndex] = useState(false)
+    const { selectedColumnIndex } = useContext(WorkflowContext)
 
     const { getNewInputRef } = useContext(RefContext)
+    const stringInputRef = getNewInputRef()
+    const indexInputRef = getNewInputRef()
 
     const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
     const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
+
+
 
     useEffect(() => {
         if (!index) return
@@ -71,6 +76,14 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         }
     }, [currentIndex])
 
+    useEffect(() => {
+        if (!(awaitingIndex && selectedColumnIndex !== null)) return
+
+        handleIndexChange(id, selectedColumnIndex.toString())
+        setCurrentIndex(selectedColumnIndex)
+        setAwaitingIndex(false)
+    }, [awaitingIndex, selectedColumnIndex])
+
     const deleteIndexLocal = () => {
         handleIndexChange(id, '')
         setCurrentIndex('')
@@ -79,6 +92,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
 
     const handleIndexChoiceModal = () => {
         if (showIndexChoice === id) {
+            setAwaitingIndex(false)
             setShowIndexChoice('')
         } else {
             setShowIndexChoice(id)
@@ -92,6 +106,40 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         }
     }
 
+    const handleIndexDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+        const dragDataString = e.dataTransfer.getData('text/plain');
+        const dragData = JSON.parse(dragDataString)
+
+        const {columnIndex} = dragData 
+    
+        setCurrentIndex(columnIndex);
+        handleIndexChange(id, columnIndex)
+    };
+
+    const handleColumnDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    
+        const dragDataString = e.dataTransfer.getData('text/plain');
+        const dragData = JSON.parse(dragDataString);
+
+        const { columnContent, columnIndex } = dragData;
+
+        setCurrentValue(columnContent)
+        setCurrentIndex(columnIndex)
+        handleStrChange(id, columnContent)
+        handleIndexChange(id, columnIndex)
+    }
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault(); 
+    };
+
+    const preventDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+    }
+
     return (
         <div
             style={{
@@ -103,12 +151,17 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             }}
         >
             <input
+                onDragOver={handleDragOver}
+                onDrop={handleColumnDrop}
                 className={`${inputClass}`}
-                ref={getNewInputRef()}
+                ref={stringInputRef}
                 type="text"
                 placeholder={placeholder}
-                value={defaultValue}
-                onChange={(e) => handleStrChange(id, e.target.value)} // write nodeName state
+                value={currentValue}
+                onChange={(e) => {
+                    handleStrChange(id, e.target.value)
+                    setCurrentValue(e.target.value)
+                }} // write nodeName state
                 onKeyUp={handleKeyUp} // confirm name with enter
                 onBlur={handleBlur}
                 autoFocus={autoFocus}
@@ -121,8 +174,10 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             {showIndices && (
                 <div style={{ position: 'relative', display: 'flex' }}>
                     <input
+                        onDragOver={handleDragOver}
+                        onDrop={handleIndexDrop}
                         className={`${inputClass}`}
-                        ref={getNewInputRef()}
+                        ref={indexInputRef}
                         type="text"
                         placeholder="Index"
                         value={currentIndex}
@@ -141,8 +196,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                     />
                     {currentIndex !== '' ? (
                         <div
-                            onMouseEnter={() => setIndexDeleteHovered(true)}
-                            onMouseLeave={() => setIndexDeleteHovered(false)}
+                            onMouseEnter={() => setIndexButtonHovered(true)}
+                            onMouseLeave={() => setIndexButtonHovered(false)}
                             onClick={deleteIndexLocal}
                             style={{
                                 position: 'absolute',
@@ -156,7 +211,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                                 zIndex: zIndex + 1,
                                 right: 0,
                                 cursor: 'pointer',
-                                color: indexDeleteHovered
+                                color: indexButtonHovered
                                         ? '#ff0000'
                                         : darkTheme
                                             ? '#444'
@@ -270,14 +325,14 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                             <div
                                 onMouseEnter={() => setIndexChoiceHovered(2)}
                                 onMouseLeave={() => setIndexChoiceHovered(0)}
-                                onClick={() => initIndexSelect(id)}
+                                onClick={() => setAwaitingIndex(!awaitingIndex)}
                                 style={{
                                     width: 'calc(100% - 8px)',
                                     height: 30,
                                     margin: '0 4px 4px 4px',
                                     borderRadius: 3,
                                     backgroundColor:
-                                        indexChoiceHovered === 2 ? '#373A40' : 'inherit',
+                                        awaitingIndex ? '#1864ab' : indexChoiceHovered === 2 ? '#373A40' : 'inherit',
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',

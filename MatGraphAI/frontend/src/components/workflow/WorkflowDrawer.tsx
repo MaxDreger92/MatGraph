@@ -50,11 +50,7 @@ interface WorkflowDrawerProps {
     workflow: string | null
     workflows: IWorkflow[] | undefined
     selectedNodes: INode[]
-    setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
-    selectedColumnIndex: number | null
-    setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
-    awaitColumnSelect: boolean
-    updateIndexDictionary: () => void
+    rebuildIndexDictionary: () => void
     darkTheme: boolean
 }
 
@@ -70,11 +66,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         workflow,
         workflows,
         selectedNodes,
-        setHighlightedColumnIndex,
-        selectedColumnIndex,
-        setSelectedColumnIndex,
-        awaitColumnSelect,
-        updateIndexDictionary,
+        rebuildIndexDictionary,
         darkTheme,
     } = props
 
@@ -298,7 +290,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 setRelationships([])
                 setNodes(nodes)
                 setNeedLayout(true)
-                updateIndexDictionary()
+                rebuildIndexDictionary()
 
                 setProgress(4)
             }
@@ -333,7 +325,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             setNodes(nodes)
             setRelationships(relationships)
             setNeedLayout(true)
-            updateIndexDictionary()
+            rebuildIndexDictionary()
 
             setProgress(5)
 
@@ -643,10 +635,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                                     darkTheme={darkTheme}
                                     columnsLength={columnLength}
                                     additionalTables={additionalTables}
-                                    setHighlightedColumnIndex={setHighlightedColumnIndex}
-                                    selectedColumnIndex={selectedColumnIndex}
-                                    setSelectedColumnIndex={setSelectedColumnIndex}
-                                    awaitColumnSelect={awaitColumnSelect}
                                 />
                             </div>
                         </div>

@@ -9,6 +9,7 @@ import { getAttributesByLabel, mapNodeTypeString } from '../../common/helpers'
 import { INode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
 import RefContext from './context/RefContext'
+import WorkflowContext from './context/WorkflowContext'
 
 interface WorkflowTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
@@ -23,13 +24,6 @@ interface WorkflowTableProps {
     // ################################ for csvTable
     // all additional tables
     additionalTables?: number[][]
-
-    // ################################ for node selection
-    setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
-    selectedColumnIndex: number | null
-    setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
-
-    awaitColumnSelect: boolean
 }
 
 const labelOptions = [
@@ -52,13 +46,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         darkTheme,
         columnsLength,
         additionalTables,
-        setHighlightedColumnIndex,
-        selectedColumnIndex,
-        setSelectedColumnIndex,
-        awaitColumnSelect,
     } = props
 
-    const { getNewDivRef, removeRef } = useContext(RefContext)
+    const { getNewDivRef, removeRef, refs } = useContext(RefContext)
     const tableRef = getNewDivRef()
 
     const [selected, setSelected] = useState<{
@@ -75,6 +65,10 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const [highlightedColumns, setHighlightedColumns] = useState<{
         [key: number]: number
     }>({})
+
+    const [dragging, setDragging] = useState(false)
+
+    const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex } = useContext(WorkflowContext)
 
     useEffect(() => {
         // 52 + 45 * tableRows
@@ -218,6 +212,43 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         }
     }
 
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, columnContent: string, columnIndex: number): void => {
+        setDragging(true)
+
+        const dragData = { columnContent, columnIndex }
+
+        const dragDataString = JSON.stringify(dragData)
+
+        e.dataTransfer.setData('text/plain', dragDataString)
+    }
+
+    useEffect(() => {
+        if (!dragging) return
+
+        const handleMouseUp = () => {
+            console.log('falsing')
+            setDragging(false)
+            if (tableRef.current === document.activeElement) {
+                handleBlur(true)
+            }
+        }
+
+        document.addEventListener('mouseup', handleMouseUp)
+
+        return () => {
+            console.log('removing')
+            document.removeEventListener('mouseup', handleMouseUp)
+        }
+    }, [dragging, refs])
+
+    const handleBlur = (forceCleanup?: boolean) => {
+        resetSelections()
+        if (!dragging || forceCleanup) {
+            console.log('blur')
+            removeRef(tableRef)
+        }
+    }
+
     const resetSelections = () => {
         setSelected(null)
         setSelectData([])
@@ -291,10 +322,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             ref={tableRef}
             className="workflow-table"
             tabIndex={0}
-            onBlur={() => {
-                resetSelections()
-                removeRef(tableRef)
-            }}
+            onBlur={() => handleBlur()}
             style={{
                 position: 'relative',
                 top: 0,
@@ -336,6 +364,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined
                             }
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, header, columnVirtual.index)}
                             key={columnVirtual.key}
                             style={{
                                 display: 'inline-block',
@@ -419,6 +449,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                 })
                                             }
                                             onMouseLeave={() => setHovered(null)}
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, cellData.toString(), columnVirtual.index)}
                                             style={{
                                                 display: 'inline-block',
                                                 position: 'absolute',

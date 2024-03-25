@@ -5,6 +5,7 @@ import RefContext from '../../workflow/context/RefContext'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
+import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputStrOpProps {
     handleOpChange: (id: string, operator: string) => void
@@ -19,7 +20,6 @@ interface NodeInputStrOpProps {
     index?: AttributeIndex | AttributeIndex[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
-    initIndexSelect: (attribute: string) => void
     autoFocus: boolean
     zIndex: number
 }
@@ -38,7 +38,6 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         index,
         showIndexChoice,
         setShowIndexChoice,
-        initIndexSelect,
         autoFocus,
         zIndex,
     } = props
@@ -46,6 +45,17 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const [currentIndex, setCurrentIndex] = useState<string | number>('')
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
+
+    const { getNewInputRef } = useContext(RefContext)
+
+    const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
+
+    const { colorScheme } = useMantineColorScheme()
+    const darkTheme = colorScheme === 'dark'
+    const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
+
+    const [awaitingIndex, setAwaitingIndex] = useState(false)
+    const { selectedColumnIndex } = useContext(WorkflowContext)
 
     useEffect(() => {
         if (!index) return
@@ -64,13 +74,13 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         }
     }, [currentIndex])
 
-    const { getNewInputRef } = useContext(RefContext)
+    useEffect(() => {
+        if (!(awaitingIndex && selectedColumnIndex !== null)) return
 
-    const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
-
-    const { colorScheme } = useMantineColorScheme()
-    const darkTheme = colorScheme === 'dark'
-    const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
+        handleIndexChange(id, selectedColumnIndex.toString())
+        setCurrentIndex(selectedColumnIndex)
+        setAwaitingIndex(false)
+    }, [awaitingIndex, selectedColumnIndex])
 
     const toggleSelectOpen = () => {
         if (selectOpen) {
@@ -98,6 +108,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
 
     const handleIndexChoiceModal = () => {
         if (showIndexChoice === id) {
+            setAwaitingIndex(false)
             setShowIndexChoice('')
         } else {
             setShowIndexChoice(id)
@@ -110,6 +121,17 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
             setCurrentIndex(choice)
         }
     }
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const columnIndex = e.dataTransfer.getData('text/plain');
+        setCurrentIndex(columnIndex);
+        handleIndexChange(id, columnIndex)
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault(); // Necessary to allow the drop
+    };
 
     // choiceHoverColor = '#373A40'
 
@@ -175,6 +197,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                 {showIndices && (
                     <div style={{ position: 'relative', display: 'flex' }}>
                         <input
+                            onDragOver={handleDragOver}
+                            onDrop={handleDrop}
                             ref={getNewInputRef()}
                             className={`${inputClass}`}
                             type="text"
@@ -320,14 +344,14 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                             <div
                                 onMouseEnter={() => setIndexChoiceHovered(2)}
                                 onMouseLeave={() => setIndexChoiceHovered(0)}
-                                onClick={() => initIndexSelect(id)}
+                                onClick={() => setAwaitingIndex(!awaitingIndex)}
                                 style={{
                                     width: 'calc(100% - 8px)',
                                     height: 30,
                                     margin: '0 4px 4px 4px',
                                     borderRadius: 3,
                                     backgroundColor:
-                                        indexChoiceHovered === 2 ? '#373A40' : 'inherit',
+                                        awaitingIndex ? '#1864ab' : indexChoiceHovered === 2 ? '#373A40' : 'inherit',
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
