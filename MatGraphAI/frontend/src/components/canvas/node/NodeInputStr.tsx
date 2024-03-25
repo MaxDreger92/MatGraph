@@ -17,6 +17,7 @@ interface NodeInputStrProps {
     index?: AttributeIndex | AttributeIndex[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
+    initIndexSelect: (attribute: string) => void
     autoFocus: boolean
     add: boolean
     zIndex: number
@@ -34,6 +35,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         index,
         showIndexChoice,
         setShowIndexChoice,
+        initIndexSelect,
         autoFocus,
         add,
         zIndex,
@@ -61,7 +63,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             return
         }
         setCurrentIndex(index)
-    }, [])
+    }, [index])
 
     useEffect(() => {
         if (currentIndex !== '' && showIndexChoice === id) {
@@ -268,6 +270,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                             <div
                                 onMouseEnter={() => setIndexChoiceHovered(2)}
                                 onMouseLeave={() => setIndexChoiceHovered(0)}
+                                onClick={() => initIndexSelect(id)}
                                 style={{
                                     width: 'calc(100% - 8px)',
                                     height: 30,

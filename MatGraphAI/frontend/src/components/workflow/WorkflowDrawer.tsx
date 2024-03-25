@@ -53,6 +53,7 @@ interface WorkflowDrawerProps {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
+    awaitColumnSelect: boolean
     updateIndexDictionary: () => void
     darkTheme: boolean
 }
@@ -72,6 +73,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         setHighlightedColumnIndex,
         selectedColumnIndex,
         setSelectedColumnIndex,
+        awaitColumnSelect,
         updateIndexDictionary,
         darkTheme,
     } = props
@@ -644,6 +646,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                                     setHighlightedColumnIndex={setHighlightedColumnIndex}
                                     selectedColumnIndex={selectedColumnIndex}
                                     setSelectedColumnIndex={setSelectedColumnIndex}
+                                    awaitColumnSelect={awaitColumnSelect}
                                 />
                             </div>
                         </div>

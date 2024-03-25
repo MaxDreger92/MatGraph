@@ -28,6 +28,8 @@ interface WorkflowTableProps {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
+
+    awaitColumnSelect: boolean
 }
 
 const labelOptions = [
@@ -53,6 +55,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         setHighlightedColumnIndex,
         selectedColumnIndex,
         setSelectedColumnIndex,
+        awaitColumnSelect,
     } = props
 
     const { getNewDivRef, removeRef } = useContext(RefContext)
@@ -328,7 +331,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                             onMouseLeave={() => {
                                 setHovered(null)
                             }}
-                            onClick={
+                            onMouseUp={
                                 progress > 3
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined

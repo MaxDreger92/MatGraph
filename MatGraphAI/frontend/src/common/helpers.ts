@@ -446,6 +446,17 @@ export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpA
     return indices
 }
 
+export const updateNodeAttributeIndex = (node: INode, attribute: string, index: number): INode => {
+    switch (attribute) {
+        case 'name':
+            node.name.index = index
+            break
+        default:
+    }
+
+    return node
+}
+
 /**
  * Determine if a relationship between two nodes is allowed.
  *

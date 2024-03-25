@@ -22,8 +22,8 @@ import WorkflowButtons from './WorkflowButtons'
 import WorkflowJson from './WorkflowJson'
 import WorkflowHistory from './WorkflowHistory'
 import WorkflowDrawer from './WorkflowDrawer'
-import { IRelationship, INode, NodeValOpAttribute, NodeAttribute, IndexDictionary } from '../../types/canvas.types'
-import { convertToJSONFormat, getNodeIndices, getNumericAttributeIndices } from '../../common/helpers'
+import { IRelationship, INode, IndexDictionary } from '../../types/canvas.types'
+import { convertToJSONFormat, getNodeIndices } from '../../common/helpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
@@ -43,9 +43,11 @@ export default function Workflow(props: WorkflowProps) {
 
     const [workflow, setWorkflow] = useState<string | null>(null)
     const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
+
     const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
     const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
     const [indexDictionary, setIndexDictionary] = useState<IndexDictionary>({})
+    const [awaitColumnSelect, setAwaitColumnSelect] = useState(false)
 
     const [needLayout, setNeedLayout] = useState(false)
 
@@ -243,35 +245,26 @@ export default function Workflow(props: WorkflowProps) {
     // CANVAS STUFF ########################################################
     // LOCAL STORAGE, NODES, HISTORY ###################################
 
-    // Get nodes and relationships from local storage
+    // Save and retrieve nodes and relationships to / from local storage
     useEffect(() => {
         let savedNodes: any = null
         let savedRelationships: any = null
-
         if (uploadMode) {
+            localStorage.setItem('search-nodes', JSON.stringify(nodes));
+            localStorage.setItem('search-relationships', JSON.stringify(relationships));
             savedNodes = localStorage.getItem('upload-nodes')
             savedRelationships = localStorage.getItem('upload-relationships')
         } else {
+            localStorage.setItem('upload-nodes', JSON.stringify(nodes));
+            localStorage.setItem('upload-relationships', JSON.stringify(relationships));
             savedNodes = localStorage.getItem('search-nodes')
             savedRelationships = localStorage.getItem('search-relationships')
         }
-
         if (savedNodes) {
             setNodes(JSON.parse(savedNodes))
             if (savedRelationships) setRelationships(JSON.parse(savedRelationships))
         }
     }, [uploadMode])
-
-    // Save nodes and relationships to local storage
-    useEffect(() => {
-        if (uploadMode) {
-            localStorage.setItem('upload-nodes', JSON.stringify(nodes))
-            localStorage.setItem('upload-relationships', JSON.stringify(relationships))
-        } else {
-            localStorage.setItem('search-nodes', JSON.stringify(nodes))
-            localStorage.setItem('search-relationships', JSON.stringify(relationships))
-        }
-    }, [nodes, relationships, uploadMode])
 
     // Update Index Dictionary
     const rebuildIndexDictionary = () => {
@@ -292,7 +285,7 @@ export default function Workflow(props: WorkflowProps) {
         setIndexDictionary(newIndexDictionary)
     }
 
-    // History
+    // History ########################################
     const updateHistory = () => {
         setHistory((prev) => ({
             nodes: [...prev.nodes, nodes].slice(-undoSteps),
@@ -361,7 +354,7 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [future, nodes, relationships, setNodes, setRelationships])
 
-    // Dark theme
+    // Dark theme #############################
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
@@ -476,27 +469,28 @@ export default function Workflow(props: WorkflowProps) {
                             backgroundColor: darkTheme ? '#25262b' : '#fff',
                             zIndex: 1,
                         }}
-                    >
-                        <WorkflowDrawer
-                            tableView={tableView}
-                            tableViewHeight={tableViewHeight}
-                            progress={progress}
-                            setProgress={setProgress}
-                            setNodes={setNodes}
-                            setRelationships={setRelationships}
-                            setNeedLayout={setNeedLayout}
-                            workflow={workflow}
-                            workflows={workflows}
-                            selectedNodes={selectedNodes}
-                            setHighlightedColumnIndex={setHighlightedColumnIndex}
-                            selectedColumnIndex={selectedColumnIndex}
-                            setSelectedColumnIndex={setSelectedColumnIndex}
-                            updateIndexDictionary={rebuildIndexDictionary}
-                            darkTheme={darkTheme}
-                        />
-                    </animated.div>
+                        children={
+                            <WorkflowDrawer
+                                tableView={tableView}
+                                tableViewHeight={tableViewHeight}
+                                progress={progress}
+                                setProgress={setProgress}
+                                setNodes={setNodes}
+                                setRelationships={setRelationships}
+                                setNeedLayout={setNeedLayout}
+                                workflow={workflow}
+                                workflows={workflows}
+                                selectedNodes={selectedNodes}
+                                setHighlightedColumnIndex={setHighlightedColumnIndex}
+                                selectedColumnIndex={selectedColumnIndex}
+                                setSelectedColumnIndex={setSelectedColumnIndex}
+                                awaitColumnSelect={awaitColumnSelect}
+                                updateIndexDictionary={rebuildIndexDictionary}
+                                darkTheme={darkTheme}
+                            />
+                        }
+                    />
                 )}
-
                 <div className="workflow-btn-wrap" style={{ zIndex: 1 }}>
                     <WorkflowButtons
                         uploadMode={uploadMode}

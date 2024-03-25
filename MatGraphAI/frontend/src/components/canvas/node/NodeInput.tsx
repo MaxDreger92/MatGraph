@@ -9,11 +9,12 @@ import NodeInputStrOp from './NodeInputStrOp'
 interface NodeInputProps {
     isValueNode: boolean
     node: INode
-    handleUpdateNode: (node: INode, endEditing?: boolean) => void
+    handleNodeUpdate: (node: INode, endEditing?: boolean) => void
+    initIndexSelect: (attribute: string) => void
 }
 
 export default React.memo(function NodeInput(props: NodeInputProps) {
-    const { isValueNode, node, handleUpdateNode } = props
+    const { isValueNode, node, handleNodeUpdate, initIndexSelect } = props
 
     const [nodeName, setNodeName] = useState<NodeAttribute>(node.name)
     const [nodeValue, setNodeValue] = useState<NodeValOpAttribute>(node.value)
@@ -35,6 +36,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
+    const [isSelectingIndex, setIsSelectingIndex] = useState(false)
+
+
+
     // useEffect(() => {
     //     const updateActiveElement = () => {
     //         activeElementRef.current = document.activeElement
@@ -48,6 +53,11 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     // }, [])
 
     const updateNode = useCallback(() => {
+        if (isSelectingIndex) {
+            setIsSelectingIndex(false)
+            return
+        }
+
         const updatedNode: INode = {
             ...node,
             name: nodeName,
@@ -60,8 +70,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             error: nodeError,
             identifier: nodeIdentifier,
         }
-        handleUpdateNode(updatedNode, true)
-    },[node, nodeName, nodeValue, nodeBatchNum, nodeRatio, nodeConcentration, nodeUnit, nodeStd, nodeError, nodeIdentifier, handleUpdateNode])
+        handleNodeUpdate(updatedNode, true)
+    },[node, nodeName, nodeValue, nodeBatchNum, nodeRatio, nodeConcentration, nodeUnit, nodeStd, nodeError, nodeIdentifier, handleNodeUpdate])
 
     useEffect(() => {
         if (refs.some((ref) => document.activeElement === ref.current)) {
@@ -181,98 +191,74 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
 
     const handleIndexChangeLocal = (id: string, index: string) => {
-        // console.log("Setting new index: " + id + " " + index)
-
         let input_value: string | number
 
         const numericValue = parseFloat(index)
         input_value = isNaN(numericValue) ? index : numericValue
 
-        // switch (id) {
-        //     case 'name':
-        //         setNodeName({ value: nodeName.value, index: input_value })
-        //         break
-        //     case 'value':
-        //         setNodeValue({
-        //             valOp: { value: nodeValue.valOp.value, operator: nodeValue.valOp.operator },
-        //             index: input_value,
-        //         })
-        //         break
-        //     case 'batch':
-        //         setNodeBatchNum({ value: nodeBatchNum.value, index: input_value })
-        //         break
-        //     case 'ratio':
-        //         setNodeRatio({
-        //             valOp: { value: nodeRatio.valOp.value, operator: nodeRatio.valOp.operator },
-        //             index: input_value,
-        //         })
-        //         break
-        //     case 'concentration':
-        //         setNodeConcentration({
-        //             valOp: {
-        //                 value: nodeConcentration.valOp.value,
-        //                 operator: nodeConcentration.valOp.operator,
-        //             },
-        //             index: input_value,
-        //         })
-        //         break
-        //     case 'unit':
-        //         setNodeUnit({ value: nodeUnit.value, index: input_value })
-        //         break
-        //     case 'std':
-        //         setNodeStd({
-        //             valOp: { value: nodeStd.valOp.value, operator: nodeStd.valOp.operator },
-        //             index: input_value,
-        //         })
-        //         break
-        //     case 'error':
-        //         setNodeError({
-        //             valOp: { value: nodeError.valOp.value, operator: nodeError.valOp.operator },
-        //             index: input_value,
-        //         })
-        //         break
-        //     case 'identifier':
-        //         setNodeIdentifier({ value: nodeIdentifier.value, index: input_value })
-        //         break
-        //     default:
-        //         break
-        // }
-
-        const updatedNode = node
+        const updatedNode = { ...node }
 
         switch (id) {
             case 'name':
                 updatedNode.name.index = input_value
+                setNodeName({ value: nodeName.value, index: input_value })
                 break
             case 'value':
                 updatedNode.value.index = input_value
+                setNodeValue({
+                    valOp: nodeValue.valOp,
+                    index: input_value,
+                })
                 break
             case 'batch':
                 updatedNode.batch_num.index = input_value
+                setNodeBatchNum({ value: nodeBatchNum.value, index: input_value })
                 break
             case 'ratio':
                 updatedNode.ratio.index = input_value
+                setNodeRatio({
+                    valOp: nodeRatio.valOp,
+                    index: input_value,
+                })
                 break
             case 'concentration':
                 updatedNode.concentration.index = input_value
+                setNodeConcentration({
+                    valOp: nodeConcentration.valOp,
+                    index: input_value,
+                })
                 break
             case 'unit':
                 updatedNode.unit.index = input_value
+                setNodeUnit({ value: nodeUnit.value, index: input_value })
                 break
             case 'std':
                 updatedNode.std.index = input_value
+                setNodeStd({
+                    valOp: nodeStd.valOp,
+                    index: input_value,
+                })
                 break
             case 'error':
                 updatedNode.error.index = input_value
+                setNodeError({
+                    valOp: nodeError.valOp,
+                    index: input_value,
+                })
                 break
             case 'identifier':
                 updatedNode.identifier.index = input_value
+                setNodeIdentifier({ value: nodeIdentifier.value, index: input_value })
                 break
             default:
                 break
         }
+        handleNodeUpdate(updatedNode)
+    }
 
-        handleUpdateNode(updatedNode)
+    const initIndexSelectLocal = (attribute: string) => {
+        setIsSelectingIndex(true)
+        initIndexSelect(attribute)
     }
 
     /**
@@ -312,6 +298,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 showIndices={node.with_indices}
                 showIndexChoice={showIndexChoice}
                 setShowIndexChoice={setShowIndexChoice}
+                initIndexSelect={initIndexSelectLocal}
                 index={nodeName.index}
                 autoFocus={true}
                 add={false}
@@ -330,6 +317,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     index={nodeIdentifier.index}
                     showIndexChoice={showIndexChoice}
                     setShowIndexChoice={setShowIndexChoice}
+                    initIndexSelect={initIndexSelectLocal}
                     autoFocus={false}
                     add={true}
                     zIndex={node.layer + 3}
@@ -349,6 +337,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeIdentifier.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 3}
@@ -364,6 +353,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeBatchNum.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 3}
@@ -381,6 +371,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeRatio.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         zIndex={node.layer + 2}
                     />
@@ -397,6 +388,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeConcentration.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         zIndex={node.layer + 1}
                     />
@@ -418,6 +410,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeValue.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={
                             node.name.value !== '' && isValueNode && node.value.valOp.value === ''
                         }
@@ -434,6 +427,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeUnit.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         add={true}
                         zIndex={node.layer + 2}
@@ -451,6 +445,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeStd.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         zIndex={node.layer + 2}
                     />
@@ -467,6 +462,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         index={nodeError.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
+                        initIndexSelect={initIndexSelectLocal}
                         autoFocus={false}
                         zIndex={node.layer + 1}
                     />

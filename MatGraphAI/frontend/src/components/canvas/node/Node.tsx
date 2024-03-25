@@ -25,7 +25,7 @@ interface NodeProps {
     isMoving: boolean
     isLayouting: boolean
     darkTheme: boolean
-    handleNodeAction: (node: INode, action: string, conditional?: boolean) => void
+    handleNodeAction: (node: INode, action: string, conditional?: any) => void
 }
 
 export default React.memo(function Node(props: NodeProps) {
@@ -253,8 +253,12 @@ export default React.memo(function Node(props: NodeProps) {
         handleNodeAction(node, ctxtAction)
     }
 
-    const handleUpdateNode = (updatedNode: INode, endEditing?: boolean) => {
+    const handleNodeUpdate = (updatedNode: INode, endEditing?: boolean) => {
         handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
+    }
+
+    const initIndexSelect = (attribute: string) => {
+        handleNodeAction(node, 'awaitIndexSelect', attribute)
     }
 
     const handleNameMouseUp = (e: React.MouseEvent) => {
@@ -287,6 +291,10 @@ export default React.memo(function Node(props: NodeProps) {
             friction: 26,
         },
     })
+
+    useEffect(() => {
+        console.log('log')
+    }, [node])
 
     return (
         <animated.div
@@ -397,7 +405,8 @@ export default React.memo(function Node(props: NodeProps) {
                     <NodeInput
                         isValueNode={isValueNode}
                         node={node}
-                        handleUpdateNode={handleUpdateNode}
+                        handleNodeUpdate={handleNodeUpdate}
+                        initIndexSelect={initIndexSelect}
                     />
                 )}
                 {/* node warning */}

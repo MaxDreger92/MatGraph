@@ -21,7 +21,7 @@ import {
     IndexDictionary,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
-import { getNodeIndices, getNumericAttributeIndices, isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
+import { getNodeIndices, getNumericAttributeIndices, isConnectableNode, isRelationshipLegitimate, updateNodeAttributeIndex } from '../../common/helpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
 import CanvasGrid from './CanvasGrid'
 
@@ -61,8 +61,8 @@ export default function Canvas(props: CanvasProps) {
         setRelationships,
         selectedNodes,
         setSelectedNodes,
-        selectedColumnIndex,
         highlightedColumnIndex,
+        selectedColumnIndex,
         indexDictionary,
         setIndexDictionary,
         rebuildIndexDictionary,
@@ -81,6 +81,7 @@ export default function Canvas(props: CanvasProps) {
     } = props
 
     const [nodeEditing, setNodeEditing] = useState(false)
+    const [attributeAwaitingIndex, setAttributeAwaitingIndex] = useState<string | null>(null)
     const [isLayouting, setIsLayouting] = useState(false)
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
     const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
@@ -99,7 +100,7 @@ export default function Canvas(props: CanvasProps) {
     // const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null)
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-    const isDeletingNode = useRef(false)
+    // const isDeletingNode = useRef(false)
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -130,12 +131,41 @@ export default function Canvas(props: CanvasProps) {
     }, [selectedColumnIndex, indexDictionary, nodes, setSelectedNodes])
 
     useEffect(() => {
-        if (!isDeletingNode) return
+        if (!(attributeAwaitingIndex && selectedColumnIndex !== null)) return
 
-        console.log("rebuild")
-        rebuildIndexDictionary()
-        isDeletingNode.current = false
-    }, [nodes])
+        updateAttributeIndex(attributeAwaitingIndex, selectedColumnIndex)
+        setAttributeAwaitingIndex(null)
+
+    }, [attributeAwaitingIndex, selectedColumnIndex])
+
+    const updateAttributeIndex = (attribute: string, selectedColumnIndex: number) => {
+        const updatingNode = nodes.find(node => node.isEditing === true)
+        if (!updatingNode) return
+
+        const updatedNode = updateNodeAttributeIndex(updatingNode, attribute, selectedColumnIndex)
+        // updatedNode.isEditing = true
+        // updatedNode.id = uuidv4().replaceAll('-', '')
+        updatedNode.name.value = '123'
+        updatedNode.name.index = selectedColumnIndex
+
+        setSelectedNodes([updatedNode])
+        setNodes((prevNodes) => 
+            prevNodes.map((n) => {
+                if (n.isEditing === true) {
+                    return updatedNode
+                }
+                return n
+            })
+        )
+    }
+
+    // useEffect(() => {
+    //     if (!isDeletingNode.current) return
+
+    //     console.log("rebuild")
+    //     rebuildIndexDictionary()
+    //     isDeletingNode.current = false
+    // }, [nodes])
 
     useEffect(() => {
         if (!highlightedColumnIndex || nodes.length === 0) {
@@ -231,7 +261,7 @@ export default function Canvas(props: CanvasProps) {
 
     // rename node -> resetting isEditing to false
     const handleNodeUpdate = (node: INode, endEditing?: boolean) => {
-        console.log(endEditing)
+        console.log('test')
         setNodes((prevNodes) =>
             prevNodes.map((n) => {
                 if (n.id === node.id) {
@@ -259,7 +289,12 @@ export default function Canvas(props: CanvasProps) {
             })
         )
         updateIndexDictionary(node)
-        if (endEditing) setNodeEditing(false)
+        if (endEditing) {
+            setNodeEditing(false)
+        } else {
+            setSelectedNodes([node])
+        }
+
         // setSelectedNodes([])
     }
 
@@ -442,9 +477,8 @@ export default function Canvas(props: CanvasProps) {
                 (relationship) => relationship.start.id !== nodeID && relationship.end.id !== nodeID
             )
         )
-        isDeletingNode.current = true
         setSelectedNodes([])
-        console.log('delete')
+        rebuildIndexDictionary()
     }
 
     const selectNodesBySelectionRect = (node?: INode) => {
@@ -482,10 +516,9 @@ export default function Canvas(props: CanvasProps) {
     // switch node action
     // prevents the need for passing
     // too many functions as props
-    const handleNodeAction = (node: INode, action: string, conditional?: boolean) => {
+    const handleNodeAction = (node: INode, action: string, conditional?: any) => {
         switch (action) {
             case 'click':
-                console.log('click')
                 handleNodeClick(node)
                 break
             case 'initMove':
@@ -509,9 +542,11 @@ export default function Canvas(props: CanvasProps) {
                 initNodeUpdate(node.id, conditional)
                 break
             case 'delete':
-                console.log('delete')
                 setSelectedNodes([])
                 handleNodeDelete(node.id)
+                break
+            case 'awaitIndexSelect':
+                setAttributeAwaitingIndex(conditional)
                 break
             default:
                 break

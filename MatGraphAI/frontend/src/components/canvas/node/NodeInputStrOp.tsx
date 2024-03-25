@@ -19,6 +19,7 @@ interface NodeInputStrOpProps {
     index?: AttributeIndex | AttributeIndex[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
+    initIndexSelect: (attribute: string) => void
     autoFocus: boolean
     zIndex: number
 }
@@ -37,6 +38,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         index,
         showIndexChoice,
         setShowIndexChoice,
+        initIndexSelect,
         autoFocus,
         zIndex,
     } = props
@@ -318,6 +320,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                             <div
                                 onMouseEnter={() => setIndexChoiceHovered(2)}
                                 onMouseLeave={() => setIndexChoiceHovered(0)}
+                                onClick={() => initIndexSelect(id)}
                                 style={{
                                     width: 'calc(100% - 8px)',
                                     height: 30,
