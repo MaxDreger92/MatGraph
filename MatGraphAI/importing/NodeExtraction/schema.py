@@ -1,104 +1,217 @@
-from typing import List
+from typing import List, Optional
 
-from langchain_core.pydantic_v1 import BaseModel, Field
-
-
-
-class Name(BaseModel):
-    name: str = Field(None, description='specific name or description')
-    index: int|str = Field(None, description='column Index of the name. If the name was inferred from context, the index is a string "inferred"')
-
-class Node(BaseModel):
-    name: List[Name] = Field([], description='All names of this instance. An instance can have more than one name if those names really refer to the same instance.')
-
-class Value(BaseModel):
-    value: float = Field(None, description='Float value')
-    index: int|str = Field(None, description='Column Index of the value. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Error(BaseModel):
-    error: float = Field(None, description='Error message')
-    index: int|str = Field(None, description='Column Index of the error. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Average(BaseModel):
-    average: float = Field(None, description='Average value')
-    index: int|str  = Field(None, description='Column Index of the average. If the attribute was inferred from context, the index is a string "inferred"')
-
-class StandardDeviation(BaseModel):
-    standard_deviation: float = Field(None, description='Standard deviation')
-    index: int | str = Field(None, description='Column Index of the standard deviation. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Identifier(BaseModel):
-    identifier: str = Field(None, description='Identifier of the instance')
-    index: int|str = Field(None, description='Column Index of the identifier. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Unit(BaseModel):
-    unit: str = Field(None, description='Unit')
-    index: int|str = Field(None, description='Column Index of the unit. If the attribute was inferred from context, the index is a string "inferred"')
-
-class BatchNumber(BaseModel):
-    batch_number: str = Field(None, description='Batch number of the matter')
-    index: int|str = Field(None, description='Column Index of the batch number. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Ratio(BaseModel):
-    ratio: float = Field(None, description='Ratio of the matter')
-    index: int|str = Field(None, description='Column Index of the ratio. If the attribute was inferred from context, the index is a string "inferred"')
-
-class Concentration(BaseModel):
-    concentration: float = Field(None, description='Concentration of the matter')
-    index: int|str = Field(None, description='Column Index of the concentration. If the attribute was inferred from context, the index is a string "inferred"')
-
-class MatterAttributes(Node):
-    identifier: Identifier = Field(None, description='Identifier of the matter')
-    batch_number: BatchNumber = Field(None, description='Batch number of the matter')
-    ratio: Ratio = Field(None, description='Ratio of the matter')
-    concentration: Concentration = Field(None, description='Concentration of the matter')
-
-class QuantityAttributes(Node):
-    value: List[Value] = Field([])
-    error: List[Error] = Field([])
-    average: List[Average] = Field([])
-    standard_deviation: List[StandardDeviation] = Field([])
-    unit: Unit = Field(None)
-
-class ProcessAttributes(Node):
-    identifier: Identifier = Field(None, description='Attributes of the process')
+from langchain_core.load import Serializable
+from langchain_core.pydantic_v1 import BaseModel, Field, validator
 
 
-class Matter(BaseModel):
-    attributes: MatterAttributes = Field(None, description='specific instance of a Material, Chemical, Device, Component, Product, Intermediate, etc. node')
+class Node(Serializable):
+    attributes: dict = Field(default_factory=dict, description='node properties')
 
-class Property(BaseModel):
-    attributes: QuantityAttributes = Field(None, description='specific instance of a physical property node')
+class StringAttribute(BaseModel):
+    """
+    Optional string attribute
+    """
+    value: str = Field('',description='specific value of the attribute')
+    index: int|str = Field('',description='column index of the attribute. If the name was inferred from context or the table header, the index is a string "inferred"')
 
-class Parameter(BaseModel):
-    attributes: QuantityAttributes = Field(None, description='specific instance of a processing parameter node')
+class FloatAttribute(BaseModel):
+    """
+    Optional float attribute
+    """
+    value: str = Field('', description='specific value of the attribute')
+    index: int|str = Field('', description='column index of the attribute. If the name was inferred from context or the table header, the index is a string "inferred"')
 
-class Manufacturing(BaseModel):
-    attributes: ProcessAttributes = Field(None, description='specific instance of a manufacturing node')
+class Name(StringAttribute):
+    """
+    Node name can be typically extracted from the table column
+    """
+    pass
 
-class Measurement(BaseModel):
-    attributes: ProcessAttributes = Field(None, description='specific instance of a measurement or characterization node')
+class Value(FloatAttribute):
+    """
+    Value of a quantity
+    """
+    pass
 
-class Metadata(BaseModel):
-    attributes: ProcessAttributes = Field(None, description='specific instance of a metadata node')
+class Error(FloatAttribute):
+    """
+    Error of a quantity
+    """
+    pass
+
+class Average(FloatAttribute):
+    """
+    Average value of a quantity
+    """
+    pass
+
+class StandardDeviation(FloatAttribute):
+    """
+    Standard deviation of a quantity
+    """
+    pass
+
+class Identifier(StringAttribute):
+    """
+    Identifier of the node
+    """
+    pass
+
+class Unit(FloatAttribute):
+    """
+    Unit of a quantity
+    """
+    pass
+
+class BatchNumber(StringAttribute):
+    """
+    Batch number of the matter
+    """
+    pass
+
+class Ratio(FloatAttribute):
+    """
+    Ratio of the matter
+    """
+    pass
+
+class Concentration(FloatAttribute):
+    """
+    Concentration of the matter
+    """
+    pass
 
 
-class Properties(BaseModel):
-    instances: List[Property] = Field([], description='All instances of property nodes extracted from the table')
+class MatterAttributes(BaseModel):
+    """
+    Attributes of a specific matter node
+    """
+    identifier: Optional[Identifier] = None
+    batch_number: Optional[BatchNumber] = None
+    ratio: Optional[Ratio] = None
+    concentration: Optional[Concentration] = None
+    name: List[Name]
 
-class Parameters(BaseModel):
-    instances: List[Parameter] = Field([], description='All instances of parameter nodes extracted from the table')
+class QuantityAttributes(BaseModel):
+    """
+    Attributes of a quantity node
+    """
+    name: List[Name] = Field([])
+    value: Optional[List[Value]] = None
+    error: Optional[List[Error]] = None
+    average: Optional[List[Average]] = None
+    standard_deviation: Optional[List[StandardDeviation]] = None
+    unit: Unit = Field('')
 
-class Matters(BaseModel):
-    instances: List[Matter] = Field([], description='All distinguishable instances of specifc matter (materials, chemicals, devices, components, products, intermediates, etc.) nodes extracted from the table')
+class ProcessAttributes(BaseModel):
+    """
+    Attributes of a process node
+    """
+    identifier: Optional[Identifier] = Field(None)
+    name: List[Name] = Field(None)
 
-class Manufacturings(BaseModel):
-    instances: List[Manufacturing] = Field([], description='All instances of manufacturing nodes extracted from the table')
+class MatterNode(Node):
+    """
+    Node representing a specific instance of a Material, Chemical, Device, Component, Product, Intermediate, etc.
+    Example:
+        - Matter: FuelCell
+        - Matter: H2O
+        - Matter: Gas Diffusion Layer
+    """
+    attributes: MatterAttributes = Field(None)
 
-class Measurements(BaseModel):
-    instances: List[Measurement] = Field([], description='All instances of measurement nodes extracted from the table')
+class PropertyNode(Node):
+    """
+    Node representing a specific instance of a physical property
+    Example:
+        - Property: Conductivity
+    """
+    attributes: QuantityAttributes = Field(None)
 
-class Metadatas(BaseModel):
-    instances: List[Metadata] = Field([], description='All instances of metadata nodes extracted from the table')
+class ParameterNode(Node):
+    """
+    Node representing a specific instance of a processing parameter
+    Example:
+        - Parameter: Temperature
+        - Parameter: Voltage
+    """
+    attributes: QuantityAttributes = Field(None)
+
+class ManufacturingNode(Node):
+    """
+    Node representing a specific instance of a manufacturing node
+    Example:
+        - Manufacturing: StackAssembly
+        - Manufacturing: Electro Spinning
+    """
+    attributes: ProcessAttributes = Field(None)
+
+class MeasurementNode(Node):
+    """
+    Node representing a specific instance of a measurement or characterization node
+    Example:
+        - Measurement: XRD
+        - Measurement: SEM
+    """
+    attributes: ProcessAttributes = Field(None)
+
+class MetadataNode(Node):
+    """
+    Node representing a specific instance of a metadata node
+    Example:
+        - Metadata: Institution
+        - Metadata: Researcher
+    """
+    attributes: ProcessAttributes = Field(None)
+
+class MatterNodeList(BaseModel):
+    """
+    List of all matter nodes (materials, chemicals, devices, components, products, intermediates, etc.) extracted from the table.
+    Different instances of Materials, Chemicals, Devices, Components, Products, Intermediates, etc. need to be represented as different nodes.
+    Example:
+        [
+            {
+                "name": "Battery",
+                "identifier": "FC1",
+            },
+            {
+                "name": "Electrode",
+            }
+        ]
+    """
+    nodes: List[MatterNode] = Field(None)
+
+
+class PropertyNodeList(BaseModel):
+    """
+    List of all property nodes extracted from the table.
+    """
+    nodes: List[PropertyNode] = Field(None)
+
+class ParameterNodeList(BaseModel):
+    """
+    List of all parameter nodes extracted from the table.
+    """
+    nodes: List[ParameterNode] = Field(None)
+
+class ManufacturingNodeList(BaseModel):
+    """
+    List of all manufacturing nodes extracted from the table.
+    """
+    nodes: List[ManufacturingNode] = Field(None)
+
+class MeasurementNodeList(BaseModel):
+    """
+    List of all measurement nodes extracted from the table.
+    """
+    nodes: List[MeasurementNode] = Field(None)
+
+class MetadataNodeList(BaseModel):
+    """
+    List of all metadata nodes extracted from the table.
+    """
+    nodes: List[MetadataNode] = Field(None)
+
+
 
 

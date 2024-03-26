@@ -7,8 +7,8 @@ from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
-from importing.NodeExtraction.schema import Metadata, \
-    Properties, Measurements, Manufacturings, Parameters, Matters
+from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
+    MeasurementNodeList, MetadataNodeList, ParameterNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
     PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE
 from importing.models import NodeExtractionReport
@@ -16,7 +16,8 @@ from importing.models import NodeExtractionReport
 
 class NodeAggregator:
     def __init__(self, data, context, setup_message, additional_context):
-        self.header = [f"{element['header']} ({element['attribute']}, {element['index']})" for element in data]
+        self.header = [f"{element['header']}" for element in data]
+        self.attributes = [f"{element['attribute']}/{element['index']}" for element in data]
         self.row = [element['column_values'][0] if element['column_values'] else '' for element in data]
         self.setup_message = setup_message
         self.context = context
@@ -30,9 +31,9 @@ class NodeAggregator:
         return f"""
         Context: {self.context}
     
-        Table:
-        {", ".join(self.header)}
-        {", ".join(self.row)}
+        Attribute/ColumnIndex: {", ".join(self.attributes)}
+        Table: {", ".join(self.header)}
+        Sample Row: {", ".join(self.row)}
         
         {self.additional_context}
         """
@@ -55,9 +56,11 @@ class NodeAggregator:
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
+        print(query)
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
+        print(f"Intermediate: {self.intermediate}")
         return self
 
 
@@ -69,7 +72,7 @@ class MatterAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "matter"
-        self.schema = Matters
+        self.schema = MatterNodeList
 
 
 class PropertyAggregator(NodeAggregator):
@@ -80,7 +83,7 @@ class PropertyAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "property"
-        self.schema = Properties
+        self.schema = PropertyNodeList
 
 
 class ParameterAggregator(NodeAggregator):
@@ -91,7 +94,7 @@ class ParameterAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "parameter"
-        self.schema = Parameters
+        self.schema = ParameterNodeList
 
 
 class ManufacturingAggregator(NodeAggregator):
@@ -102,7 +105,7 @@ class ManufacturingAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "manufacturing"
-        self.schema = Manufacturings
+        self.schema = ManufacturingNodeList
 
 
 class MeasurementAggregator(NodeAggregator):
@@ -113,7 +116,7 @@ class MeasurementAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "measurement"
-        self.schema = Measurements
+        self.schema = MeasurementNodeList
 
 
 class MetadataAggregator(NodeAggregator):
@@ -124,7 +127,7 @@ class MetadataAggregator(NodeAggregator):
                  additional_context=""):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "metadata"
-        self.schema = Metadata
+        self.schema = MetadataNodeList
 
 
 def group_by_prefix(self, data):
@@ -224,53 +227,39 @@ def validate_metadata(aggregator):
     return
 
 
-def attribute_to_dict(obj):
-    # Handle class instances with specific attributes.
-    if hasattr(obj, "__dict__"):
-        # Special case for objects with 'index' but not 'value'.
-        if 'index' in obj.__dict__ and not hasattr(obj, 'value'):
-            name_attr = next((attr for attr in obj.__dict__ if attr != 'index'), None)
-            if name_attr:
-                return {'value': str(getattr(obj, name_attr)), 'index': str(obj.index)}
-        # General case for objects with other attributes.
-        result = {}
-        for key, value in obj.__dict__.items():
-            processed_value = attribute_to_dict(value)
-            # Include keys with non-None values or explicitly required keys.
-            if processed_value is not None or key == 'names':
-                result[key] = processed_value
-        return result if result else None  # Return None if result is empty.
-
-    # Handle lists.
-    elif isinstance(obj, list):
-        if not obj:  # Short-circuit for empty lists.
-            return None
-        processed_list = [attribute_to_dict(item) for item in obj]
-        return processed_list if len(processed_list) > 1 else processed_list[0]
-
-    # Base case for handling simple data types and None.
-    return None if obj is None else str(obj)
 
 
 @chain
 def build_results(data):
-    node_list = []
+    total_node_list = []
     uid = 0
-    for list in data.values():
-        if not list:
+    for key, node_list in data.items():
+        if node_list is None:
             continue
-        for i in list.instances:
-            print(i)
-            print(type(i))
+        if node_list.nodes is None:
+            continue
+        for i in node_list.nodes:
+            # Initialize node with basic structure
             node = {
+                'label': i.__class__.__name__.strip('Node').lower(),
                 'id': str(uid),
-                'label': i.__class__.__name__.lower(),
-                **attribute_to_dict(i)
+                'attributes': {k: v for k, v in dict(i.attributes).items() if v not in ([], None)}  # Filter out empty or None values upfront
             }
-            uid = uid + 1
-            node_list.append(node)
 
-    return {'nodes': node_list, 'relationships': []}
+            # Refactor attributes processing for efficiency and clarity
+            node['attributes'] = {
+                attribute: [{'value': str(el.value), 'index': str(el.index)} for el in value] if isinstance(value, list)
+                else [{'value': str(value.value), 'index': str(value.index)}]
+                for attribute, value in node['attributes'].items() if value not in ([], None)
+            }
+
+            print(node)
+
+            uid = uid + 1
+            total_node_list.append(node)
+    print(total_node_list)
+
+    return {'nodes': total_node_list, 'relationships': []}
 
 
 class NodeExtractor(TableDataTransformer):
@@ -291,12 +280,12 @@ class NodeExtractor(TableDataTransformer):
     def get_table_understanding(self):
 
         chain = RunnableParallel(
-            properties=aggregate_properties | validate_properties,
-            matters=aggregate_matters | validate_matters,
-            parameters=aggregate_parameters | validate_parameters,
-            manufacturings=aggregate_manufacturing | validate_manufacturings,
-            measurements=aggregate_measurement | validate_measurements,
-            metadata=aggregate_metadata | validate_metadata
+            propertyNodes=aggregate_properties | validate_properties,
+            matterNodes=aggregate_matters | validate_matters,
+            parameterNodes=aggregate_parameters | validate_parameters,
+            manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
+            measurementNodes=aggregate_measurement | validate_measurements,
+            metadataNodes=aggregate_metadata | validate_metadata
         ) | build_results
         chain = chain.with_config({"run_name": "node-extraction"})
         self.node_list = chain.invoke({

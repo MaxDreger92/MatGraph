@@ -1,5 +1,8 @@
+from importing.RelationshipExtraction.examples import MATTER_PROPERTY_EXAMPLES
+from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipExtractor import relationshipExtractor
 from importing.RelationshipExtraction.schema import HasPropertyRelationships
+from importing.RelationshipExtraction.setupMessages import MATTER_PROPERTY_MESSAGE
 from importing.utils.openai import chat_with_gpt4
 
 
@@ -12,30 +15,13 @@ class hasPropertyExtractor(relationshipExtractor):
     """
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.conversation = []
         self.schema = HasPropertyRelationships
-        super().__init__(*args, **kwargs)
+        self.setup_message = MATTER_PROPERTY_MESSAGE
+        self.label_one = ["matter"]
+        self.label_two = ["property"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+        self.examples = MATTER_PROPERTY_EXAMPLES
 
-    def revise_property_connectedness(self):
-        """ Validate if all properties are connected to the graph. """
-        if self.not_all_properties_connected:
-            prompt = f"""- The following property nodes are not connected: {self.node_label_two_ids} \n \n Only return the revised list"""
-            response = chat_with_gpt4(self.conversation, prompt)
-            self.conversation[-1]["content"] = response
-
-
-
-    def generate_result(self):
-        """ Generate the final result. """
-        return [
-            {
-                "rel_type": triple[1].upper(),
-                "connection": [triple[0], triple[2]]
-            }
-            for triple in self.triples
-        ]
-
-    def refine_results(self):
-        self.revise_triples()
-        self.revise_property_connectedness()
 
