@@ -1,8 +1,8 @@
-import networkx as nx
-
+from importing.RelationshipExtraction.examples import MATTER_MANUFACTURING_EXAMPLES
+from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipExtractor import relationshipExtractor
 from importing.RelationshipExtraction.schema import HasManufacturingRelationships
-from importing.utils.openai import chat_with_gpt4
+from importing.RelationshipExtraction.setupMessages import MATTER_MANUFACTURING_MESSAGE
 
 
 class hasManufacturingExtractor(relationshipExtractor):
@@ -14,29 +14,21 @@ class hasManufacturingExtractor(relationshipExtractor):
     """
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.conversation = []
         self.schema = HasManufacturingRelationships
-        super().__init__(*args, **kwargs)
+        self.setup_message = MATTER_MANUFACTURING_MESSAGE
+        self.rel_type = "is_manufacturing_input"
+        self.rel_type2 = "has_manufacturing_output"
+        self.label_one = ["matter"]
+        self.label_two = ["manufacturing"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+        self.examples = MATTER_MANUFACTURING_EXAMPLES
 
 
-    def refine_results(self):
-        """ Validate the extracted relationships. """
-        self.revise_triples()
-        self.revise_manufacturing_cycles()
-        self.revise_has_output()
-        # self.revise_isolated_nodes()
-        self.revise_connectedness()
 
 
-    def generate_result(self):
-        """ Generate the final result. """
-        return [
-            {
-                "rel_type": triple[1].upper(),
-                "connection": [triple[0], triple[2]]
-            }
-            for triple in self.triples
-        ]
+
 
 
 

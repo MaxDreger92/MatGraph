@@ -1,5 +1,7 @@
+from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipExtractor import relationshipExtractor
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships
+from importing.RelationshipExtraction.setupMessages import PROPERTY_MEASUREMENT_MESSAGE
 from importing.utils.openai import chat_with_gpt4
 
 
@@ -12,26 +14,12 @@ class hasMeasurementExtractor(relationshipExtractor):
     """
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.conversation = []
         self.schema = HasMeasurementRelationships
-        super().__init__(*args, **kwargs)
+        self.setup_message = PROPERTY_MEASUREMENT_MESSAGE
+        self.label_one = ["Measurement"]
+        self.label_two = ["Property"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
 
-
-    def revise_has_output(self):
-        if self.check_one_to_one_destination("has_measurement_output"):
-            prompt = f"""- These property nodes have multiple "has_output" edges two different measurement nodes this result 
-            does not follow the rules we defined. Please find another solution following the rules: 
-            {self.check_one_to_one_destination("has_measurement_output")} \n \n Only return the revised list"""
-            response = chat_with_gpt4(self.api_key, self.conversation, prompt)
-            self.update_triples(response)
-            self.conversation[-1]["content"] = response
-
-
-
-
-    def refine_results(self):
-        """ Validate the extracted relationships. """
-        self.revise_triples()
-        self.revise_has_output()
-        self.revise_connectedness()

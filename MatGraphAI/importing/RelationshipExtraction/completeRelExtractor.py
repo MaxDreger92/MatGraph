@@ -1,8 +1,11 @@
 import json
 
 import django
+from langchain_core.prompts import FewShotPromptTemplate
 
 from importing.RelationshipExtraction.input_generator import flatten_json, remove_key, extract_data
+from importing.RelationshipExtraction.relationshipCorrector import hasParameterCorrector, hasPropertyCorrector, \
+    hasManufacturingCorrector, hasMeasurementCorrector
 
 django.setup()
 
@@ -12,94 +15,83 @@ from importing.RelationshipExtraction.hasManufacturingExtractor import hasManufa
 from importing.RelationshipExtraction.hasMeasurementExtractor import hasMeasurementExtractor
 from importing.RelationshipExtraction.hasParameterExtractor import hasParameterExtractor
 from importing.RelationshipExtraction.hasPropertyExtractor import hasPropertyExtractor
-from importing.RelationshipExtraction.setupMessages import MANUFACTURING_PARAMETER_MESSAGE, \
-    MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE
 
 
-def prepare_lists(json_input, label1, label2):
-    label_one_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label1]
-    label_two_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label2]
 
-    label_two_data = [item for sublist in label_two_data for item in sublist]
-    label_one_data = [item for sublist in label_one_data for item in sublist]
 
-    return label_one_data, label_two_data
-def extract_relationhsips(data, setup_message, label_one, label_two, extractor):
-    list_1, list2 = prepare_lists(data, label_one, label_two)
-    if len(list_1) > 0 or len(list2) > 0:
-        return
-    rel_extractor = extractor(data, setup_message, label_one, label_two, data['context'])
-    return rel_extractor.initial_extraction()
-
+def extract_relationships(input_json, context, extractor_type):
+    extractor = extractor_type(input_json, context)
+    if len(extractor.label_one_nodes) != 0  and len(extractor.label_two_nodes) != 0 :
+        extractor.run()
+        print('extractor', extractor.results)
+        return extractor.results
+    return None
 
 @chain
 def extract_has_property(data):
-    property_extractor = hasPropertyExtractor(data['input'], MATTER_PROPERTY_MESSAGE, ["matter"], ["property"], data['context'])
-    return property_extractor.initial_extraction()
+    print("extract has_property relationships")
+    return extract_relationships(data['input'], data['context'], hasPropertyExtractor)
 
 
 @chain
 def extract_has_measurement(data):
-    measurement_extractor = hasMeasurementExtractor(data['input'], PROPERTY_MEASUREMENT_MESSAGE, ["measurement"], ["property"], data['context'])
-    return measurement_extractor.initial_extraction()
+    print("extract has_measurement relationships")
+    return extract_relationships(data['input'], data['context'], hasMeasurementExtractor)
 
 @chain
 def extract_has_manufacturing(data):
-    manufacturing_extractor = hasManufacturingExtractor(data['input'], MATTER_MANUFACTURING_MESSAGE, ["matter"], ["manufacturing"], data['context'])
-    return manufacturing_extractor.initial_extraction()
+    print("extract has_manufacturing relationships")
+    return extract_relationships(data['input'], data['context'], hasManufacturingExtractor)
 
 @chain
 def extract_has_parameter(data):
-    parameter_extractor = hasParameterExtractor(data['input'], MANUFACTURING_PARAMETER_MESSAGE, ["manufacturing", "measurement"], ["parameter"], data['context'])
-    return parameter_extractor.initial_extraction()
+    print("extract has_paramter relationships")
+    return extract_relationships(data['input'], data['context'], hasParameterExtractor)
 
 
 
-
+def validate_relationships(data, corrector_type):
+    if data:
+        corrector = corrector_type(data['nodes'], data['graph'], data['query'])
+        corrector.run()
+        print(corrector.validation_results)
+        return corrector.corrected_graph
+    return
 
 
 @chain
-def validate_has_property(extractor):
+def validate_has_property(data):
     print("validate_has_property")
-    print(extractor)
-    if extractor:
-        return extractor.intermediate
-    return
+    return validate_relationships(data, hasPropertyCorrector)
 
 
 @chain
-def validate_has_measurement(extractor):
+def validate_has_measurement(data):
     print("validate_has_measurement")
-    print(extractor)
-    if extractor:
-        return extractor.intermediate
-    return
+    return validate_relationships(data, hasMeasurementCorrector)
 
 
 @chain
-def validate_has_manufacturing(extractor):
+def validate_has_manufacturing(data):
     print("validate_has_manufacturing")
-    print(extractor)
-    if extractor:
-        return extractor.intermediate
-    return
+    return validate_relationships(data, hasManufacturingCorrector)
 
 
 @chain
-def validate_has_parameter(extractor):
+def validate_has_parameter(data):
     print("validate_has_parameter")
-    print(extractor)
-    if extractor:
-        return extractor.intermediate
-    return
+    return validate_relationships(data, hasParameterCorrector)
 
 
 
 
 @chain
 def build_results(data):
+    print(data)
     relationships = []
     for key, value in data.items():
+        if value is None:
+            continue
         for item in value.relationships:
             relationships.append(
                 {
@@ -125,7 +117,6 @@ class fullRelationshipsExtractor:
 
     def run(self):
         # Ensure extractors are created
-        # self.create_extractors()
         chain = RunnableParallel(
             has_property=extract_has_property | validate_has_property,
             has_measurement=extract_has_measurement | validate_has_measurement,
@@ -149,6 +140,9 @@ class fullRelationshipsExtractor:
 
     @property
     def results(self):
+        print('finished')
+        print(self.relationships)
+        return 'mau'
         return {"nodes": self.data["nodes"], "relationships": self.relationships}
 
 
