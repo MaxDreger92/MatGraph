@@ -9,7 +9,7 @@ import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputStrOpProps {
     handleOpChange: (id: string, operator: string) => void
-    handleValChange: (id: string, value: string) => void
+    handleValChange: (id: string, value: string, forceUpdate?: boolean) => void
     handleIndexChange: (id: string, value: string) => void
     handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
     handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
@@ -41,12 +41,19 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         autoFocus,
         zIndex,
     } = props
+
     const [selectOpen, setSelectOpen] = useState(false)
+    const [currentValue, setCurrentValue] = useState<string | undefined>(defaultVal)
     const [currentIndex, setCurrentIndex] = useState<string | number>('')
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
+    const [awaitingIndex, setAwaitingIndex] = useState(false)
+    const { selectedColumnIndex } = useContext(WorkflowContext)
 
     const { getNewInputRef } = useContext(RefContext)
+    const selectInputRef = getNewInputRef()
+    const stringInputRef = getNewInputRef()
+    const indexInputRef = getNewInputRef()
 
     const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
@@ -54,8 +61,11 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const darkTheme = colorScheme === 'dark'
     const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
 
-    const [awaitingIndex, setAwaitingIndex] = useState(false)
-    const { selectedColumnIndex } = useContext(WorkflowContext)
+    useEffect(() => {
+        if (defaultVal) {
+            setCurrentValue(defaultVal)
+        }
+    }, [defaultVal])
 
     useEffect(() => {
         if (!index) return
@@ -66,7 +76,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
             return
         }
         setCurrentIndex(index)
-    }, [])
+    }, [index])
 
     useEffect(() => {
         if (currentIndex !== '' && showIndexChoice === id) {
@@ -122,12 +132,39 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         }
     }
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const columnIndex = e.dataTransfer.getData('text/plain');
+    const handleIndexDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        const dragDataString = e.dataTransfer.getData('text/plain');
+        const dragData = JSON.parse(dragDataString)
+
+        const {columnIndex} = dragData 
+    
         setCurrentIndex(columnIndex);
         handleIndexChange(id, columnIndex)
+
+        if (indexInputRef.current) {
+            indexInputRef.current.focus()
+        }
+
+        e.preventDefault();
     };
+
+    const handleColumnDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        const dragDataString = e.dataTransfer.getData('text/plain');
+        const dragData = JSON.parse(dragDataString);
+
+        const { columnContent, columnIndex } = dragData;
+
+        setCurrentValue(columnContent)
+        setCurrentIndex(columnIndex)
+        handleValChange(id, columnContent, true)
+        handleIndexChange(id, columnIndex)
+
+        if (stringInputRef.current) {
+            stringInputRef.current.focus()
+        }
+
+        e.preventDefault();
+    }
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault(); // Necessary to allow the drop
@@ -149,7 +186,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
             >
                 <Select
                     // className={`${inputClass}`}
-                    ref={getNewInputRef()}
+                    ref={selectInputRef}
                     onChange={handleOpChangeLocal}
                     onKeyUp={handleKeyUp}
                     onBlur={handleBlur}
@@ -179,12 +216,17 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     }}
                 />
                 <input
-                    ref={getNewInputRef()}
+                    onDragOver={handleDragOver}
+                    onDrop={handleColumnDrop}
+                    ref={stringInputRef}
                     className={`${inputClass}`}
                     type="text"
                     placeholder={placeholder}
-                    value={defaultVal}
-                    onChange={(e) => handleValChange(id, e.target.value)}
+                    value={currentValue}
+                    onChange={(e) => {
+                        setCurrentValue(e.target.value)
+                        handleValChange(id, e.target.value)
+                    }}
                     onKeyUp={handleKeyUp}
                     onBlur={handleBlur}
                     autoFocus={autoFocus}
@@ -198,8 +240,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     <div style={{ position: 'relative', display: 'flex' }}>
                         <input
                             onDragOver={handleDragOver}
-                            onDrop={handleDrop}
-                            ref={getNewInputRef()}
+                            onDrop={handleIndexDrop}
+                            ref={indexInputRef}
                             className={`${inputClass}`}
                             type="text"
                             placeholder="Index"

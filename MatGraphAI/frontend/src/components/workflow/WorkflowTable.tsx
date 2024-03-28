@@ -68,7 +68,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
     const [dragging, setDragging] = useState(false)
 
-    const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex, forceEndEditing } = useContext(WorkflowContext)
+    const {
+        setHighlightedColumnIndex,
+        selectedColumnIndex,
+        setSelectedColumnIndex,
+        forceEndEditing,
+    } = useContext(WorkflowContext)
 
     useEffect(() => {
         // 52 + 45 * tableRows
@@ -95,7 +100,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
     useEffect(() => {
         if (progress < 4) return
-        if (!hovered) { 
+        if (!hovered) {
             setHighlightedColumnIndex(null)
             return
         }
@@ -212,7 +217,11 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         }
     }
 
-    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, columnContent: string, columnIndex: number): void => {
+    const handleDragStart = (
+        e: React.DragEvent<HTMLDivElement>,
+        columnContent: string,
+        columnIndex: number
+    ): void => {
         setDragging(true)
 
         const dragData = { columnContent, columnIndex }
@@ -271,12 +280,14 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             } else {
                 return darkTheme ? '#212226' : '#f8f9fa'
             }
-        } else if (progress > 3) {
-            if (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) {
-                return darkTheme ? '#25262b' : '#ff0000'
-            }
+        } else if (
+            columnIndex === hovered?.column ||
+            (columnIndex === selectedColumnIndex && progress > 3)
+        ) {
+            return darkTheme ? '#25262b' : '#e9ecef'
+        } else {
+            return darkTheme ? '#212226' : '#f8f9fa'
         }
-        return darkTheme ? '#212226' : 'f8f9fa'
     }
 
     const getHeaderBackgroundColor = (columnIndex: number): string => {
@@ -290,7 +301,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) &&
             progress > 3
         ) {
-            return darkTheme ? '#373A40' : '#ff0000'
+            return darkTheme ? '#373A40' : '#dee2e6'
         } else {
             return darkTheme ? '#25262b' : '#f1f3f5'
         }
@@ -448,7 +459,13 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                             }
                                             onMouseLeave={() => setHovered(null)}
                                             draggable
-                                            onDragStart={(e) => handleDragStart(e, cellData.toString(), columnVirtual.index)}
+                                            onDragStart={(e) =>
+                                                handleDragStart(
+                                                    e,
+                                                    cellData.toString(),
+                                                    columnVirtual.index
+                                                )
+                                            }
                                             style={{
                                                 display: 'inline-block',
                                                 position: 'absolute',

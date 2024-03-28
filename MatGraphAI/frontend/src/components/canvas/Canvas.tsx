@@ -172,7 +172,7 @@ export default function Canvas(props: CanvasProps) {
 
     // rename node -> resetting isEditing to false
     const handleNodeUpdate = useCallback((node: INode, endEditing?: boolean) => {
-        console.log('update')
+        // console.log('update')
         setNodes((prevNodes) =>
             prevNodes.map((n) => {
                 if (n.id === node.id) {
@@ -207,7 +207,7 @@ export default function Canvas(props: CanvasProps) {
         }
 
         // setSelectedNodes([])
-    }, [])
+    }, [setNodes])
 
     // handle click (release) on node
     // adds relationship if connecting from other node

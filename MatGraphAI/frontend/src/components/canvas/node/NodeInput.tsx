@@ -32,6 +32,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const { refs, getNewDivRef, resetRefs } = useContext(RefContext)
     const activeElementRef = useRef<Element | null>(null)
 
+    
+
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
@@ -48,14 +50,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     //     }
     // }, [])
 
-    useEffect(() => {
-        return () => {
-            resetRefs()
-        }
-    }, [])
-
     const updateNode = useCallback(() => {
-
         const updatedNode: INode = {
             ...node,
             name: nodeName,
@@ -71,6 +66,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleNodeUpdate(updatedNode, true)
     },[node, nodeName, nodeValue, nodeBatchNum, nodeRatio, nodeConcentration, nodeUnit, nodeStd, nodeError, nodeIdentifier, handleNodeUpdate])
 
+    // Update node through changed refs (removal of ref in other component)
     useEffect(() => {
         setTimeout(() => {
             if (refs.some((ref) => document.activeElement === ref.current)) {
@@ -80,6 +76,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }, 100)
     }, [refs])
 
+    // Update node through blur event
     const handleBlur = () => {
         setTimeout(() => {
             // Check if the active element is one of the refs
@@ -90,6 +87,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }, 100)
     }
 
+    // Update node through Enter key
     const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -98,9 +96,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
 
     const handleStrChangeLocal = (id: string, value: string) => {
+
         switch (id) {
             case 'name':
-                setNodeName({ value: value, index: nodeName.index })
+                setNodeName(prevName => ({ ...prevName, value: value }));
                 break
             case 'batch':
                 setNodeBatchNum({ value: value, index: nodeBatchNum.index })

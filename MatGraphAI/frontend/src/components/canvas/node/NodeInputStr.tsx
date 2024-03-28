@@ -40,8 +40,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         zIndex,
     } = props
 
-    const [currentValue, setCurrentValue] = useState<string | undefined>(defaultValue)
-    const [currentIndex, setCurrentIndex] = useState<string | number>("")
+    const [currentValue, setCurrentValue] = useState<string>('')
+    const [currentIndex, setCurrentIndex] = useState<string | number>('')
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
     const [awaitingIndex, setAwaitingIndex] = useState(false)
@@ -57,18 +57,22 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     const darkTheme = colorScheme === 'dark'
     const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
 
-
-
     useEffect(() => {
         if (!index) return
         if (Array.isArray(index)) {
-            let indexString = ""
+            let indexString = ''
             index.map((index) => indexString.concat(index.toString()))
             setCurrentIndex(indexString)
             return
         }
         setCurrentIndex(index)
     }, [index])
+
+    useEffect(() => {
+        if (defaultValue) {
+            setCurrentValue(defaultValue)
+        }
+    }, [defaultValue])
 
     useEffect(() => {
         if (currentIndex !== '' && showIndexChoice === id) {
@@ -116,11 +120,13 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     
         setCurrentIndex(columnIndex);
         handleIndexChange(id, columnIndex)
+
+        if (indexInputRef.current) {
+            indexInputRef.current.focus()
+        }
     };
 
     const handleColumnDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-    
         const dragDataString = e.dataTransfer.getData('text/plain');
         const dragData = JSON.parse(dragDataString);
 
@@ -130,15 +136,17 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         setCurrentIndex(columnIndex)
         handleStrChange(id, columnContent)
         handleIndexChange(id, columnIndex)
+
+        if (stringInputRef.current) {
+            stringInputRef.current.focus()
+        }
+
+        e.preventDefault()
     }
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault(); 
     };
-
-    const preventDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault()
-    }
 
     return (
         <div
@@ -159,8 +167,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                 placeholder={placeholder}
                 value={currentValue}
                 onChange={(e) => {
-                    handleStrChange(id, e.target.value)
                     setCurrentValue(e.target.value)
+                    handleStrChange(id, e.target.value)
                 }} // write nodeName state
                 onKeyUp={handleKeyUp} // confirm name with enter
                 onBlur={handleBlur}
