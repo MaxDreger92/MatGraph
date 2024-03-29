@@ -56,7 +56,6 @@ interface WorkflowDrawerProps {
 
 export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const {
-        tableView,
         tableViewHeight,
         progress,
         setProgress,
@@ -64,7 +63,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         setRelationships,
         setNeedLayout,
         workflow,
-        workflows,
         selectedNodes,
         rebuildIndexDictionary,
         darkTheme,
@@ -81,55 +79,63 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const [additionalTables, setAdditionalTables] = useState<number[][]>([])
     const [columnLength, setColumnLength] = useState(0)
 
-    // #################################### Saving tables to local storage should only be preliminary measure
+    // #################################### Saving tables to local storage should only be temporary measure
     // Load tables and progress from local storage
     useEffect(() => {
         const storedProgress = localStorage.getItem('upload-progress')
-        const storedFile = localStorage.getItem('upload-file') 
-        const storedFileLink = localStorage.getItem('upload-fileLink') 
+        const storedFileLink = localStorage.getItem('upload-fileLink')
         const storedFileName = localStorage.getItem('upload-fileName')
         const storedContext = localStorage.getItem('upload-context')
         const storedCsvTable = localStorage.getItem('upload-input-table')
         const storedLabelTable = localStorage.getItem('upload-label-table')
         const storedAttributeTable = localStorage.getItem('upload-attribute-table')
 
-        if (storedFile) setFile(JSON.parse(storedFile))
-        if (storedFileLink) setFile(JSON.parse(storedFileLink))
-        if (storedFileName) setFile(JSON.parse(storedFileName))
-        if (storedContext) setFile(JSON.parse(storedContext))
+        if (storedFileLink) setFileLink(JSON.parse(storedFileLink))
+        if (storedFileName) setFileName(JSON.parse(storedFileName))
+        if (storedContext) setContext(JSON.parse(storedContext))
         if (storedCsvTable) setCsvTable(JSON.parse(storedCsvTable))
         if (storedLabelTable) setLabelTable(JSON.parse(storedLabelTable))
         if (storedAttributeTable) setAttributeTable(JSON.parse(storedAttributeTable))
         if (storedProgress) {
-            setProgress(JSON.parse(storedProgress))
-            switch (JSON.parse(storedProgress)) {
+            const parsedStoredProgress = JSON.parse(storedProgress)
+            setProgress(parsedStoredProgress)
+            switch (parsedStoredProgress) {
                 case 0:
-                    setCsvTable([])
-                    setCurrentTable([])
+                    handlePipelineReset()
                     break
                 case 1:
-                    if (storedCsvTable) setCurrentTable(JSON.parse(storedCsvTable))
+                    handlePipelineReset()
                     break
                 case 2:
-                    if (storedLabelTable) setCurrentTable(JSON.parse(storedLabelTable))
+                    if (storedLabelTable) {
+                        setCurrentTable(JSON.parse(storedLabelTable))
+                    } else {
+                        handlePipelineReset()
+                    }
                     break
                 case 3:
-                    if (storedAttributeTable) setCurrentTable(JSON.parse(storedAttributeTable))
+                    if (storedAttributeTable) {
+                        setCurrentTable(JSON.parse(storedAttributeTable))
+                    } else {
+                        handlePipelineReset()
+                    }
                     break
                 default:
-                    setCurrentTable(JSON.parse(storedCsvTable as string))
+                    if (storedCsvTable) {
+                        setCurrentTable(JSON.parse(storedCsvTable))
+                    } else {
+                        handlePipelineReset()
+                    }
+                    break
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Save tables and progress to local storage
     useEffect(() => {
         localStorage.setItem('upload-progress', JSON.stringify(progress))
     }, [progress])
-
-    useEffect(() => {
-        localStorage.setItem('upload-file', JSON.stringify(file))
-    }, [file])
 
     useEffect(() => {
         localStorage.setItem('upload-fileLink', JSON.stringify(fileLink))
@@ -157,6 +163,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
     const handlePipelineReset = () => {
         setCsvTable([])
+        setCurrentTable([])
         setProgress(0)
     }
 
