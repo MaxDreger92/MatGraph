@@ -1,32 +1,26 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
-import { useSpring, animated } from 'react-spring'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import Papa from 'papaparse'
-import { MultiGrid, GridCellProps, Index } from 'react-virtualized'
 import 'react-virtualized/styles.css'
 import WorkflowTableDropzone from './WorkflowTableDropzone'
 import WorkflowPipeline from './WorkflowPipeline'
-import { IconUpload } from '@tabler/icons-react'
-import { Button } from '@mantine/core'
 import { TableRow, IDictionary, IWorkflow } from '../../types/workflow.types'
 import {
     IRelationship,
     INode,
     NodeAttribute,
     NodeValOpAttribute,
-    IndexDictionary,
 } from '../../types/canvas.types'
 import {
     convertFromJsonFormat,
-    convertToJSONFormat,
     mapNodeTypeNumerical,
 } from '../../common/helpers'
 import WorkflowTable from './WorkflowTable'
 import WorkflowPartialTable from './WorkflowPartialTable'
 // import testNodes from '../../alt/testNodesN.json'
 
-const USE_MOCK_DATA = true
+const USE_MOCK_DATA = false
 
 const exampleLabelDict: IDictionary = {
     Header1: { Label: 'matter' },
