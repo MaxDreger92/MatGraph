@@ -5,13 +5,15 @@ interface IWorkflowContext {
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     forceEndEditing: () => void
+    uploadMode: boolean
 }
 
 const defaultContextValue: IWorkflowContext = {
     setHighlightedColumnIndex: () => {},
     selectedColumnIndex: null,
     setSelectedColumnIndex: () => {},
-    forceEndEditing: () => {}
+    forceEndEditing: () => {},
+    uploadMode: false,
 }
 
 const WorkflowContext = createContext<IWorkflowContext>(defaultContextValue)
