@@ -257,8 +257,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const resetSelections = () => {
-        setSelected(null)
-        setSelectData([])
+        // setSelected(null)
+        // setSelectData([])
         setSelectedColumnIndex(null)
     }
 
@@ -339,7 +339,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 flexDirection: 'column',
                 height: innerTableHeight,
                 width: `calc(100% + 15px)`,
-                overflow: 'auto',
+                overflowX: 'auto',
+                overflowY: progress > 1 && progress < 4 ? 'hidden' : 'auto',
                 // border: partialTable ? `1px solid ${tableColors["borderColor"]}` : "none",
                 backgroundColor: darkTheme ? '#212226' : '#fff',
                 // zIndex: 0,
@@ -538,6 +539,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                             },
                                                         }}
                                                         style={{
+                                                            position: 'absolute',
                                                             transform:
                                                                 'translate(calc(-0.5rem), -6px)',
                                                             width: 'calc(100% + 8px)',

@@ -20,7 +20,7 @@ import WorkflowTable from './WorkflowTable'
 import WorkflowPartialTable from './WorkflowPartialTable'
 // import testNodes from '../../alt/testNodesN.json'
 
-const USE_MOCK_DATA = false
+const USE_MOCK_DATA = true
 
 const exampleLabelDict: IDictionary = {
     Header1: { Label: 'matter' },
