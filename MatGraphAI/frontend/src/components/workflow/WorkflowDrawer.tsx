@@ -85,16 +85,28 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     // Load tables and progress from local storage
     useEffect(() => {
         const storedProgress = localStorage.getItem('upload-progress')
+        const storedFile = localStorage.getItem('upload-file') 
+        const storedFileLink = localStorage.getItem('upload-fileLink') 
+        const storedFileName = localStorage.getItem('upload-fileName')
+        const storedContext = localStorage.getItem('upload-context')
         const storedCsvTable = localStorage.getItem('upload-input-table')
         const storedLabelTable = localStorage.getItem('upload-label-table')
         const storedAttributeTable = localStorage.getItem('upload-attribute-table')
 
+        if (storedFile) setFile(JSON.parse(storedFile))
+        if (storedFileLink) setFile(JSON.parse(storedFileLink))
+        if (storedFileName) setFile(JSON.parse(storedFileName))
+        if (storedContext) setFile(JSON.parse(storedContext))
         if (storedCsvTable) setCsvTable(JSON.parse(storedCsvTable))
         if (storedLabelTable) setLabelTable(JSON.parse(storedLabelTable))
         if (storedAttributeTable) setAttributeTable(JSON.parse(storedAttributeTable))
         if (storedProgress) {
             setProgress(JSON.parse(storedProgress))
             switch (JSON.parse(storedProgress)) {
+                case 0:
+                    setCsvTable([])
+                    setCurrentTable([])
+                    break
                 case 1:
                     if (storedCsvTable) setCurrentTable(JSON.parse(storedCsvTable))
                     break
@@ -105,9 +117,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                     if (storedAttributeTable) setCurrentTable(JSON.parse(storedAttributeTable))
                     break
                 default:
-                    setCsvTable([])
-                    setCurrentTable([])
-                    setProgress(0)
+                    setCurrentTable(JSON.parse(storedCsvTable as string))
             }
         }
     }, [])
@@ -116,6 +126,26 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     useEffect(() => {
         localStorage.setItem('upload-progress', JSON.stringify(progress))
     }, [progress])
+
+    useEffect(() => {
+        localStorage.setItem('upload-file', JSON.stringify(file))
+    }, [file])
+
+    useEffect(() => {
+        localStorage.setItem('upload-fileLink', JSON.stringify(fileLink))
+    }, [fileLink])
+
+    useEffect(() => {
+        localStorage.setItem('upload-fileName', JSON.stringify(fileName))
+    }, [fileName])
+
+    useEffect(() => {
+        localStorage.setItem('upload-context', JSON.stringify(context))
+    }, [context])
+
+    useEffect(() => {
+        localStorage.setItem('upload-input-table', JSON.stringify(csvTable))
+    }, [csvTable])
 
     useEffect(() => {
         localStorage.setItem('upload-label-table', JSON.stringify(labelTable))
@@ -167,7 +197,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                     setCsvTable(typedData)
                     setCurrentTable(typedData)
                     setColumnLength(Object.keys(typedData[0]).length)
-                    localStorage.setItem('upload-input-table', JSON.stringify(typedData))
                 },
                 skipEmptyLines: true,
             })
@@ -186,7 +215,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
     // (file,context) => label_dict, file_link, file_name
     async function requestExtractLabels() {
-        if (!file) {
+        if (!file && !USE_MOCK_DATA) {
             toast.error('File not found!')
             return
         }
@@ -204,7 +233,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 setLabelTable(dictArray)
                 setCurrentTable(dictArray)
             } else {
-                const data = await client.requestExtractLabels(file, context)
+                const data = await client.requestExtractLabels(file as File, context)
 
                 if (data.graph_json && data.file_link) {
                     const { nodes, relationships } = convertFromJsonFormat(data.graph_json, true)
