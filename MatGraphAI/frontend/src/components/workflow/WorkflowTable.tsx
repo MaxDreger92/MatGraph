@@ -281,8 +281,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 return darkTheme ? '#212226' : '#f8f9fa'
             }
         } else if (
-            columnIndex === hovered?.column ||
-            (columnIndex === selectedColumnIndex && progress > 3)
+            (columnIndex === hovered?.column ||
+            columnIndex === selectedColumnIndex) && progress > 3
         ) {
             return darkTheme ? '#25262b' : '#e9ecef'
         } else {
@@ -373,7 +373,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined
                             }
-                            draggable
+                            draggable={progress > 3}
                             onDragStart={(e) => handleDragStart(e, header, columnVirtual.index)}
                             key={columnVirtual.key}
                             style={{
@@ -458,7 +458,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                 })
                                             }
                                             onMouseLeave={() => setHovered(null)}
-                                            draggable
+                                            draggable={progress > 3}
                                             onDragStart={(e) =>
                                                 handleDragStart(
                                                     e,

@@ -1,6 +1,6 @@
 import { Select, useMantineColorScheme } from '@mantine/core'
 import React, { useContext, useEffect, useState } from 'react'
-import { AttributeIndex } from '../../../types/canvas.types'
+import { AttributeIndex, Operator } from '../../../types/canvas.types'
 import RefContext from '../../workflow/context/RefContext'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
@@ -8,9 +8,7 @@ import MinusIcon from '@mui/icons-material/Remove'
 import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputStrOpProps {
-    handleOpChange: (id: string, operator: string) => void
-    handleValChange: (id: string, value: string, forceUpdate?: boolean) => void
-    handleIndexChange: (id: string, value: string) => void
+    handleUpdate: (id: string, value?: string, operator?: string, index?: string) => void
     handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
     handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
     id: string
@@ -26,9 +24,7 @@ interface NodeInputStrOpProps {
 
 export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const {
-        handleOpChange,
-        handleValChange,
-        handleIndexChange,
+        handleUpdate,
         handleKeyUp,
         handleBlur,
         id,
@@ -82,15 +78,15 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         if (currentIndex !== '' && showIndexChoice === id) {
             setShowIndexChoice('')
         }
-    }, [currentIndex])
+    }, [currentIndex, id, showIndexChoice, setShowIndexChoice])
 
     useEffect(() => {
         if (!(awaitingIndex && selectedColumnIndex !== null)) return
 
-        handleIndexChange(id, selectedColumnIndex.toString())
+        handleUpdate(id, undefined, undefined, selectedColumnIndex.toString())
         setCurrentIndex(selectedColumnIndex)
         setAwaitingIndex(false)
-    }, [awaitingIndex, selectedColumnIndex])
+    }, [awaitingIndex, selectedColumnIndex, handleUpdate, id])
 
     const toggleSelectOpen = () => {
         if (selectOpen) {
@@ -104,14 +100,14 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
 
     const handleOpChangeLocal = (e: string | null) => {
         if (e === null) {
-            handleOpChange(id, '')
+            handleUpdate(id, undefined, '')
         } else if (typeof e === 'string') {
-            handleOpChange(id, e)
+            handleUpdate(id, undefined, e)
         }
     }
 
     const deleteIndexLocal = () => {
-        handleIndexChange(id, '')
+        handleUpdate(id, undefined, undefined, '')
         setCurrentIndex('')
         return
     }
@@ -127,7 +123,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
 
     const handleIndexChoice = (choice: string) => {
         if (choice === 'inferred') {
-            handleIndexChange(id, choice)
+            handleUpdate(id, undefined, undefined, choice)
             setCurrentIndex(choice)
         }
     }
@@ -139,7 +135,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         const {columnIndex} = dragData 
     
         setCurrentIndex(columnIndex);
-        handleIndexChange(id, columnIndex)
+        handleUpdate(id, undefined, undefined, columnIndex)
 
         if (indexInputRef.current) {
             indexInputRef.current.focus()
@@ -156,8 +152,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
 
         setCurrentValue(columnContent)
         setCurrentIndex(columnIndex)
-        handleValChange(id, columnContent, true)
-        handleIndexChange(id, columnIndex)
+        handleUpdate(id, columnContent, undefined, columnIndex)
 
         if (stringInputRef.current) {
             stringInputRef.current.focus()
@@ -225,7 +220,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     value={currentValue}
                     onChange={(e) => {
                         setCurrentValue(e.target.value)
-                        handleValChange(id, e.target.value)
+                        handleUpdate(id, e.target.value)
                     }}
                     onKeyUp={handleKeyUp}
                     onBlur={handleBlur}
@@ -247,7 +242,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                             placeholder="Index"
                             value={currentIndex}
                             onChange={(e) => {
-                                handleIndexChange(id, e.target.value)
+                                handleUpdate(id, undefined, undefined, e.target.value)
                                 setCurrentIndex(e.target.value)
                             }}
                             onKeyUp={handleKeyUp}

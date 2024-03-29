@@ -50,7 +50,6 @@ export default function Workflow(props: WorkflowProps) {
     const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
     const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
     const [indexDictionary, setIndexDictionary] = useState<IndexDictionary>({})
-    const [awaitColumnSelect, setAwaitColumnSelect] = useState(false)
 
     const [needLayout, setNeedLayout] = useState(false)
 
@@ -267,9 +266,10 @@ export default function Workflow(props: WorkflowProps) {
             setNodes(JSON.parse(savedNodes))
             if (savedRelationships) setRelationships(JSON.parse(savedRelationships))
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uploadMode])
 
-    // Update Index Dictionary
+    // Rebuilds entire Index Dictionary
     const rebuildIndexDictionary = useCallback(() => {
         const newIndexDictionary: IndexDictionary = {};
     
@@ -288,6 +288,7 @@ export default function Workflow(props: WorkflowProps) {
         setIndexDictionary(newIndexDictionary)
     }, [nodes])
 
+    // Rebuilds singular Node Entry in Index Dictionary
     const updateIndexDictionary = (node: INode) => {
         let updatedIndexDictionary: IndexDictionary = indexDictionary
 
@@ -315,6 +316,7 @@ export default function Workflow(props: WorkflowProps) {
         setIndexDictionary(updatedIndexDictionary)
     }
 
+    // Select nodes based on selectedColumnIndex
     useEffect(() => {
         if (!selectedColumnIndex) return
 
@@ -328,6 +330,7 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [selectedColumnIndex, indexDictionary, nodes, setSelectedNodes])
 
+    // Highlight nodes based on highlightedColumnIndex
     useEffect(() => {
         if (!highlightedColumnIndex || nodes.length === 0) {
             setHighlightedNodeIds(new Set([]))

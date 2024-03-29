@@ -30,13 +30,9 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const [showIndexChoice, setShowIndexChoice] = useState<string>('')
 
     const { refs, getNewDivRef, resetRefs } = useContext(RefContext)
-    const activeElementRef = useRef<Element | null>(null)
-
-    
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
-
 
     // useEffect(() => {
     //     const updateActiveElement = () => {
@@ -63,8 +59,21 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             error: nodeError,
             identifier: nodeIdentifier,
         }
+        console.log(updatedNode.name.value)
         handleNodeUpdate(updatedNode, true)
-    },[node, nodeName, nodeValue, nodeBatchNum, nodeRatio, nodeConcentration, nodeUnit, nodeStd, nodeError, nodeIdentifier, handleNodeUpdate])
+    }, [
+        node,
+        nodeName,
+        nodeValue,
+        nodeBatchNum,
+        nodeRatio,
+        nodeConcentration,
+        nodeUnit,
+        nodeStd,
+        nodeError,
+        nodeIdentifier,
+        handleNodeUpdate,
+    ])
 
     // Update node through changed refs (removal of ref in other component)
     useEffect(() => {
@@ -74,7 +83,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             }
             updateNode()
         }, 100)
-    }, [refs])
+    }, [refs, updateNode])
 
     // Update node through blur event
     const handleBlur = () => {
@@ -95,164 +104,129 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }
     }
 
-    const handleStrChangeLocal = (id: string, value: string) => {
+    useEffect(() => {
+        console.log(nodeName.value)
+    }, [nodeName])
+
+    const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
+        let typed_index: string | number | null = null
+
+        if (index !== undefined) {
+            const numericValue = parseFloat(index)
+            typed_index = isNaN(numericValue) ? index : numericValue
+        }
 
         switch (id) {
             case 'name':
-                setNodeName(prevName => ({ ...prevName, value: value }));
-                break
-            case 'batch':
-                setNodeBatchNum({ value: value, index: nodeBatchNum.index })
-                break
-            case 'unit':
-                setNodeUnit({ value: value, index: nodeUnit.index })
-                break
-            case 'identifier':
-                setNodeIdentifier({ value: value, index: nodeIdentifier.index })
-                break
-            default:
-                break
-        }
-    }
-
-    const handleValChangeLocal = (id: string, value: string) => {
-        switch (id) {
-            case 'value':
-                setNodeValue({
-                    valOp: { value: value, operator: nodeValue.valOp.operator },
-                    index: nodeValue.index,
-                })
-                break
-            case 'ratio':
-                setNodeRatio({
-                    valOp: { value: value, operator: nodeRatio.valOp.operator },
-                    index: nodeRatio.index,
-                })
-                break
-            case 'concentration':
-                setNodeConcentration({
-                    valOp: { value: value, operator: nodeConcentration.valOp.operator },
-                    index: nodeConcentration.index,
-                })
-                break
-            case 'std':
-                setNodeStd({
-                    valOp: { value: value, operator: nodeStd.valOp.operator },
-                    index: nodeStd.index,
-                })
-                break
-            case 'error':
-                setNodeError({
-                    valOp: { value: value, operator: nodeError.valOp.operator },
-                    index: nodeError.index,
-                })
-                break
-            default:
-                break
-        }
-    }
-
-    const handleOpChangeLocal = (id: string, operator: string) => {
-        switch (id) {
-            case 'value':
-                setNodeValue({
-                    valOp: { value: nodeValue.valOp.value, operator: operator },
-                    index: nodeValue.index,
-                })
-                break
-            case 'ratio':
-                setNodeRatio({
-                    valOp: { value: nodeRatio.valOp.value, operator: operator },
-                    index: nodeRatio.index,
-                })
-                break
-            case 'concentration':
-                setNodeConcentration({
-                    valOp: { value: nodeConcentration.valOp.value, operator: operator },
-                    index: nodeConcentration.index,
-                })
-                break
-            case 'std':
-                setNodeStd({
-                    valOp: { value: nodeStd.valOp.value, operator: operator },
-                    index: nodeStd.index,
-                })
-                break
-            case 'error':
-                setNodeError({
-                    valOp: { value: nodeError.valOp.value, operator: operator },
-                    index: nodeError.index,
-                })
-                break
-            default:
-                break
-        }
-    }
-
-    const handleIndexChangeLocal = (id: string, index: string) => {
-        let input_value: string | number
-
-        const numericValue = parseFloat(index)
-        input_value = isNaN(numericValue) ? index : numericValue
-
-        const updatedNode = { ...node }
-
-        switch (id) {
-            case 'name':
-                updatedNode.name.index = input_value
-                setNodeName({ value: nodeName.value, index: input_value })
-                break
-            case 'value':
-                updatedNode.value.index = input_value
-                setNodeValue({
-                    valOp: nodeValue.valOp,
-                    index: input_value,
+                setNodeName({
+                    value: value ?? nodeName.value,
+                    index: typed_index ?? nodeName.index,
                 })
                 break
             case 'batch':
-                updatedNode.batch_num.index = input_value
-                setNodeBatchNum({ value: nodeBatchNum.value, index: input_value })
-                break
-            case 'ratio':
-                updatedNode.ratio.index = input_value
-                setNodeRatio({
-                    valOp: nodeRatio.valOp,
-                    index: input_value,
-                })
-                break
-            case 'concentration':
-                updatedNode.concentration.index = input_value
-                setNodeConcentration({
-                    valOp: nodeConcentration.valOp,
-                    index: input_value,
+                setNodeBatchNum({
+                    value: value ?? nodeBatchNum.value,
+                    index: typed_index ?? nodeBatchNum.index,
                 })
                 break
             case 'unit':
-                updatedNode.unit.index = input_value
-                setNodeUnit({ value: nodeUnit.value, index: input_value })
-                break
-            case 'std':
-                updatedNode.std.index = input_value
-                setNodeStd({
-                    valOp: nodeStd.valOp,
-                    index: input_value,
-                })
-                break
-            case 'error':
-                updatedNode.error.index = input_value
-                setNodeError({
-                    valOp: nodeError.valOp,
-                    index: input_value,
+                setNodeUnit({
+                    value: value ?? nodeUnit.value,
+                    index: typed_index ?? nodeUnit.index,
                 })
                 break
             case 'identifier':
-                updatedNode.identifier.index = input_value
-                setNodeIdentifier({ value: nodeIdentifier.value, index: input_value })
+                setNodeIdentifier({
+                    value: value ?? nodeIdentifier.value,
+                    index: typed_index ?? nodeIdentifier.index,
+                })
+                break
+            case 'value':
+                setNodeValue({
+                    valOp: {
+                        value: value ?? nodeValue.valOp.value,
+                        operator: operator ?? nodeValue.valOp.operator,
+                    },
+                    index: typed_index ?? nodeValue.index,
+                })
+                break
+            case 'ratio':
+                setNodeRatio({
+                    valOp: {
+                        value: value ?? nodeRatio.valOp.value,
+                        operator: operator ?? nodeRatio.valOp.operator,
+                    },
+                    index: typed_index ?? nodeRatio.index,
+                })
+                break
+            case 'concentration':
+                setNodeConcentration({
+                    valOp: {
+                        value: value ?? nodeConcentration.valOp.value,
+                        operator: operator ?? nodeConcentration.valOp.operator,
+                    },
+                    index: typed_index ?? nodeConcentration.index,
+                })
+                break
+            case 'std':
+                setNodeStd({
+                    valOp: {
+                        value: value ?? nodeStd.valOp.value,
+                        operator: operator ?? nodeStd.valOp.operator,
+                    },
+                    index: typed_index ?? nodeStd.index,
+                })
+                break
+            case 'error':
+                setNodeError({
+                    valOp: {
+                        value: value ?? nodeError.valOp.value,
+                        operator: operator ?? nodeError.valOp.operator,
+                    },
+                    index: typed_index ?? nodeError.index,
+                })
                 break
             default:
                 break
         }
-        handleNodeUpdate(updatedNode)
+
+        if (typed_index) {
+            const updatedNode = { ...node }
+
+            switch (id) {
+                case 'name':
+                    updatedNode.name.index = typed_index
+                    break
+                case 'value':
+                    updatedNode.value.index = typed_index
+                    break
+                case 'batch':
+                    updatedNode.batch_num.index = typed_index
+                    break
+                case 'ratio':
+                    updatedNode.ratio.index = typed_index
+                    break
+                case 'concentration':
+                    updatedNode.concentration.index = typed_index
+                    break
+                case 'unit':
+                    updatedNode.unit.index = typed_index
+                    break
+                case 'std':
+                    updatedNode.std.index = typed_index
+                    break
+                case 'error':
+                    updatedNode.error.index = typed_index
+                    break
+                case 'identifier':
+                    updatedNode.identifier.index = typed_index
+                    break
+                default:
+                    break
+            }
+
+            handleNodeUpdate(updatedNode)
+        }
     }
 
     /**
@@ -283,8 +257,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             }}
         >
             <NodeInputStr
-                handleStrChange={handleStrChangeLocal}
-                handleIndexChange={handleIndexChangeLocal}
+                handleUpdate={handleUpdateLocal}
                 handleKeyUp={handleKeyUp}
                 handleBlur={handleBlur}
                 id="name"
@@ -300,8 +273,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
             {['manufacturing', 'measurement', 'metadata'].includes(node.type) && (
                 <NodeInputStr
-                    handleStrChange={handleStrChangeLocal}
-                    handleIndexChange={handleIndexChangeLocal}
+                    handleUpdate={handleUpdateLocal}
                     handleKeyUp={handleKeyUp}
                     handleBlur={handleBlur}
                     id="identifier"
@@ -319,8 +291,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             {node.type === 'matter' && (
                 <>
                     <NodeInputStr
-                        handleStrChange={handleStrChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="identifier"
@@ -334,8 +305,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 3}
                     />
                     <NodeInputStr
-                        handleStrChange={handleStrChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="batch"
@@ -349,9 +319,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 3}
                     />
                     <NodeInputStrOp
-                        handleOpChange={handleOpChangeLocal}
-                        handleValChange={handleValChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="ratio"
@@ -365,9 +333,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 2}
                     />
                     <NodeInputStrOp
-                        handleOpChange={handleOpChangeLocal}
-                        handleValChange={handleValChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="concentration"
@@ -386,9 +352,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             {['parameter', 'property'].includes(node.type) && (
                 <>
                     <NodeInputStrOp
-                        handleOpChange={handleOpChangeLocal}
-                        handleValChange={handleValChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="value"
@@ -404,8 +368,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 3}
                     />
                     <NodeInputStr
-                        handleStrChange={handleStrChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="unit"
@@ -419,9 +382,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 2}
                     />
                     <NodeInputStrOp
-                        handleOpChange={handleOpChangeLocal}
-                        handleValChange={handleValChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="std"
@@ -435,9 +396,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         zIndex={node.layer + 2}
                     />
                     <NodeInputStrOp
-                        handleOpChange={handleOpChangeLocal}
-                        handleValChange={handleValChangeLocal}
-                        handleIndexChange={handleIndexChangeLocal}
+                        handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
                         handleBlur={handleBlur}
                         id="error"

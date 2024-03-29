@@ -8,8 +8,7 @@ import MinusIcon from '@mui/icons-material/Remove'
 import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputStrProps {
-    handleStrChange: (id: string, value: string) => void
-    handleIndexChange: (id: string, value: string) => void
+    handleUpdate: (id: string, value?: string, operator?: string, index?: string) => void
     handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
     handleBlur: () => void
     id: string
@@ -25,8 +24,7 @@ interface NodeInputStrProps {
 
 export default function NodeInputStr(props: NodeInputStrProps) {
     const {
-        handleStrChange,
-        handleIndexChange,
+        handleUpdate,
         handleKeyUp,
         handleBlur,
         id,
@@ -78,18 +76,18 @@ export default function NodeInputStr(props: NodeInputStrProps) {
         if (currentIndex !== '' && showIndexChoice === id) {
             setShowIndexChoice('')
         }
-    }, [currentIndex])
+    }, [currentIndex, id, showIndexChoice, setShowIndexChoice])
 
     useEffect(() => {
         if (!(awaitingIndex && selectedColumnIndex !== null)) return
 
-        handleIndexChange(id, selectedColumnIndex.toString())
+        handleUpdate(id, undefined, undefined, selectedColumnIndex.toString())
         setCurrentIndex(selectedColumnIndex)
         setAwaitingIndex(false)
-    }, [awaitingIndex, selectedColumnIndex])
+    }, [awaitingIndex, selectedColumnIndex, id, handleUpdate])
 
     const deleteIndexLocal = () => {
-        handleIndexChange(id, '')
+        handleUpdate(id, undefined, undefined, '')
         setCurrentIndex('')
         return
     }
@@ -105,53 +103,52 @@ export default function NodeInputStr(props: NodeInputStrProps) {
 
     const handleIndexChoice = (choice: string) => {
         if (choice === 'inferred') {
-            handleIndexChange(id, choice)
+            handleUpdate(id, undefined, undefined, choice)
             setCurrentIndex(choice)
         }
     }
 
     const handleIndexDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
+        e.preventDefault()
 
-        const dragDataString = e.dataTransfer.getData('text/plain');
+        const dragDataString = e.dataTransfer.getData('text/plain')
         const dragData = JSON.parse(dragDataString)
 
-        const {columnIndex} = dragData 
-    
-        setCurrentIndex(columnIndex);
-        handleIndexChange(id, columnIndex)
+        const { columnIndex } = dragData
+
+        setCurrentIndex(columnIndex)
+        handleUpdate(id, undefined, undefined, columnIndex)
 
         if (indexInputRef.current) {
             indexInputRef.current.focus()
         }
-    };
+    }
 
     const handleColumnDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        const dragDataString = e.dataTransfer.getData('text/plain');
-        const dragData = JSON.parse(dragDataString);
+        e.preventDefault()
+        e.stopPropagation()
+        const dragDataString = e.dataTransfer.getData('text/plain')
+        const dragData = JSON.parse(dragDataString)
 
-        const { columnContent, columnIndex } = dragData;
+        const { columnContent, columnIndex } = dragData
 
         setCurrentValue(columnContent)
         setCurrentIndex(columnIndex)
-        handleStrChange(id, columnContent)
-        handleIndexChange(id, columnIndex)
+        handleUpdate(id, columnContent, undefined, columnIndex)
 
         if (stringInputRef.current) {
             stringInputRef.current.focus()
         }
-
-        e.preventDefault()
     }
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault(); 
-    };
+        // e.preventDefault();
+    }
 
     return (
         <div
             style={{
-                position: "relative",
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -168,7 +165,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                 value={currentValue}
                 onChange={(e) => {
                     setCurrentValue(e.target.value)
-                    handleStrChange(id, e.target.value)
+                    handleUpdate(id, e.target.value)
                 }} // write nodeName state
                 onKeyUp={handleKeyUp} // confirm name with enter
                 onBlur={handleBlur}
@@ -190,8 +187,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                         placeholder="Index"
                         value={currentIndex}
                         onChange={(e) => {
-                            handleIndexChange(id, e.target.value)
                             setCurrentIndex(e.target.value)
+                            handleUpdate(id, undefined, e.target.value)
                         }}
                         onKeyUp={handleKeyUp}
                         onBlur={handleBlur}
@@ -220,10 +217,10 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                                 right: 0,
                                 cursor: 'pointer',
                                 color: indexButtonHovered
-                                        ? '#ff0000'
-                                        : darkTheme
-                                            ? '#444'
-                                            : '#ced4da',
+                                    ? '#ff0000'
+                                    : darkTheme
+                                    ? '#444'
+                                    : '#ced4da',
                             }}
                         >
                             <CloseIcon
@@ -300,57 +297,59 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                 </div>
             )}
             {showIndexChoice === id && (
-                    <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }}>
+                    <div
+                        className={`${inputClass}`}
+                        style={{
+                            position: 'absolute',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: 100,
+                            marginLeft: 8,
+                            transform: 'translate(0, -50%)',
+                        }}
+                    >
                         <div
-                            className={`${inputClass}`}
+                            onMouseEnter={() => setIndexChoiceHovered(1)}
+                            onMouseLeave={() => setIndexChoiceHovered(0)}
+                            onClick={() => handleIndexChoice('inferred')}
                             style={{
-                                position: 'absolute',
+                                width: 'calc(100% - 8px)',
+                                height: 30,
+                                margin: '4px 4px 0 4px',
+                                borderRadius: 3,
+                                backgroundColor: indexChoiceHovered === 1 ? '#373A40' : 'inherit',
                                 display: 'flex',
-                                flexDirection: 'column',
-                                width: 100,
-                                marginLeft: 8,
-                                transform: 'translate(0, -50%)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
                             }}
                         >
-                            <div
-                                onMouseEnter={() => setIndexChoiceHovered(1)}
-                                onMouseLeave={() => setIndexChoiceHovered(0)}
-                                onClick={() => handleIndexChoice("inferred")}
-                                style={{
-                                    width: 'calc(100% - 8px)',
-                                    height: 30,
-                                    margin: '4px 4px 0 4px',
-                                    borderRadius: 3,
-                                    backgroundColor:
-                                        indexChoiceHovered === 1 ? '#373A40' : 'inherit',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div style={{ position: 'relative', top: 2 }}>"inferred"</div>
-                            </div>
-                            <div
-                                onMouseEnter={() => setIndexChoiceHovered(2)}
-                                onMouseLeave={() => setIndexChoiceHovered(0)}
-                                onClick={() => setAwaitingIndex(!awaitingIndex)}
-                                style={{
-                                    width: 'calc(100% - 8px)',
-                                    height: 30,
-                                    margin: '0 4px 4px 4px',
-                                    borderRadius: 3,
-                                    backgroundColor:
-                                        awaitingIndex ? '#1864ab' : indexChoiceHovered === 2 ? '#373A40' : 'inherit',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div style={{ position: 'relative', top: 2 }}>select</div>
-                            </div>
+                            <div style={{ position: 'relative', top: 2 }}>"inferred"</div>
+                        </div>
+                        <div
+                            onMouseEnter={() => setIndexChoiceHovered(2)}
+                            onMouseLeave={() => setIndexChoiceHovered(0)}
+                            onClick={() => setAwaitingIndex(!awaitingIndex)}
+                            style={{
+                                width: 'calc(100% - 8px)',
+                                height: 30,
+                                margin: '0 4px 4px 4px',
+                                borderRadius: 3,
+                                backgroundColor: awaitingIndex
+                                    ? '#1864ab'
+                                    : indexChoiceHovered === 2
+                                    ? '#373A40'
+                                    : 'inherit',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div style={{ position: 'relative', top: 2 }}>select</div>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
         </div>
     )
 }

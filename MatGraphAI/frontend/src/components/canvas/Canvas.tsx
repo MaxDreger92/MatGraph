@@ -168,7 +168,7 @@ export default function Canvas(props: CanvasProps) {
             prevNodes.map((node) => (node.id === nodeID ? { ...node, isEditing: true } : node))
         )
         setNodeEditing(true)
-    }, [nodeEditing, ctrlPressed])
+    }, [nodeEditing, ctrlPressed, setNodes, setNodeEditing, updateHistoryRevert])
 
     // rename node -> resetting isEditing to false
     const handleNodeUpdate = useCallback((node: INode, endEditing?: boolean) => {
