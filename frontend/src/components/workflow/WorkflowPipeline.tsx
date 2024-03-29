@@ -18,7 +18,6 @@ interface WorkflowPipelineProps {
 
 export default function WorkflowPipeline(props: WorkflowPipelineProps) {
   const {
-    loadNodes,
     handlePipelineReset,
     handleContextChange,
     requestExtractLabels,
