@@ -44,7 +44,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
     const [awaitingIndex, setAwaitingIndex] = useState(false)
-    const { selectedColumnIndex } = useContext(WorkflowContext)
+    const { selectedColumnIndex, uploadMode } = useContext(WorkflowContext)
 
     const { getNewInputRef } = useContext(RefContext)
     const selectInputRef = getNewInputRef()
@@ -107,8 +107,9 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     }
 
     const deleteIndexLocal = () => {
-        handleUpdate(id, undefined, undefined, '')
+        handleUpdate(id, '', undefined, '')
         setCurrentIndex('')
+        setCurrentValue('')
         return
     }
 
@@ -211,6 +212,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     }}
                 />
                 <input
+                    disabled={uploadMode && index !== 'inferred'}
                     onDragOver={handleDragOver}
                     onDrop={handleColumnDrop}
                     ref={stringInputRef}

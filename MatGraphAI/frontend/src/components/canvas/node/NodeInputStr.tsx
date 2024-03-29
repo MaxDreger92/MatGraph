@@ -43,7 +43,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
     const [awaitingIndex, setAwaitingIndex] = useState(false)
-    const { selectedColumnIndex } = useContext(WorkflowContext)
+    const { selectedColumnIndex, uploadMode } = useContext(WorkflowContext)
 
     const { getNewInputRef } = useContext(RefContext)
     const stringInputRef = getNewInputRef()
@@ -87,8 +87,9 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     }, [awaitingIndex, selectedColumnIndex, id, handleUpdate])
 
     const deleteIndexLocal = () => {
-        handleUpdate(id, undefined, undefined, '')
+        handleUpdate(id, '', undefined, '')
         setCurrentIndex('')
+        setCurrentValue('')
         return
     }
 
@@ -147,6 +148,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
 
     return (
         <div
+
             style={{
                 position: 'relative',
                 display: 'flex',
@@ -156,6 +158,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             }}
         >
             <input
+                disabled={uploadMode && index !== 'inferred'}
                 onDragOver={handleDragOver}
                 onDrop={handleColumnDrop}
                 className={`${inputClass}`}
@@ -166,8 +169,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                 onChange={(e) => {
                     setCurrentValue(e.target.value)
                     handleUpdate(id, e.target.value)
-                }} // write nodeName state
-                onKeyUp={handleKeyUp} // confirm name with enter
+                }}
+                onKeyUp={handleKeyUp}
                 onBlur={handleBlur}
                 autoFocus={autoFocus}
                 style={{
@@ -179,6 +182,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             {showIndices && (
                 <div style={{ position: 'relative', display: 'flex' }}>
                     <input
+                        autoFocus={autoFocus && index !== 'inferred'}
                         onDragOver={handleDragOver}
                         onDrop={handleIndexDrop}
                         className={`${inputClass}`}

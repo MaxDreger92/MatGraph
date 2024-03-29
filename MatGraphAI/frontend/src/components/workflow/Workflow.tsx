@@ -430,6 +430,7 @@ export default function Workflow(props: WorkflowProps) {
         selectedColumnIndex,
         setSelectedColumnIndex,
         forceEndEditing,
+        uploadMode,
     }
 
     return (
