@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { IWorkflow } from "../../types/workflow.types"
 import { IRelationship, INode } from "../../types/canvas.types"
-import { convertFromJsonFormat } from "../../common/helpers"
+import { convertFromJsonFormat } from "../../common/workflowHelpers"
 import { RiDeleteBin2Line } from "react-icons/ri"
 
 // import jsonData from '../../alt/testGraph.json'

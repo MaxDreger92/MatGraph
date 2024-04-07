@@ -5,7 +5,7 @@ import { useReactTable, ColumnDef, getCoreRowModel } from '@tanstack/react-table
 import { TableRow } from '../../types/workflow.types'
 import { Label } from '../../types/workflow.types'
 import { Select } from '@mantine/core'
-import { getAttributesByLabel, mapNodeTypeString } from '../../common/helpers'
+import { getAttributesByLabel, mapNodeTypeString } from '../../common/workflowHelpers'
 import { INode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
 

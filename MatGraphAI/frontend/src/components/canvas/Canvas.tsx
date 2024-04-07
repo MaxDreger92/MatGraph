@@ -21,9 +21,15 @@ import {
     IndexDictionary,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
-import { isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
+import {
+    calculateNodeOptimalSize,
+    isConnectableNode,
+    isRelationshipLegitimate,
+} from '../../common/nodeHelpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
 import WorkflowContext from '../workflow/context/WorkflowContext'
+
+const DETECTION_RADIUS = 31
 
 interface CanvasProps {
     uploadMode: boolean
@@ -81,50 +87,96 @@ export default function Canvas(props: CanvasProps) {
         canvasRect,
     } = props
 
-    const [isLayouting, setIsLayouting] = useState(false)
-
-    const [movingNodeIDs, setMovingNodeIDs] = useState<Set<string> | null>(null)
-    const [connectingNode, setConnectingNode] = useState<INode | null>(null)
-    const [selectedRelationshipID, setSelectedRelationshipID] = useState<
-        IRelationship['id'] | null
-    >(null)
-    const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 })
+    // Canvas
     const [navOpen, setNavOpen] = useState(false)
+    const [isLayouting, setIsLayouting] = useState(false)
+    const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 })
     const [clickPosition, setClickPosition] = useState<Position | null>(null)
     const [selectionRect, setSelectionRect] = useState<Rect | null>(null)
+    const [hasSelectionRect, setHasSelectionRect] = useState(false)
     const [dragging, setDragging] = useState(false)
     const [dragCurrentPos, setDragCurrentPos] = useState<Position | null>(null)
     const [altPressed, setAltPressed] = useState(false)
     const [ctrlPressed, setCtrlPressed] = useState(false)
-    // const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null)
+
+    // Nodes
+    const [interestingNodeIds, setInterestingNodeIds] = useState<Set<string>>(new Set())
+    const [movingNodeIds, setMovingNodeIds] = useState<Set<string> | null>(null)
+    const [connectingNode, setConnectingNode] = useState<INode | null>(null)
+
+    // Relationships
+    const [selectedRelationshipID, setSelectedRelationshipID] = useState<
+        IRelationship['id'] | null
+    >(null)
+
+    // Refs
+    const selectionRectRef = useRef(selectionRect)
+    const mousePositionRef = useRef(mousePosition)
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-    // const isDeletingNode = useRef(false)
 
     const { forceEndEditing } = useContext(WorkflowContext)
 
+    // ########################################################################## Mousemove listener
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!canvasRect) return
-            setMousePosition({
+
+            const mousePosition: Position = {
                 x: e.clientX,
                 y: e.clientY - canvasRect.top,
+            }
+
+            setMousePosition(mousePosition)
+
+            const newInterestingNodeIDs = new Set<string>()
+
+            // Don't pass mouse position if currently moving nodes
+            if (dragging) {
+                setInterestingNodeIds(newInterestingNodeIDs)
+                return
+            }
+
+            // Perform box check on all nodes to create list
+            // of nodes that receive mouse position
+            nodes.forEach((node) => {
+                if (
+                    mousePosition.x >=
+                        node.position.x - (node.optimalSize / 2 + DETECTION_RADIUS) &&
+                    mousePosition.x <=
+                        node.position.x + (node.optimalSize / 2 + DETECTION_RADIUS) &&
+                    mousePosition.y >=
+                        node.position.y - (node.optimalSize / 2 + DETECTION_RADIUS) &&
+                    mousePosition.y <= node.position.y + (node.optimalSize / 2 + DETECTION_RADIUS)
+                ) {
+                    newInterestingNodeIDs.add(node.id)
+                }
             })
+
+            setInterestingNodeIds(newInterestingNodeIDs)
         }
 
-        window.addEventListener('mousemove', handleMouseMove)
+        const throttledHandleMouseMove = _.throttle(handleMouseMove, 10)
+
+        window.addEventListener('mousemove', throttledHandleMouseMove)
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove)
+            window.removeEventListener('mousemove', throttledHandleMouseMove)
         }
-    })
+    }, [canvasRect, nodes, dragging])
 
-    // addNode from canvas context menu
+    useEffect(() => {
+        mousePositionRef.current = mousePosition
+    }, [mousePosition])
+
+    // ################################################################################ Create node
+    // AddNode from canvas context menu
     // if created from connector, automatically
     // add relationship between nodes
     const addNode = (type: INode['type'], position: Position) => {
         const id = uuidv4().replaceAll('-', '')
         const layer = 0
         const size = 100
+        const optimalSize = 100
         const newNode = {
             id,
             name: { value: '', index: '' },
@@ -140,6 +192,7 @@ export default function Canvas(props: CanvasProps) {
             with_indices: uploadMode,
             position,
             size,
+            optimalSize,
             layer,
             isEditing: true,
         }
@@ -152,35 +205,98 @@ export default function Canvas(props: CanvasProps) {
         setNodes((prevNodes) => [...prevNodes, newNode])
     }
 
-    // sets node isEditing field
+    // ######################################################################### Create relationship
+    // add relationship between two nodes
+    // checks for already existing relationships
+    // checks for legitimate relationships
+    const addRelationship = useCallback(
+        (start: INode, end: INode) => {
+            if (start.id === end.id) return
+            const relationshipExists = relationships.some(
+                (relationship) =>
+                    (relationship.start.id === start.id && relationship.end.id === end.id) ||
+                    (relationship.start.id === end.id && relationship.end.id === start.id)
+            )
+            if (relationshipExists || !isRelationshipLegitimate(start, end)) {
+                toast.error('Relationship invalid!')
+                return
+            }
+            updateHistory()
+            const relationshipID = uuidv4().replaceAll('-', '')
+            setRelationships((prevRelationships) => [
+                ...prevRelationships,
+                { start: start, end: end, id: relationshipID },
+            ])
+        },
+        [relationships, setRelationships, updateHistory]
+    )
+
+    // ################################################################################ Node actions
+    // set node selection status
+    // 0 = node is not selected
+    // 1 = node is selected alone
+    // 2 = node is selected among others
+    const nodeSelectionStatus = useCallback(
+        (nodeId: string) => {
+            const isSelected = selectedNodes.some((selectedNode) => selectedNode.id === nodeId)
+            if (isSelected) {
+                if (selectedNodes.length > 1) return 2
+                return 1
+            }
+            return 0
+        },
+        [selectedNodes]
+    )
+
+    const selectNodesBySelectionRect = useCallback(
+        (node?: INode) => {
+            if (!selectionRectRef.current) return
+
+            const newSelectionRect = selectionRectRef.current
+
+            let rectSelectedNodes = nodes.filter((node) => {
+                return (
+                    node.position.x >= newSelectionRect.left &&
+                    node.position.x <= newSelectionRect.left + newSelectionRect.width &&
+                    node.position.y >= newSelectionRect.top &&
+                    node.position.y <= newSelectionRect.top + newSelectionRect.height
+                )
+            })
+
+            if (node) {
+                const alreadySelected = rectSelectedNodes.some(
+                    (selectedNode) => selectedNode.id === node.id
+                )
+                if (!alreadySelected) {
+                    rectSelectedNodes.push(node)
+                }
+            }
+
+            setSelectedNodes(rectSelectedNodes)
+            setSelectionRect(null)
+        },
+        [nodes, setSelectedNodes]
+    )
+
+    // Sets node isEditing field
     // so input field will show
     const initNodeUpdate = useCallback(
         (nodeID: INode['id'], undoHistory?: boolean) => {
             cleanupDrag()
             if (nodeEditing || ctrlPressed) return
             if (undoHistory) updateHistoryRevert()
-            // if (ctrlPressed) {
-            //   return
-            //   // const node = nodes.find((node) => node.id === nodeID)
-            //   // if (node) {
-            //   //   handleNodeClick(node)
-            //   //   return
-            //   // }
-            // } else {
-            //   // setSelectedNodes([])
-            // }
+
             setNodes((prevNodes) =>
                 prevNodes.map((node) => (node.id === nodeID ? { ...node, isEditing: true } : node))
             )
             setNodeEditing(true)
         },
-        [nodeEditing, ctrlPressed, setNodes, setNodeEditing, updateHistoryRevert]
+        [nodeEditing, ctrlPressed, updateHistoryRevert, setNodes, setNodeEditing]
     )
 
-    // rename node -> resetting isEditing to false
+    // Update node attributes
     const handleNodeUpdate = useCallback(
         (node: INode, endEditing?: boolean) => {
-            // console.log('update')
             setNodes((prevNodes) =>
                 prevNodes.map((n) => {
                     if (n.id === node.id) {
@@ -200,7 +316,16 @@ export default function Canvas(props: CanvasProps) {
                             node.error.valOp !== n.error.valOp ||
                             node.identifier.value !== n.identifier.value
                         ) {
-                            updateHistory() // Call updateHistory only if a change has occurred
+                            // recalculate node optimal size if relevant
+                            // attributes or parameters have changed
+                            updatedNode.optimalSize = calculateNodeOptimalSize(
+                                node.size,
+                                node.name,
+                                node.value,
+                                node.type
+                            )
+                            // Call updateHistory only if a change has occurred
+                            updateHistory() 
                         }
                         return updatedNode
                     }
@@ -213,11 +338,101 @@ export default function Canvas(props: CanvasProps) {
             } else {
                 setSelectedNodes([node])
             }
-
-            // setSelectedNodes([])
         },
-        [setNodes]
+        [setNodeEditing, setNodes, setSelectedNodes, updateHistory, updateIndexDictionary]
     )
+
+    // Initialize node movement
+    // mainly prevents unwanted actions
+    // like moving nodes that are not involved
+    const initNodeMove = useCallback(
+        (nodeId: INode['id']) => {
+            updateHistoryWithCaution()
+            setConnectingNode(null)
+            setNavOpen(false)
+            setClickPosition(null)
+            setDragging(true)
+            setDragCurrentPos(mousePositionRef.current)
+            if (altPressed) {
+                setMovingNodeIds(new Set(nodes.map((n) => n.id)))
+            } else {
+                switch (nodeSelectionStatus(nodeId)) {
+                    // 0 not selected; 1 selected alone; 2 selected among others
+                    case 0:
+                        if (ctrlPressed) {
+                            setMovingNodeIds(new Set(selectedNodes.map((n) => n.id)))
+                            return
+                        }
+                        setSelectedNodes([])
+                        setMovingNodeIds(new Set([nodeId]))
+                        break
+                    case 1:
+                        setMovingNodeIds(new Set([nodeId]))
+                        break
+                    case 2:
+                        setMovingNodeIds(new Set(selectedNodes.map((n) => n.id)))
+                        break
+                    default:
+                        return
+                }
+            }
+        },
+        [
+            altPressed,
+            ctrlPressed,
+            nodeSelectionStatus,
+            nodes,
+            selectedNodes,
+            setSelectedNodes,
+            updateHistoryWithCaution,
+        ]
+    )
+
+    // Actual node movement
+    // TODO: rethink node movement performance
+    const handleNodeMove = _.throttle((displacement: Vector2D) => {
+        if (!movingNodeIds) return
+        setNodes((prevNodes) =>
+            prevNodes.map((n) =>
+                movingNodeIds.has(n.id)
+                    ? {
+                          ...n,
+                          position: {
+                              x: n.position.x + displacement.x,
+                              y: n.position.y + displacement.y,
+                          },
+                      }
+                    : n
+            )
+        )
+    }, 10)
+
+    // Finalize node movement
+    // saves movement to history
+    // -> action can be undone and redone properly
+    const completeNodeMove = useCallback(() => {
+        cleanupDrag()
+        updateHistoryComplete()
+    }, [updateHistoryComplete])
+
+    const cleanupDrag = () => {
+        setClickPosition(null)
+        setDragging(false)
+        setDragCurrentPos(null)
+    }
+
+    // Move all nodes
+    const handleCanvasGrab = (displacement: Vector2D) => {
+        setNodes((prevNodes) =>
+            prevNodes.map((n) => ({
+                ...n,
+                position: {
+                    x: n.position.x + displacement.x,
+                    y: n.position.y + displacement.y,
+                },
+            }))
+        )
+    }
 
     // handle click (release) on node
     // adds relationship if connecting from other node
@@ -225,16 +440,16 @@ export default function Canvas(props: CanvasProps) {
     const handleNodeClick = useCallback(
         (node: INode) => {
             cleanupDrag()
-            if (selectionRect) {
+            if (selectionRectRef.current) {
+                // if selection rect is set, do not perform regular
+                // node click but complete selection rect node selection
                 selectNodesBySelectionRect(node)
             } else if (connectingNode) {
                 addRelationship(connectingNode, node)
                 setConnectingNode(null)
             } else {
-                if (nodeEditing) {
-                    forceEndEditing()
-                    return
-                }
+                // prevent node click when edit form is open
+                if (nodeEditing) return
                 updateHistoryRevert()
                 switch (nodeSelectionStatus(node.id)) {
                     case 0:
@@ -266,97 +481,19 @@ export default function Canvas(props: CanvasProps) {
                 }
             }
         },
-        [selectedNodes, selectionRect, connectingNode, nodeEditing, navOpen, ctrlPressed]
+        [
+            connectingNode,
+            selectNodesBySelectionRect,
+            addRelationship,
+            nodeEditing,
+            updateHistoryRevert,
+            nodeSelectionStatus,
+            navOpen,
+            setSelectedNodes,
+            ctrlPressed,
+            selectedNodes,
+        ]
     )
-
-    // initialize node movement
-    // mainly prevents unwanted actions
-    // like moving nodes that are not involved
-    const initNodeMove = (nodeId: INode['id']) => {
-        updateHistoryWithCaution()
-        setConnectingNode(null)
-        setNavOpen(false)
-        setClickPosition(null)
-        setDragging(true)
-        setDragCurrentPos(mousePosition)
-        if (altPressed) {
-            setMovingNodeIDs(new Set(nodes.map((n) => n.id)))
-        } else {
-            switch (nodeSelectionStatus(nodeId)) {
-                // 0 not selected; 1 selected alone; 2 selected among others
-                case 0:
-                    if (ctrlPressed) {
-                        setMovingNodeIDs(new Set(selectedNodes.map((n) => n.id)))
-                        return
-                    }
-                    setSelectedNodes([])
-                    setMovingNodeIDs(new Set([nodeId]))
-                    break
-                case 1:
-                    setMovingNodeIDs(new Set([nodeId]))
-                    break
-                case 2:
-                    setMovingNodeIDs(new Set(selectedNodes.map((n) => n.id)))
-                    break
-                default:
-                    return
-            }
-        }
-    }
-
-    // finalize node movement
-    // saves movement to history
-    // -> action can be undone and redone properly
-    const completeNodeMove = useCallback(() => {
-        cleanupDrag()
-        updateHistoryComplete()
-    }, [])
-
-    const cleanupDrag = () => {
-        setClickPosition(null)
-        setDragging(false)
-        setDragCurrentPos(null)
-    }
-
-    // actual node movement
-    // TODO: change method of moving nodes
-    // from mapping whole node array for
-    // each movement step, to splitting array
-    // into static and dynamic nodes and
-    // moving whole array more efficiently
-    const handleNodeMove = _.throttle((displacement: Vector2D) => {
-        if (!movingNodeIDs) return
-        setNodes((prevNodes) =>
-            prevNodes.map((n) =>
-                movingNodeIDs.has(n.id)
-                    ? {
-                          ...n,
-                          position: {
-                              // x: clamp(n.position.x + displacement.x, n.size/2 + 10, window.innerWidth - (n.size/2)),
-                              // y: clamp(n.position.y + displacement.y, n.size/2, window.innerHeight - (n.size/2)),
-                              x: n.position.x + displacement.x,
-                              y: n.position.y + displacement.y,
-                          },
-                      }
-                    : n
-            )
-        )
-    })
-
-    // move all nodes
-    const handleCanvasGrab = (displacement: Vector2D) => {
-        setNodes((prevNodes) =>
-            prevNodes.map((n) => ({
-                ...n,
-                position: {
-                    // x: clamp(n.position.x + displacement.x, n.size / 2 + 10, window.innerWidth - (n.size / 2)),
-                    // y: clamp(n.position.y + displacement.y, n.size / 2, window.innerHeight - (n.size / 2)),
-                    x: n.position.x + displacement.x,
-                    y: n.position.y + displacement.y,
-                },
-            }))
-        )
-    }
 
     // initialize node relationship
     // -> mouse needs to be released on another node
@@ -367,35 +504,18 @@ export default function Canvas(props: CanvasProps) {
         setSelectedNodes([])
         setSelectedRelationshipID(null)
         setConnectingNode(node)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // scale node
-    // TODO: enable scaling of nodes when
-    //       when autoscaling is disabled
-    const handleNodeScale = (nodeID: INode['id'], delta?: number) => {
-        if (!delta) return
-        updateHistory()
-        setNodes((prevNodes) =>
-            prevNodes.map((n) => {
-                if (n.id === nodeID) {
-                    return {
-                        ...n,
-                        size:
-                            // 100
-                            delta < 0 && n.size < 350
-                                ? n.size - delta * 5
-                                : delta > 0 && n.size > 75
-                                ? n.size - delta * 5
-                                : n.size,
-                    }
-                } else {
-                    return n
-                }
-            })
-        )
-    }
+    useEffect(() => {
+        if (selectionRect) {
+            setHasSelectionRect(true)
+        } else {
+            setHasSelectionRect(false)
+        }
+    }, [selectionRect])
 
-    // delete node
+    // Delete node
     const handleNodeDelete = useCallback(
         (nodeID: INode['id']) => {
             updateHistory()
@@ -409,44 +529,15 @@ export default function Canvas(props: CanvasProps) {
             setSelectedNodes([])
             rebuildIndexDictionary()
         },
-        [updateHistory, rebuildIndexDictionary]
+        [updateHistory, setNodes, setRelationships, setSelectedNodes, rebuildIndexDictionary]
     )
 
-    const selectNodesBySelectionRect = (node?: INode) => {
-        if (!selectionRect) return
+    const isNodeHighlighted = (nodeId: string) => {
+        const isHighlighted = highlightedNodeIds?.has(nodeId)
 
-        let rectSelectedNodes = nodes.filter((node) => {
-            return (
-                node.position.x >= selectionRect.left &&
-                node.position.x <= selectionRect.left + selectionRect.width &&
-                node.position.y >= selectionRect.top &&
-                node.position.y <= selectionRect.top + selectionRect.height
-            )
-        })
-
-        if (node) {
-            const alreadySelected = rectSelectedNodes.some(
-                (selectedNode) => selectedNode.id === node.id
-            )
-            if (!alreadySelected) {
-                rectSelectedNodes.push(node)
-            }
-        }
-
-        setSelectedNodes(rectSelectedNodes)
-        setSelectionRect(null)
+        return isHighlighted === true
     }
 
-    const copyNodes = () => {
-        if (selectedNodes.length > 0) {
-        }
-    }
-
-    const pasteNodes = () => {}
-
-    // switch node action
-    // prevents the need for passing
-    // too many functions as props
     const handleNodeAction = useCallback(
         (node: INode, action: string, conditional?: any) => {
             switch (action) {
@@ -455,11 +546,6 @@ export default function Canvas(props: CanvasProps) {
                     break
                 case 'completeMove':
                     completeNodeMove()
-                    break
-                case 'scale':
-                    // ############# REDO SCALE ############
-                    // if (typeof value === 'number')
-                    // handleNodeScale(node.id, value)
                     break
                 case 'connect':
                     handleNodeConnect(node)
@@ -484,51 +570,12 @@ export default function Canvas(props: CanvasProps) {
             handleNodeConnect,
             handleNodeUpdate,
             initNodeUpdate,
+            setSelectedNodes,
             handleNodeDelete,
         ]
     )
 
-    // set node selection status
-    // 0 = node is not selected
-    // 1 = node is selected alone
-    // 2 = node is selected among others
-    const nodeSelectionStatus = (nodeId: string) => {
-        const isSelected = selectedNodes.some((selectedNode) => selectedNode.id === nodeId)
-        if (isSelected) {
-            if (selectedNodes.length > 1) return 2
-            return 1
-        }
-        return 0
-    }
-
-    const isNodeHighlighted = (nodeId: string) => {
-        const isHighlighted = highlightedNodeIds?.has(nodeId)
-
-        return isHighlighted === true
-    }
-
-    // add relationship between two nodes
-    // checks for already existing relationships
-    // checks for legitimate relationships
-    const addRelationship = (start: INode, end: INode) => {
-        if (start.id === end.id) return
-        const relationshipExists = relationships.some(
-            (relationship) =>
-                (relationship.start.id === start.id && relationship.end.id === end.id) ||
-                (relationship.start.id === end.id && relationship.end.id === start.id)
-        )
-        if (relationshipExists || !isRelationshipLegitimate(start, end)) {
-            toast.error('Relationship invalid!')
-            return
-        }
-        updateHistory()
-        const relationshipID = uuidv4().replaceAll('-', '')
-        setRelationships((prevRelationships) => [
-            ...prevRelationships,
-            { start: start, end: end, id: relationshipID },
-        ])
-    }
-
+    // ######################################################################## Relationship actions
     // selects a relationship
     // (will also open relationship context menu)
     const handleRelationshipClick = (relationshipID: IRelationship['id']) => {
@@ -679,6 +726,12 @@ export default function Canvas(props: CanvasProps) {
                     }
 
                     newNode.size = nodeSize
+                    newNode.optimalSize = calculateNodeOptimalSize(
+                        nodeSize,
+                        node.name,
+                        node.value,
+                        node.type
+                    )
 
                     // ############# handle nodes out of bounds
                     // if (
@@ -793,7 +846,7 @@ export default function Canvas(props: CanvasProps) {
         setDragging(true)
 
         if (e.button === 1 || altPressed) {
-            setMovingNodeIDs(new Set(nodes.map((n) => n.id)))
+            setMovingNodeIds(new Set(nodes.map((n) => n.id)))
             setDragCurrentPos(mousePosition)
             // initNodeMove()
             return
@@ -810,7 +863,7 @@ export default function Canvas(props: CanvasProps) {
                 x: mousePosition.x - dragCurrentPos.x,
                 y: mousePosition.y - dragCurrentPos.y,
             }
-            if (movingNodeIDs?.size === nodes.length) {
+            if (movingNodeIds?.size === nodes.length) {
                 handleCanvasGrab(displacement)
             } else {
                 handleNodeMove(displacement)
@@ -822,6 +875,8 @@ export default function Canvas(props: CanvasProps) {
             })
         }
 
+        // clickPosition is not set when dragging a node
+        // but only when dragging on the canvas
         if (!clickPosition) return
 
         setSelectionRect({
@@ -832,6 +887,10 @@ export default function Canvas(props: CanvasProps) {
         })
     }
 
+    useEffect(() => {
+        selectionRectRef.current = selectionRect
+    }, [selectionRect])
+
     const handleCanvasMouseUp = (e: React.MouseEvent) => {
         if (e.button === 2) return
         if (e.button !== 1 && !altPressed) setSelectedNodes([])
@@ -841,7 +900,7 @@ export default function Canvas(props: CanvasProps) {
         }
 
         setClickPosition(null)
-        setMovingNodeIDs(null)
+        setMovingNodeIds(null)
         setSelectedRelationshipID(null)
         cleanupDrag()
 
@@ -874,9 +933,18 @@ export default function Canvas(props: CanvasProps) {
                     x: mousePos.x + dx * zoomFactor,
                     y: mousePos.y + dy * zoomFactor,
                 }
+
+                const nodeSize = node.size * (1 - delta * 0.1)
+                const nodeOptimalSize = calculateNodeOptimalSize(
+                    nodeSize,
+                    node.name,
+                    node.value,
+                    node.type
+                )
                 return {
                     ...node,
-                    size: node.size * (1 - delta * 0.1),
+                    size: nodeSize,
+                    optimalSize: nodeOptimalSize,
                     position: newNodePosition,
                 }
             })
@@ -1006,7 +1074,7 @@ export default function Canvas(props: CanvasProps) {
                     isHighlighted={isNodeHighlighted(node.id)}
                     connecting={Boolean(connectingNode)}
                     canvasRect={canvasRect}
-                    mousePosition={mousePosition}
+                    mousePosition={interestingNodeIds.has(node.id) ? mousePosition : null}
                     isLayouting={isLayouting}
                     darkTheme={darkTheme}
                     initNodeMove={initNodeMove}

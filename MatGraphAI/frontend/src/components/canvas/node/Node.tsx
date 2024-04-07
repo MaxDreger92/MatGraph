@@ -13,12 +13,15 @@ import NodeWarning from './NodeWarning'
 import NodeConnector from './NodeConnector'
 import { INode, Position, ValOpPair, Vector2D } from '../../../types/canvas.types'
 import { colorPalette } from '../../../types/colors'
-import { isAttrDefined } from '../../../common/helpers'
+import { isAttrDefined } from '../../../common/workflowHelpers'
+import { getIsValueNode } from '../../../common/nodeHelpers'
+import _ from 'lodash'
 
 interface NodeProps {
     node: INode
     isSelected: number // 1 = solo selected, 2 = multi selected
     isHighlighted: boolean
+    isLayouting: boolean
     isLayouting: boolean
     connecting: boolean
     canvasRect: DOMRect | null
@@ -41,171 +44,109 @@ export default React.memo(function Node(props: NodeProps) {
         initNodeMove,
         handleNodeAction,
     } = props
+
+    // initNodeMove, handleNodeAction->handleNodeClick(on click and drag)
+    useEffect(() => {
+        console.log('rerender')
+    }, [mousePosition])
+
+    // Node general
+    const [nodeRenderedSize, setNodeRenderedSize] = useState(100)
+    const [isHovered, setIsHovered] = useState(false)
+    const [isValueNode, setIsValueNode] = useState(false)
     const [fieldsMissing, setFieldsMissing] = useState(true)
+    const [labelFontSize, setLabelFontSize] = useState(16)
+    const [colors, setColors] = useState<string[]>([])
+
+    // Node movement parameters
     const [dragging, setDragging] = useState(false)
     const [dragStartPos, setDragStartPos] = useState<Position | null>(null)
-    const [isHovered, setIsHovered] = useState(false)
+
+    // Node connector parameters
     const [connectorPos, setConnectorPos] = useState<Position>({ x: 0, y: 0 })
+    const [connectorVisible, setConnectorVisible] = useState(false)
     const [connectorActive, setConnectorActive] = useState(false)
     const [mouseDist, setMouseDist] = useState(0)
     const [mouseAngle, setMouseAngle] = useState(0)
-    const [colors, setColors] = useState<string[]>([])
-    const [hasLabelOverflow, setHasLabelOverflow] = useState(false)
-    const [isValueNode, setIsValueNode] = useState(false)
-    const [nodeOptimalSize, setNodeOptimalSize] = useState<number | null>(null)
-    const [nodeActualSize, setNodeActualSize] = useState(100)
-    const [labelFontSize, setLabelFontSize] = useState(16)
+
+    // Node refs
     const nodeRef = useRef<HTMLDivElement>(null)
     const nodeLabelRef = useRef<HTMLDivElement>(null)
 
-    // useEffect(() => {
-    //   console.log("rerender")
-    // }, [mousePosition])
-
-    // set nodeActualSize (current size of visible node)
+    // ############################################################################## Mouse position
+    // calculate mouse distance and connector angle
     useEffect(() => {
-        const observer = new ResizeObserver(() => {
-            if (nodeRef.current) {
-                const width = nodeRef.current.offsetWidth
-                setNodeActualSize(width)
-            }
-        })
-
-        const currentNode = nodeRef.current
-        if (currentNode) {
-            observer.observe(currentNode)
-        }
-
-        // Cleanup on unmount or if nodeRef changes
-        return () => {
-            if (currentNode) {
-                observer.unobserve(currentNode)
-            }
-        }
-    }, [nodeRef])
-
-    // setIsValueNode
-    useEffect(() => {
-        setIsValueNode(['property', 'parameter'].includes(node.type))
-    }, [node.type])
-
-    // update missing fields
-    useEffect(() => {
-        if (isValueNode) {
-            setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.valOp))
+        if (!(canvasRect && mousePosition)) return
+        if (!connecting) {
+            const dx = mousePosition.x - node.position.x
+            const dy = mousePosition.y - node.position.y
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            setMouseDist(dist)
+            calculateMouseAngle(dx, dy)
         } else {
-            setFieldsMissing(!isAttrDefined(node.name.value))
+            setMouseDist(1000)
+            setConnectorActive(false)
         }
-    }, [isValueNode, node.name, node.value])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canvasRect, connecting, mousePosition])
 
-    /* set label overflow
-     * 1. based on labelwidth */
-
-    // useEffect(() => {
-    //   if (!nodeLabelRef.current) return
-    //   setHasLabelOverflow(nodeLabelRef.current.offsetWidth > node.size + 5)
-    // }, [nodeLabelRef.current?.offsetWidth, node.size, isSelected])
-
-    /* set label overflow
-     * 2. based on characters <-- seems better for now */
-    // useEffect(() => {
-    //   if (!node.name) return
-    //   if (node.name.length > node.size / 9.65) {
-    //     setHasLabelOverflow(true)
-    //     return
-    //   }
-    //   if (isValueNode && node.value !== undefined) {
-    //     setHasLabelOverflow(node.value.toString().length > (node.size - 20) / 8.2)
-    //   }
-    // }, [node.name, node.value, node.size, isValueNode])
-
-    // calculate nodeOptimalSize (nodesize when hovered)
-    useEffect(() => {
-        if (!isAttrDefined(node.name.value)) {
-            setNodeOptimalSize(node.size)
-            return
-        }
-
-        const characterFactor = 16 - labelFontSize
-
-        const nameMinimumSize = node.name.value.length * (11 - characterFactor)
-        let nodeMinimumSize = nameMinimumSize
-
-        if (isValueNode && isAttrDefined(node.value.valOp)) {
-            const valueMinimumSize = node.value.valOp.value.length * (9 - characterFactor) + 20
-            nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
-        }
-
-        setNodeOptimalSize(nodeMinimumSize > node.size ? nodeMinimumSize : null)
-    }, [node.size, node.name, node.value, isValueNode, labelFontSize])
-
-    useEffect(() => {
-        const fontSize = 16 + Math.floor((node.size - 100) / 70)
-        setLabelFontSize(fontSize)
-    }, [node.size, setLabelFontSize])
-
-    // setup color array
-    useEffect(() => {
-        const colorIndex = darkTheme ? 0 : 1
-        const paletteColors = colorPalette[colorIndex]
-
-        setColors([
-            paletteColors[node.type],
-            chroma(paletteColors[node.type]).brighten(1).hex(),
-            chroma(paletteColors[node.type]).darken(0.5).hex(),
-        ])
-    }, [node.type, darkTheme])
-
-    // calculate connector stats (position, and active status)
-    // is called when mousePos is inside node bounding box
-    const calculateConnectorAngle = useCallback((dx: number, dy: number) => {
+    const calculateMouseAngle = (dx: number, dy: number) => {
         const angle = Math.atan2(dy, dx)
         setMouseAngle(angle)
-    }, [])
+    }
 
+    // calculate connector position
     useEffect(() => {
-        const radius = nodeActualSize / 2 + 2
+        const radius = nodeRenderedSize / 2 + 2
 
         const connectorPosition = {
-            x: nodeActualSize / 2 + radius * Math.cos(mouseAngle),
-            y: nodeActualSize / 2 + radius * Math.sin(mouseAngle),
+            x: nodeRenderedSize / 2 + radius * Math.cos(mouseAngle),
+            y: nodeRenderedSize / 2 + radius * Math.sin(mouseAngle),
         }
 
         setConnectorPos(connectorPosition)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mouseDist, nodeRenderedSize])
 
-        if (mouseDist > nodeActualSize / 2 - 5 && isHovered) {
-            setConnectorActive(true)
+    // calculate connector visibility and active status
+    useEffect(() => {
+        if (mouseDist > 30 && mousePosition) {
+            setConnectorVisible(true)
+            if (isHovered && mouseDist > nodeRenderedSize / 2 - 5) {
+                setConnectorActive(true)
+            } else {
+                setConnectorActive(false)
+            }
         } else {
             setConnectorActive(false)
+            setConnectorVisible(false)
         }
-    }, [isHovered, nodeActualSize, mouseDist, mouseAngle])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mouseDist, mousePosition])
 
-    // ################### handleMouseMove ###################
-    // check if mousePos is inside node
-    // bounding box. if it is, setMouseDist and call calculateConnector
+    // calculate node rendered size (the current size of the rendered node)
     useEffect(() => {
-        if (!canvasRect) return
-        if (!connecting) {
-            const detectionRadius = 31
-            // box detection, mouse inside box -> calculateConnector
-            if (
-                mousePosition.x >= node.position.x - (nodeActualSize / 2 + detectionRadius) &&
-                mousePosition.x <= node.position.x + (nodeActualSize / 2 + detectionRadius) &&
-                mousePosition.y >= node.position.y - (nodeActualSize / 2 + detectionRadius) &&
-                mousePosition.y <= node.position.y + (nodeActualSize / 2 + detectionRadius)
-            ) {
-                const dx = mousePosition.x - node.position.x
-                const dy = mousePosition.y - node.position.y
-                const dist = Math.sqrt(dx * dx + dy * dy)
-                setMouseDist(dist)
-                calculateConnectorAngle(dx, dy)
-                return // prevent rewrite of mouseDist
-            }
-        }
-        setMouseDist(1000)
-        setConnectorActive(false)
-    }, [node, nodeActualSize, canvasRect, connecting, dragging, calculateConnectorAngle, mousePosition])
+        if (!nodeRef.current) return
 
+        const throttledObservation = _.throttle(() => {
+            if (nodeRef.current) {
+                setNodeRenderedSize(nodeRef.current.offsetWidth)
+            }
+        }, 15)
+
+        const resizeObserver = new ResizeObserver(() => {
+            throttledObservation()
+        })
+
+        resizeObserver.observe(nodeRef.current)
+
+        return () => {
+            resizeObserver.disconnect()
+            throttledObservation.cancel()
+        }
+    }, [nodeRef, mousePosition, isSelected])
+
+    // ################################################################################ Mouse clicks
     // initiate node movement
     const handleMouseDown = (e: React.MouseEvent) => {
         if (e.button === 2) return
@@ -248,14 +189,6 @@ export default React.memo(function Node(props: NodeProps) {
         cleanupDrag()
     }
 
-    const handleContextActionLocal = (ctxtAction: string) => {
-        handleNodeAction(node, ctxtAction)
-    }
-
-    const handleNodeUpdate = useCallback((updatedNode: INode, endEditing?: boolean) => {
-        handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
-    }, [handleNodeAction])
-
     const handleNameMouseUp = (e: React.MouseEvent) => {
         if (
             isSelected === 1 &&
@@ -269,17 +202,55 @@ export default React.memo(function Node(props: NodeProps) {
         }
     }
 
+    // ####################################################################################### Stuff
+
+    // Update missing fields
+    useEffect(() => {
+        if (getIsValueNode(node.type)) {
+            setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.valOp))
+        } else {
+            setFieldsMissing(!isAttrDefined(node.name.value))
+        }
+    }, [node.name, node.value, node.type])
+
+    // Handle context menu action (e.g. delete node)
+    const handleContextActionLocal = (ctxtAction: string) => {
+        handleNodeAction(node, ctxtAction)
+    }
+
+    // Update node attributes
+    const handleNodeUpdate = useCallback(
+        (updatedNode: INode, endEditing?: boolean) => {
+            handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
+        },
+        [handleNodeAction]
+    )
+
+    // Cleanup node movement parameters
     const cleanupDrag = () => {
         setDragging(false)
         setDragStartPos(null)
     }
 
+    // ####################################################################### Colors and animations
+    // setup color array
+    useEffect(() => {
+        const colorIndex = darkTheme ? 0 : 1
+        const paletteColors = colorPalette[colorIndex]
+
+        setColors([
+            paletteColors[node.type],
+            chroma(paletteColors[node.type]).brighten(1).hex(),
+            chroma(paletteColors[node.type]).darken(0.5).hex(),
+        ])
+    }, [node.type, darkTheme])
+
     const springProps = useSpring({
         positionTop: node.position.y,
         positionLeft: node.position.x,
         size:
-            nodeOptimalSize && ((isHovered && mouseDist < 25) || isSelected === 1)
-                ? nodeOptimalSize
+            node.optimalSize && isSelected === 1
+                ? node.optimalSize
                 : node.size,
         config: {
             tension: isHovered && mouseDist < 25 ? 1000 : 200,
@@ -287,12 +258,11 @@ export default React.memo(function Node(props: NodeProps) {
         },
     })
 
+    // ######################################################################################## HTML
     return (
         <animated.div
             style={{
                 position: 'absolute',
-                width: nodeActualSize + 20,
-                height: nodeActualSize + 20,
                 top: isLayouting ? springProps.positionTop : node.position.y,
                 left: isLayouting ? springProps.positionLeft : node.position.x,
                 transform: 'translate(-50%,-50%)',
@@ -304,15 +274,12 @@ export default React.memo(function Node(props: NodeProps) {
                 <div
                     style={{
                         position: 'absolute',
-                        top: nodeActualSize / 2 + 10,
-                        left: nodeActualSize / 2 + 10,
                     }}
                 >
                     <NodeContext
                         onSelect={handleContextActionLocal}
                         isOpen={isSelected === 1}
-                        nodeSize={node.size}
-                        nodeActualSize={nodeActualSize}
+                        nodeSize={nodeRenderedSize}
                         isEditing={node.isEditing}
                         type={node.type}
                         darkTheme={darkTheme}
@@ -351,7 +318,8 @@ export default React.memo(function Node(props: NodeProps) {
                         height: springProps.size,
                         backgroundColor: colors[0],
                         opacity: !fieldsMissing ? 1 : 0.7,
-                        outlineColor: isSelected > 0 || isHovered || isHighlighted ? colors[1] : colors[2],
+                        outlineColor:
+                            isSelected > 0 || isHovered || isHighlighted ? colors[1] : colors[2],
                         outlineStyle: 'solid',
                         outlineWidth: '4px',
                         outlineOffset: isHighlighted && isSelected === 0 ? '3px' : '-1px',
@@ -366,7 +334,7 @@ export default React.memo(function Node(props: NodeProps) {
                             fieldsMissing={fieldsMissing}
                             labelRef={nodeLabelRef}
                             hovered={isHovered}
-                            size={nodeActualSize}
+                            size={nodeRenderedSize}
                             labelFontSize={labelFontSize}
                             name={node.name.value}
                             valOp={node.value.valOp}
@@ -378,15 +346,15 @@ export default React.memo(function Node(props: NodeProps) {
                         />
                     )}
                     {/* node connector */}
-                    {mouseDist < nodeActualSize / 2 + 30 && mouseDist > 30 && !node.isEditing && (
-                        <NodeConnector
-                            nodeSize={nodeActualSize}
-                            color={colors[1]}
-                            active={connectorActive}
-                            position={connectorPos}
-                            layer={node.layer}
-                        />
-                    )}
+                    {connectorVisible && (
+                            <NodeConnector
+                                nodeSize={nodeRenderedSize}
+                                color={colors[1]}
+                                active={connectorActive}
+                                position={connectorPos}
+                                layer={node.layer}
+                            />
+                        )}
                 </animated.div>
                 {/* end of visible */}
                 {/* node input fields
@@ -404,7 +372,7 @@ export default React.memo(function Node(props: NodeProps) {
                     !isSelected &&
                     !node.isEditing && ( // warning: !nodeName
                         <NodeWarning
-                            size={nodeActualSize}
+                            size={node.size}
                             hovered={isHovered}
                             color={colors[0]}
                             layer={node.layer}
