@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:MatGraphAI/frontend/src/common/workflowHelpers.ts
 import { PiAddressBookDuotone } from 'react-icons/pi'
 import {
     INode,
@@ -471,3 +472,8 @@ export function fileToDataUri(file: File): Promise<string> {
 }
 
 
+========
+export function clamp(value: number, min: number, max: number) {
+    return Math.min(Math.max(value, min), max)
+}
+>>>>>>>> bc5ef8e7b (Reduces rerenders of nodes massively):MatGraphAI/frontend/src/common/helpers.ts
