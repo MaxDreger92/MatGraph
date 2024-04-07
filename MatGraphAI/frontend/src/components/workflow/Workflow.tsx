@@ -23,7 +23,7 @@ import WorkflowJson from './WorkflowJson'
 import WorkflowHistory from './WorkflowHistory'
 import WorkflowDrawer from './WorkflowDrawer'
 import { IRelationship, INode, IndexDictionary } from '../../types/canvas.types'
-import { convertToJSONFormat, getNodeIndices } from '../../common/helpers'
+import { convertToJSONFormat, getNodeIndices } from '../../common/workflowHelpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
@@ -289,32 +289,34 @@ export default function Workflow(props: WorkflowProps) {
     }, [nodes])
 
     // Rebuilds singular Node Entry in Index Dictionary
-    const updateIndexDictionary = (node: INode) => {
-        let updatedIndexDictionary: IndexDictionary = indexDictionary
+    const updateIndexDictionary = useCallback((node: INode) => {
+        setIndexDictionary(prevIndexDictionary => {
+            let updatedIndexDictionary = { ...prevIndexDictionary }
 
-        const nodeIndices = getNodeIndices(node)
-
-        Object.keys(updatedIndexDictionary).forEach(index => {
-            const indexNumber = parseInt(index)
-            const nodeIndex = indexDictionary[indexNumber].indexOf(node.id)
-            if (nodeIndex > -1) {
-                indexDictionary[indexNumber].splice(nodeIndex, 1)
-                if (indexDictionary[indexNumber].length === 0) {
-                    delete indexDictionary[indexNumber]
+            const nodeIndices = getNodeIndices(node)
+    
+            Object.keys(updatedIndexDictionary).forEach(index => {
+                const indexNumber = parseInt(index)
+                const nodeIndex = updatedIndexDictionary[indexNumber].indexOf(node.id)
+                if (nodeIndex > -1) {
+                    updatedIndexDictionary[indexNumber].splice(nodeIndex, 1)
+                    if (updatedIndexDictionary[indexNumber].length === 0) {
+                        delete updatedIndexDictionary[indexNumber]
+                    }
                 }
-            }
+            })
+            
+            nodeIndices.forEach(index => {
+                if (!updatedIndexDictionary[index]) {
+                    updatedIndexDictionary[index] = [node.id];
+                } else if (!updatedIndexDictionary[index].includes(node.id)) {
+                    updatedIndexDictionary[index].push(node.id);
+                }
+            });
+    
+            return updatedIndexDictionary
         })
-        
-        nodeIndices.forEach(index => {
-            if (!indexDictionary[index]) {
-                indexDictionary[index] = [node.id];
-            } else if (!indexDictionary[index].includes(node.id)) {
-                indexDictionary[index].push(node.id);
-            }
-        });
-
-        setIndexDictionary(updatedIndexDictionary)
-    }
+    }, [setIndexDictionary])
 
     // Select nodes based on selectedColumnIndex
     useEffect(() => {
@@ -352,27 +354,27 @@ export default function Workflow(props: WorkflowProps) {
     }
 
     // History ########################################
-    const updateHistory = () => {
+    const updateHistory = useCallback(() => {
         setHistory((prev) => ({
             nodes: [...prev.nodes, nodes].slice(-undoSteps),
             relationships: [...prev.relationships, relationships].slice(-undoSteps),
         }))
         setFuture({ nodes: [], relationships: [] })
-    }
+    }, [nodes, relationships])
 
-    const updateHistoryWithCaution = () => {
+    const updateHistoryWithCaution = useCallback(() => {
         setHistory((prev) => ({
             nodes: [...prev.nodes, nodes].slice(-undoSteps),
             relationships: [...prev.relationships, relationships].slice(-undoSteps),
         }))
-    }
+    }, [nodes, relationships])
 
-    const updateHistoryRevert = () => {
+    const updateHistoryRevert = useCallback(() => {
         setHistory((prev) => ({
             nodes: prev.nodes.slice(0, -1),
             relationships: prev.relationships.slice(0, -1),
         }))
-    }
+    }, [])
 
     const updateHistoryComplete = () => {
         setFuture({ nodes: [], relationships: [] })

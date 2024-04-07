@@ -2,7 +2,7 @@ import SearchIcon from "@mui/icons-material/Search"
 import { GiSpiralLollipop } from "react-icons/gi";
 
 import client from "../../client"
-import { saveBlobAsFile } from "../../common/helpers"
+import { saveBlobAsFile } from "../../common/workflowHelpers"
 import toast from "react-hot-toast"
 
 interface WorkflowJsonProps {

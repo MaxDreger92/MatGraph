@@ -29,8 +29,6 @@ export default function NodeWarning(props: NodeWarningProps) {
     <div
       className="node-warning"
       style={{
-        width: size,
-        height: size,
         left: size / 2 + 10,
         top: size / 2 + 10,
         pointerEvents: "none",

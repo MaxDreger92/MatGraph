@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { INode, ValOpPair } from "../../../types/canvas.types"
-import { isAttrDefined } from "../../../common/helpers"
+import { isAttrDefined } from "../../../common/workflowHelpers"
 
 interface NodeLabelsProps {
   // isEditing: boolean
@@ -46,6 +46,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
 
   useEffect(() => {
     if (!isAttrDefined(name)) return
+    // console.log('calc slice')
     const characterFactor = (16 - labelFontSize) * 0.4
     const subName = name.substring(0, size / (9.65 - characterFactor)) // 9.65 = width of 1 char
     if (subName.length < name.length) {

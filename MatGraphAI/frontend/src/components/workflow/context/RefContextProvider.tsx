@@ -1,7 +1,7 @@
 // src/context/RefContextProvider.tsx
 import React, { useContext, useEffect, useState } from 'react'
 import RefContext from './RefContext'
-import { useRefManager } from '../../../common/helpers'
+import { useRefManager } from './RefManager'
 
 interface RefContextProviderProps {
     children: React.ReactNode

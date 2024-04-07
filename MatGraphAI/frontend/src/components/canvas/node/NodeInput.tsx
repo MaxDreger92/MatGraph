@@ -59,7 +59,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             error: nodeError,
             identifier: nodeIdentifier,
         }
-        console.log(updatedNode.name.value)
         handleNodeUpdate(updatedNode, true)
     }, [
         node,
@@ -103,10 +102,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             updateNode()
         }
     }
-
-    useEffect(() => {
-        console.log(nodeName.value)
-    }, [nodeName])
 
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
         let typed_index: string | number | null = null
