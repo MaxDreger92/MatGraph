@@ -10,16 +10,11 @@ from importing.utils.openai import chat_with_gpt4, chat_with_gpt3
 
 django.setup()
 
-from graphutils import config
-from datetime import datetime
 from quantulum3 import parser
 
-from dotenv import load_dotenv
 
-from dbcommunication.ai.createEmbeddings import request_embedding
 from importing.models import LabelClassificationReport, NodeLabel, ImporterCache
 import pandas as pd
-import re
 
 class NodeClassifier(TableDataTransformer):
     """

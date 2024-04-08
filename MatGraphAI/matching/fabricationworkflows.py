@@ -134,7 +134,7 @@ class FabricationWorkflowMatcher(Matcher):
             WITH combined_{node_id}
             UNWIND combined_{node_id} AS full_onto_{node_id}
             MATCH (full_onto_{node_id})<-[:IS_A]-(node_{node_id}:{label})
-            WHERE node_{node_id}.value {operator} toFloat({value})
+            WHERE toFloat(node_{node_id}.value) {operator} toFloat({value})
             RETURN collect(DISTINCT node_{node_id}) AS nodes_{node_id}
             }}
             """
