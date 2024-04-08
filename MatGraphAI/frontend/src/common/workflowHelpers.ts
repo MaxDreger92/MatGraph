@@ -1,28 +1,20 @@
-import { PiAddressBookDuotone } from 'react-icons/pi'
 import {
     INode,
     IRelationship,
-    IDRelationship,
     ValOpPair,
     Operator,
     NodeAttribute,
     NodeValOpAttribute,
     AttributeIndex,
-    CustomRef,
 } from '../types/canvas.types'
 import {
     IGraphData,
-    ITempNode,
     ExtractedAttribute,
     CustomAttribute,
     ParsableAttributes,
     Label,
 } from '../types/workflow.types'
-import toast from 'react-hot-toast'
-import client from '../client'
 import { v4 as uuidv4 } from 'uuid'
-import React, { useRef } from 'react'
-import { valueGetters } from '@mantine/core/lib/Box/style-system-props/value-getters/value-getters'
 
 const labelAttributes = {
     matter: ['name', 'identifier', 'batch_number', 'ratio', 'concentration'],

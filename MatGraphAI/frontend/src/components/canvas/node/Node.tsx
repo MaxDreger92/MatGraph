@@ -22,8 +22,6 @@ interface NodeProps {
     isSelected: number // 1 = solo selected, 2 = multi selected
     isHighlighted: boolean
     isLayouting: boolean
-    isLayouting: boolean
-    isLayouting: boolean
     connecting: boolean
     canvasRect: DOMRect | null
     mousePosition: Position | null
@@ -45,11 +43,6 @@ export default React.memo(function Node(props: NodeProps) {
         initNodeMove,
         handleNodeAction,
     } = props
-
-    // initNodeMove, handleNodeAction->handleNodeClick(on click and drag)
-    useEffect(() => {
-        console.log('rerender')
-    }, [mousePosition])
 
     // Node general
     const [nodeRenderedSize, setNodeRenderedSize] = useState(100)

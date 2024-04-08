@@ -93,7 +93,6 @@ export default function Canvas(props: CanvasProps) {
     const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 })
     const [clickPosition, setClickPosition] = useState<Position | null>(null)
     const [selectionRect, setSelectionRect] = useState<Rect | null>(null)
-    const [hasSelectionRect, setHasSelectionRect] = useState(false)
     const [dragging, setDragging] = useState(false)
     const [dragCurrentPos, setDragCurrentPos] = useState<Position | null>(null)
     const [altPressed, setAltPressed] = useState(false)
@@ -449,7 +448,10 @@ export default function Canvas(props: CanvasProps) {
                 setConnectingNode(null)
             } else {
                 // prevent node click when edit form is open
-                if (nodeEditing) return
+                if (nodeEditing) {
+                    forceEndEditing()
+                    return
+                }
                 updateHistoryRevert()
                 switch (nodeSelectionStatus(node.id)) {
                     case 0:
@@ -506,14 +508,6 @@ export default function Canvas(props: CanvasProps) {
         setConnectingNode(node)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        if (selectionRect) {
-            setHasSelectionRect(true)
-        } else {
-            setHasSelectionRect(false)
-        }
-    }, [selectionRect])
 
     // Delete node
     const handleNodeDelete = useCallback(
