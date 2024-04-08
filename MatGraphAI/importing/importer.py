@@ -359,6 +359,7 @@ class TableImporter(Importer):
         def format_attr_value(attr_value):
             if attr_value['index'] == 'inferred':
                 return f"'{attr_value['value']}'"
+            print("attr_value", attr_value)
             return f"row[{int(attr_value['index'])}]"
 
         # Construct the query for adding ontology relations
@@ -375,6 +376,7 @@ class TableImporter(Importer):
             setter_prefix = f"SET n{node_id}.{attr_name} = "
             if single_value:
                 value = attr_values[0]
+                print(attr_name, value, node_id)
                 setter_value = format_attr_value(value)
                 return setter_prefix + setter_value
 
@@ -383,12 +385,14 @@ class TableImporter(Importer):
             values_list = ", ".join(value_strings)
             return f"{setter_prefix}apoc.coll.removeAll([{values_list}], [null])"
 
+
         # Build queries for nodes and their attributes
         for node_config in self.data['nodes']:
             node_id, label = node_config['id'], node_config['label']
             query_parts.append(f"CREATE (n{node_id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})")
 
             for attr_name, attr_values in node_config['attributes'].items():
+                print(node_config)
                 attr_values = [attr_values] if not isinstance(attr_values, list) else attr_values
                 attribute_query = construct_setter(attr_name, attr_values, node_id)
                 query_parts.append(attribute_query)
