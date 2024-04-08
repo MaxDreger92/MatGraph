@@ -3,15 +3,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import chroma from 'chroma-js'
 import { useSpring, animated } from 'react-spring'
-import { useMantineColorScheme } from '@mantine/core'
 
 import NodeContext from './NodeContext'
 import NodeInput from './NodeInput'
 import NodeLabel from './NodeLabel'
 import NodeWarning from './NodeWarning'
-// import { NodeLabelOutline } from "./node-label.component"
 import NodeConnector from './NodeConnector'
-import { INode, Position, ValOpPair, Vector2D } from '../../../types/canvas.types'
+import { INode, Position } from '../../../types/canvas.types'
 import { colorPalette } from '../../../types/colors'
 import { isAttrDefined } from '../../../common/workflowHelpers'
 import { getIsValueNode } from '../../../common/nodeHelpers'
@@ -198,14 +196,19 @@ export default React.memo(function Node(props: NodeProps) {
 
     // ####################################################################################### Stuff
 
+    useEffect(() => {
+        const result = getIsValueNode(node.type)
+        setIsValueNode(result)
+    }, [node.type])
+
     // Update missing fields
     useEffect(() => {
-        if (getIsValueNode(node.type)) {
+        if (isValueNode) {
             setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.valOp))
         } else {
             setFieldsMissing(!isAttrDefined(node.name.value))
         }
-    }, [node.name, node.value, node.type])
+    }, [node.name, node.value, isValueNode])
 
     // Handle context menu action (e.g. delete node)
     const handleContextActionLocal = (ctxtAction: string) => {
