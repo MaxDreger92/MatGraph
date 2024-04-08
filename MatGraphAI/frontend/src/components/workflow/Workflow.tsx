@@ -43,6 +43,18 @@ export default function Workflow(props: WorkflowProps) {
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
     const [nodeEditing, setNodeEditing] = useState(false)
 
+    const nodesFn = {
+        nodes,
+        setNodes,
+        relationships,
+        setRelationships,
+        selectedNodes,
+        setSelectedNodes,
+        highlightedNodeIds,
+        nodeEditing,
+        setNodeEditing
+    }
+
     const [workflow, setWorkflow] = useState<string | null>(null)
     const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
 
@@ -317,6 +329,11 @@ export default function Workflow(props: WorkflowProps) {
         })
     }, [setIndexDictionary])
 
+    const indexFn = {
+        rebuildIndexDictionary,
+        updateIndexDictionary
+    }
+
     // Select nodes based on selectedColumnIndex
     useEffect(() => {
         if (!selectedColumnIndex) return
@@ -421,6 +438,16 @@ export default function Workflow(props: WorkflowProps) {
         }
     }, [future, nodes, relationships, setNodes, setRelationships])
 
+    const historyFn = {
+        updateHistory,
+        updateHistoryWithCaution,
+        updateHistoryRevert,
+        updateHistoryComplete,
+        handleReset,
+        undo,
+        redo,
+    }
+
     // Dark theme #############################
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
@@ -449,27 +476,10 @@ export default function Workflow(props: WorkflowProps) {
                         }}
                         children={
                             <Canvas
-                                uploadMode={uploadMode}
-                                nodes={nodes}
-                                relationships={relationships}
-                                setNodes={setNodes}
-                                setRelationships={setRelationships}
-                                selectedNodes={selectedNodes}
-                                setSelectedNodes={setSelectedNodes}
-                                highlightedNodeIds={highlightedNodeIds}
-                                nodeEditing={nodeEditing}
-                                setNodeEditing={setNodeEditing}
-                                indexDictionary={indexDictionary}
-                                updateIndexDictionary={updateIndexDictionary}
-                                rebuildIndexDictionary={rebuildIndexDictionary}
+                                nodesFn={nodesFn}
+                                indexFn={indexFn}
                                 saveWorkflow={saveWorkflow}
-                                updateHistory={updateHistory}
-                                updateHistoryWithCaution={updateHistoryWithCaution}
-                                updateHistoryRevert={updateHistoryRevert}
-                                updateHistoryComplete={updateHistoryComplete}
-                                handleReset={handleReset}
-                                undo={undo}
-                                redo={redo}
+                                historyFn={historyFn}
                                 needLayout={needLayout}
                                 setNeedLayout={setNeedLayout}
                                 style={{

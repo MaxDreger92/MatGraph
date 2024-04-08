@@ -18,7 +18,6 @@ import {
     Position,
     Vector2D,
     ICanvasButton,
-    IndexDictionary,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
 import {
@@ -32,27 +31,31 @@ import WorkflowContext from '../workflow/context/WorkflowContext'
 const DETECTION_RADIUS = 31
 
 interface CanvasProps {
-    uploadMode: boolean
-    nodes: INode[]
-    relationships: IRelationship[]
-    setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-    setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
-    selectedNodes: INode[]
-    setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
-    highlightedNodeIds: Set<string> | null
-    nodeEditing: boolean
-    setNodeEditing: React.Dispatch<React.SetStateAction<boolean>>
-    indexDictionary: IndexDictionary
-    updateIndexDictionary: (node: INode) => void
-    rebuildIndexDictionary: () => void
+    nodesFn: {
+        nodes: INode[]
+        relationships: IRelationship[]
+        setNodes: React.Dispatch<React.SetStateAction<INode[]>>
+        setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
+        selectedNodes: INode[]
+        setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
+        highlightedNodeIds: Set<string> | null
+        nodeEditing: boolean
+        setNodeEditing: React.Dispatch<React.SetStateAction<boolean>>
+    }
+    indexFn: {
+        rebuildIndexDictionary: () => void;
+        updateIndexDictionary: (node: INode) => void;
+    }
     saveWorkflow: () => void
-    updateHistory: () => void
-    updateHistoryWithCaution: () => void
-    updateHistoryRevert: () => void
-    updateHistoryComplete: () => void
-    handleReset: () => void
-    undo: () => void
-    redo: () => void
+    historyFn: {
+        updateHistory: () => void;
+        updateHistoryWithCaution: () => void;
+        updateHistoryRevert: () => void;
+        updateHistoryComplete: () => void;
+        handleReset: () => void;
+        undo: () => void;
+        redo: () => void;
+    }
     needLayout: boolean
     setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
     style?: React.CSSProperties
@@ -61,7 +64,14 @@ interface CanvasProps {
 
 export default function Canvas(props: CanvasProps) {
     const {
-        uploadMode,
+        saveWorkflow,
+        needLayout,
+        setNeedLayout,
+        style,
+        canvasRect,
+    } = props
+
+    const {
         nodes,
         relationships,
         setNodes,
@@ -71,21 +81,22 @@ export default function Canvas(props: CanvasProps) {
         highlightedNodeIds,
         nodeEditing,
         setNodeEditing,
-        updateIndexDictionary,
-        rebuildIndexDictionary,
-        saveWorkflow,
+    } = props.nodesFn
+
+    const {
         updateHistory,
         updateHistoryWithCaution,
         updateHistoryRevert,
         updateHistoryComplete,
         handleReset,
         undo,
-        redo,
-        needLayout,
-        setNeedLayout,
-        style,
-        canvasRect,
-    } = props
+        redo
+    } = props.historyFn
+
+    const {
+        rebuildIndexDictionary,
+        updateIndexDictionary
+    } = props.indexFn
 
     // Canvas
     const [navOpen, setNavOpen] = useState(false)
@@ -114,7 +125,7 @@ export default function Canvas(props: CanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    const { forceEndEditing } = useContext(WorkflowContext)
+    const { forceEndEditing, uploadMode } = useContext(WorkflowContext)
 
     // ########################################################################## Mousemove listener
     useEffect(() => {
@@ -324,7 +335,7 @@ export default function Canvas(props: CanvasProps) {
                                 node.type
                             )
                             // Call updateHistory only if a change has occurred
-                            updateHistory() 
+                            updateHistory()
                         }
                         return updatedNode
                     }
@@ -490,6 +501,7 @@ export default function Canvas(props: CanvasProps) {
             nodeEditing,
             updateHistoryRevert,
             nodeSelectionStatus,
+            forceEndEditing,
             navOpen,
             setSelectedNodes,
             ctrlPressed,
