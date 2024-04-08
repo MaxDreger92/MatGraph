@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { AttributeIndex } from '../../../types/canvas.types'
 import { useMantineColorScheme } from '@mantine/core'
 import CloseIcon from '@mui/icons-material/Close'
-import RefContext from '../../workflow/context/RefContext'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
 import WorkflowContext from '../../workflow/context/WorkflowContext'
@@ -10,7 +9,6 @@ import WorkflowContext from '../../workflow/context/WorkflowContext'
 interface NodeInputStrProps {
     handleUpdate: (id: string, value?: string, operator?: string, index?: string) => void
     handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
-    handleBlur: () => void
     id: string
     defaultValue: string | undefined
     showIndices: boolean
@@ -26,7 +24,6 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     const {
         handleUpdate,
         handleKeyUp,
-        handleBlur,
         id,
         defaultValue,
         showIndices,
@@ -45,9 +42,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     const [awaitingIndex, setAwaitingIndex] = useState(false)
     const { selectedColumnIndex, uploadMode } = useContext(WorkflowContext)
 
-    const { getNewInputRef } = useContext(RefContext)
-    const stringInputRef = getNewInputRef()
-    const indexInputRef = getNewInputRef()
+    const stringInputRef = useRef<HTMLInputElement>(null)
+    const indexInputRef = useRef<HTMLInputElement>(null)
 
     const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
@@ -87,9 +83,8 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     }, [awaitingIndex, selectedColumnIndex, id, handleUpdate])
 
     const deleteIndexLocal = () => {
-        handleUpdate(id, '', undefined, '')
+        handleUpdate(id, undefined, undefined, '')
         setCurrentIndex('')
-        setCurrentValue('')
         return
     }
 
@@ -143,7 +138,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
     }
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        // e.preventDefault();
+        e.preventDefault();
     }
 
     return (
@@ -158,7 +153,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             }}
         >
             <input
-                disabled={uploadMode && index !== 'inferred'}
+                readOnly={uploadMode && index !== 'inferred'}
                 onDragOver={handleDragOver}
                 onDrop={handleColumnDrop}
                 className={`${inputClass}`}
@@ -171,7 +166,6 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                     handleUpdate(id, e.target.value)
                 }}
                 onKeyUp={handleKeyUp}
-                onBlur={handleBlur}
                 autoFocus={autoFocus}
                 style={{
                     marginTop: add ? 8 : 0,
@@ -192,10 +186,9 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                         value={currentIndex}
                         onChange={(e) => {
                             setCurrentIndex(e.target.value)
-                            handleUpdate(id, undefined, e.target.value)
+                            handleUpdate(id, undefined, undefined, e.target.value)
                         }}
                         onKeyUp={handleKeyUp}
-                        onBlur={handleBlur}
                         style={{
                             marginTop: add ? 8 : 0,
                             marginLeft: 8,
@@ -203,6 +196,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                             width: 100,
                         }}
                     />
+                    {/* Index delete, open/close choice modal */}
                     {currentIndex !== '' ? (
                         <div
                             onMouseEnter={() => setIndexButtonHovered(true)}
@@ -300,6 +294,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                     )}
                 </div>
             )}
+            {/* Choose new index 'inferred' or from table */}
             {showIndexChoice === id && (
                 <div style={{ position: 'relative' }}>
                     <div

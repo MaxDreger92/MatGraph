@@ -1,8 +1,7 @@
 import { useMantineColorScheme } from '@mantine/core'
 import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
-import RefContext from '../../workflow/context/RefContext'
 
-import { CustomRef, INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
+import { INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
 import NodeInputStr from './NodeInputStr'
 import NodeInputStrOp from './NodeInputStrOp'
 
@@ -29,22 +28,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
     const [showIndexChoice, setShowIndexChoice] = useState<string>('')
 
-    const { refs, getNewDivRef, resetRefs } = useContext(RefContext)
-
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
-
-    // useEffect(() => {
-    //     const updateActiveElement = () => {
-    //         activeElementRef.current = document.activeElement
-    //     }
-
-    //     document.addEventListener('focus', updateActiveElement, true)
-
-    //     return () => {
-    //         document.removeEventListener('focus', updateActiveElement, true)
-    //     }
-    // }, [])
 
     const updateNode = useCallback(() => {
         const updatedNode: INode = {
@@ -59,7 +44,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             error: nodeError,
             identifier: nodeIdentifier,
         }
-        console.log(updatedNode.name.value)
         handleNodeUpdate(updatedNode, true)
     }, [
         node,
@@ -75,26 +59,17 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleNodeUpdate,
     ])
 
-    // Update node through changed refs (removal of ref in other component)
-    useEffect(() => {
-        setTimeout(() => {
-            if (refs.some((ref) => document.activeElement === ref.current)) {
-                return
-            }
-            updateNode()
-        }, 100)
-    }, [refs, updateNode])
+    const updateNodeRef = useRef(updateNode)
 
-    // Update node through blur event
-    const handleBlur = () => {
-        setTimeout(() => {
-            // Check if the active element is one of the refs
-            if (refs.some((ref) => document.activeElement === ref.current)) {
-                return
-            }
-            updateNode()
-        }, 100)
-    }
+    useEffect(() => {
+        updateNodeRef.current = updateNode
+    }, [updateNode])
+
+    useEffect(() => {
+        return () => {
+            updateNodeRef.current()
+        }
+    }, [])
 
     // Update node through Enter key
     const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -104,12 +79,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }
     }
 
-    useEffect(() => {
-        console.log(nodeName.value)
-    }, [nodeName])
-
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
-        let typed_index: string | number | null = null
+        let typed_index: string | number | undefined = undefined
 
         if (index !== undefined) {
             const numericValue = parseFloat(index)
@@ -190,7 +161,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 break
         }
 
-        if (typed_index) {
+        if (typed_index !== undefined) {
             const updatedNode = { ...node }
 
             switch (id) {
@@ -241,12 +212,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
     return (
         <div
-            ref={getNewDivRef()}
             tabIndex={0}
             className="node-input"
             onClick={(e) => e.stopPropagation()}
             onMouseUp={(e) => e.stopPropagation()}
-            onBlur={handleBlur}
             style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -259,7 +228,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
             <NodeInputStr
                 handleUpdate={handleUpdateLocal}
                 handleKeyUp={handleKeyUp}
-                handleBlur={handleBlur}
                 id="name"
                 defaultValue={nodeName.value}
                 showIndices={node.with_indices}
@@ -275,7 +243,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 <NodeInputStr
                     handleUpdate={handleUpdateLocal}
                     handleKeyUp={handleKeyUp}
-                    handleBlur={handleBlur}
                     id="identifier"
                     defaultValue={nodeIdentifier.value}
                     showIndices={node.with_indices}
@@ -293,7 +260,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStr
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="identifier"
                         defaultValue={nodeIdentifier.value}
                         showIndices={node.with_indices}
@@ -307,7 +273,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStr
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="batch"
                         defaultValue={nodeBatchNum.value}
                         showIndices={node.with_indices}
@@ -321,7 +286,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStrOp
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="ratio"
                         defaultOp={nodeRatio.valOp.operator}
                         defaultVal={nodeRatio.valOp.value}
@@ -335,7 +299,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStrOp
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="concentration"
                         defaultOp={nodeConcentration.valOp.operator}
                         defaultVal={nodeConcentration.valOp.value}
@@ -354,7 +317,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStrOp
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="value"
                         defaultOp={nodeValue.valOp.operator}
                         defaultVal={nodeValue.valOp.value}
@@ -370,7 +332,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStr
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="unit"
                         defaultValue={nodeUnit.value}
                         showIndices={node.with_indices}
@@ -384,7 +345,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStrOp
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="std"
                         defaultOp={nodeStd.valOp.operator}
                         defaultVal={nodeStd.valOp.value}
@@ -398,7 +358,6 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     <NodeInputStrOp
                         handleUpdate={handleUpdateLocal}
                         handleKeyUp={handleKeyUp}
-                        handleBlur={handleBlur}
                         id="error"
                         defaultOp={nodeError.valOp.operator}
                         defaultVal={nodeError.valOp.value}

@@ -19,11 +19,10 @@ interface NodeProps {
     node: INode
     isSelected: number // 1 = solo selected, 2 = multi selected
     isHighlighted: boolean
+    isLayouting: boolean
     connecting: boolean
     canvasRect: DOMRect | null
     mousePosition: Position
-    isMoving: boolean
-    isLayouting: boolean
     darkTheme: boolean
     initNodeMove: (nodeId: INode['id']) => void
     handleNodeAction: (node: INode, action: string, conditional?: any) => void
@@ -37,7 +36,6 @@ export default React.memo(function Node(props: NodeProps) {
         connecting,
         canvasRect,
         mousePosition,
-        isMoving,
         isLayouting,
         darkTheme,
         initNodeMove,

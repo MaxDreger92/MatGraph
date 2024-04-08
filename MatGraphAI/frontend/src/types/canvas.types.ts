@@ -80,8 +80,3 @@ export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" 
 export type IndexDictionary = {
     [index: number]: string[]
 }
-
-export type CustomRef =
-  React.RefObject<HTMLInputElement> |
-  React.RefObject<SVGSVGElement> |
-  React.RefObject<HTMLElement>

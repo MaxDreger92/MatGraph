@@ -1,7 +1,6 @@
 import { Select, useMantineColorScheme } from '@mantine/core'
-import React, { useContext, useEffect, useState } from 'react'
-import { AttributeIndex, Operator } from '../../../types/canvas.types'
-import RefContext from '../../workflow/context/RefContext'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { AttributeIndex } from '../../../types/canvas.types'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
@@ -10,7 +9,6 @@ import WorkflowContext from '../../workflow/context/WorkflowContext'
 interface NodeInputStrOpProps {
     handleUpdate: (id: string, value?: string, operator?: string, index?: string) => void
     handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void
-    handleBlur: (e: React.FocusEvent<HTMLDivElement, Element>) => void
     id: string
     defaultOp: string
     defaultVal: string
@@ -26,7 +24,6 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const {
         handleUpdate,
         handleKeyUp,
-        handleBlur,
         id,
         defaultOp,
         defaultVal,
@@ -46,10 +43,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const [awaitingIndex, setAwaitingIndex] = useState(false)
     const { selectedColumnIndex, uploadMode } = useContext(WorkflowContext)
 
-    const { getNewInputRef } = useContext(RefContext)
-    const selectInputRef = getNewInputRef()
-    const stringInputRef = getNewInputRef()
-    const indexInputRef = getNewInputRef()
+    const stringInputRef = useRef<HTMLInputElement>(null)
+    const indexInputRef = useRef<HTMLInputElement>(null)
 
     const placeholder = id.charAt(0).toUpperCase() + id.slice(1)
 
@@ -107,7 +102,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     }
 
     const deleteIndexLocal = () => {
-        handleUpdate(id, '', undefined, '')
+        handleUpdate(id, undefined, undefined, '')
         setCurrentIndex('')
         setCurrentValue('')
         return
@@ -182,10 +177,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
             >
                 <Select
                     // className={`${inputClass}`}
-                    ref={selectInputRef}
                     onChange={handleOpChangeLocal}
                     onKeyUp={handleKeyUp}
-                    onBlur={handleBlur}
                     placeholder="---"
                     defaultValue={defaultOp}
                     data={SELECT_DATA}
@@ -225,7 +218,6 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                         handleUpdate(id, e.target.value)
                     }}
                     onKeyUp={handleKeyUp}
-                    onBlur={handleBlur}
                     autoFocus={autoFocus}
                     style={{
                         width: 157,
@@ -248,7 +240,6 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                                 setCurrentIndex(e.target.value)
                             }}
                             onKeyUp={handleKeyUp}
-                            onBlur={handleBlur}
                             style={{
                                 marginLeft: 8,
                                 zIndex: zIndex,

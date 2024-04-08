@@ -1,6 +1,6 @@
 // TODO: copy - paste?
 
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useContext } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import cytoscape from 'cytoscape'
 import fcose from 'cytoscape-fcose'
@@ -23,6 +23,7 @@ import {
 import { graphLayouts } from '../../types/canvas.graphLayouts'
 import { isConnectableNode, isRelationshipLegitimate } from '../../common/helpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
+import WorkflowContext from '../workflow/context/WorkflowContext'
 
 interface CanvasProps {
     uploadMode: boolean
@@ -100,6 +101,8 @@ export default function Canvas(props: CanvasProps) {
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     // const isDeletingNode = useRef(false)
 
+    const { forceEndEditing } = useContext(WorkflowContext)
+
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!canvasRect) return
@@ -145,113 +148,126 @@ export default function Canvas(props: CanvasProps) {
         } else {
             updateHistory()
         }
+        setNodeEditing(true)
         setNodes((prevNodes) => [...prevNodes, newNode])
     }
 
-        // sets node isEditing field
+    // sets node isEditing field
     // so input field will show
-    const initNodeUpdate = useCallback((nodeID: INode['id'], undoHistory?: boolean) => {
-        cleanupDrag()
-        if (nodeEditing || ctrlPressed) return
-        if (undoHistory) updateHistoryRevert()
-        // if (ctrlPressed) {
-        //   return
-        //   // const node = nodes.find((node) => node.id === nodeID)
-        //   // if (node) {
-        //   //   handleNodeClick(node)
-        //   //   return
-        //   // }
-        // } else {
-        //   // setSelectedNodes([])
-        // }
-        setNodes((prevNodes) =>
-            prevNodes.map((node) => (node.id === nodeID ? { ...node, isEditing: true } : node))
-        )
-        setNodeEditing(true)
-    }, [nodeEditing, ctrlPressed, setNodes, setNodeEditing, updateHistoryRevert])
+    const initNodeUpdate = useCallback(
+        (nodeID: INode['id'], undoHistory?: boolean) => {
+            cleanupDrag()
+            if (nodeEditing || ctrlPressed) return
+            if (undoHistory) updateHistoryRevert()
+            // if (ctrlPressed) {
+            //   return
+            //   // const node = nodes.find((node) => node.id === nodeID)
+            //   // if (node) {
+            //   //   handleNodeClick(node)
+            //   //   return
+            //   // }
+            // } else {
+            //   // setSelectedNodes([])
+            // }
+            setNodes((prevNodes) =>
+                prevNodes.map((node) => (node.id === nodeID ? { ...node, isEditing: true } : node))
+            )
+            setNodeEditing(true)
+        },
+        [nodeEditing, ctrlPressed, setNodes, setNodeEditing, updateHistoryRevert]
+    )
 
     // rename node -> resetting isEditing to false
-    const handleNodeUpdate = useCallback((node: INode, endEditing?: boolean) => {
-        // console.log('update')
-        setNodes((prevNodes) =>
-            prevNodes.map((n) => {
-                if (n.id === node.id) {
-                    const updatedNode = {
-                        ...node,
-                        isEditing: endEditing ? false : true,
+    const handleNodeUpdate = useCallback(
+        (node: INode, endEditing?: boolean) => {
+            // console.log('update')
+            setNodes((prevNodes) =>
+                prevNodes.map((n) => {
+                    if (n.id === node.id) {
+                        const updatedNode = {
+                            ...node,
+                            isEditing: endEditing ? false : true,
+                        }
+                        // Check if any fields have changed
+                        if (
+                            node.name.value !== n.name.value ||
+                            node.value.valOp !== n.value.valOp ||
+                            node.batch_num.value !== n.batch_num.value ||
+                            node.ratio.valOp !== n.ratio.valOp ||
+                            node.concentration.valOp !== n.concentration.valOp ||
+                            node.unit.value !== n.unit.value ||
+                            node.std.valOp !== n.std.valOp ||
+                            node.error.valOp !== n.error.valOp ||
+                            node.identifier.value !== n.identifier.value
+                        ) {
+                            updateHistory() // Call updateHistory only if a change has occurred
+                        }
+                        return updatedNode
                     }
-                    // Check if any fields have changed
-                    if (
-                        node.name.value !== n.name.value ||
-                        node.value.valOp !== n.value.valOp ||
-                        node.batch_num.value !== n.batch_num.value ||
-                        node.ratio.valOp !== n.ratio.valOp ||
-                        node.concentration.valOp !== n.concentration.valOp ||
-                        node.unit.value !== n.unit.value ||
-                        node.std.valOp !== n.std.valOp ||
-                        node.error.valOp !== n.error.valOp ||
-                        node.identifier.value !== n.identifier.value
-                    ) {
-                        updateHistory() // Call updateHistory only if a change has occurred
-                    }
-                    return updatedNode
-                }
-                return n
-            })
-        )
-        updateIndexDictionary(node)
-        if (endEditing) {
-            setNodeEditing(false)
-        } else {
-            setSelectedNodes([node])
-        }
+                    return n
+                })
+            )
+            updateIndexDictionary(node)
+            if (endEditing) {
+                setNodeEditing(false)
+            } else {
+                setSelectedNodes([node])
+            }
 
-        // setSelectedNodes([])
-    }, [setNodes])
+            // setSelectedNodes([])
+        },
+        [setNodes]
+    )
 
     // handle click (release) on node
     // adds relationship if connecting from other node
     // selects node (will also open node context)
-    const handleNodeClick = useCallback((node: INode) => {
-        cleanupDrag()
-        if (selectionRect) {
-            selectNodesBySelectionRect(node)
-        } else if (connectingNode) {
-            addRelationship(connectingNode, node)
-            setConnectingNode(null)
-        } else {
-            if (nodeEditing) return
-            updateHistoryRevert()
-            switch (nodeSelectionStatus(node.id)) {
-                case 0:
-                    if (!navOpen) {
-                        setSelectedRelationshipID(null)
+    const handleNodeClick = useCallback(
+        (node: INode) => {
+            cleanupDrag()
+            if (selectionRect) {
+                selectNodesBySelectionRect(node)
+            } else if (connectingNode) {
+                addRelationship(connectingNode, node)
+                setConnectingNode(null)
+            } else {
+                if (nodeEditing) {
+                    forceEndEditing()
+                    return
+                }
+                updateHistoryRevert()
+                switch (nodeSelectionStatus(node.id)) {
+                    case 0:
+                        if (!navOpen) {
+                            setSelectedRelationshipID(null)
+                            if (ctrlPressed) {
+                                setSelectedNodes((selectedNodes) => [...selectedNodes, node])
+                                return
+                            }
+                            setSelectedNodes([node])
+                        } else {
+                            setNavOpen(false)
+                        }
+                        break
+                    case 1:
+                        setSelectedNodes([])
+                        break
+                    case 2:
                         if (ctrlPressed) {
-                            setSelectedNodes((selectedNodes) => [...selectedNodes, node])
+                            setSelectedNodes(
+                                selectedNodes.filter((selectedNode) => selectedNode.id !== node.id)
+                            )
                             return
                         }
                         setSelectedNodes([node])
-                    } else {
-                        setNavOpen(false)
-                    }
-                    break
-                case 1:
-                    setSelectedNodes([])
-                    break
-                case 2:
-                    if (ctrlPressed) {
-                        setSelectedNodes(
-                            selectedNodes.filter((selectedNode) => selectedNode.id !== node.id)
-                        )
+                        break
+                    default:
                         return
-                    }
-                    setSelectedNodes([node])
-                    break
-                default:
-                    return
+                }
             }
-        }
-    }, [selectedNodes, selectionRect, connectingNode, nodeEditing, navOpen, ctrlPressed])
+        },
+        [selectedNodes, selectionRect, connectingNode, nodeEditing, navOpen, ctrlPressed]
+    )
 
     // initialize node movement
     // mainly prevents unwanted actions
@@ -380,17 +396,21 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // delete node
-    const handleNodeDelete = useCallback((nodeID: INode['id']) => {
-        updateHistory()
-        setNodes((prevNodes) => prevNodes.filter((n) => n.id !== nodeID))
-        setRelationships((prevRelationships) =>
-            prevRelationships.filter(
-                (relationship) => relationship.start.id !== nodeID && relationship.end.id !== nodeID
+    const handleNodeDelete = useCallback(
+        (nodeID: INode['id']) => {
+            updateHistory()
+            setNodes((prevNodes) => prevNodes.filter((n) => n.id !== nodeID))
+            setRelationships((prevRelationships) =>
+                prevRelationships.filter(
+                    (relationship) =>
+                        relationship.start.id !== nodeID && relationship.end.id !== nodeID
+                )
             )
-        )
-        setSelectedNodes([])
-        rebuildIndexDictionary()
-    }, [updateHistory, rebuildIndexDictionary])
+            setSelectedNodes([])
+            rebuildIndexDictionary()
+        },
+        [updateHistory, rebuildIndexDictionary]
+    )
 
     const selectNodesBySelectionRect = (node?: INode) => {
         if (!selectionRect) return
@@ -427,36 +447,46 @@ export default function Canvas(props: CanvasProps) {
     // switch node action
     // prevents the need for passing
     // too many functions as props
-    const handleNodeAction = useCallback((node: INode, action: string, conditional?: any) => {
-        switch (action) {
-            case 'click':
-                handleNodeClick(node)
-                break
-            case 'completeMove':
-                completeNodeMove()
-                break
-            case 'scale':
-                // ############# REDO SCALE ############
-                // if (typeof value === 'number')
-                // handleNodeScale(node.id, value)
-                break
-            case 'connect':
-                handleNodeConnect(node)
-                break
-            case 'nodeUpdate':
-                handleNodeUpdate(node, conditional)
-                break
-            case 'setIsEditing':
-                initNodeUpdate(node.id, conditional)
-                break
-            case 'delete':
-                setSelectedNodes([])
-                handleNodeDelete(node.id)
-                break
-            default:
-                break
-        }
-    }, [handleNodeClick, completeNodeMove, handleNodeConnect, handleNodeUpdate, initNodeUpdate, handleNodeDelete])
+    const handleNodeAction = useCallback(
+        (node: INode, action: string, conditional?: any) => {
+            switch (action) {
+                case 'click':
+                    handleNodeClick(node)
+                    break
+                case 'completeMove':
+                    completeNodeMove()
+                    break
+                case 'scale':
+                    // ############# REDO SCALE ############
+                    // if (typeof value === 'number')
+                    // handleNodeScale(node.id, value)
+                    break
+                case 'connect':
+                    handleNodeConnect(node)
+                    break
+                case 'nodeUpdate':
+                    handleNodeUpdate(node, conditional)
+                    break
+                case 'setIsEditing':
+                    initNodeUpdate(node.id, conditional)
+                    break
+                case 'delete':
+                    setSelectedNodes([])
+                    handleNodeDelete(node.id)
+                    break
+                default:
+                    break
+            }
+        },
+        [
+            handleNodeClick,
+            completeNodeMove,
+            handleNodeConnect,
+            handleNodeUpdate,
+            initNodeUpdate,
+            handleNodeDelete,
+        ]
+    )
 
     // set node selection status
     // 0 = node is not selected
@@ -553,7 +583,6 @@ export default function Canvas(props: CanvasProps) {
                 break
         }
     }
-    
 
     const handleLayoutNodes = useCallback(
         async (setLayouting = true) => {
@@ -807,6 +836,10 @@ export default function Canvas(props: CanvasProps) {
         if (e.button === 2) return
         if (e.button !== 1 && !altPressed) setSelectedNodes([])
 
+        if (nodeEditing) {
+            forceEndEditing()
+        }
+
         setClickPosition(null)
         setMovingNodeIDs(null)
         setSelectedRelationshipID(null)
@@ -974,7 +1007,6 @@ export default function Canvas(props: CanvasProps) {
                     connecting={Boolean(connectingNode)}
                     canvasRect={canvasRect}
                     mousePosition={mousePosition}
-                    isMoving={movingNodeIDs !== null && movingNodeIDs.has(node.id)}
                     isLayouting={isLayouting}
                     darkTheme={darkTheme}
                     initNodeMove={initNodeMove}

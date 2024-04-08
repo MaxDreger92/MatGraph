@@ -27,7 +27,6 @@ import { convertToJSONFormat, getNodeIndices } from '../../common/helpers'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
-import RefContextProvider from './context/RefContextProvider'
 import WorkflowContext from './context/WorkflowContext'
 
 const undoSteps = 200
@@ -435,7 +434,6 @@ export default function Workflow(props: WorkflowProps) {
 
     return (
         <WorkflowContext.Provider value={value}>
-            <RefContextProvider>
                 <div className="workflow" ref={workflowWindowRef}>
                     <div
                         className="workflow-canvas"
@@ -578,7 +576,6 @@ export default function Workflow(props: WorkflowProps) {
                         />
                     </div>
                 </div>
-            </RefContextProvider>
         </WorkflowContext.Provider>
     )
 }

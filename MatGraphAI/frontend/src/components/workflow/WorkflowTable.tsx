@@ -1,14 +1,11 @@
-import React, { useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useMemo, useEffect, useState, useCallback, useContext } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useReactTable, ColumnDef, getCoreRowModel } from '@tanstack/react-table'
 import { TableRow } from '../../types/workflow.types'
 import { Label } from '../../types/workflow.types'
 import { Select } from '@mantine/core'
 import { getAttributesByLabel, mapNodeTypeString } from '../../common/helpers'
-import { INode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
-import RefContext from './context/RefContext'
 import WorkflowContext from './context/WorkflowContext'
 
 interface WorkflowTableProps {
@@ -48,8 +45,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         additionalTables,
     } = props
 
-    const { getNewDivRef, removeRef, refs } = useContext(RefContext)
-    const tableRef = getNewDivRef()
+    const tableRef = React.createRef<HTMLDivElement>()
 
     const [selected, setSelected] = useState<{
         row: number
@@ -72,7 +68,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         setHighlightedColumnIndex,
         selectedColumnIndex,
         setSelectedColumnIndex,
-        forceEndEditing,
     } = useContext(WorkflowContext)
 
     useEffect(() => {
@@ -107,12 +102,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
 
         setHighlightedColumnIndex(hovered.column)
     }, [hovered, progress, setHighlightedColumnIndex])
-
-    const cleanupRef = () => {
-        if (tableRef.current) {
-            removeRef(tableRef)
-        }
-    }
 
     // Define columns
     const columns: ColumnDef<TableRow>[] = useMemo(() => {
@@ -231,34 +220,11 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         e.dataTransfer.setData('text/plain', dragDataString)
     }
 
-    useEffect(() => {
-        if (!dragging) return
-
-        const handleMouseUp = () => {
-            setDragging(false)
-            if (tableRef.current !== document.activeElement) {
-                handleBlur(true)
-                forceEndEditing()
-            }
-        }
-
-        document.addEventListener('mouseup', handleMouseUp)
-
-        return () => {
-            document.removeEventListener('mouseup', handleMouseUp)
-        }
-    }, [dragging, refs])
-
-    const handleBlur = (forceCleanup?: boolean) => {
+    const handleBlur = () => {
         resetSelections()
-        if (!dragging || forceCleanup) {
-            removeRef(tableRef)
-        }
     }
 
     const resetSelections = () => {
-        // setSelected(null)
-        // setSelectData([])
         setSelectedColumnIndex(null)
     }
 
