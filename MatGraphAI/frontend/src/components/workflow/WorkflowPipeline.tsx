@@ -18,7 +18,6 @@ interface WorkflowPipelineProps {
 
 export default function WorkflowPipeline(props: WorkflowPipelineProps) {
   const {
-    loadNodes,
     handlePipelineReset,
     handleContextChange,
     requestExtractLabels,
@@ -65,7 +64,6 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
         setButtonWidth(155)
         setSpaceBetween((availableWidth - 775) / 4)
       } else {
-        console.log((availableWidth - 200) / 5)
         setButtonWidth((availableWidth - 200) / 5)
         setSpaceBetween(50)
       }

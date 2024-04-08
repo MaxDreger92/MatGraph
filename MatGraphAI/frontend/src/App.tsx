@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useQueryClient } from "react-query"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Routes, Route} from "react-router-dom"
-import { userContext } from "./common/userContext"
+import { UserContext } from "./common/UserContext"
 import { Toaster, toast } from "react-hot-toast"
 import Header from "./components/Header"
 import {MDB_IUser as IUser} from "./types/user.type"
@@ -67,7 +67,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <userContext.Provider value={currentUser}>
+      <UserContext.Provider value={currentUser}>
         {currentUser && (
           <div className="header">
             <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
@@ -86,7 +86,7 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
-      </userContext.Provider>
+      </UserContext.Provider>
       <Toaster
         position="top-center"
         containerStyle={{

@@ -3,13 +3,13 @@ import { IconUpload, IconPhoto, IconX, IconFileTypeCsv } from "@tabler/icons-rea
 import { Dropzone, DropzoneProps, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone"
 
 interface WorkflowTableDropzoneProps {
-  handleFileView: (file: File) => void
+  handleFileUpload: (file: File) => void
 }
 
 export default function WorkflowTableDropzone(
   props: WorkflowTableDropzoneProps
 ) {
-  const { handleFileView: handleFileUpload } = props
+  const { handleFileUpload } = props
 
   const theme = useMantineTheme()
 

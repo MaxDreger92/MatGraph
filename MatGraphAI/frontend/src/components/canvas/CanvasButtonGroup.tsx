@@ -208,7 +208,6 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
         y: clamp(manualPosition.y, 77, canvasRect.bottom - 350)
       })
     } else if (vertical) {
-      console.log(canvasRect.right)
       setPosition({
         x: canvasRect.right - 69,
         y: clamp(manualPosition.y, 77, canvasRect.bottom - 350)

@@ -76,3 +76,7 @@ export type ValOpPair = {
 export type AttributeIndex = number | string
 
 export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+
+export type IndexDictionary = {
+    [index: number]: string[]
+}
