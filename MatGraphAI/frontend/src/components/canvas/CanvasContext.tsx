@@ -19,7 +19,7 @@ import MetadataIcon from '@mui/icons-material/DataObject';
 import { Position } from "../../types/canvas.types"
 import { colorPalette } from "../../types/colors"
 import { INode } from "../../types/canvas.types"
-import { possibleRelationships } from "../../common/helpers"
+import { possibleRelationships } from "../../common/nodeHelpers"
 
 interface CanvasContextProps {
   onSelect: (nodeType: INode["type"]) => void

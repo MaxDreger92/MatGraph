@@ -39,6 +39,7 @@ export interface INode {
   with_indices: boolean
   position: Position
   size: number
+  optimalSize: number
   layer: number
   isEditing: boolean
 }

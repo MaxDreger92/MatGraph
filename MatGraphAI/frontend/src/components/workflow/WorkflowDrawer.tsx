@@ -15,7 +15,7 @@ import {
 import {
     convertFromJsonFormat,
     mapNodeTypeNumerical,
-} from '../../common/helpers'
+} from '../../common/workflowHelpers'
 import WorkflowTable from './WorkflowTable'
 import WorkflowPartialTable from './WorkflowPartialTable'
 // import testNodes from '../../alt/testNodesN.json'
