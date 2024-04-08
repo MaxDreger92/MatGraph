@@ -432,7 +432,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // Move all nodes
-    const handleCanvasGrab = (displacement: Vector2D) => {
+    const handleCanvasGrab = _.throttle((displacement: Vector2D) => {
         setNodes((prevNodes) =>
             prevNodes.map((n) => ({
                 ...n,
@@ -442,7 +442,7 @@ export default function Canvas(props: CanvasProps) {
                 },
             }))
         )
-    }
+    }, 10)
 
     // handle click (release) on node
     // adds relationship if connecting from other node
@@ -927,7 +927,7 @@ export default function Canvas(props: CanvasProps) {
         }
     }
 
-    const canvasZoom = useCallback(
+    const canvasZoom = _.throttle(useCallback(
         (delta: number, mousePos: Position) => {
             const updatedNodes = nodes.map((node) => {
                 const zoomFactor = 1 - 0.1 * delta
@@ -958,7 +958,7 @@ export default function Canvas(props: CanvasProps) {
             setNodes(updatedNodes)
         },
         [nodes, setNodes]
-    )
+    ), 13)
 
     useEffect(() => {
         const handleCanvasWheel = (e: WheelEvent) => {
