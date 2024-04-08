@@ -1,61 +1,61 @@
-name_1,name_2,name_3,name_4,Evaporation_LayerMaterialStirringTime,Evaporation_LayerMaterialTemperature,Evaporation_StirringSpeed
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
-Evaporation,Solar Cell,Silver,LayerMaterialStirringTime,240,22,1600
+name_1,name_2,name_3,name_4,name_5,name_6,Evaporation_AnnealingTime_y2,Evaporation_LayerMaterialStirringTime_y4,Evaporation_LayerMaterialTemperature_y4,Evaporation_StirringSpeed_y4
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:21,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:20,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:20,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:21,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:24,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:21,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:24,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:20,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:24,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:24,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:24,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:20,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:14,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:21,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:20,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:15,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:21,240,22,1600
+Electron Transport Layer,Evaporation,Electrode,Evaporation,StirringSpeed,Solar Cell,00:10:23,240,22,1600

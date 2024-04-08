@@ -1,20 +1,17 @@
 import json
 
 import django
-from langchain_core.prompts import FewShotPromptTemplate
 
-from importing.RelationshipExtraction.input_generator import flatten_json, remove_key, extract_data
 from importing.RelationshipExtraction.relationshipCorrector import hasParameterCorrector, hasPropertyCorrector, \
     hasManufacturingCorrector, hasMeasurementCorrector
+from importing.RelationshipExtraction.relationshipExtractor import HasParameterExtractor, HasManufacturingExtractor, \
+    HasMeasurementExtractor, HasPropertyExtractor
 
 django.setup()
 
 from langchain_core.runnables import chain, RunnableParallel
 
-from importing.RelationshipExtraction.hasManufacturingExtractor import hasManufacturingExtractor
-from importing.RelationshipExtraction.hasMeasurementExtractor import hasMeasurementExtractor
-from importing.RelationshipExtraction.hasParameterExtractor import hasParameterExtractor
-from importing.RelationshipExtraction.hasPropertyExtractor import hasPropertyExtractor
+
 
 
 
@@ -30,23 +27,23 @@ def extract_relationships(input_json, context, extractor_type):
 @chain
 def extract_has_property(data):
     print("extract has_property relationships")
-    return extract_relationships(data['input'], data['context'], hasPropertyExtractor)
+    return extract_relationships(data['input'], data['context'], HasPropertyExtractor)
 
 
 @chain
 def extract_has_measurement(data):
     print("extract has_measurement relationships")
-    return extract_relationships(data['input'], data['context'], hasMeasurementExtractor)
+    return extract_relationships(data['input'], data['context'], HasMeasurementExtractor)
 
 @chain
 def extract_has_manufacturing(data):
     print("extract has_manufacturing relationships")
-    return extract_relationships(data['input'], data['context'], hasManufacturingExtractor)
+    return extract_relationships(data['input'], data['context'], HasManufacturingExtractor)
 
 @chain
 def extract_has_parameter(data):
     print("extract has_paramter relationships")
-    return extract_relationships(data['input'], data['context'], hasParameterExtractor)
+    return extract_relationships(data['input'], data['context'], HasParameterExtractor)
 
 
 
@@ -140,9 +137,6 @@ class fullRelationshipsExtractor:
 
     @property
     def results(self):
-        print('finished')
-        print(self.relationships)
-        return 'mau'
         return {"nodes": self.data["nodes"], "relationships": self.relationships}
 
 

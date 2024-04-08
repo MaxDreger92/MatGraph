@@ -2,11 +2,13 @@ import os
 from collections import defaultdict
 
 from langchain.chains import create_structured_output_runnable
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
+from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
+    MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
     MeasurementNodeList, MetadataNodeList, ParameterNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
@@ -47,22 +49,26 @@ class NodeAggregator:
         self._intermediate = data
 
     def validate(self):
-        print("Validating")
-        print(self.intermediate)
         return self.intermediate
 
     def aggregate(self):
+        """Performs the initial extraction of relationships using GPT-4."""
+        print(f"Aggregate {self.schema} nodes")
         query = self.create_query()
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        print(query)
+
+        if self.examples:
+            example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
+            few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=self.examples)
+            prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
+
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
-        print(f"Intermediate: {self.intermediate}")
+        print(f"Aggregated {self.schema} nodes")
         return self
-
 
 class MatterAggregator(NodeAggregator):
     def __init__(self,
@@ -73,6 +79,7 @@ class MatterAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "matter"
         self.schema = MatterNodeList
+        self.examples = MATTER_AGGREGATION_EXAMPLES
 
 
 class PropertyAggregator(NodeAggregator):
@@ -84,6 +91,7 @@ class PropertyAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "property"
         self.schema = PropertyNodeList
+        self.examples = None
 
 
 class ParameterAggregator(NodeAggregator):
@@ -95,6 +103,7 @@ class ParameterAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "parameter"
         self.schema = ParameterNodeList
+        self.examples = PARAMETER_AGGREGATION_EXAMPLES
 
 
 class ManufacturingAggregator(NodeAggregator):
@@ -106,6 +115,7 @@ class ManufacturingAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "manufacturing"
         self.schema = ManufacturingNodeList
+        self.examples = MANUFACTURING_AGGREGATION_EXAMPLES
 
 
 class MeasurementAggregator(NodeAggregator):
@@ -117,6 +127,7 @@ class MeasurementAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "measurement"
         self.schema = MeasurementNodeList
+        self.examples = None
 
 
 class MetadataAggregator(NodeAggregator):
@@ -128,6 +139,7 @@ class MetadataAggregator(NodeAggregator):
         super().__init__(data, context, setup_message, additional_context)
         self.label = "metadata"
         self.schema = MetadataNodeList
+        self.examples = None
 
 
 def group_by_prefix(self, data):

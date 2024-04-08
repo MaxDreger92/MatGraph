@@ -20,7 +20,7 @@ def chat_with_gpt4(setup_message=[], prompt='', api_key=os.environ.get("OPENAI_A
     n=1,
     stop=None,
     temperature=0)
-    return [res["message"]["content"] for res in response.choices][0]
+    return [res.message.content for res in response.choices][0]
 
 
 def chat_with_gpt3(setup_message=[], prompt='', api_key=os.environ.get("OPENAI_API_KEY")):
@@ -34,4 +34,4 @@ def chat_with_gpt3(setup_message=[], prompt='', api_key=os.environ.get("OPENAI_A
     n=1,
     stop=None,
     temperature=0)
-    return [res["message"]["content"] for res in response.choices][0]
+    return [res.message.content for res in response.choices][0]
