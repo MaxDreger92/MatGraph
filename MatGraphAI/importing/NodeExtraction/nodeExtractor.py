@@ -19,7 +19,8 @@ from importing.models import NodeExtractionReport
 class NodeAggregator:
     def __init__(self, data, context, setup_message, additional_context):
         self.header = [f"{element['header']}" for element in data]
-        self.attributes = [f"{element['attribute']}/{element['index']}" for element in data]
+        self.attributes = [f"{element['attribute']}" for element in data]
+        self.indices = [f"{element['index']}" for element in data]
         self.row = [element['column_values'][0] if element['column_values'] else '' for element in data]
         self.setup_message = setup_message
         self.context = context
@@ -33,8 +34,9 @@ class NodeAggregator:
         return f"""
         Context: {self.context}
     
-        Attribute/ColumnIndex: {", ".join(self.attributes)}
-        Table: {", ".join(self.header)}
+        ColumnIndex: {", ".join(self.indices)}
+        AttributeType: {", ".join(self.attributes)}
+        TableHeader: {", ".join(self.header)}
         Sample Row: {", ".join(self.row)}
         
         {self.additional_context}
@@ -55,6 +57,7 @@ class NodeAggregator:
         """Performs the initial extraction of relationships using GPT-4."""
         print(f"Aggregate {self.schema} nodes")
         query = self.create_query()
+        print(query)
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
@@ -67,6 +70,7 @@ class NodeAggregator:
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
+        print(self.intermediate)
         print(f"Aggregated {self.schema} nodes")
         return self
 

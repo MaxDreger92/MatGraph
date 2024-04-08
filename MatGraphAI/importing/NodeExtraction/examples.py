@@ -3,15 +3,10 @@ MATTER_AGGREGATION_EXAMPLES = [
         'input':
 """Context: Catalyst Fabrication
 
-Attribute/ColumnIndex:
-
-identifier/1, name/2, name/material2, name/3, ratio/8, ratio/9, ratio/10
-Table:
-
-id, Catalyst1, Catalyst2, Support, ratio 1, ratio 2, ratio 3
-Sample Row:
-
-CT-1001, Pt, C, Pd, 50, 30, 20""",
+ColumnIndex: 1, 2, 4, 5, 8, 9, 10
+Attribute: identifier, name, name, name, ratio, ratio, ratio
+TableHeader: id, Catalyst1, Catalyst2, Support, ratio 1, ratio 2, ratio 3
+Sample Row: CT-1001, Pt, C, Pd, 50, 30, 20""",
         'output': """[
   {
     "attributes": {
@@ -53,7 +48,7 @@ CT-1001, Pt, C, Pd, 50, 30, 20""",
           {"value": "CarbonSupport", "index": "inferred"}
         ],
         [
-          {"value": "C", "index": 3}
+          {"value": "C", "index": 4}
         ]
       ],
       "ratio": [
@@ -70,7 +65,7 @@ CT-1001, Pt, C, Pd, 50, 30, 20""",
           {"value": "Catalyst", "index": "inferred"}
         ],
         [
-          {"value": "Pd", "index": 4}
+          {"value": "Pd", "index": 5}
         ]
       ],
       "ratio": [
@@ -86,9 +81,14 @@ PARAMETER_AGGREGATION_EXAMPLES = [
     {
         'input':"""Context: Measurement of the density of a material
 
-Attribute/ColumnIndex: value/5, error/6, value/7
-Table: pressure (pA), error, T
-Sample Row: 1.2, 0.1, 27""",
+Attribute/ColumnIndex: 
+value/5, error/6, value/7
+
+Table: 
+pressure (pA), error, T
+
+Sample Row: 
+1.2, 0.1, 27""",
         'output': """[
   {
     "attributes": {

@@ -9,14 +9,17 @@ class Node(Serializable):
 
 class StringAttribute(BaseModel):
     """
-    Optional string attribute
+    value: specific value of the attribute can be extracted from the table column and inferred from context or the table header
+    index: If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.
+
     """
     value: str = Field('',description='specific value of the attribute')
-    index: int|str = Field('',description='column index of the attribute. If the name was inferred from context or the table header, the index is a string "inferred"')
+    index: int|str = Field('',description='column index. If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.')
 
 class FloatAttribute(BaseModel):
     """
-    Optional float attribute
+    value: specific value of the attribute can be extracted from the table column and inferred from context or the table header
+    index: If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.
     """
     value: str = Field('', description='specific value of the attribute')
     index: int|str = Field('', description='column index of the attribute. If the name was inferred from context or the table header, the index is a string "inferred"')
@@ -85,6 +88,8 @@ class Concentration(FloatAttribute):
 class MatterAttributes(BaseModel):
     """
     Attributes of a specific matter node
+    Each matter node can have multiple attributes like identifier, batch number, ratio, concentration, name, etc.
+    The attributes need to describe all properties of a SPECIFIC entity.
     """
     identifier: Optional[Identifier] = None
     batch_number: Optional[BatchNumber] = None
@@ -94,14 +99,16 @@ class MatterAttributes(BaseModel):
 
 class QuantityAttributes(BaseModel):
     """
-    Attributes of a quantity node
+    Attributes of a specific matter node
+    Each matter node can have multiple attributes like identifier, batch number, ratio, concentration, name, etc.
+    The attributes need to describe all properties of a SPECIFIC entity.
     """
     name: List[Name] = Field([])
     value: Optional[List[Value]] = None
     error: Optional[List[Error]] = None
     average: Optional[List[Average]] = None
     standard_deviation: Optional[List[StandardDeviation]] = None
-    unit: Unit = Field('')
+    unit: Unit = Field(description='This is a required field. If no unit is given please make an educated guess about the unit based on the context or the table header.')
 
 class ProcessAttributes(BaseModel):
     """
