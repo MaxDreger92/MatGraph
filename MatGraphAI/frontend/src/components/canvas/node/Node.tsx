@@ -23,9 +23,10 @@ interface NodeProps {
     isHighlighted: boolean
     isLayouting: boolean
     isLayouting: boolean
+    isLayouting: boolean
     connecting: boolean
     canvasRect: DOMRect | null
-    mousePosition: Position
+    mousePosition: Position | null
     darkTheme: boolean
     initNodeMove: (nodeId: INode['id']) => void
     handleNodeAction: (node: INode, action: string, conditional?: any) => void
