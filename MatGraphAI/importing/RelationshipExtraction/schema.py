@@ -21,12 +21,10 @@ class HasManufacturing(Edge):
     """
     Edge connecting matter nodes to manufacturing steps.
     types:
-     - is_manufacturing_input (source is matter node, target is manufacturing step)
-     - has_manufacturing_output (source is manufacturing step, target is matter node)
-     Example:
-         node_id(FuelCell) -> is_manufacturing_input -> node_id(StackAssembly) -> has_manufacturing_output -> node_id(FuelCellStack)
+     - is_manufacturing_input: connects the educt with a manufacturing step (source is matter node, target is manufacturing step)
+     - has_manufacturing_output: connects the manufacturing step with its product (source is manufacturing step, target is matter node)
     """
-    type: str = Field(None, description='Type of the edge, either "is_manufacturing_input" or "has_manufacturing_output". Extract edges that connect matter nodes that are educts to manufacturing steps and matter nodes that are products to manufacturing steps.')
+    type: str = Field(None, description='Type of the edge, either "is_manufacturing_input" or "has_manufacturing_output".')
 
 class HasPropertyRelationships(BaseModel):
     relationships: List[HasProperty] = Field(None, description='List of has_property relationships')
