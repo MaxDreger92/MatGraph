@@ -1,8 +1,8 @@
 MATTER_MANUFACTURING_MESSAGE = [("system", """
 You assist on generating the relationships in knowledge graphs. You have a deep knowledge about fabrication workflows
 in the field of energy materials. Your only task is to generate relationships between matter and manufacturing nodes. 
-
-Focus on connecting the nodes in a way that correctly represents the fabrication workflow the table is representing.
+HINTS:
+- Connect the nodes that they form a sequence that correctly represents the fabrication workflow.
 """)
 ,
 ("human", """Extract the relationships of the following nodes: {input} """),
