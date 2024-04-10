@@ -13,3 +13,4 @@ source/
 /debug.log
 /userBackendNodeJS/node_modules
 .vscode
+./user.db
