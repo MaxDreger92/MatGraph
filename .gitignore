@@ -6,7 +6,6 @@ out/
 source/
 /docs/
 *.log
-.gitignore
 /frontend/public/
 /frontend/node_modules
 /frontend/build/
