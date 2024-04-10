@@ -4,11 +4,11 @@ venv/
 out/
 .env
 source/
-MatGraphAI/docs/
-MatGraphAI/frontend/node_modules/
+docs/
+frontend/node_modules/
 *.log
 .gitignore
-/MatGraphAI/frontend/public/
-/MatGraphAI/frontend/node_modules/
-/MatGraphAI/frontend/build/
+frontend/public/
+frontend/node_modules/
+frontend/build/
 /debug.log
