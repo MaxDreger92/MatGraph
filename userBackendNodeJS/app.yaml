@@ -1,0 +1,5 @@
+runtime: nodejs20  # Specify your Node.js runtime
+
+handlers:
+- url: /.*
+  script: auto
