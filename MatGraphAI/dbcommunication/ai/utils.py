@@ -2,6 +2,7 @@ import openai
 
 
 def init_openai(api_key):
+    pass
 
 def split_dataframe(df, chunk_size):
     chunks = list()

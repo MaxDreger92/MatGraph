@@ -37,16 +37,14 @@ SETUP_MESSAGES = {
     'property': PROPERTY_SETUP_MESSAGE
 }
 
-ONTOLOGY_MAPPER1 = {
-    'EMMOMatter': MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
-    'EMMOProcess': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
-    'EMMOQuantity': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
-}
+
 
 EMBEDDING_MODEL_MAPPER = {
-    'EMMOMatter': MatterEmbedding,
-    'EMMOProcess': ProcessEmbedding,
-    'EMMOQuantity': QuantityEmbedding
+    'matter': MatterEmbedding,
+    'manufacturing': ProcessEmbedding,
+    'measurement': ProcessEmbedding,
+    'parameter': QuantityEmbedding,
+    'property': QuantityEmbedding
 }
 
 
@@ -58,10 +56,22 @@ ONTOLOGY_CANDIDATES = {
 }
 
 ONTOLOGY_CONNECTOR = {
-    'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
-    'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-    'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
+    'matter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
+    'manufacturing': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
+    'measurement': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
+    'property': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
+    'parameter': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
 }
+
+SETUP_MAPPER = {
+    'matter': MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
+    'manufacturing': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
+    'measurement': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
+    'property': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES,
+    'parameter': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
+}
+
+
 class OntologyMapper:
 
 
@@ -101,8 +111,8 @@ class OntologyMapper:
                 self._append_mapping(col_value, label)
 
     def _append_mapping(self, name_value, label):
-        operator = OntologyOperator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
-        node_uid = operator.get_label(name_value, label)
+        ontology_generator = OntologyGenerator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
+        node_uid = ontology_generator.get_or_create(name_value, label).uid
         self._mapping.append({'name': name_value, 'id': node_uid, 'label': ONTOLOGY_MAPPER[label].__name__})
         self.names.append(name_value)
 
@@ -120,7 +130,7 @@ class OntologyMapper:
         self.map_on_ontology()
 
 
-class OntologyOperator:
+class OntologyGenerator:
 
     def __init__(self, context, name, label, ontology_class):
         self.context = context
@@ -129,8 +139,7 @@ class OntologyOperator:
         self.ontology_class = ontology_class
 
 
-    @staticmethod
-    def save_ontology_node(node, add_labels_create_embeddings=True, connect_to_ontology=True):
+    def save_ontology_node(self, node, add_labels_create_embeddings=True, connect_to_ontology=True):
         """
         Save an ontology node with the option to add labels, create embeddings, and connect to the ontology.
 
@@ -139,84 +148,80 @@ class OntologyOperator:
         :param connect_to_ontology: Flag to connect the node to the ontology.
         """
         node.save()  # Assuming node has a save method for basic saving operations
-        print(f"saving {node.name}")
-        if add_labels_create_embeddings:
-            OntologyOperator.add_labels_create_embeddings(node)
-        if connect_to_ontology:
-            OntologyOperator.connect_to_ontology(node)
+        self.add_labels_create_embeddings(node)
+        self.connect_to_ontology(node)
 
-    @staticmethod
-    def add_labels_create_embeddings(self):
-        print(f"adding labels and embeddings for {self.name}")
-        alternative_labels = chat_with_gpt4(prompt= self.name, setup_message= ONTOLOGY_MAPPER[self._meta.object_name])
-        print(alternative_labels)
-        alternative_labels = json.loads(alternative_labels)
-        for label in alternative_labels['alternative_labels']:
-            alternative_label_node = AlternativeLabel(label = label).save()
-            self.alternative_label.connect(alternative_label_node)
-            embedding = request_embedding(label)
-            embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = embedding, input = label).save()
-            self.model_embedding.connect(embedding_node)
-        embedding_node = self.EMBEDDING_MODEL_MAPPER[self.__label__](vector = request_embedding(self.name), input = self.name).save(add_labels_create_embeddings=True, connect_to_ontology=False)
-        self.model_embedding.connect(embedding_node)
-        self.validated_labels = False
 
-    @staticmethod
-    def connect_to_ontology(self):
-        if len(self.emmo_subclass) == 0 and len(self.emmo_parentclass) == 0:
-            candidates = self.find_candidates()
-            find_connection = self.find_connection(candidates)
+
+
+    def connect_to_ontology(self, node):
+        # Check if the node is already connected in the ontology
+        if not node.emmo_subclass and not node.emmo_parentclass:
+            candidates = self.find_candidates(node)
+            connection_names = self.find_connection(candidates)
+
             previous_node = None
-            for i, name in enumerate(find_connection):
-                results = self.nodes.get_by_string(string=name, limit=8, include_similarity=True)
-                if results and results[0][1] > 0.98:
-                    node = results[0][0]  # Assuming the first element is the node
+            for name in connection_names:
+                # Search for the node by name, with similarity consideration
+                search_results = node.nodes.get_by_string(string=name, limit=8, include_similarity=True)
+
+                if search_results and search_results[0][1] > 0.98:
+                    # A similar node is found
+                    current_node = search_results[0][0]
                 else:
-                    # Create new node if not found or similarity < 0.98
-                    node = self.__class__(name= name)
-                    node.save(add_labels_create_embeddings=True, connect_to_ontology=False)
+                    # No similar node found, or similarity is too low; create a new node
+                    current_node = self.ontology_class(name=name)
+                    try:
+                        current_node.save()
+                    except Exception as e:
+                        print(f"Error saving node '{name}': {e}")
+                        continue  # Skip this node and move to the next one
 
-                # Connect this node to the previous node in the chain with emmo_is_a relationship
-                if previous_node and previous_node != node:
-                    previous_node.emmo_parentclass.connect(node)
-                previous_node = node
+                # Connect the current node to the previous one in the chain, if applicable
+                if previous_node and previous_node != current_node:
+                    try:
+                        previous_node.emmo_parentclass.connect(current_node)
+                    except Exception as e:
+                        print(f"Error connecting '{previous_node.name}' to '{current_node.name}': {e}")
+
+                previous_node = current_node
 
 
 
-    def find_candidates(self):
-        nodes = self.nodes.get_by_string(string = self.name, limit = 8, include_similarity = False)
-        prompt = f"""Input: {self.name}\nCandidates: {", ".join([node.name for node in nodes if node.name != self.name])} \nOnly return the final output!"""
-        ontology_advice = chat_with_gpt4(prompt= prompt, setup_message= ONTOLOGY_CANDIDATES[self._meta.object_name])
+    def find_candidates(self, node):
+        nodes = self.ontology_class.nodes.get_by_string(string = node.name, limit = 8, include_similarity = False)
+        prompt = f"""Input: {node.name}\nCandidates: {", ".join([node.name for node in nodes if node.name != node.name])} \nOnly return the final output!"""
+        ontology_advice = chat_with_gpt4(prompt= prompt, setup_message= ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name])
         if ontology_advice.lower().strip(" ").strip("\n") == "false":
             uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
-            return self.get_superclasses(uids)
+            return node.get_superclasses(uids)
         else:
             gpt_json = json.loads(ontology_advice.replace("\n", ""))
             if gpt_json['input_is_subclass_of_candidate']:
                 candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
-                return self.get_subclasses([candidate_uid])
+                return node.get_subclasses([candidate_uid])
             else:
                 candidate_uid = nodes[[node.name for node in nodes].index(gpt_json['candidate'])].uid
-                return self.get_superclasses([candidate_uid])
+                return node.get_superclasses([candidate_uid])
 
     def find_connection(self, candidates):
         prompt = f"""Input: {self.name}\nCandidates: {", ".join([candidate[1] for candidate in candidates])} \nOnly Return The Final List!"""
         connecting_path = chat_with_gpt4(prompt= prompt, setup_message= ONTOLOGY_CONNECTOR[self.label])
         return ast.literal_eval(connecting_path)
 
-    def add_labels_create_embeddings(self):
-        alternative_labels = chat_with_gpt4(prompt= self.name, setup_message= ONTOLOGY_MAPPER[self.label])
+    def add_labels_create_embeddings(self, node):
+        alternative_labels = chat_with_gpt4(prompt= node.name, setup_message= SETUP_MAPPER[self.label])
         alternative_labels = json.loads(alternative_labels)
         for label in alternative_labels['alternative_labels']:
-            alternative_label_node = AlternativeLabel(label = self.label).save()
-            self.alternative_label.connect(alternative_label_node)
-            embedding = request_embedding(self.label)
+            alternative_label_node = AlternativeLabel(label = label).save()
+            node.alternative_label.connect(alternative_label_node)
+            embedding = request_embedding(label)
             embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector = embedding, input = label).save()
-            self.model_embedding.connect(embedding_node)
-        embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector = request_embedding(self.name), input = self.name).save()
-        self.model_embedding.connect(embedding_node)
+            node.model_embedding.connect(embedding_node)
+        embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector = request_embedding(node.name), input = node.name).save()
+        node.model_embedding.connect(embedding_node)
 
-    def get_label(self, input, label):
+    def get_or_create(self, input, label):
         ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input, limit=15, include_similarity=True)
         print(f"Checking {input}")
         if ontology[0][1] < 0.97:
@@ -224,25 +229,28 @@ class OntologyOperator:
             return self.extend_ontology(input, ontology, label)
         else:
             print(f"High similarity found")
-            return ontology[0][0].uid
+            return ontology[0][0]
+
+    def ontology_extension_prompt(self, input, ontology):
+        return f"Input: {input}\nContext: {self.context}\nCandidates: {', '.join([ont[0].name for ont in ontology])}"
+
+    def create_synonym(self, input, ontology, label):
+        prompt = self.ontology_extension_prompt(input, ontology)
+        output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[label])
+        return output
 
     def extend_ontology(self, input, ontology, label):
-        prompt = "Input: " + input + "\nContext: " + self.context + "\nCandidates: " + ', '.join(
-            [ont[0].name for ont in ontology])
-        output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[label])
-        print(output, label, input)
+        output = self.create_synonym(input, ontology, label)
         nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
-        print(f"Used chatgpt to transform {input} to {output}")
         if nodes[0][1] < 0.97:
             print(f"still no match, creating new node")
             print(label, input, output)
             ontology_node = ONTOLOGY_MAPPER[label](name=output)
-            ontology_node.save()
-            print(ontology_node)
-            return ontology_node.uid
+            self.save_ontology_node(ontology_node)
+            return ontology_node
         else:
-            print(f"found match, returning uid")
-            return nodes[0][0].uid
+            print(f"found match, returning node")
+            return nodes[0][0]
 
     def run(self):
         self.map_on_ontology()

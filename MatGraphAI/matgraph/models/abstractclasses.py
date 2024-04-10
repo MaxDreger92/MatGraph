@@ -15,22 +15,13 @@ OntologyNode is an abstract base class representing ontology nodes in the knowle
 from UIDDjangoNode and contains properties for the name, URI, description, and alternative_label relationship
 of the ontology node according to the EMMO (European Materials & Modelling Ontology).
 """
-import ast
-import json
 
-from django_neomodel import DjangoNode, classproperty
-from neomodel import AliasProperty, StringProperty, UniqueIdProperty, ArrayProperty, RelationshipTo, ZeroOrMore, \
-    RelationshipFrom, BooleanProperty
 from django.apps import apps
+from django_neomodel import DjangoNode, classproperty
+from neomodel import AliasProperty, StringProperty, UniqueIdProperty, RelationshipTo, ZeroOrMore, \
+    RelationshipFrom, BooleanProperty
 
-from dbcommunication.ai.setupMessages import MATTER_ONTOLOGY_ASSISTANT_MESSAGES, PROCESS_ONTOLOGY_ASSISTANT_MESSAGES, \
-    QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES, QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES, PROCESS_ONTOLOGY_CONNECTOR_MESSAGES, \
-    MATTER_ONTOLOGY_CONNECTOR_MESSAGES, MATTER_ONTOLOGY_CANDIDATES_MESSAGES, PROCESS_ONTOLOGY_CANDIDATES_MESSAGES, \
-    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
-from graphutils.embeddings import request_embedding
-from graphutils.models import EmbeddingNodeSet, AlternativeLabel
-from importing.utils.openai import chat_with_gpt4
-from matgraph.models.embeddings import QuantityEmbedding, ProcessEmbedding, MatterEmbedding
+from graphutils.models import EmbeddingNodeSet
 
 
 class UIDDjangoNode(DjangoNode):
@@ -122,31 +113,6 @@ class OntologyNode(UIDDjangoNode):
     def nodes(cls):
         return EmbeddingNodeSet(cls)
 
-    ONTOLOGY_MAPPER = {
-        'EMMOMatter': MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
-        'EMMOProcess': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
-        'EMMOQuantity': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
-    }
-
-    EMBEDDING_MODEL_MAPPER = {
-        'EMMOMatter': MatterEmbedding,
-        'EMMOProcess': ProcessEmbedding,
-        'EMMOQuantity': QuantityEmbedding
-    }
-
-
-
-    ONTOLOGY_CANDIDATES = {
-        'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
-        'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
-        'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
-    }
-
-    ONTOLOGY_CONNECTOR = {
-        'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
-        'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-        'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
-    }
 
 
 
