@@ -14,7 +14,7 @@ import {
 import { IconLogout, IconSettings, IconChevronDown, IconUser } from "@tabler/icons-react";
 import logo_sm from "../img/logo_nodes.png";
 import logo_sm_light from "../img/logo_nodes_light.png"
-import { userContext } from "../common/userContext";
+import { UserContext } from "../common/UserContext";
 import { useLocation } from "react-router-dom";
 import {
   MdOutlineLightMode,
@@ -111,7 +111,7 @@ export default function Header(props: HeaderProps) {
   const { handleHeaderLinkClick, handleLogout } = props;
   const { classes, cx } = useStyles();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
-  const user = useContext(userContext);
+  const user = useContext(UserContext);
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const location = useLocation()
 
