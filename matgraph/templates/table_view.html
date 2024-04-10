@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editable Table with Submit and Delete Column Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .editable-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .editable-table th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-align: left;
+            position: relative;
+        }
+
+        .editable-table td {
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            color: #333;
+        }
+
+        .editable-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .editable-table tr:hover {
+            background-color: #ddd;
+        }
+
+        .editable-table input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            color: #ff0000;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 16px;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: white;
+            border: 1px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+<form method="post" id="data-form">
+    {% csrf_token %}
+    <table class="editable-table">
+        {% if table %}
+        <!-- Rendering the header row -->
+        <tr>
+            {% for header in table.0 %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+
+        <!-- Rendering the data rows -->
+        {% for row in table %}
+        {% if forloop.counter > 2 %}  <!-- Start from the second row -->
+        <tr>
+            {% for cell in row %}
+            <!-- Group cells of the same row under a common name using array-like notation -->
+            <td><input type="text" name="row{{ forloop.parentloop.counter }}[]" value="{{ cell }}"></td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <!-- No data available -->
+        <tr><td>No data available.</td></tr>
+        {% endif %}
+    </table>
+    <div style="text-align: center;">
+        <input type="submit" value="Submit Changes">
+    </div>
+</form>
+</body>
+<script>
+    function deleteColumn(columnName) {
+        if (confirm('Are you sure you want to delete the "' + columnName + '" column?')) {
+            var table = document.querySelector('.editable-table');
+            var headers = Array.from(table.rows[0].cells);
+            var index = headers.findIndex(header => header.textContent.trim() === columnName);
+            if (index !== -1) {
+                Array.from(table.rows).forEach(row => row.deleteCell(index));
+            }
+        }
+    }
+</script>
+</body>
+</html>

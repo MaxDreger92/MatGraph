@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV File Upload Results</title>
+    <style>
+        ul, li {
+            list-style-type: none;
+        }
+
+        .tree li {
+            margin-left: 1.5em;
+        }
+
+        .tree li::before {
+          content: '\25B6';
+          display: inline-block;
+          margin-left: -1em;
+          width: 1em;
+          color: #007bff;
+          cursor: pointer;
+          transition: transform .1s ease-in-out;
+        }
+
+        .tree li.collapsed::before {
+            content: '\25B7';
+            transform: rotate(90deg);
+        }
+
+        .tree li ul {
+            display: none;
+        }
+
+        .tree li.expanded ul {
+            display: block;
+        }
+
+        .tree li.expanded::before {
+            color: #333;
+            transform: rotate(90deg);
+        }
+    </style>
+    <script>
+        function toggle(event) {
+            let li = event.target.closest('li');
+            li.classList.toggle('collapsed');
+            li.classList.toggle('expanded');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let items = document.querySelectorAll('.tree li');
+            items.forEach(item => {
+                item.classList.add('collapsed');
+                item.addEventListener('click', toggle);
+            });
+        });
+    </script>
+</head>
+<body>
+<h1>CSV File Upload Results</h1>
+{% if data %}
+<ul class="tree">
+    {% for row in data %}
+    <li>
+        <ul>
+            {% for key, value in row.items %}
+            <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No data uploaded.</p>
+{% endif %}
+</body>
+</html>
