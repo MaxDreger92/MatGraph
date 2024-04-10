@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}
+JSON Input for Fabrication Workflow
+{% endblock %}
+
+{% block content %}
+<h1>Enter JSON Data:</h1>
+<form id="jsonInputForm" method="post">
+    {% csrf_token %}
+    <textarea id="jsonData" name="jsonData" rows="10" cols="50" class="form-control">{}</textarea>
+    <br/>
+    <input type="submit" value="Submit" class="btn btn-primary">
+</form>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    jQuery(document).ready(function($){
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+        $("#jsonInputForm").submit(function(e) {
+            e.preventDefault();
+            var jsonData = $("#jsonData").val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'fabrication_workflow' %}",
+                data: JSON.stringify({jsonData: jsonData}),
+                contentType: "application/json",
+                dataType: "json",
+                success: function(response) {
+                    alert("Data submitted successfully");
+                },
+                error: function(response) {
+                    alert("Error in submitting data");
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}
