@@ -117,7 +117,7 @@ class OntologyMapper:
         self.names.append(name_value)
 
 
-
+    print("test")
     @property
     def table(self):
         return self._table
