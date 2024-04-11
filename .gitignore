@@ -6,8 +6,6 @@ out/
 source/
 docs/
 *.log
-/debug.log
-frontend/node_modules/
-frontend/build/
-/userBackendNodeJS/node_modules
+node_modules/
+build/
 /userBackendNodeJS/src/config.ts
