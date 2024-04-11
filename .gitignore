@@ -12,3 +12,4 @@ frontend/public/
 frontend/node_modules/
 frontend/build/
 /debug.log
+/userBackendNodeJS/
