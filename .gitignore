@@ -6,11 +6,7 @@ out/
 source/
 docs/
 *.log
-/debug.log
-.gitignore
-frontend/node_modules/
-frontend/build/
+node_modules/
+build/
 /userBackendNodeJS/src/config.ts
-/userBackendNodeJS/node_modules
-/userBackendNodeJS/build
-
+mat2devplatform/
