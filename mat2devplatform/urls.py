@@ -23,6 +23,5 @@ urlpatterns = [
     path('', include('matching.urls')),
     path('admin/', admin.site.urls),
     path('', include('importing.urls')),
-
-
+    path('', TemplateView.as_view(template_name='../static/index.html')),
 ]
