@@ -5,10 +5,9 @@ out/
 .env
 source/
 docs/
-frontend/node_modules/
 *.log
-.gitignore
-frontend/public/
+/debug.log
 frontend/node_modules/
 frontend/build/
-/debug.log
+/userBackendNodeJS/node_modules
+/userBackendNodeJS/src/config.ts
