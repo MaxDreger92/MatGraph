@@ -13,7 +13,7 @@ app.use(cors())
 // API routes
 app.use(userRouter) // Mount the user routes
 
-app.get("/api/test", (req, res) => {
+app.get("/api/users/test", (req, res) => {
   try {res.send("jello")}
   catch (err: any) {
     return res.status(500).send(err.message)

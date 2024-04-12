@@ -1,10 +1,7 @@
 import axios, { AxiosInstance } from "axios"
 import { IDictionary } from "./types/workflow.types"
 
-// const USER_API_URL = "https://reactgraphai.ew.r.appspot.com" //google app engine
-const USER_API_URL = "http://localhost:8080" //google app engine
-const DATA_API_URL = "http://localhost:8000"
-// const API_URL = "http://localhost:8080" // local
+const API_URL = "http://134.94.199.247/api/"
 
 function getCookie(name: string) {
   const cookieValue = document.cookie
@@ -16,16 +13,11 @@ function getCookie(name: string) {
 }
 
 class Client {
-  private userClient: AxiosInstance
-  private dataClient: AxiosInstance
+  private client: AxiosInstance
 
   constructor() {
-    this.userClient = axios.create({
-      baseURL: USER_API_URL,
-    })
-
-    this.dataClient = axios.create({
-      baseURL: DATA_API_URL,
+    this.client = axios.create({
+      baseURL: API_URL,
     })
 
     this.getCurrentUser = this.getCurrentUser.bind(this)
@@ -33,7 +25,7 @@ class Client {
 
   async login(email: string, password: string) {
     try {
-      const response = await this.userClient.post("/api/users/login", {
+      const response = await this.client.post("users/login", {
         email,
         password,
       })
@@ -50,7 +42,7 @@ class Client {
 
   async register(username: string, email: string, password: string) {
     try {
-      const response = await this.userClient.post("/api/users/register", {
+      const response = await this.client.post("users/register", {
         username,
         email,
         password,
@@ -72,7 +64,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.get("/api/users/current", {
+      const response = await this.client.get("users/current", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -98,8 +90,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch(
-        "/api/users/update/name",
+      const response = await this.client.patch(
+        "users/update/name",
         {
           name,
         },
@@ -127,8 +119,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch(
-        "/api/users/update/username",
+      const response = await this.client.patch(
+        "users/update/username",
         {
           username,
         },
@@ -161,8 +153,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch(
-        "/api/users/update/institution",
+      const response = await this.client.patch(
+        "users/update/institution",
         {
           institution,
         },
@@ -192,8 +184,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch(
-        "/api/users/update/email",
+      const response = await this.client.patch(
+        "users/update/email",
         {
           newMail,
         },
@@ -226,8 +218,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.patch(
-        "/api/users/update/password",
+      const response = await this.client.patch(
+        "users/update/password",
         {
           newPass,
           oldPass,
@@ -256,8 +248,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.post(
-        "/api/users/authpass",
+      const response = await this.client.post(
+        "users/authpass",
         {
           password,
         },
@@ -288,8 +280,8 @@ class Client {
       const formData = new FormData()
       formData.append("image", img)
 
-      const response = await this.userClient.post(
-        "/api/users/update/img",
+      const response = await this.client.post(
+        "users/update/img",
         formData,
         {
           headers: {
@@ -317,8 +309,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.post(
-        "/api/users/workflows",
+      const response = await this.client.post(
+        "users/workflows",
         {
           workflow,
         },
@@ -346,8 +338,8 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.delete(
-        `/api/users/workflows/${workflowId}`,
+      const response = await this.client.delete(
+        `users/workflows/${workflowId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -372,7 +364,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.userClient.get(`/api/users/workflows`, {
+      const response = await this.client.get(`users/workflows`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -390,8 +382,8 @@ class Client {
 
   async workflowSearch(workflow: string | null) {
     try {
-      const response = await this.dataClient.get(
-        "/api/search/fabrication-workflow",
+      const response = await this.client.get(
+        "data/fabrication-workflow",
         {
           params: {
             workflow,
@@ -420,8 +412,8 @@ class Client {
       formData.append("context", context)
 
       // Make the POST request with formData
-      const response = await this.dataClient.post(
-        "/api/file-retrieve",
+      const response = await this.client.post(
+        "data/file-retrieve",
         formData,
         {
           headers: {
@@ -448,7 +440,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.dataClient.post("/api/label-retrieve", {
+      const response = await this.client.post("data/label-retrieve", {
         params: {
           label_dict: dict,
           context: context,
@@ -475,7 +467,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.dataClient.post("/api/attribute-retrieve", {
+      const response = await this.client.post("data/attribute-retrieve", {
         params: {
           attribute_dict: dict,
           context: context,
@@ -502,7 +494,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.dataClient.post("/api/node-retrieve", {
+      const response = await this.client.post("data/node-retrieve", {
         params: {
           node_json: nodeJson,
           context: context,
@@ -529,7 +521,7 @@ class Client {
     fileName: string   // Change 'fileName' parameter name
   ) {
     try {
-      const response = await this.dataClient.post("api/graph-retrieve", {
+      const response = await this.client.post("data/graph-retrieve", {
         params: {
           graph_json: graphJson,
           context: context,    // Use the corrected parameter name
