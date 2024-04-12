@@ -8,6 +8,5 @@ docs/
 *.log
 node_modules/
 build/
-public/
 /userBackendNodeJS/src/config.ts
 mat2devplatform/
