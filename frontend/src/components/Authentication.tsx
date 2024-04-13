@@ -106,7 +106,7 @@ export default function Authentication() {
       const token = response.data.token
 
       if (token) {
-        document.cookie = `token=${token}`
+        document.cookie = `token=${token}; SameSite=None; Secure`;
       }
       return response.data
     } catch (err: any) {
