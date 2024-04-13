@@ -61,7 +61,7 @@ export default function App() {
 
   const handleLogout = () => {
     queryClient.setQueryData<IUser | null | undefined>("getCurrentUser", undefined)
-    document.cookie = "token="
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure";
     navigate("/login")
   }
 
