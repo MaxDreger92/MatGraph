@@ -1,7 +1,9 @@
 import axios, { AxiosInstance } from "axios"
 import { IDictionary } from "./types/workflow.types"
 
-const API_URL = "https://matgraph.xyz/api/"
+// const API_URL = "http://134.94.199.247/api/"
+// const API_URL = "https://reactgraphai.ew.r.appspot.com/api/"
+const API_URL = "http://localhost:8080/api/"
 
 function getCookie(name: string) {
   const cookieValue = document.cookie
