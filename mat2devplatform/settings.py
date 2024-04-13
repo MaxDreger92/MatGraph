@@ -35,7 +35,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
 
-ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost", "http://matgraph.xyz/"]
 
 #Openai API Key
 
