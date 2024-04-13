@@ -51,6 +51,7 @@ class UserRepository {
       roles: [],
       institution: "",
       imgurl: "",
+      verified: false,
     }
     const result = await collection.insertOne(newUser)
     return result.insertedId

@@ -30,6 +30,12 @@ router.post("/api/users/login", async (req, res) => {
       })
     }
 
+    if (!user.verified) {
+      return res.status(401).json({
+        message: "Please await account verification!"
+      })
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password)
     if (!isPasswordValid) {
       return res.status(401).json({
