@@ -20,6 +20,7 @@ const initialMDBUser: MDB_IUser = {
     roles: [''],
     institution: '',
     imgurl: '',
+    verified: false,
 }
 
 const UserContext = createContext<MDB_IUser | null | undefined>(initialMDBUser)
