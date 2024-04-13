@@ -1,5 +1,4 @@
 import { MongoClient, ObjectId } from "mongodb"
-
 import {MDB_IUser as IUser} from "../types/user.type"
 
 const url = process.env.MONGODB_URI as string

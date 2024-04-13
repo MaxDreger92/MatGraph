@@ -1,9 +1,9 @@
+import dotenv from 'dotenv'
+dotenv.config({ path: '../.env' })
+
 import express from "express"
 import userRouter from "./controllers/user.controller-mongodb"
 import cors from "cors"
-import dotenv from "dotenv"
-
-dotenv.config(({ path: '../../.env'}))
 
 const app = express()
 const port = process.env.PORT || 8080 // Set the desired port number
