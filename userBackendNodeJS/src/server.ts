@@ -10,6 +10,8 @@ app.use(express.json())
 
 app.use(cors())
 
+app.set('trust proxy', true)
+
 // API routes
 app.use(userRouter) // Mount the user routes
 
