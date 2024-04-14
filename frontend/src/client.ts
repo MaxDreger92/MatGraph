@@ -4,7 +4,7 @@ import { IDictionary } from './types/workflow.types'
 const LOCAL = true
 
 const API_URL = 'https://matgraph.xyz/api/'
-const DATA_URL = 'http://localhost:8000/api/'
+const LOCAL_API_URL = 'http://localhost:8000/api/'
 
 export function getCookie(name: string) {
     const cookieValue = document.cookie
@@ -26,7 +26,7 @@ class Client {
 
         if (LOCAL) {
             this.dataClient = axios.create({
-                baseURL: DATA_URL,
+                baseURL: LOCAL_API_URL,
             })
         } else {
             this.dataClient = axios.create({
