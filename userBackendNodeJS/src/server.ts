@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config({ path: '../.env' })
+
 import express from "express"
 import userRouter from "./controllers/user.controller-mongodb"
 import cors from "cors"
