@@ -10,3 +10,5 @@ node_modules/
 build/
 /userBackendNodeJS/src/config.ts
 mat2devplatform/
+./deployDjango.sh
+./deployUserBackend.sh
