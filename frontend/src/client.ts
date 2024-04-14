@@ -1,7 +1,10 @@
 import axios, { AxiosInstance } from "axios"
 import { IDictionary } from "./types/workflow.types"
 
+const LOCAL = true
+
 const API_URL = "https://matgraph.xyz/api/"
+const DATA_URL = "http://localhost:8000/api/"
 
 export function getCookie(name: string) {
   const cookieValue = document.cookie
@@ -13,19 +16,31 @@ export function getCookie(name: string) {
 }
 
 class Client {
-  private client: AxiosInstance
+  private userClient: AxiosInstance
+  private dataClient: AxiosInstance
 
   constructor() {
-    this.client = axios.create({
+    this.userClient = axios.create({
       baseURL: API_URL,
     })
+
+    if (LOCAL) {
+      this.dataClient = axios.create({
+        baseURL: DATA_URL,
+      })
+    } else {
+        this.dataClient = axios.create({
+          baseURL: API_URL,
+      })
+    }
+
 
     this.getCurrentUser = this.getCurrentUser.bind(this)
   }
 
   async login(email: string, password: string) {
     try {
-      const response = await this.client.post("users/login", {
+      const response = await this.userClient.post("users/login", {
         email,
         password,
       })
@@ -42,7 +57,7 @@ class Client {
 
   async register(username: string, email: string, password: string) {
     try {
-      const response = await this.client.post("users/register", {
+      const response = await this.userClient.post("users/register", {
         username,
         email,
         password,
@@ -64,7 +79,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.get("users/current", {
+      const response = await this.userClient.get("users/current", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -90,7 +105,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.patch(
+      const response = await this.userClient.patch(
         "users/update/name",
         {
           name,
@@ -119,7 +134,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.patch(
+      const response = await this.userClient.patch(
         "users/update/username",
         {
           username,
@@ -153,7 +168,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.patch(
+      const response = await this.userClient.patch(
         "users/update/institution",
         {
           institution,
@@ -184,7 +199,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.patch(
+      const response = await this.userClient.patch(
         "users/update/email",
         {
           newMail,
@@ -218,7 +233,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.patch(
+      const response = await this.userClient.patch(
         "users/update/password",
         {
           newPass,
@@ -248,7 +263,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.post(
+      const response = await this.userClient.post(
         "users/authpass",
         {
           password,
@@ -280,7 +295,7 @@ class Client {
       const formData = new FormData()
       formData.append("image", img)
 
-      const response = await this.client.post(
+      const response = await this.userClient.post(
         "users/update/img",
         formData,
         {
@@ -309,7 +324,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.post(
+      const response = await this.userClient.post(
         "users/workflows",
         {
           workflow,
@@ -338,7 +353,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.delete(
+      const response = await this.userClient.delete(
         `users/workflows/${workflowId}`,
         {
           headers: {
@@ -364,7 +379,7 @@ class Client {
         throw new Error("Token could not be retrieved!")
       }
 
-      const response = await this.client.get(`users/workflows`, {
+      const response = await this.userClient.get(`users/workflows`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -382,7 +397,7 @@ class Client {
 
   async workflowSearch(workflow: string | null) {
     try {
-      const response = await this.client.get(
+      const response = await this.dataClient.get(
         "data/fabrication-workflow",
         {
           params: {
@@ -412,7 +427,7 @@ class Client {
       formData.append("context", context)
 
       // Make the POST request with formData
-      const response = await this.client.post(
+      const response = await this.dataClient.post(
         "data/file-retrieve",
         formData,
         {
@@ -440,7 +455,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.client.post("data/label-retrieve", {
+      const response = await this.dataClient.post("data/label-retrieve", {
         params: {
           label_dict: dict,
           context: context,
@@ -467,7 +482,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.client.post("data/attribute-retrieve", {
+      const response = await this.dataClient.post("data/attribute-retrieve", {
         params: {
           attribute_dict: dict,
           context: context,
@@ -494,7 +509,7 @@ class Client {
     name: string
   ) {
     try {
-      const response = await this.client.post("data/node-retrieve", {
+      const response = await this.dataClient.post("data/node-retrieve", {
         params: {
           node_json: nodeJson,
           context: context,
@@ -521,7 +536,7 @@ class Client {
     fileName: string   // Change 'fileName' parameter name
   ) {
     try {
-      const response = await this.client.post("data/graph-retrieve", {
+      const response = await this.dataClient.post("data/graph-retrieve", {
         params: {
           graph_json: graphJson,
           context: context,    // Use the corrected parameter name
