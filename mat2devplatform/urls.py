@@ -15,14 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.decorators.cache import never_cache
 
+# Serve SPA index.html as a fallback
+spa_view = never_cache(TemplateView.as_view(template_name='index.html'))
 
 urlpatterns = [
-    path('', include('matgraph.urls')),
-    path('', include('usermanagement.urls')),
-    path('', include('matching.urls')),
     path('admin/', admin.site.urls),
-    path('', include('importing.urls')),
-
-
+    path('matgraph/', include('matgraph.urls')),
+    path('usermanagement/', include('usermanagement.urls')),
+    path('matching/', include('matching.urls')),
+    path('importing/', include('importing.urls')),
+    # Catch-all for SPA
+    path('', spa_view, name='app'),
 ]
+
+# Serve static files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
