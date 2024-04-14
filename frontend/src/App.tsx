@@ -8,6 +8,7 @@ import Header from "./components/Header"
 import {MDB_IUser as IUser} from "./types/user.type"
 
 import client from "./client"
+import { getCookie } from "./client"
 
 import Home from "./components/Home"
 import Workflow from "./components/workflow/Workflow"
@@ -22,6 +23,13 @@ export default function App() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const version = process.env.REACT_APP_VERSION?.slice(1,-1) ?? "???"
+
+  useEffect(() => {
+    const token = getCookie('token')
+    if (!token) {
+      navigate("/login")
+    }
+  }, [navigate])
 
   const {
     data: currentUser,

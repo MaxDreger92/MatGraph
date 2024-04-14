@@ -3,7 +3,7 @@ import { IDictionary } from "./types/workflow.types"
 
 const API_URL = "https://matgraph.xyz/api/"
 
-function getCookie(name: string) {
+export function getCookie(name: string) {
   const cookieValue = document.cookie
     .split("; ")
     .find((cookie) => cookie.startsWith(name))
