@@ -1,4 +1,5 @@
 import { Response, NextFunction } from "express"
+import dotenv from "dotenv"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 
@@ -7,6 +8,8 @@ import WorkflowRepository from "../repositories/workflow.repo-mongodb"
 import {MDB_IUser as IUser} from "../types/user.type"
 import { IWorkflow } from "../types/workflow.type"
 import { IGetUserAuthInfoRequest } from "../types/req"
+
+dotenv.config()
 
 class UserService {
   static findByMail(email: string): Promise<IUser | null> {

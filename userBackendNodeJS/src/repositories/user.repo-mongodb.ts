@@ -1,5 +1,9 @@
 import { MongoClient, ObjectId } from "mongodb"
+import dotenv from "dotenv"
+
 import {MDB_IUser as IUser} from "../types/user.type"
+
+dotenv.config()
 
 const url = process.env.MONGODB_URI as string
 const client = new MongoClient(url)
