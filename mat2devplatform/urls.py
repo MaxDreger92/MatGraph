@@ -37,12 +37,14 @@ spa_view = never_cache(TemplateView.as_view(template_name='index.html'))
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('matgraph/', include('matgraph.urls')),
-    path('usermanagement/', include('usermanagement.urls')),
-    path('matching/', include('matching.urls')),
-    path('importing/', include('importing.urls')),
+    path('', include('default.urls')),
+    path('', include('matgraph.urls')),
+    path('', include('usermanagement.urls')),
+    path('', include('matching.urls')),
+    path('', include('importing.urls')),
     # Catch-all for SPA
     path('', spa_view, name='app'),
+
 ]
 
 # Serve static files in development

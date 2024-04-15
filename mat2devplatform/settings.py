@@ -61,6 +61,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 INSTALLED_APPS = [
     'mat2devplatform',
+    'default',
     'matching',
     'usermanagement',
     'importing',
@@ -113,6 +114,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
