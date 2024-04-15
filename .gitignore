@@ -9,3 +9,7 @@ docs/
 node_modules/
 build/
 /userBackendNodeJS/src/config.ts
+
+__pycache__/
+*.py[cod]
+*$py.class
