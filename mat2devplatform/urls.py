@@ -44,7 +44,6 @@ urlpatterns = [
     path('', include('importing.urls')),
     # Catch-all for SPA
     path('', spa_view, name='app'),
-
 ]
 
 # Serve static files in development
