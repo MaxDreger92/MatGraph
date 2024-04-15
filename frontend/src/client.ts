@@ -5,6 +5,7 @@ const LOCAL = true
 
 const API_URL = 'https://matgraph.xyz/api/'
 const LOCAL_API_URL = 'http://localhost:8000/api/'
+const LOCAL_USER_API_URL = 'http://localhost:8080/api/'
 
 export function getCookie(name: string) {
     const cookieValue = document.cookie
@@ -20,9 +21,16 @@ class Client {
     private dataClient: AxiosInstance
 
     constructor() {
-        this.userClient = axios.create({
-            baseURL: API_URL,
-        })
+
+        if (LOCAL) {
+            this.userClient = axios.create({
+                baseURL: LOCAL_USER_API_URL,
+            })
+        } else {
+            this.userClient = axios.create({
+                baseURL: API_URL,
+            })
+        }
 
         if (LOCAL) {
             this.dataClient = axios.create({
@@ -35,6 +43,32 @@ class Client {
         }
 
         this.getCurrentUser = this.getCurrentUser.bind(this)
+    }
+
+    async apiActiveStatus() {
+        try{
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.get(
+                'data/api-active-status',
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while testing API active status!')
+        }
     }
 
     async login(email: string, password: string) {

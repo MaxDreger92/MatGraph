@@ -61,6 +61,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 INSTALLED_APPS = [
     'mat2devplatform',
+    'default',
     'matching',
     'usermanagement',
     'importing',

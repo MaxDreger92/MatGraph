@@ -9,3 +9,8 @@ docs/
 node_modules/
 build/
 /userBackendNodeJS/src/config.ts
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class

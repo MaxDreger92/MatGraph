@@ -22,6 +22,8 @@ import {
   MdOutlineDarkMode,
   MdDarkMode,
 } from "react-icons/md";
+import client from "../client";
+import toast from "react-hot-toast";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -124,6 +126,16 @@ export default function Header(props: HeaderProps) {
     handleLogout();
   };
 
+  async function getApiActiveStatus() {
+    try {
+        const response = await client.apiActiveStatus()
+
+        toast.success(response.data.message)
+    } catch (err: any) {
+        toast.error(err.message)
+    }
+  }
+
   const items = tabs.map((tab, i) => (
     <Tabs.Tab
       value={tab}
@@ -151,7 +163,10 @@ export default function Header(props: HeaderProps) {
         <Group position="apart">
           {/* Logo */}
           <div className="logo-sm-container">
-            <Link to="/" onClick={() => setActiveTab("")}>
+            <Link to="/" onClick={() => {
+                setActiveTab("")
+                getApiActiveStatus()
+            }}>
               <img
                 src={darkTheme ? logo_sm : logo_sm_light}
                 alt="mgai"
