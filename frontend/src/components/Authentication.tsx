@@ -59,14 +59,15 @@ export default function Authentication() {
   const registerMutation = useMutation(register, {
     onSuccess: (data) => {
       toast.success(data.message)
-      toggle()
+      
+      toggleAuthForm()
     },
     onError: (err: any) => {
       toast.error(err.message)
     },
   })
 
-  const [type, toggle] = useToggle(["login", "register"])
+  const [type, toggleAuthForm] = useToggle(["login", "register"])
 
   const form = useForm({
     initialValues: {
@@ -90,9 +91,7 @@ export default function Authentication() {
   const handleSubmit = (formValues: FormValues) => {
     if (type === "login") {
       loginMutation.mutate(formValues)
-      return
-    }
-    if (formValues.terms) {
+    } else if (formValues.terms) {
       registerMutation.mutate(formValues)
       return
     }
@@ -106,7 +105,7 @@ export default function Authentication() {
       const token = response.data.token
 
       if (token) {
-        document.cookie = `token=${token}`
+        document.cookie = `token=${token}; SameSite=None; Secure`;
       }
       return response.data
     } catch (err: any) {
@@ -196,7 +195,7 @@ export default function Authentication() {
               component="button"
               type="button"
               color="dimmed"
-              onClick={() => toggle()}
+              onClick={() => toggleAuthForm()}
               size="xs"
             >
               {type === "register"
