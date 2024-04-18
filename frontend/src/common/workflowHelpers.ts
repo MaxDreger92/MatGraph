@@ -283,7 +283,14 @@ function parseAttr(
 
         let joinedIndices = ''
         if (attribute[0].index) {
-            joinedIndices = attribute.map(item => item.index).join(';')
+            const indices = attribute.map(item => {
+                if (Array.isArray(item.index)) {
+                    return item.index.join(';')
+                } else {
+                    return String(item.index)
+                }
+            })
+            joinedIndices = indices.join(';')
         }
 
         if (isValOp) {
@@ -293,11 +300,14 @@ function parseAttr(
             return { value: joinedValues, index: joinedIndices }
         }
     } else {
-        const index = attribute.index ? attribute.index.toString() : ''
+        let joinedIndex = ''
+        if (Array.isArray(attribute.index)) {
+            joinedIndex = attribute.index.map(index => index).join(';')
+        }
         if (isValOp) {
-            return { valOp: { value: attribute.value ?? '', operator: attribute.operator ?? '=' }, index: index }
+            return { valOp: { value: attribute.value ?? '', operator: attribute.operator ?? '=' }, index: joinedIndex }
         } else {
-            return { value: attribute.value ?? '', index: index }
+            return { value: attribute.value ?? '', index: joinedIndex }
         }
     }
 }

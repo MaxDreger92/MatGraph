@@ -40,7 +40,7 @@ export interface IDictionary {
 export type Attribute = {
   value: string
   operator?: string
-  index?: number | string
+  index?: number | string | number[] | string[]
 }
 
 export type ParsableAttribute = 
