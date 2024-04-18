@@ -25,6 +25,9 @@ from neomodel import db
 from graphutils.embeddings import request_embedding
 
 
+# from graphutils.embeddings import request_embedding
+
+
 class EmbeddingNodeSet(NodeSet):
     def __init__(self, cls):
         super().__init__(cls)

@@ -16,11 +16,6 @@ from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, Quanti
 from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
 
-
-from io import StringIO
-import csv
-
-
 ONTOLOGY_MAPPER = {
     'matter': EMMOMatter,
     'manufacturing': EMMOProcess,
@@ -117,7 +112,6 @@ class OntologyMapper:
         self.names.append(name_value)
 
 
-    print("test")
     @property
     def table(self):
         return self._table
@@ -223,12 +217,9 @@ class OntologyGenerator:
 
     def get_or_create(self, input, label):
         ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input, limit=15, include_similarity=True)
-        print(f"Checking {input}")
         if ontology[0][1] < 0.97:
-            print(f"Extension required")
             return self.extend_ontology(input, ontology, label)
         else:
-            print(f"High similarity found")
             return ontology[0][0]
 
     def ontology_extension_prompt(self, input, ontology):
@@ -243,13 +234,10 @@ class OntologyGenerator:
         output = self.create_synonym(input, ontology, label)
         nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
         if nodes[0][1] < 0.97:
-            print(f"still no match, creating new node")
-            print(label, input, output)
             ontology_node = ONTOLOGY_MAPPER[label](name=output)
             self.save_ontology_node(ontology_node)
             return ontology_node
         else:
-            print(f"found match, returning node")
             return nodes[0][0]
 
     def run(self):
