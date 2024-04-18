@@ -25,7 +25,7 @@ export interface IGraphNode {
   id: string
   label: Label
   name: any
-  attributes: { [key: string]: ParsableAttributes }
+  attributes: { [key: string]: ParsableAttribute }
 }
 
 export interface IRelationship {
@@ -37,20 +37,15 @@ export interface IDictionary {
   [key: string]: {[key: string]: string}
 }
 
-export type ExtractedAttribute = {
+export type Attribute = {
   value: string
-  index: number | string
+  operator?: string
+  index?: number | string
 }
 
-export type CustomAttribute = {
-  value: string | string[]
-  operator?: Operator
-}
-
-export type ParsableAttributes = 
-  ExtractedAttribute |
-  ExtractedAttribute[] |
-  CustomAttribute
+export type ParsableAttribute = 
+  Attribute |
+  Attribute[]
 
 export type TableRow = {
   [key: string]: string | number | boolean

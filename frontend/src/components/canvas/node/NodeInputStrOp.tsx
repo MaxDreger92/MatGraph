@@ -1,6 +1,5 @@
 import { Select, useMantineColorScheme } from '@mantine/core'
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { AttributeIndex } from '../../../types/canvas.types'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
@@ -13,7 +12,7 @@ interface NodeInputStrOpProps {
     defaultOp: string
     defaultVal: string
     showIndices: boolean
-    index?: AttributeIndex | AttributeIndex[]
+    index?: string | string[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
     autoFocus: boolean
@@ -205,7 +204,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     }}
                 />
                 <input
-                    disabled={uploadMode && index !== 'inferred'}
+                    // readOnly={uploadMode && index !== 'inferred'}
                     onDragOver={handleDragOver}
                     onDrop={handleColumnDrop}
                     ref={stringInputRef}
@@ -244,6 +243,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                                 marginLeft: 8,
                                 zIndex: zIndex,
                                 width: 100,
+                                paddingRight: 25,
                             }}
                         />
                         {currentIndex !== '' ? (
