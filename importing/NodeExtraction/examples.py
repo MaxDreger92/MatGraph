@@ -1,23 +1,30 @@
 MATTER_AGGREGATION_EXAMPLES = [
     {
         'input':
-"""Context: Catalyst Fabrication
-
-ColumnIndex: 1, 2, 4, 5, 8, 9, 10
-Attribute: identifier, name, name, name, ratio, ratio, ratio
-TableHeader: id, Catalyst1, Catalyst2, Support, ratio 1, ratio 2, ratio 3
-Sample Row: CT-1001, Pt, C, Pd, 50, 30, 20""",
+"""Context: 
+    Domain: Catalyst Fabrication
+    Table: 
+        headers: id, Catalyst1, Catalyst2, I/C, Support, milltime, temp, ratio 1, ratio 2, ratio 3
+        first_row: CT-1001, Pt, Pd, 0.8, C, 60, 28, 50, 30, 20
+Input Data:
+[
+    {"ColumnIndex": 1, "AttributeType": "identifier", "TableHeader": "id", "SampleRow": "CT-1001"},
+    {"ColumnIndex": 2, "AttributeType": "name", "TableHeader": "Catalyst1", "SampleRow": "Pt"},
+    {"ColumnIndex": 4, "AttributeType": "name", "TableHeader": "Catalyst2", "SampleRow": "Pd"},
+    {"ColumnIndex": 5, "AttributeType": "name", "TableHeader": "Support", "SampleRow": "C"},
+    {"ColumnIndex": 8, "AttributeType": "ratio", "TableHeader": "ratio 1", "SampleRow": 50},
+    {"ColumnIndex": 9, "AttributeType": "ratio", "TableHeader": "ratio 2", "SampleRow": 30},
+    {"ColumnIndex": 10, "AttributeType": "ratio", "TableHeader": "ratio 3", "SampleRow": 20}
+]""",
         'output': """[
   {
     "attributes": {
       "name": [
-        [
-          {"value": "Catalyst", "index": "inferred"}
-        ]
-      ],
+          {"value": "Catalyst", "reference": "header"}        
+          ],
       "identifier": [
         [
-          {"value": "CT-1001", "index": 1}
+          {"value": "CT-1001", "reference": 1}
         ]
       ],
       "ratio": []
@@ -27,16 +34,12 @@ Sample Row: CT-1001, Pt, C, Pd, 50, 30, 20""",
     "attributes": {
 
       "name": [
-        [
-          {"value": "Catalyst", "index": "inferred"}
-        ],
-        [
-          {"value": "Pt", "index": 2}
-        ]
+          {"value": "Catalyst", "reference": "header"},
+          {"value": "Pt", "reference": 2}
       ],
       "ratio": [
         [
-          {"value": "50", "index": 8}
+          {"value": "50", "reference": 8}
         ]
       ]
     }
@@ -44,16 +47,12 @@ Sample Row: CT-1001, Pt, C, Pd, 50, 30, 20""",
   {
     "attributes": {
       "name": [
-                  [
-          {"value": "CarbonSupport", "index": "inferred"}
-        ],
-        [
-          {"value": "C", "index": 4}
-        ]
+          {"value": "CarbonSupport", "reference": "header"},
+          {"value": "C", "reference": 4}
       ],
       "ratio": [
         [
-          {"value": "30", "index": 9}
+          {"value": "30", "reference": 9}
         ]
       ]
     }
@@ -61,16 +60,12 @@ Sample Row: CT-1001, Pt, C, Pd, 50, 30, 20""",
   {
     "attributes": {
       "name": [
-                  [
-          {"value": "Catalyst", "index": "inferred"}
-        ],
-        [
-          {"value": "Pd", "index": 5}
-        ]
+          {"value": "Catalyst", "reference": "header"},
+          {"value": "Pd", "reference": 5}
       ],
       "ratio": [
         [
-          {"value": "20", "index": 10}
+          {"value": "20", "reference": 10}
         ]
       ]
     }
@@ -94,22 +89,22 @@ Sample Row:
     "attributes": {
       "name": [
         [
-          {"value": "pressure", "index": "inferred"}
+          {"value": "pressure", "reference": "header"}
         ]
       ],
       "value": [
         [
-          {"value": "1.2", "index": 5}
+          {"value": "1.2", "reference": 5}
         ]
       ],
       "error": [
         [
-          {"value": "0.1", "index": 6}
+          {"value": "0.1", "reference": 6}
         ]
       ],
       "unit": [
         [
-          {"value": "pA", "index": "inferred"}
+          {"value": "pA", "reference": "header"}
         ]
       ]
     }
@@ -118,17 +113,17 @@ Sample Row:
     "attributes": {
       "name": [
         [
-          {"value": "temperature", "index": "inferred"}
+          {"value": "temperature", "reference": "header"}
         ]
       ],
       "value": [
         [
-          {"value": "27", "index": 7}
+          {"value": "27", "reference": 7}
         ]
       ],
       "unit": [
         [
-          {"value": "C", "index": "inferred"}
+          {"value": "C", "reference": "header"}
         ]
       ]
     }
@@ -147,12 +142,12 @@ Sample Row: AS-2001, mixing, spray_coating""",
     "attributes": {
       "name": [
         [
-          {"value": "Mixing", "index": 3}
+          {"value": "Mixing", "reference": 3}
         ]
       ],
       "identifier": [
         [
-          {"value": "AS-2001", "index": 2}
+          {"value": "AS-2001", "reference": 2}
         ]
       ]
     }
@@ -161,7 +156,7 @@ Sample Row: AS-2001, mixing, spray_coating""",
     "attributes": {
       "name": [
         [
-          {"value": "Spray Coating", "index": 8}
+          {"value": "Spray Coating", "reference": 8}
         ]
       ]
     }

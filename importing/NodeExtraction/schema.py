@@ -7,78 +7,72 @@ from langchain_core.pydantic_v1 import BaseModel, Field, validator
 class Node(Serializable):
     attributes: dict = Field(default_factory=dict, description='node properties')
 
-class StringAttribute(BaseModel):
-    """
-    value: specific value of the attribute can be extracted from the table column and inferred from context or the table header
-    index: If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.
 
+class Attribute(BaseModel):
     """
-    value: str = Field('',description='specific value of the attribute')
-    index: int|str = Field('',description='column index. If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.')
+    AttributeValue: specific value of the attribute can be extracted from the table column and inferred from context or the table header
+    AttributeReference:  - If the attribute was inferred from "Context" or "Header", the index is either "guess" or "header".
+            - If the attribute is extracted from the SampleRow the index is the ColumnIndex of the attribute.
+    Rule : If the attribute value is an empty string, do not extract the attribute
+    """
+    AttributeValue: float|str = Field('missing')
+    AttributeReference: int|str = Field('missing')
 
-class FloatAttribute(BaseModel):
+class Name(Attribute):
     """
-    value: specific value of the attribute can be extracted from the table column and inferred from context or the table header
-    index: If the attribute was inferred from context or the table header, the index is a string "inferred". If the attribute is extracted from the column content the index is the ColumnIndex of the attribute.
-    """
-    value: str = Field('', description='specific value of the attribute')
-    index: int|str = Field('', description='column index of the attribute. If the name was inferred from context or the table header, the index is a string "inferred"')
-
-class Name(StringAttribute):
-    """
-    Node name can be typically extracted from the table column
+    Node name
     """
     pass
 
-class Value(FloatAttribute):
+class Value(Attribute):
     """
     Value of a quantity
     """
     pass
 
-class Error(FloatAttribute):
+class Error(Attribute):
     """
     Error of a quantity
     """
     pass
 
-class Average(FloatAttribute):
+class Average(Attribute):
     """
     Average value of a quantity
     """
     pass
 
-class StandardDeviation(FloatAttribute):
+class StandardDeviation(Attribute):
     """
     Standard deviation of a quantity
     """
     pass
 
-class Identifier(StringAttribute):
+class Identifier(Attribute):
     """
     Identifier of the node
     """
     pass
 
-class Unit(FloatAttribute):
+class Unit(Attribute):
     """
     Unit of a quantity
     """
     pass
 
-class BatchNumber(StringAttribute):
+class BatchNumber(Attribute):
     """
     Batch number of the matter
     """
     pass
 
-class Ratio(FloatAttribute):
+class Ratio(Attribute):
     """
     Ratio of the matter
     """
     pass
 
-class Concentration(FloatAttribute):
+class Concentration(Attribute):
     """
     Concentration of the matter
     """
@@ -88,34 +82,40 @@ class Concentration(FloatAttribute):
 class MatterAttributes(BaseModel):
     """
     Attributes of a specific matter node
-    Each matter node can have multiple attributes like identifier, batch number, ratio, concentration, name, etc.
-    The attributes need to describe all properties of a SPECIFIC entity.
+    Required fields: name (the name can be a single string or a list of strings)
+    Optional fields: identifier, batch number, ratio, concentration
+
     """
     identifier: Optional[Identifier] = None
     batch_number: Optional[BatchNumber] = None
     ratio: Optional[Ratio] = None
     concentration: Optional[Concentration] = None
-    name: List[Name]
+    name: List[Name] = Field(Name(AttributeValue='missing', AttributeReference='missing'), description="Extract from the column, header or context.")
 
 class QuantityAttributes(BaseModel):
     """
-    Attributes of a specific matter node
-    Each matter node can have multiple attributes like identifier, batch number, ratio, concentration, name, etc.
-    The attributes need to describe all properties of a SPECIFIC entity.
+    Attributes of a specific quantity node. It is possible to have different nodes with the same name as long as they are extracted from
+    different table.
+    Required fields: name, unit, value
+    Optional fields: error, average, standard_deviation
+    Each attribute can have multiple values. The value of a quantity can be a single value or a range.
     """
-    name: List[Name] = Field([])
-    value: Optional[List[Value]] = None
-    error: Optional[List[Error]] = None
-    average: Optional[List[Average]] = None
-    standard_deviation: Optional[List[StandardDeviation]] = None
-    unit: Unit = Field(description='This is a required field. If no unit is given please make an educated guess about the unit based on the context or the table header.')
+    name: Name|List[Name] = Field(Name(AttributeValue='missing', AttributeReference='missing'), description='Required field.')
+    value: Value|List[Value]
+    error: Optional[Error|List[Error]] = None
+    average: Optional[Average|List[Average]] = None
+    standard_deviation: Optional[StandardDeviation|List[StandardDeviation]] = None
+    unit: Unit = Field(Unit(AttributeValue='missing', AttributeReference='missing'), description='Required field. Extract or guess the unit. The unit is never an array.')
 
 class ProcessAttributes(BaseModel):
     """
     Attributes of a process node
+    Required fields: name
+    Optional fields: identifier
+    Extract the name of the process from the table column. If the name is not given in the column infer it from the table header or the context.
     """
-    identifier: Optional[Identifier] = Field(None)
-    name: List[Name] = Field(None)
+    identifier: Optional[Identifier] = None
+    name: List[Name] = Field('missing',description='Required field.')
 
 class MatterNode(Node):
     """
@@ -130,17 +130,17 @@ class MatterNode(Node):
 class PropertyNode(Node):
     """
     Node representing a specific instance of a physical property
-    Example:
-        - Property: Conductivity
+    REMARK: Usually each distinct "name", "value" pair should be represented as a separate node. The only exception are
+    values that inherently are arrays (e.g. a spectrum) which should be represented as a single node.
+
     """
     attributes: QuantityAttributes = Field(None)
 
 class ParameterNode(Node):
     """
     Node representing a specific instance of a processing parameter
-    Example:
-        - Parameter: Temperature
-        - Parameter: Voltage
+        REMARK: Usually each distinct "name", "value" pair should be represented as a separate node. The only exception are
+    values that inherently are arrays (e.g. a spectrum) which should be represented as a single node.
     """
     attributes: QuantityAttributes = Field(None)
 
@@ -175,16 +175,7 @@ class MatterNodeList(BaseModel):
     """
     List of all matter nodes (materials, chemicals, devices, components, products, intermediates, etc.) extracted from the table.
     Different instances of Materials, Chemicals, Devices, Components, Products, Intermediates, etc. need to be represented as different nodes.
-    Example:
-        [
-            {
-                "name": "Battery",
-                "identifier": "FC1",
-            },
-            {
-                "name": "Electrode",
-            }
-        ]
+    The final list of nodes need to represent the full content of the table which requires to infer the correct number of nodes and their attributes.
     """
     nodes: List[MatterNode] = Field(None)
 
@@ -192,6 +183,8 @@ class MatterNodeList(BaseModel):
 class PropertyNodeList(BaseModel):
     """
     List of all property nodes extracted from the table.
+    REMARK: Usually each distinct name/value pair should be represented as separate nodes. The only exception are
+    values that inherently are arrays (e.g. a spectrum) which should be represented as a single node.
     """
     nodes: List[PropertyNode] = Field(None)
 
