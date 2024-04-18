@@ -6,11 +6,10 @@ out/
 source/
 docs/
 *.log
-node_modules/
-build/
-/userBackendNodeJS/src/config.ts
+.gitignore
+frontend/public/
+frontend/node_modules/
+frontend/build/
+/debug.log
+/userBackendNodeJS/config.ts
 
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
