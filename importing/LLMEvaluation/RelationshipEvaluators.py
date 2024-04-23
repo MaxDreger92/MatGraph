@@ -4,7 +4,7 @@ from importing.LLMEvaluation.evaluation import LLMEvaluator, evaluate_JSONs, pre
 from importing.RelationshipExtraction.completeRelExtractor import build_results, extract_has_parameter, \
     validate_has_parameter, extract_has_property, validate_has_property, extract_has_manufacturing, \
     validate_has_manufacturing, extract_has_measurement, validate_has_measurement, \
-    validate_has_metadata
+    validate_has_metadata, extract_has_part_matter, validate_has_part_matter
 
 
 class HasParameterEvaluator(LLMEvaluator):

@@ -8,7 +8,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mat2devplatform.settings')
 django.setup()
 
 from importing.LLMEvaluation.RelationshipEvaluators import HasParameterEvaluator, HasPropertyEvaluator, \
-    HasManufacturingEvaluator, HasMeasurementEvaluator
+    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator
 
 from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, MatterEvaluator, PropertyEvaluator, \
     ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator
