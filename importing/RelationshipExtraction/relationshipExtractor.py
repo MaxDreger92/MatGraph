@@ -24,7 +24,7 @@ from importing.RelationshipExtraction.setupMessages import (
 )
 
 
-class spRelationshipExtractor:
+class RelationshipExtractor:
     """
     Base class for extracting relationships from structured data.
 
