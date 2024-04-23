@@ -282,9 +282,9 @@ class Cache:
             if cached.get_validation_state(attribute_type):
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
         else:
-            print(cached)
+            print("header:",header)
             new_record = cls.objects.create(
-                header=header[:200],
+                header=str(header)[:200],
                 sample_column=column_value[:200])
             return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
 
