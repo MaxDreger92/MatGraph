@@ -61,20 +61,18 @@ export interface ICanvasButton {
 
 export type NodeAttribute = {
   value: string
-  index?: AttributeIndex | AttributeIndex[]
+  index?: string
 }
 
 export type NodeValOpAttribute = {
   valOp: ValOpPair
-  index?: AttributeIndex | AttributeIndex[]
+  index?: string
 }
 
 export type ValOpPair = {
   value: string
   operator: Operator | string
 }
-
-export type AttributeIndex = number | string
 
 export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
 

@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { AttributeIndex } from '../../../types/canvas.types'
 import { useMantineColorScheme } from '@mantine/core'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
@@ -12,7 +11,7 @@ interface NodeInputStrProps {
     id: string
     defaultValue: string | undefined
     showIndices: boolean
-    index?: AttributeIndex | AttributeIndex[]
+    index?: string | string[]
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
     autoFocus: boolean
@@ -153,7 +152,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
             }}
         >
             <input
-                readOnly={uploadMode && index !== 'inferred'}
+                // readOnly={uploadMode && index !== 'inferred'}
                 onDragOver={handleDragOver}
                 onDrop={handleColumnDrop}
                 className={`${inputClass}`}
@@ -194,6 +193,7 @@ export default function NodeInputStr(props: NodeInputStrProps) {
                             marginLeft: 8,
                             zIndex: zIndex,
                             width: 100,
+                            paddingRight: 25,
                         }}
                     />
                     {/* Index delete, open/close choice modal */}
