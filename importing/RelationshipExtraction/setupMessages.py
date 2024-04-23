@@ -50,8 +50,39 @@ Rules you always follow:
 2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
-""")
-                                   ]
+""")]
+
+MATTER_MATTER_MESSAGE = [("system",
+"""You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
+and materials in the field of materials science. Your only task is to assign each Parameter node to the correct Manufacturing/Measurement node.
+As additional you are given the Scientific context and the table data the nodes were extracted from.
+The input data has the following structure:
+- Scientific context
+-Table header
+-First row of the table
+-List of manufacturing or measurement nodes
+-List of parameter nodes
+
+Each node has:
+- id
+- attributes
+    - value (attribute value)
+    - index (column index from which the attribute was extracted)
+
+
+Rules you always follow:
+1. Each matter nodes should be connected to their parts/components by the 'has_part' relationship.
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
+3. The source node is always the whole while the target node is its part/component.
+"""),
+                         ("human", """Extract all "has_part" relationships from the data: {input} """),
+                         ("human", """Make sure to always follow the given format and that you create relationships that form correct triples!"""),
+                         ("human",
+                          """Make sure that you followed the rule-set:
+1. Each matter nodes should be connected to their parts/components by the 'has_part' relationship.
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
+3. The source node is always the whole while the target node is its part/component.
+                          """)]
 
 MATTER_PROPERTY_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
@@ -182,3 +213,19 @@ They have the following inconsistencies with the data model:
 ("human", """Make sure to always follow the given format!"""),
 ]
 
+MATTER_MATTER_CORRECTION_MESSAGE = [("system",
+"""You are a world class knowledge-graph generating algorithm. You excell in correcting relationships between matter and property nodes.
+Your task is to correct a given set of triples that represent the relationships between matter and property nodes.
+You will recieve:
+- context
+- list of matter nodes
+-list of triples
+- instructions on how to correct the triples"""),
+("human", """Correct the following '{rel_type}' graph: {graph}
+They were extracted from the following list of nodes
+{label_one}: {node_list_one}
+They have the following inconsistencies with the data model:
+{inconsistencies}
+ Please correct them and return a corrected list of '{rel_type}' relationships!"""),
+("human", """Make sure to always follow the given format!"""),
+]
