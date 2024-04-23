@@ -24,7 +24,7 @@ from importing.RelationshipExtraction.setupMessages import (
 )
 
 
-class spRelationshipExtractor:
+class RelationshipExtractor:
     """
     Base class for extracting relationships from structured data.
 
@@ -34,10 +34,12 @@ class spRelationshipExtractor:
         setup_message (str): Initial setup message for conversation.
     """
 
-    def __init__(self, input_json, context):
+    def __init__(self, input_json, context, header, first_line, *args, **kwargs):
         """
         Initializes the RelationshipExtractor with input data and context.
         """
+        self.header = header
+        self.first_line = first_line
         self.input_json = input_json
         self.context = context
         self.setup_message = None
@@ -63,7 +65,16 @@ class spRelationshipExtractor:
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
-        prompt = f"{', '.join(self.label_one)}: {self.label_one_nodes} \n{', '.join(self.label_two)}: {self.label_two_nodes} \nContext: {self.context}"
+        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        label_two_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_two_nodes]
+        prompt = f"""
+Scientific Context: {self.context}
+{', '.join(self.label_one)} nodes: {label_one_nodes}
+{', '.join(self.label_two)} nodes: {label_two_nodes}
+ 
+ Table Header: {', '.join(self.header)}
+ First Row: {', '.join(self.first_line)}"""
+        print(prompt)
         return prompt
 
     def initial_extraction(self):

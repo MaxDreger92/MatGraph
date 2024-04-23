@@ -207,15 +207,30 @@ class GraphExtractView(APIView):
         required_fields = ['node_json', 'context', 'file_link', 'file_name']
         if not all(field in data['params'] for field in required_fields):
             return response.Response({'error': 'Missing required data'}, status=status.HTTP_400_BAD_REQUEST)
-
-        graph = self.extract_relationships(node_json, context)
+        header, first_row = self.prepare_data(file_link)
+        graph = self.extract_relationships(node_json, context, header, first_row)
         graph = str(graph).replace("'", '"').replace("has_manufacturing_output", "is_manufacturing_output")
         return response.Response({'graph_json': graph})
 
+    def prepare_data(self, file_link):
+        file = File.nodes.get(link=file_link)
+        file_obj_bytes = file.get_file()
+
+        # Decode the bytes object to a string
+        file_obj_str = file_obj_bytes.decode('utf-8')
 
 
-    def extract_relationships(self, nodes, context):
-        relationships_extractor = fullRelationshipsExtractor(nodes, context)
+        # Use StringIO on the decoded string
+        file_obj = StringIO(file_obj_str)
+        csv_reader = csv.reader(file_obj)
+        header = next(csv_reader)
+        first_row = next(csv_reader)
+
+        return header, first_row
+
+
+    def extract_relationships(self, nodes, context, header, first_row):
+        relationships_extractor = fullRelationshipsExtractor(nodes, context, header, first_row)
         relationships_extractor.run()
         relationships = relationships_extractor.results
         return relationships
@@ -239,12 +254,9 @@ class GraphImportView(APIView):
             return response.Response({'error': 'Missing required data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-        print('start import', file_link)
 
         self.import_graph(file_link, graph, context)
-        print('imported data')
         FullTableCache.update(self.request.session.get('first_line'), graph)
-        print('updated cache')
         return response.Response({'message': 'Graph imported successfully'})
 
 

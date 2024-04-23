@@ -3,7 +3,7 @@ from typing import List
 
 from openai import OpenAI
 
-client = OpenAI()
+# client = OpenAI()
 from neomodel import db
 from tenacity import wait_random_exponential, retry, stop_after_attempt
 

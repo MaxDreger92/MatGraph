@@ -51,15 +51,12 @@ class relationshipCorrector:
         self._corrected_graph = chain.invoke({
             "inconsistencies": (', ').join(prompts),
             "input": self.query})
-        print("corrected graph", self._corrected_graph)
 
     def run(self):
         self.full_validate()
         self.generate_prompts()
-        print("graph, and prompt", self.corrected_graph, self.prompts)
         if len(self.prompts) > 0:
             self.request_corrections(self.prompts)
-        print("graph, and prompt", self.corrected_graph, self.prompts)
         return self.corrected_graph
 
     def generate_prompts(self):

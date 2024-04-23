@@ -7,6 +7,7 @@ from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
+from importing.NodeExtraction.dummydata import test_data
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
@@ -178,7 +179,6 @@ def group_by_prefix(self, data):
 
 
 def get_aggregator(iterable, data_type, aggregator_class, context, header, first_row):
-    print("get aggregator", iterable, data_type, aggregator_class, context)
     if data_type in iterable and iterable[data_type]:
         data = iterable[data_type]
         context = context
@@ -190,9 +190,7 @@ def get_aggregator(iterable, data_type, aggregator_class, context, header, first
 
 
 def aggregate_nodes(data, type, aggregator_class):
-    print("aggregate nodes", data, type, aggregator_class)
     if aggregator := get_aggregator(data['input'], type, aggregator_class, data['context'], data['first_line'], data['header']):
-        print("aggregator", aggregator)
         return aggregator.aggregate()
     return
 
@@ -250,11 +248,8 @@ def validate_parameters(aggregator):
 
 @chain
 def validate_manufacturings(aggregator):
-    print("validate", aggregator)
     if aggregator:
-        print("validate", aggregator.validate())
         return aggregator.validate()
-    print("validated", aggregator)
     return
 
 
@@ -344,23 +339,22 @@ class NodeExtractor(TableDataTransformer):
                 return aggregator
 
     def get_table_understanding(self):
-        print(self.headers)
-        print(self.first_row)
-        chain = RunnableParallel(
-            propertyNodes=aggregate_properties | validate_properties,
-            matterNodes=aggregate_matters | validate_matters,
-            parameterNodes=aggregate_parameters | validate_parameters,
-            manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
-            measurementNodes=aggregate_measurement | validate_measurements,
-            metadataNodes=aggregate_metadata | validate_metadata
-        ) | build_results
-        chain = chain.with_config({"run_name": "node-extraction"})
-        self.node_list = chain.invoke({
-            'input': self.iterable,
-            'context': self.context,
-            'header': self.headers,
-            'first_line': self.first_row
-        })
+        # chain = RunnableParallel(
+        #     propertyNodes=aggregate_properties | validate_properties,
+        #     matterNodes=aggregate_matters | validate_matters,
+        #     parameterNodes=aggregate_parameters | validate_parameters,
+        #     manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
+        #     measurementNodes=aggregate_measurement | validate_measurements,
+        #     metadataNodes=aggregate_metadata | validate_metadata
+        # ) | build_results
+        # chain = chain.with_config({"run_name": "node-extraction"})
+        # self.node_list = chain.invoke({
+        #     'input': self.iterable,
+        #     'context': self.context,
+        #     'header': self.headers,
+        #     'first_line': self.first_row
+        # })
+        self.node_list = test_data
 
 
     @property

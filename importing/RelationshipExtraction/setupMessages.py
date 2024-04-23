@@ -36,18 +36,36 @@ Rules you always follow:
 
 HAS_PARAMETER_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
-and materials in the field of materials science. Your only task is to generate relationships between manufacturing and parameter nodes.
-You use the context and the deep knowledge in materials science to generate the relationships that correctly represent the information hidden in the table.
+and materials in the field of materials science. Your only task is to assign each Parameter node to the correct Manufacturing/Measurement node.
+As additional you are given the Scientific context and the table data the nodes were extracted from.
+The input data has the following structure:
+- Scientific context
+-Table header
+-First row of the table
+-List of manufacturing or measurement nodes
+-List of parameter nodes
+
+Each node has:
+- id
+- attributes
+    - value (attribute value)
+    - index (column index from which the attribute was extracted)
+
+
 Rules you always follow:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
-2. NEVER CONNECT one parameter with more than one manufacturing/measurement nodes.
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes).
+3. The source node is always the manufacturing or measurement node.
+4. The target node is always the parameter node.
 """),
 ("human", """Extract the relationships of the following nodes: {input} """),
 ("human", """Make sure to always follow the given format!"""),
 ("human",
 """Make sure that you followed the rule-set:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
-2. NEVER CONNECT one parameter with more than one manufacturing/measurement nodes.
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes).
+3. The source node is always the manufacturing or measurement node.
+4. The target node is always the parameter node.
 """)
                                    ]
 
