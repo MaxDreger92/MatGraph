@@ -14,8 +14,6 @@ class relationshipValidator:
         self._label_one_nodes, self._label_two_nodes = None, None
         self._validation_results = None
 
-        print("triples")
-        print(self.result)
         for rel in self.result.relationships:
             self.triples.append([str(rel.source), rel.type, str(rel.target)])
             print(str(rel.source), rel.type, str(rel.target))
@@ -106,7 +104,8 @@ class relationshipValidator:
                              triple[0] not in self.node_label_ids(self.label_two_nodes) and triple[1] == rel_type]
         wrong_second_nodes = [triple[2] for triple in self.triples if
                               triple[2] not in self.node_label_ids(self.label_one_nodes) and triple[1] == rel_type]
-        return [wrong_first_nodes, rel_type, wrong_second_nodes] if len(wrong_first_nodes) != 0 or len(
+        return {'wrong_first_nodes': wrong_first_nodes, 'rel_type': rel_type,
+                'wrong_second_nodes': wrong_second_nodes} if len(wrong_first_nodes) != 0 or len(
             wrong_second_nodes) != 0 else True
 
     def no_cycles(self, rel1, rel2):

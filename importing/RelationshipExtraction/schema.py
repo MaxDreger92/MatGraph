@@ -5,17 +5,32 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 
 class Edge(BaseModel):
-    source: int|str = Field(None, description='node_id of the source node')
-    target: int|str = Field(None, description='node_id of the target node')
+    source: int = Field(None, description='node_id of the source node')
+    target: int = Field(None, description='node_id of the target node')
 
 class HasProperty(Edge):
-    type: str = Field("has_property", description='Type of the edge')
+    """
+    Edge connecting matter nodes to property nodes.
+    source: matter node
+    target: property node
+    """
+    type: str = Field(choices=["has_property"])
 
 class HasParameter(Edge):
-    type: str = Field("has_parameter", description='Type of the edge')
+    """
+    Edge connecting manufacturing or measurement nodes to parameter nodes.
+    source: manufacturing or measurement node
+    target: parameter node
+    """
+    type: str = Field(choices =["has_parameter"])
 
 class HasMeasurement(Edge):
-    type: str = Field("has_measurement_output", description='Type of the edge')
+    """
+    Edge connecting measurement nodes to property nodes.
+    source: measurement node
+    target: property node
+    """
+    type: str = Field(choices = ["has_measurement_output"])
 
 class HasManufacturing(Edge):
     """
@@ -24,12 +39,17 @@ class HasManufacturing(Edge):
      - is_manufacturing_input: connects the educt with a manufacturing step (source is matter node, target is manufacturing step)
      - has_manufacturing_output: connects the manufacturing step with its product (source is manufacturing step, target is matter node)
     """
-    type: str = Field(None, description='Type of the edge, either "is_manufacturing_input" or "has_manufacturing_output".')
+    type: str = Field(None, choices=["is_manufacturing_input", "has_manufacturing_output"])
 
 class HasPropertyRelationships(BaseModel):
     relationships: List[HasProperty] = Field(None, description='List of has_property relationships')
 
 class HasParameterRelationships(BaseModel):
+    """
+    All has_parameter relationships.
+    Each parameter needs to be connected to exactly one manufacturing or measurement node.
+    """
+
     relationships: List[HasParameter] = Field(None, description='List of has_parameter relationships')
 
 class HasMeasurementRelationships(BaseModel):
