@@ -8,10 +8,10 @@ docs/
 *.log
 node_modules/
 build/
+static/
 /userBackendNodeJS/src/config.ts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
