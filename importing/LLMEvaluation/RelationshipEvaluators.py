@@ -17,6 +17,15 @@ class HasParameterEvaluator(LLMEvaluator):
                  ):
         super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))
 
+class HasPartMatterEvaluator(LLMEvaluator):
+    def __init__(self,
+                 data_set="Has_Part_Matter_Extraction",
+                 experiment_prefix="has_part_matter_evaluation", metadata='',
+                 evaluators=[evaluate_rels],
+                 predict_function=predict_rels,
+                 chain=RunnableParallel(hasMatterPartRels=extract_has_part_matter | validate_has_part_matter) | build_results,
+                 ):
+        super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))
 
 class HasPropertyEvaluator(LLMEvaluator):
     def __init__(self,

@@ -47,6 +47,7 @@ class RelationshipExtractor:
         self.conversation = None
         self.prompt = ""
         self._results = None
+        self.examples = None
 
     @property
     def label_one_nodes(self):
@@ -127,6 +128,17 @@ class HasManufacturingExtractor(RelationshipExtractor):
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
         self.examples = MATTER_MANUFACTURING_EXAMPLES
 
+class HasPartMatter(RelationshipExtractor):
+    """Extractor for Matter-Manufacturing relationships."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HasPartMatterRelationships
+        self.setup_message = HAS_PART_MATTER_MESSAGE
+        self.label_one = ["matter"]
+        self.label_two = ["matter"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+
 
 class HasMeasurementExtractor(RelationshipExtractor):
     """Extractor for Measurement-Property relationships."""
@@ -135,8 +147,8 @@ class HasMeasurementExtractor(RelationshipExtractor):
         super().__init__(*args, **kwargs)
         self.schema = HasMeasurementRelationships
         self.setup_message = PROPERTY_MEASUREMENT_MESSAGE
-        self.label_one = ["Measurement"]
-        self.label_two = ["Property"]
+        self.label_one = ["measurement"]
+        self.label_two = ["property"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
 

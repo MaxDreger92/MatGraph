@@ -16,23 +16,7 @@ HINTS:
 """)
 ]
 
-MATTER_PROPERTY_MESSAGE = [("system",
-"""You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
-and materials in the field of materials science. Your only task is to generate relationships between matter and property nodes.
-You use the context and the deep knowledge in materials science to generate the relationships that correctly represent the information hidden in the table.
-Rules you always follow:
-1. Each property needs share exactly ONE 'has_property' edge with a matter node.
-2. NEVER CONNECT one property with more than one manufacturing nodes.
-"""),
-("human",
- """Extract the relationships of the following nodes: {input} """),
-("human", """Make sure to always follow the given format!"""),
-("human",
-"""Make sure that you followed the rule-set:
-1. Each property needs share exactly ONE 'has_property' edge with a matter node.
-2. NEVER CONNECT one property with more than one manufacturing nodes.
-""")
-                           ]
+
 
 HAS_PARAMETER_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
@@ -54,20 +38,57 @@ Each node has:
 
 Rules you always follow:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
-2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes).
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
 """),
-("human", """Extract the relationships of the following nodes: {input} """),
-("human", """Make sure to always follow the given format!"""),
+("human", """Extract all "has_parameter" relationships from the data: {input} """),
+("human", """Make sure to always follow the given format and that you create relationships that form correct triples!"""),
 ("human",
 """Make sure that you followed the rule-set:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
-2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes).
+2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
 """)
                                    ]
+
+MATTER_PROPERTY_MESSAGE = [("system",
+"""You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
+and materials in the field of materials science. Your only task is to assign each Property node to the correct Matter node.
+As additional you are given the Scientific context and the table data the nodes were extracted from.
+The input data has the following structure:
+- Scientific context
+-Table header
+-First row of the table
+-List of matter nodes
+-List of property nodes
+
+Each node has:
+- id
+- attributes
+  - value (attribute value)
+  - index (column index from which the attribute was extracted)
+
+
+Rules you always follow:
+1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
+2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
+3. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
+4. The source node is always the matter node.
+5. The target node is always the property node.
+"""),
+("human", """Extract all "has_property" relationships from the data: {input} """),
+("human", """Make sure to always follow the given format and that you create relationships that form correct triples!"""),
+("human",
+"""Make sure that you followed the rule-set:
+1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
+2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
+3. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
+4. The source node is always the matter node.
+5. The target node is always the property node.
+""")
+]
 
 PROPERTY_MEASUREMENT_MESSAGE = [("system", """
 You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows

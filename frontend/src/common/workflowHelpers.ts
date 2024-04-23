@@ -35,9 +35,13 @@ export const relationshipToRelType: Record<string, string> = {
     'matter-measurement': 'IS_MEASUREMENT_INPUT',
     'matter-property': 'HAS_PROPERTY',
     'manufacturing-parameter': 'HAS_PARAMETER',
-    'measurement-property': 'IS_MEASUREMENT_OUTPUT',
+    'measurement-parameter': 'HAS_PARAMETER',
+    'measurement-property': 'HAS_MEASUREMENT_OUTPUT',
     'manufacturing-metadata': 'HAS_METADATA',
     'measurement-metadata': 'HAS_METADATA',
+    'matter-matter': 'HAS_PART',
+    'manufacturing-manufacturing': 'HAS_PART',
+    'measurement-measurement': 'HAS_PART',
 }
 
 /**
