@@ -130,7 +130,11 @@ export default function Header(props: HeaderProps) {
     try {
         const response = await client.apiActiveStatus()
 
-        toast.success(response.data.message)
+        if (response.data.message) {
+            toast.success(response.data.message)
+        } else {
+            throw new Error('Unexpected server response while testing API active status!')
+        }
     } catch (err: any) {
         toast.error(err.message)
     }
@@ -162,17 +166,30 @@ export default function Header(props: HeaderProps) {
       <Container size="default" className={classes.mainSection}>
         <Group position="apart">
           {/* Logo */}
-          <div className="logo-sm-container">
-            <Link to="/" onClick={() => {
-                setActiveTab("")
-                getApiActiveStatus()
-            }}>
+          <div className="logo-sm-container"
+            style={{
+                display: "flex",
+                alignItems: "center",
+            }}
+          >
+            <Link to="/" onClick={() => setActiveTab("")}>
               <img
                 src={darkTheme ? logo_sm : logo_sm_light}
                 alt="mgai"
                 className="logo-sm"
               />
             </Link>
+            <div
+                style={{
+                    marginTop: 5,
+                    paddingLeft: 20,
+                    fontSize: 13,
+                    cursor: "pointer",
+                }}
+                onClick={getApiActiveStatus}
+            >
+                <u>Is the API active?</u>
+            </div>
           </div>
 
           {/* Tabs */}
