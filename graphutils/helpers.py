@@ -2,7 +2,8 @@ from django.forms import ValidationError
 
 from uuid import UUID
 
-from neomodel import StringProperty, db
+from django_neomodel import NeoNodeSet
+from neomodel import StringProperty, db, NodeSet
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -159,9 +160,14 @@ class NeoPaginator:
         setattr(node_set, 'limit', self.limit)
         setattr(node_set, 'skip', self.start)
 
+
+NodeSet.query_cls = FixedQueryBuilder
+NeoNodeSet.query_cls = FixedQueryBuilder
+
 class LocaleOrderingQueryBuilder(FixedQueryBuilder):
 
     def build_order_by(self, ident, source):
+        print('LocaleOrderingQueryBuilder.build_order_by')
 
         # cypher uses reversed ordering
         source.order_by_elements.reverse()
