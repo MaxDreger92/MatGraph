@@ -10,11 +10,12 @@ from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipValidator import hasParameterValidator, hasPropertyValidator, \
     hasMeasurementValidator, hasManufacturingValidator, hasPartMatterValidator, hasPartManufacturingValidator
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships, HasManufacturingRelationships, \
-    HasPropertyRelationships, HasParameterRelationships, HasPartMatterRelationships
+    HasPropertyRelationships, HasParameterRelationships, HasPartMatterRelationships, HasPartManufacturingRelationships
 from importing.RelationshipExtraction.setupMessages import PROPERTY_MEASUREMENT_CORRECTION_MESSAGE, \
     HAS_PROPERTY_CORRECTION_MESSAGE, HAS_PARAMETER_CORRECTION_MESSAGE, MATTER_MANUFACTURING_CORRECTION_MESSAGE, \
     MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE, HAS_PARAMETER_MESSAGE, \
-    MATTER_MATTER_CORRECTION_MESSAGE
+    MATTER_MATTER_CORRECTION_MESSAGE, MEASUREMENT_MEASUREMENT_CORRECTION_MESSAGE, \
+    MANUFACTURING_MANUFACTURING_CORRECTION_MESSAGE
 
 
 class relationshipCorrector:
@@ -194,7 +195,7 @@ class hasPartManufacturingCorrector(relationshipCorrector):
         self._label_one = ['manufacturing']
         self._label_two = ['manufacturing']
         self.validator = hasPartManufacturingValidator(nodes, graph)
-        self.setup_message = MANUFACTURING_MANUFACTRUING_CORRECTION_MESSAGE
+        self.setup_message = MANUFACTURING_MANUFACTURING_CORRECTION_MESSAGE
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasPartManufacturingRelationships
 

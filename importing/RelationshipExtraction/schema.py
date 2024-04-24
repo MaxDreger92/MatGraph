@@ -87,8 +87,8 @@ class HasManufacturingRelationships(BaseModel):
 class HasPartMatterRelationships(BaseModel):
     relationships: List[HasPartMatter] = Field(None)
 
-class HasPartMeasurement(BaseModel):
+class HasPartMeasurementRelationships(BaseModel):
     relationships: List[HasPartMeasurement]
 
-class HasPartManufacturing(BaseModel):
+class HasPartManufacturingRelationships(BaseModel):
     relationships: List[HasPartManufacturing]
