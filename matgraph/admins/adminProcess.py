@@ -7,6 +7,8 @@ Contains:
     MeasurementAdmin(ProcessAdmin)
     ManufacturingAdmin(NodeModelAdmin)
 """
+from django.contrib import admin as dj_admin
+
 from matgraph.admins.adminBase import (NodeModelAdmin)
 
 from matgraph.models.processes import Measurement, Manufacturing
