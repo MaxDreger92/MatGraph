@@ -1,50 +1,22 @@
-"""
-The graphutils library contains classes that are needed to extend the django functionality on neo4j.
-
-graphutils helper classes:
- - LocalOrderingQueryBuilder
- - NeoPaginator
-
-graphutils helper functions:
- - connect
- - connect_all
- - relation_to_internal_value
- - replace
- - validate_param
-"""
-
 from django.forms import ValidationError
 
 from uuid import UUID
 
-from neomodel import StringProperty
-from neomodel.match import QueryBuilder
+from neomodel import StringProperty, db
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
+from graphutils.views import FixedQueryBuilder
+
 
 # deletes existing connections
 def connect_all(relationship, nodes):
-    """
-    Disconnects any existing relationships and then connects the given nodes.
-
-    Args:
-        relationship (Relationship): The relationship instance to operate on.
-        nodes (iterable): An iterable of nodes to connect.
-    """
     relationship.disconnect_all()
     for node in nodes:
         relationship.connect(node)
 
 def connect(relationship, node):
-    """
-    Disconnects any existing relationships and then connects the given node.
-
-    Args:
-        relationship (Relationship): The relationship instance to operate on.
-        node (Node): The node to connect.
-    """
     relationship.disconnect_all()
     if node:
         relationship.connect(node)
@@ -69,29 +41,33 @@ def relation_to_internal_value(data, relation, model, add_attributes=[]):
     pk_attr = 'uid' if hasattr(model, 'uid') else 'code'
     is_single = not isinstance(data[relation], list)
 
-    internal_values = []
     relation_data = data[relation] if not is_single else [data[relation]]
 
     if is_single and relation_data[0] is None:
         relation_data = []
 
-    for item in relation_data:
-        try:
+    # collect pks
+    pks = [
+        item[pk_attr].hex if isinstance(item[pk_attr], UUID) else item[pk_attr]
+        for item in relation_data
+    ]
 
-            value = item[pk_attr]
+    # fetch in single query
+    result, meta = db.cypher_query(
+        f'UNWIND $pks as pk MATCH (n:{model.__label__}) WHERE n.{pk_attr}=pk RETURN n',
+        {'pks': pks}
+    )
 
-            if isinstance(value, UUID):
-                value = value.hex
+    if len(result) != len(relation_data):
+        raise ValidationError({relation: f'missing node'})
 
-            node = model.nodes.get(**{pk_attr: value})
-            internal_values.append(node)
+    internal_values = [model.inflate(row[0]) for row in result]
 
-            for attr in add_attributes:
-                if attr in item:
-                    setattr(node, attr, item[attr])
-
-        except model.DoesNotExist:
-            raise ValidationError({relation: f'unknown {relation} for key "{value}"'})
+    # add extra attributes
+    for i in range(0, len(relation_data)):
+        for attr in add_attributes:
+            if attr in relation_data[i]:
+                setattr(internal_values[i], attr, relation_data[i][attr])
 
     if is_single:
         data[relation] = internal_values[0] if len(internal_values) else None
@@ -141,6 +117,14 @@ def validate_param(request, param, type=str, list=False, required=True, default=
 
     return value
 
+class DummyPaginator:
+
+    def __init__(self, limit=20, skip=0):
+        self.skip = skip
+        self.limit = limit
+
+    def build_query_fragment(self):
+        return f' SKIP {self.skip} LIMIT {self.limit}'
 
 class NeoPaginator:
 
@@ -171,21 +155,53 @@ class NeoPaginator:
             'next': None if not len(data) else self.build_next_url()
         }, **kwargs)
 
-class LocaleOrderingQueryBuilder(QueryBuilder):
+    def apply(self, node_set):
+        setattr(node_set, 'limit', self.limit)
+        setattr(node_set, 'skip', self.start)
+
+class LocaleOrderingQueryBuilder(FixedQueryBuilder):
 
     def build_order_by(self, ident, source):
 
         # cypher uses reversed ordering
-        source._order_by.reverse()
+        source.order_by_elements.reverse()
 
-        if '?' in source._order_by:
+        if '?' in source.order_by_elements:
             super().build_order_by(ident, source)
         else:
-            self._ast['order_by'] = []
-            for p in source._order_by:
+            self._ast.order_by = []
+            for p in source.order_by_elements:
                 field = p.split(' ')[0]
                 if isinstance(getattr(source.model, field), StringProperty):
-                    self._ast['order_by'].append(f'apoc.text.clean({ident}.{field}) {p.replace(field,"")}')
+                    self._ast.order_by.append(f'apoc.text.clean({ident}.{field}) {p.replace(field,"")}')
                 else:
-                    self._ast['order_by'].append(f'{ident}.{p}')
+                    self._ast.order_by.append(f'{ident}.{p}')
 
+
+class RelationFilterQueryBuilder(FixedQueryBuilder):
+
+    def _build_relation_filters(self, filters):
+
+        indent = self.node_set.source.__name__.lower()
+
+        for f in filters:
+
+            direction = f[4] if len(f) > 4 else 'outbound'
+            direction = direction == 'outbound'
+
+            if direction:
+                self._ast.where.append(
+                    f'EXISTS(({indent})-[:{f[0]}]->(:{f[1]} {{{f[2]}: "{f[3]}"}}))'
+                )
+            else:
+                self._ast.where.append(
+                    f'EXISTS(({indent})<-[:{f[0]}]-(:{f[1]} {{{f[2]}: "{f[3]}"}}))'
+                )
+
+
+    def build_query(self):
+
+        if hasattr(self.node_set, 'relation_filters'):
+            self._build_relation_filters(getattr(self.node_set, 'relation_filters'))
+
+        return super().build_query()

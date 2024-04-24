@@ -60,12 +60,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Application definition
 
 INSTALLED_APPS = [
-    'mat2devplatform',
-    'matching',
-    'usermanagement',
-    'importing',
-    'matgraph',
-    'graphutils',
     'colorfield',
     'corsheaders',
     'django.contrib.admin',
@@ -86,7 +80,13 @@ INSTALLED_APPS = [
     'admin_interface',
     'dal',
     'dal_select2',
-    'rest_framework'
+    'rest_framework',
+    'mat2devplatform',
+    'matching',
+    'usermanagement',
+    'importing',
+    'matgraph',
+    'graphutils'
 ]
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'

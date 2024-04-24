@@ -78,8 +78,8 @@ class Researcher(CausalObject):
     name = StringProperty(unique_index=True, required=True)
     first_author = RelationshipTo("Publication", "FIRST_AUTHOR", model=ByRel)
     author = RelationshipTo("Publication", "AUTHOR", model=ByRel)
-    planned = RelationshipTo("processes.Process", "PLANNED", model=ByRel)
-    conducted = RelationshipTo("processes.Process", "CONDUCTED", model=ByRel)
+    planned = RelationshipTo("matgraph.models.processes.Measurement", "PLANNED", model=ByRel)
+    conducted = RelationshipTo("matgraph.models.processes.Measurement", "CONDUCTED", model=ByRel)
 
 
 class Publication(UniqueNode):

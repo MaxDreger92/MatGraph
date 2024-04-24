@@ -7,12 +7,10 @@ Contains:
     MeasurementAdmin(ProcessAdmin)
     ManufacturingAdmin(NodeModelAdmin)
 """
-from django.contrib import admin as dj_admin
-
 from matgraph.admins.adminBase import (NodeModelAdmin)
-from matgraph.forms.formsProcess import ManufacturingAdminForm, MeasurementAdminForm, DataProcessingAdminForm, \
-    SimulationAdminForm
-from matgraph.models.processes import Measurement, Manufacturing, Simulation, DataProcessing
+
+from matgraph.models.processes import Measurement, Manufacturing
+
 
 
 class ProcessAdmin(NodeModelAdmin):
@@ -53,12 +51,12 @@ class MeasurementAdmin(ProcessAdmin):
     model at the admin page.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields += (('file_output', 'property_output'),)
-
-    form = MeasurementAdminForm
-
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields += (('file_output', 'property_output'),)
+    #
+    # form = MeasurementAdminForm
+    pass
 
 @dj_admin.register(Manufacturing)
 class ManufacturingAdmin(ProcessAdmin):
@@ -67,13 +65,13 @@ class ManufacturingAdmin(ProcessAdmin):
     Measurement model at the admin page.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields += (('material_output', 'molecule_output'), ('component_output', 'device_output'))
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields += (('material_output', 'molecule_output'), ('component_output', 'device_output'))
+    #
+    # form = ManufacturingAdminForm
 
-    form = ManufacturingAdminForm
-
-
+    pass
 
 
 # @dj_admin.register(Simulation)

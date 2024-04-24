@@ -3,7 +3,7 @@ import os
 
 import requests
 from django.db import models, IntegrityError
-from django_neomodel import classproperty
+from neomodel import classproperty
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
