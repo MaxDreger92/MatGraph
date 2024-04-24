@@ -37,3 +37,9 @@ class ManufacturingAdminForm(ProcessAdminForm):
 class MeasurementAdminForm(ProcessAdminForm):
     property_output = RelationMultipleChoiceField("Property", "Properties", primary_key="uid", label_field='uid + ""')
     file_output = RelationMultipleChoiceField("File", "Files", primary_key="uid", label_field='link')
+
+class DataProcessingAdminForm(MeasurementAdminForm):
+    file_input = RelationMultipleChoiceField("File", "Files", primary_key="uid", label_field='link')
+
+class SimulationAdminForm(MeasurementAdminForm):
+    file_input = RelationMultipleChoiceField("File", "Files", primary_key="uid", label_field='link')

@@ -10,10 +10,9 @@ Contains:
 from django.contrib import admin as dj_admin
 
 from matgraph.admins.adminBase import (NodeModelAdmin)
-from matgraph.forms.formsProcess import ManufacturingAdminForm, MeasurementAdminForm
-from matgraph.models.processes import Measurement, Manufacturing
-
-
+from matgraph.forms.formsProcess import ManufacturingAdminForm, MeasurementAdminForm, DataProcessingAdminForm, \
+    SimulationAdminForm
+from matgraph.models.processes import Measurement, Manufacturing, Simulation, DataProcessing
 
 
 class ProcessAdmin(NodeModelAdmin):
@@ -73,3 +72,33 @@ class ManufacturingAdmin(ProcessAdmin):
         self.fields += (('material_output', 'molecule_output'), ('component_output', 'device_output'))
 
     form = ManufacturingAdminForm
+
+
+
+
+# @dj_admin.register(Simulation)
+# class SimulationAdmin(ProcessAdmin):
+#     """
+#     ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
+#     Measurement model at the admin page.
+#     """
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields += (('file_output', 'property_output'))
+#
+#     form = SimulationAdminForm
+#
+#
+# @dj_admin.register(DataProcessing)
+# class DataProcessingAdmin(ProcessAdmin):
+#     """
+#     ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
+#     Measurement model at the admin page.
+#     """
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields += (('file_output', 'property_output'))
+#
+#     form = DataProcessingAdminForm

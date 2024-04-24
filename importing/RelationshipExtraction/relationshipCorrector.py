@@ -8,9 +8,9 @@ from langchain_openai import ChatOpenAI
 
 from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipValidator import hasParameterValidator, hasPropertyValidator, \
-    hasMeasurementValidator, hasManufacturingValidator
+    hasMeasurementValidator, hasManufacturingValidator, hasPartMatterValidator, hasPartManufacturingValidator
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships, HasManufacturingRelationships, \
-    HasPropertyRelationships, HasParameterRelationships
+    HasPropertyRelationships, HasParameterRelationships, HasPartMatterRelationships
 from importing.RelationshipExtraction.setupMessages import PROPERTY_MEASUREMENT_CORRECTION_MESSAGE, \
     HAS_PROPERTY_CORRECTION_MESSAGE, HAS_PARAMETER_CORRECTION_MESSAGE, MATTER_MANUFACTURING_CORRECTION_MESSAGE, \
     MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE, HAS_PARAMETER_MESSAGE, \
@@ -182,10 +182,44 @@ class hasPartMatterCorrector(relationshipCorrector):
         self._rel_type = 'has_part'
         self._label_one = ['matter']
         self._label_two = ['matter']
-        self.validator = hasManufacturingValidator(nodes, graph)
+        self.validator = hasPartMatterValidator(nodes, graph)
         self.setup_message = MATTER_MATTER_CORRECTION_MESSAGE
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
+        self.schema = HasPartMatterRelationships
+
+class hasPartManufacturingCorrector(relationshipCorrector):
+    def __init__(self, nodes, graph, query, *args, **kwargs):
+        super().__init__(nodes, graph, query, *args, **kwargs)
+        self._rel_type = 'has_part'
+        self._label_one = ['manufacturing']
+        self._label_two = ['manufacturing']
+        self.validator = hasPartManufacturingValidator(nodes, graph)
+        self.setup_message = MANUFACTURING_MANUFACTRUING_CORRECTION_MESSAGE
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
+        self.schema = HasPartManufacturingRelationships
+
+class hasPartMeasurementCorrector(relationshipCorrector):
+    def __init__(self, nodes, graph, query, *args, **kwargs):
+        super().__init__(nodes, graph, query, *args, **kwargs)
+        self._rel_type = 'has_part'
+        self._label_one = ['measurement']
+        self._label_two = ['measurement']
+        self.validator = hasPartManufacturingValidator(nodes, graph)
+        self.setup_message = MEASUREMENT_MEASUREMENT_CORRECTION_MESSAGE
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
+        self.schema = HasPartManufacturingRelationships
+
+class hasPartMeasurementCorrector(relationshipCorrector):
+    def __init__(self, nodes, graph, query, *args, **kwargs):
+        super().__init__(nodes, graph, query, *args, **kwargs)
+        self._rel_type = 'has_part'
+        self._label_one = ['measurement']
+        self._label_two = ['measurement']
+        self.validator = hasPartManufacturingValidator(nodes, graph)
+        self.setup_message = MEASUREMENT_MEASUREMENT_CORRECTION_MESSAGE
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasManufacturingRelationships
+
 
 class hasParameterCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
