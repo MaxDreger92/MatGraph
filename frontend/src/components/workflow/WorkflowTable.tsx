@@ -448,7 +448,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                 borderRight:
                                                     columnVirtual.index + 1 === columnsLength
                                                         ? 'none'
-                                                        : '1px solid #333',
+                                                        : `1px solid ${getBorderColor()}`,
                                                 // borderRight: `1px solid ${tableColors["borderColor"]}`,
                                                 borderBottom:
                                                     rowVirtual.index + 1 === tableRows.length
