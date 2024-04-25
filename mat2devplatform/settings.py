@@ -11,14 +11,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-from decouple import Csv, config
+from decouple import config
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -61,7 +61,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 INSTALLED_APPS = [
     'mat2devplatform',
-    'default',
     'matching',
     'usermanagement',
     'importing',
@@ -87,7 +86,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'dal',
     'dal_select2',
-    'rest_framework'
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'

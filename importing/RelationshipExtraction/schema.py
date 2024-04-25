@@ -32,6 +32,31 @@ class HasMeasurement(Edge):
     """
     type: str = Field(choices = ["has_measurement_output"])
 
+class HasPartMatter(Edge):
+    """
+    Edge connecting matter to its component matter node (e.g., FuelCell, has_part, MEA)
+    source: matter node
+    target: matter node
+    """
+    type: str = Field(choices = ["has_part"])
+
+class HasPartManufacturing(Edge):
+    """
+    Edge connecting manufacturing nodes to its subprocess manufacturing nodes (e.g. Solar Cell Fabrication, has_part, Spin Coating)
+    source: manufacturing node
+    target manufacturing node
+    """
+    type: str = Field(choices=["has_part"])
+
+
+class HasPartMeasurement(Edge):
+    """
+    Edge connecting measurement nodes to its subprocess measurement nodes (e.g. Electron Microscopy, has_part, Sample Preparation)
+    source: measurement node
+    target measurement node
+    """
+    type: str = Field(choices=["has_part"])
+
 class HasManufacturing(Edge):
     """
     Edge connecting matter nodes to manufacturing steps.
@@ -57,3 +82,13 @@ class HasMeasurementRelationships(BaseModel):
 
 class HasManufacturingRelationships(BaseModel):
     relationships: List[HasManufacturing] = Field(None, description='List of has_manufacturing relationships')
+
+
+class HasPartMatterRelationships(BaseModel):
+    relationships: List[HasPartMatter] = Field(None)
+
+class HasPartMeasurementRelationships(BaseModel):
+    relationships: List[HasPartMeasurement]
+
+class HasPartManufacturingRelationships(BaseModel):
+    relationships: List[HasPartManufacturing]

@@ -8,7 +8,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mat2devplatform.settings')
 django.setup()
 
 from importing.LLMEvaluation.RelationshipEvaluators import HasParameterEvaluator, HasPropertyEvaluator, \
-    HasManufacturingEvaluator, HasMeasurementEvaluator
+    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator
 
 from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, MatterEvaluator, PropertyEvaluator, \
     ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator
@@ -40,9 +40,9 @@ if __name__ == "__main__":
     # metadata_evaluation = MetadataEvaluator()
     # metadata_results = metadata_evaluation.run_evaluation()
     #
-    has_parameter_data_set = "Has_Parameter_Extraction"
-    has_parameter_evaluation = HasParameterEvaluator()
-    has_parameter_results = has_parameter_evaluation.run_evaluation()
+    # has_parameter_data_set = "Has_Parameter_Extraction"
+    # has_parameter_evaluation = HasParameterEvaluator()
+    # has_parameter_results = has_parameter_evaluation.run_evaluation()
     #
     # has_property_data_set = "Has_Property_Extraction"
     # has_property_evaluation = HasPropertyEvaluator()
@@ -52,9 +52,13 @@ if __name__ == "__main__":
     # has_manufacturing = HasManufacturingEvaluator()
     # has_manufacturing_results = has_manufacturing.run_evaluation()
 
-    # has_measurement_data_set = "Has_Measurement_Extraction"
-    # has_measurement = HasMeasurementEvaluator()
-    # has_measurement_results = has_measurement.run_evaluation()
+    has_measurement_data_set = "Has_Measurement_Extraction"
+    has_measurement = HasMeasurementEvaluator()
+    has_measurement_results = has_measurement.run_evaluation()
+
+    has_part_matter_data_set = "Has_Part_Matter_Extraction"
+    has_part_matter = HasPartMatterEvaluator()
+    has_part_matter_results = has_part_matter.run_evaluation()
 
     # has_metadata_data_set = "Has_Metadata_Extraction"
     # has_metadata = HasMetadataEvaluator()

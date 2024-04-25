@@ -3,9 +3,11 @@ import json
 import django
 
 from importing.RelationshipExtraction.relationshipCorrector import hasParameterCorrector, hasPropertyCorrector, \
-    hasManufacturingCorrector, hasMeasurementCorrector
+    hasManufacturingCorrector, hasMeasurementCorrector, hasPartMatterCorrector, hasPartManufacturingCorrector, \
+    hasPartMeasurementCorrector
 from importing.RelationshipExtraction.relationshipExtractor import HasParameterExtractor, HasManufacturingExtractor, \
-    HasMeasurementExtractor, HasPropertyExtractor
+    HasMeasurementExtractor, HasPropertyExtractor, HasPartMatterExtractor, HasPartManufacturingExtractor, \
+    HasPartMeasurementExtractor
 
 django.setup()
 
@@ -40,6 +42,19 @@ def extract_has_manufacturing(data):
 @chain
 def extract_has_parameter(data):
     return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasParameterExtractor)
+
+@chain
+def extract_has_part_matter(data):
+    return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasPartMatterExtractor)
+
+@chain
+def extract_has_part_manufacturing(data):
+    return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasPartManufacturingExtractor)
+
+@chain
+def extract_has_part_measurement(data):
+    return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasPartMeasurementExtractor)
+
 
 # @chain
 # def extract_has_metadata(data):
@@ -80,12 +95,21 @@ def validate_has_parameter(data):
 def validate_has_metadata(data):
     return validate_relationships(data, hasParameterCorrector)
 
+@chain
+def validate_has_part_matter(data):
+    return validate_relationships(data, hasPartMatterCorrector)
 
+@chain
+def validate_has_part_manufacturing(data):
+    return validate_relationships(data, hasPartManufacturingCorrector)
+
+@chain
+def validate_has_part_measurement(data):
+    return validate_relationships(data, hasPartMeasurementCorrector)
 
 
 @chain
 def build_results(data):
-    print(data)
     relationships = []
     for key, value in data.items():
         if value is None:
@@ -122,6 +146,9 @@ class fullRelationshipsExtractor:
             has_measurement=extract_has_measurement | validate_has_measurement,
             has_manufacturing=extract_has_manufacturing | validate_has_manufacturing,
             has_parameter=extract_has_parameter | validate_has_parameter,
+            has_part_matter = extract_has_part_matter | validate_has_part_matter,
+            has_part_manufacturing = extract_has_part_manufacturing | validate_has_part_manufacturing,
+            has_part_measurement = extract_has_part_measurement | validate_has_part_measurement
             # has_metadata=extract_has_metadata | validate_has_metadata
         ) | build_results
         chain = chain.with_config({"run_name": "relationship-extraction"})

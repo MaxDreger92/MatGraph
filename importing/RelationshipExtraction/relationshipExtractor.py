@@ -14,13 +14,14 @@ from importing.RelationshipExtraction.schema import (
     HasManufacturingRelationships,
     HasMeasurementRelationships,
     HasParameterRelationships,
-    HasPropertyRelationships,
+    HasPropertyRelationships, HasPartMatterRelationships,
 )
 from importing.RelationshipExtraction.setupMessages import (
     MATTER_MANUFACTURING_MESSAGE,
     PROPERTY_MEASUREMENT_MESSAGE,
     HAS_PARAMETER_MESSAGE,
-    MATTER_PROPERTY_MESSAGE,
+    MATTER_PROPERTY_MESSAGE, MATTER_MATTER_MESSAGE, MEASUREMENT_MEASUREMENT_MESSAGE,
+    MANUFACTURING_MANUFACTURING_MESSAGE,
 )
 
 
@@ -47,6 +48,7 @@ class RelationshipExtractor:
         self.conversation = None
         self.prompt = ""
         self._results = None
+        self.examples = None
 
     @property
     def label_one_nodes(self):
@@ -127,6 +129,74 @@ class HasManufacturingExtractor(RelationshipExtractor):
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
         self.examples = MATTER_MANUFACTURING_EXAMPLES
 
+class HasPartMatterExtractor(RelationshipExtractor):
+    """Extractor for Matter-Manufacturing relationships."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HasPartMatterRelationships
+        self.setup_message = MATTER_MATTER_MESSAGE
+        self.label_one = ["matter"]
+        self.label_two = ["matter"]
+        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+
+    def create_query(self):
+        """Generates the initial query prompt for relationship extraction."""
+        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        prompt = f"""
+Scientific Context: {self.context}
+{', '.join(self.label_one)} nodes: {label_one_nodes}
+ 
+ Table Header: {', '.join(self.header)}
+ First Row: {', '.join(self.first_line)}"""
+        return prompt
+
+class HasPartManufacturingExtractor(RelationshipExtractor):
+    """Extractor for Matter-Manufacturing relationships."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HasPartMatterRelationships
+        self.setup_message = MANUFACTURING_MANUFACTURING_MESSAGE
+        self.label_one = ["manufacturing"]
+        self.label_two = ["manufacturing"]
+        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+
+    def create_query(self):
+        """Generates the initial query prompt for relationship extraction."""
+        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        prompt = f"""
+Scientific Context: {self.context}
+{', '.join(self.label_one)} nodes: {label_one_nodes}
+ 
+ Table Header: {', '.join(self.header)}
+ First Row: {', '.join(self.first_line)}"""
+        print(prompt)
+        return prompt
+
+class HasPartMeasurementExtractor(RelationshipExtractor):
+    """Extractor for Matter-Manufacturing relationships."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HasPartMatterRelationships
+        self.setup_message = MEASUREMENT_MEASUREMENT_MESSAGE
+        self.label_one = ["measurement"]
+        self.label_two = ["measurement"]
+        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+
+    def create_query(self):
+        """Generates the initial query prompt for relationship extraction."""
+        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        prompt = f"""
+Scientific Context: {self.context}
+{', '.join(self.label_one)} nodes: {label_one_nodes}
+ 
+ Table Header: {', '.join(self.header)}
+ First Row: {', '.join(self.first_line)}"""
+        print(prompt)
+        return prompt
+
 
 class HasMeasurementExtractor(RelationshipExtractor):
     """Extractor for Measurement-Property relationships."""
@@ -135,8 +205,8 @@ class HasMeasurementExtractor(RelationshipExtractor):
         super().__init__(*args, **kwargs)
         self.schema = HasMeasurementRelationships
         self.setup_message = PROPERTY_MEASUREMENT_MESSAGE
-        self.label_one = ["Measurement"]
-        self.label_two = ["Property"]
+        self.label_one = ["measurement"]
+        self.label_two = ["property"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
 
