@@ -74,7 +74,7 @@ export type ValOpPair = {
   operator: Operator | string
 }
 
-export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata" | "simulation"
 
 export type IndexDictionary = {
     [index: number]: string[]
