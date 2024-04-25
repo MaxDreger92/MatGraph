@@ -78,8 +78,8 @@ class Researcher(CausalObject):
     name = StringProperty(unique_index=True, required=True)
     first_author = RelationshipTo("Publication", "FIRST_AUTHOR", model=ByRel)
     author = RelationshipTo("Publication", "AUTHOR", model=ByRel)
-    planned = RelationshipTo("Process", "PLANNED", model=ByRel)
-    conducted = RelationshipTo("Process", "CONDUCTED", model=ByRel)
+    planned = RelationshipTo("matgraph.models.processes.Measurement", "PLANNED", model=ByRel)
+    conducted = RelationshipTo("matgraph.models.processes.Measurement", "CONDUCTED", model=ByRel)
 
 
 class Publication(UniqueNode):
@@ -91,7 +91,7 @@ class Publication(UniqueNode):
 
     DOI = StringProperty(unique_index=True, required=True)
     first_authors = RelationshipFrom(Researcher, "FIRST_AUTHOR")
-    measurements = RelationshipFrom("Measurement", "PUBLISHED_IN")
+    measurements = RelationshipFrom("processes.Measurement", "PUBLISHED_IN")
     institution = StringProperty()
     publishing_date = DateTimeProperty()
     citations = IntegerProperty()
@@ -186,7 +186,6 @@ class File(CausalObject):
         super().delete()
 
     def delete_selected(self, **kwargs):
-        print("delete")
         super().delete_selected
 
     def get_file(self):

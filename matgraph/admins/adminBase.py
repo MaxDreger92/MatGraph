@@ -10,6 +10,7 @@ It includes the following classes:
 - NeoAdminChangelist: A custom ChangeList for handling Neo4j models in the Django admin site.
 - NodeModelAdmin: A custom ModelAdmin for handling Neo4j models in the Django admin site.
 """
+from django_neomodel import NeoNodeSet
 
 from graphutils.forms import RelationMultipleChoiceField, RelationSingleChoiceField
 
@@ -17,11 +18,14 @@ from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.forms import Select
 from django import forms
-from neomodel import db, RelationshipManager, StringProperty
-from neomodel.match import QueryBuilder
+from neomodel import db, RelationshipManager, StringProperty, NodeSet
 
 from django.contrib.admin import ModelAdmin
 
+from graphutils.helpers import FixedQueryBuilder, LocaleOrderingQueryBuilder
+
+NodeSet.query_cls = FixedQueryBuilder
+NeoNodeSet.query_cls = FixedQueryBuilder
 
 class ChoiceWidgetBase:
     """
@@ -147,8 +151,6 @@ class RelationChoiceFieldBase:
 
 
 
-
-
 class NeoModelForm(forms.ModelForm):
     """
     A custom ModelForm for handling Neo4j models.
@@ -198,27 +200,6 @@ class NeoModelForm(forms.ModelForm):
         return instance
 
 
-class LocaleOrderingQueryBuilder(QueryBuilder):
-    """
-    A custom QueryBuilder for handling string ordering in Neo4j queries.
-    """
-    def build_order_by(self, ident, source):
-
-        # cypher uses reversed ordering
-        source._order_by.reverse()
-
-        if '?' in source._order_by:
-            super().build_order_by(ident, source)
-        else:
-            self._ast['order_by'] = []
-            for p in source._order_by:
-                field = p.split(' ')[0]
-                if isinstance(getattr(source.model, field), StringProperty):
-                    self._ast['order_by'].append(f'apoc.text.clean({ident}.{field}) {p.replace(field, "")}')
-                else:
-                    self._ast['order_by'].append(f'{ident}.{p}')
-
-
 # fixes ordering
 class NeoAdminChangelist(ChangeList):
     """
@@ -247,6 +228,7 @@ class NodeModelAdmin(ModelAdmin):
     ordering = ('uid',)
 
     def get_queryset(self, request):
+        print('NodeModelAdmin.get_queryset')
         qs = super().get_queryset(request)
         qs.query_cls = LocaleOrderingQueryBuilder
         return qs
