@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config({ path: '../.env' })
+
 import express from "express"
 import userRouter from "./controllers/user.controller-mongodb"
 import cors from "cors"
@@ -10,10 +13,12 @@ app.use(express.json())
 
 app.use(cors())
 
+app.set('trust proxy', true)
+
 // API routes
 app.use(userRouter) // Mount the user routes
 
-app.get("/api/test", (req, res) => {
+app.get("/api/users/test", (req, res) => {
   try {res.send("jello")}
   catch (err: any) {
     return res.status(500).send(err.message)

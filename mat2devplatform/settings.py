@@ -35,7 +35,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
 
-ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost", "matgraph.xyz"]
 
 #Openai API Key
 
@@ -113,6 +113,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -199,10 +200,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'mat2devplatform/static')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/build/static'),
+    os.path.join(BASE_DIR, 'frontend/build'),
     os.path.join(BASE_DIR, 'matching/static'),
     ]
 print(STATICFILES_DIRS)

@@ -199,7 +199,7 @@ export default function Canvas(props: CanvasProps) {
             error: { valOp: { value: '', operator: '' }, index: '' },
             identifier: { value: '', index: '' },
             type,
-            with_indices: uploadMode,
+            withIndices: uploadMode,
             position,
             size,
             optimalSize,
@@ -763,8 +763,10 @@ export default function Canvas(props: CanvasProps) {
 
     useEffect(() => {
         if (needLayout) {
-            handleLayoutNodes(true)
             setNeedLayout(false)
+            setTimeout(() => {
+                handleLayoutNodes(true)
+            }, 50)
         }
     }, [needLayout, setNeedLayout, handleLayoutNodes])
 

@@ -5,16 +5,10 @@ import {
     Operator,
     NodeAttribute,
     NodeValOpAttribute,
-    AttributeIndex,
 } from '../types/canvas.types'
-import {
-    IGraphData,
-    ExtractedAttribute,
-    CustomAttribute,
-    ParsableAttributes,
-    Label,
-} from '../types/workflow.types'
+import { IGraphData, Attribute, ParsableAttribute, Label } from '../types/workflow.types'
 import { v4 as uuidv4 } from 'uuid'
+import { getTypedIndex, splitStrBySemicolon } from './helpers'
 
 const labelAttributes = {
     matter: ['name', 'identifier', 'batch_number', 'ratio', 'concentration'],
@@ -42,6 +36,7 @@ export const relationshipToRelType: Record<string, string> = {
     'matter-matter': 'HAS_PART',
     'manufacturing-manufacturing': 'HAS_PART',
     'measurement-measurement': 'HAS_PART',
+    'measurement-parameter': 'HAS_PARAMETER',
 }
 
 /**
@@ -144,52 +139,111 @@ export function isAttrDefined(attribute: string | ValOpPair): boolean {
 }
 
 function parseAttrOut(
-    attribute: string | ValOpPair,
-    index?: AttributeIndex | AttributeIndex[]
-): ParsableAttributes {
-    let stringToParse = ''
-
-    // Determine the string to parse based on the type of attribute
-    if (typeof attribute === 'string') {
-        stringToParse = attribute
-    } else if ('value' in attribute && typeof attribute.value === 'string') {
-        stringToParse = attribute.value
-    }
-
-    // Split the string by semicolons
-    const splitStrings = stringToParse
-        .split(';')
-        .map((s) => s.trim())
-        .filter((s) => s !== '')
-    const parsedString = splitStrings.length === 1 ? splitStrings[0] : splitStrings
-
-    if (index === undefined) {
-        if (typeof attribute === 'string') {
-            return { value: parsedString } as CustomAttribute
+    attributeValue: string | ValOpPair,
+    attributeIndex?: string,
+    withIndices?: boolean
+): ParsableAttribute {
+    if (typeof attributeValue === 'string') {
+        if (withIndices && attributeIndex && attributeIndex !== '') {
+            return parseIdxValAttrOut(attributeValue, attributeIndex)
         } else {
-            return {
-                value: parsedString,
-                operator: attribute.operator as Operator,
-            } as CustomAttribute
+            return parseValAttrOut(attributeValue)
         }
     } else {
-        if (typeof parsedString === 'string' && !Array.isArray(index)) {
-            return { value: parsedString, index: index } as ExtractedAttribute
+        if (withIndices && attributeIndex && attributeIndex !== '') {
+            return parseIdxValOpAttrOut(
+                attributeValue.value,
+                attributeValue.operator,
+                attributeIndex
+            )
         } else {
-            if (Array.isArray(parsedString) && Array.isArray(index)) {
-                return parsedString.map((s, i) => ({
-                    value: s,
-                    index: index[i],
-                })) as ExtractedAttribute[]
-            } else {
-                return { value: 'ERROR_PARSING_EXTRACTED_ATTR' } as CustomAttribute
-            }
+            return parseValOpAttrOut(attributeValue.value, attributeValue.operator)
         }
     }
 }
 
+// Value = string, no index
+function parseValAttrOut(value: string): ParsableAttribute {
+    const parsedValue = splitStrBySemicolon(value)
+
+    if (Array.isArray(parsedValue)) {
+        return parsedValue.map((value) => ({
+            value: value,
+        }))
+    } else {
+        return { value: parsedValue }
+    }
+}
+
+// Value = string, with index
+function parseIdxValAttrOut(value: string, index: string): ParsableAttribute {
+    const parsedValue = splitStrBySemicolon(value)
+    const parsedIndex = splitStrBySemicolon(index)
+
+    if (Array.isArray(parsedValue)) {
+        if (Array.isArray(parsedIndex) && parsedValue.length === parsedIndex.length) {
+            const rawIndices = parsedIndex
+            return parsedValue.map((val, i) => {
+                const typedIndex = getTypedIndex(rawIndices[i])
+                return { value: val, index: typedIndex }
+            })
+        } else {
+            return parsedValue.map((value) => ({
+                value: value,
+                index: 'ARRAY_LENGTH_MISMATCH',
+            }))
+        }
+    } else if (Array.isArray(parsedIndex)) {
+        return { value: parsedValue, index: 'ARRAY_LENGTH_MISMATCH' }
+    } else {
+        const typedIndex = getTypedIndex(parsedIndex)
+        return { value: parsedValue, index: typedIndex }
+    }
+}
+
+// Value = value(string) + operator(string), no index
+function parseValOpAttrOut(value: string, operator: string): ParsableAttribute {
+    const parsedValue = splitStrBySemicolon(value)
+
+    if (Array.isArray(parsedValue)) {
+        return parsedValue.map((value) => ({
+            value: value,
+            operator: operator,
+        }))
+    } else {
+        return { value: parsedValue, operator: operator }
+    }
+}
+
+// Value = value(string) + operator(string), with index
+function parseIdxValOpAttrOut(value: string, operator: string, index: string): ParsableAttribute {
+    const parsedValue = splitStrBySemicolon(value)
+    const parsedIndex = splitStrBySemicolon(index)
+
+    if (Array.isArray(parsedValue)) {
+        if (Array.isArray(parsedIndex) && parsedValue.length === parsedIndex.length) {
+            const rawIndices = parsedIndex
+            return parsedValue.map((val, i) => {
+                const typedIndex = getTypedIndex(rawIndices[i])
+                return { value: val, operator: operator, index: typedIndex }
+            })
+        } else {
+            return parsedValue.map((value) => ({
+                value: value,
+                operator: operator,
+                index: 'ARRAY_LENGTH_MISMATCH',
+            }))
+        }
+    } else if (Array.isArray(parsedIndex)) {
+        return { value: parsedValue, operator: operator, index: 'ARRAY_LENGTH_MISMATCH' }
+    } else {
+        const typedIndex = getTypedIndex(parsedIndex)
+        return { value: parsedValue, operator: operator, index: typedIndex }
+    }
+}
+
 function parseAttr(
-    attribute: ParsableAttributes | undefined,
+    attribute: ParsableAttribute | undefined,
     isValOp: boolean
 ): NodeAttribute | NodeValOpAttribute {
     if (attribute === undefined) {
@@ -200,66 +254,38 @@ function parseAttr(
         }
     }
 
-    if (Array.isArray(attribute) || 'index' in attribute) {
-        return parseExtractedAttribute(attribute, isValOp)
-    } else {
-        return parseCustomAttribute(attribute, isValOp)
-    }
-}
-
-function parseExtractedAttribute(
-    attribute: ExtractedAttribute | ExtractedAttribute[],
-    isValOp: boolean
-): NodeAttribute | NodeValOpAttribute {
     if (Array.isArray(attribute)) {
         let values: string[] = []
-        let indices: AttributeIndex[] = []
+        let indices: string[] = []
+
         attribute.forEach((item) => {
             values.push(item.value)
-            indices.push(item.index)
-        })
-        const finalIndex = indices.length > 1 ? indices : indices[0]
-        if (isValOp) {
-            return {
-                valOp: { value: values.join(';'), operator: '=' as Operator },
-                index: finalIndex,
-            } as NodeValOpAttribute
-        } else {
-            return { value: values.join(';'), index: finalIndex } as NodeAttribute
-        }
-    } else {
-        if (isValOp) {
-            return {
-                valOp: { value: attribute.value, operator: '=' as Operator },
-                index: attribute.index,
-            } as NodeValOpAttribute
-        } else {
-            return { value: attribute.value, index: attribute.index } as NodeAttribute
-        }
-    }
-}
 
-function parseCustomAttribute(
-    attribute: CustomAttribute,
-    isValOp: boolean
-): NodeAttribute | NodeValOpAttribute {
-    if (Array.isArray(attribute.value)) {
+            if (item.index) {
+                indices.push(item.index.toString())
+            }
+        })
+
+        const joinedValues = values.join(';')
+        let joinedIndices = ''
+        if (values.length === indices.length) {
+            joinedIndices = indices.join(';')
+        }
+
         if (isValOp) {
-            const op = attribute.operator ? attribute.operator : ('=' as Operator)
-            return {
-                valOp: { value: attribute.value.join(';'), operator: op },
-            } as NodeValOpAttribute
+            const operator = attribute[0].operator ?? '='
+            return { valOp: { value: joinedValues, operator: operator }, index: joinedIndices }
         } else {
-            return { value: attribute.value.join(';') } as NodeAttribute
+            return { value: joinedValues, index: joinedIndices }
         }
     } else {
         if (isValOp) {
-            const op = attribute.operator ? attribute.operator : ('=' as Operator)
             return {
-                valOp: { value: attribute.value, operator: op },
-            } as NodeValOpAttribute
+                valOp: { value: attribute.value ?? '', operator: attribute.operator ?? '=' },
+                index: (attribute.index ??  '').toString(),
+            }
         } else {
-            return { value: attribute.value } as NodeAttribute
+            return { value: attribute.value ?? '', index: (attribute.index ??  '').toString() }
         }
     }
 }
@@ -288,34 +314,34 @@ export function convertToJSONFormat(
 
     const processedNodes = nodes.map((node) => {
         // Group all attributes under an attributes object
-        const attributes: { [key: string]: ParsableAttributes } = {}
+        const attributes: { [key: string]: ParsableAttribute } = {}
         if (isAttrDefined(node.name.value)) {
-            attributes.name = parseAttrOut(node.name.value, node.name.index)
+            attributes.name = parseAttrOut(node.name.value, node.name.index, node.withIndices)
         } else {
             attributes.name = { value: 'MISSING_NAME' }
         }
         if (isAttrDefined(node.value.valOp)) {
-            attributes.value = parseAttrOut(node.value.valOp, node.value.index)
+            attributes.value = parseAttrOut(node.value.valOp, node.value.index, node.withIndices)
         } else if (['property', 'parameter'].includes(node.type)) {
             attributes.value = { value: 'MISSING_VALUE_OR_OPERATOR' }
         }
         if (isAttrDefined(node.batch_num.value))
-            attributes.batch_num = parseAttrOut(node.batch_num.value, node.batch_num.index)
+            attributes.batch_num = parseAttrOut(node.batch_num.value, node.batch_num.index, node.withIndices)
         if (isAttrDefined(node.unit.value))
-            attributes.unit = parseAttrOut(node.unit.value, node.unit.index)
+            attributes.unit = parseAttrOut(node.unit.value, node.unit.index, node.withIndices)
         if (isAttrDefined(node.ratio.valOp))
-            attributes.ratio = parseAttrOut(node.ratio.valOp, node.ratio.index)
+            attributes.ratio = parseAttrOut(node.ratio.valOp, node.ratio.index, node.withIndices)
         if (isAttrDefined(node.concentration.valOp))
             attributes.concentration = parseAttrOut(
                 node.concentration.valOp,
-                node.concentration.index
+                node.concentration.index, node.withIndices
             )
         if (isAttrDefined(node.std.valOp))
-            attributes.std = parseAttrOut(node.std.valOp, node.std.index)
+            attributes.std = parseAttrOut(node.std.valOp, node.std.index, node.withIndices)
         if (isAttrDefined(node.error.valOp))
-            attributes.error = parseAttrOut(node.error.valOp, node.error.index)
+            attributes.error = parseAttrOut(node.error.valOp, node.error.index, node.withIndices)
         if (isAttrDefined(node.identifier.value))
-            attributes.identifier = parseAttrOut(node.identifier.value, node.identifier.index)
+            attributes.identifier = parseAttrOut(node.identifier.value, node.identifier.index, node.withIndices)
 
         // Return the node object with id, type, attributes, and relationships
         return {
@@ -357,7 +383,7 @@ export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
             error: parseAttr(item.attributes.error, true) as NodeValOpAttribute,
             identifier: parseAttr(item.attributes.identifier, false) as NodeAttribute,
             type: item.label,
-            with_indices: uploadMode,
+            withIndices: uploadMode,
             position: { x: -100, y: -100 },
             size: 100,
             optimalSize: 100,
@@ -465,5 +491,3 @@ export function fileToDataUri(file: File): Promise<string> {
         reader.readAsDataURL(file)
     })
 }
-
-

@@ -22,6 +22,8 @@ import {
   MdOutlineDarkMode,
   MdDarkMode,
 } from "react-icons/md";
+import client from "../client";
+import toast from "react-hot-toast";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -124,6 +126,20 @@ export default function Header(props: HeaderProps) {
     handleLogout();
   };
 
+  async function getApiActiveStatus() {
+    try {
+        const response = await client.apiActiveStatus()
+
+        if (response.data.message) {
+            toast.success(response.data.message)
+        } else {
+            throw new Error('Unexpected server response while testing API active status!')
+        }
+    } catch (err: any) {
+        toast.error(err.message)
+    }
+  }
+
   const items = tabs.map((tab, i) => (
     <Tabs.Tab
       value={tab}
@@ -150,7 +166,12 @@ export default function Header(props: HeaderProps) {
       <Container size="default" className={classes.mainSection}>
         <Group position="apart">
           {/* Logo */}
-          <div className="logo-sm-container">
+          <div className="logo-sm-container"
+            style={{
+                display: "flex",
+                alignItems: "center",
+            }}
+          >
             <Link to="/" onClick={() => setActiveTab("")}>
               <img
                 src={darkTheme ? logo_sm : logo_sm_light}
@@ -158,6 +179,17 @@ export default function Header(props: HeaderProps) {
                 className="logo-sm"
               />
             </Link>
+            <div
+                style={{
+                    marginTop: 5,
+                    paddingLeft: 20,
+                    fontSize: 13,
+                    cursor: "pointer",
+                }}
+                onClick={getApiActiveStatus}
+            >
+                <u>Is the API active?</u>
+            </div>
           </div>
 
           {/* Tabs */}

@@ -1,10 +1,10 @@
 import { Select, useMantineColorScheme } from '@mantine/core'
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import { AttributeIndex } from '../../../types/canvas.types'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
 import WorkflowContext from '../../workflow/context/WorkflowContext'
+import { splitStrBySemicolon } from '../../../common/helpers'
 
 interface NodeInputStrOpProps {
     handleUpdate: (id: string, value?: string, operator?: string, index?: string) => void
@@ -13,7 +13,7 @@ interface NodeInputStrOpProps {
     defaultOp: string
     defaultVal: string
     showIndices: boolean
-    index?: AttributeIndex | AttributeIndex[]
+    index?: string
     showIndexChoice: string
     setShowIndexChoice: React.Dispatch<React.SetStateAction<string>>
     autoFocus: boolean
@@ -36,12 +36,16 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     } = props
 
     const [selectOpen, setSelectOpen] = useState(false)
-    const [currentValue, setCurrentValue] = useState<string | undefined>(defaultVal)
+    const [currentValue, setCurrentValue] = useState<string>('')
+    const [valueButtonHovered, setValueButtonHovered] = useState(false)
     const [currentIndex, setCurrentIndex] = useState<string | number>('')
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
     const [awaitingIndex, setAwaitingIndex] = useState(false)
     const { selectedColumnIndex, uploadMode } = useContext(WorkflowContext)
+    const [indexMissing, setIndexMissing] = useState(false)
+    const [numValues, setNumValues] = useState(0)
+    const [numIndices, setNumIndices] = useState(0)
 
     const stringInputRef = useRef<HTMLInputElement>(null)
     const indexInputRef = useRef<HTMLInputElement>(null)
@@ -52,46 +56,72 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const darkTheme = colorScheme === 'dark'
     const inputClass = darkTheme ? 'input-dark-1' : 'input-light-1'
 
+    // Set Index initial
     useEffect(() => {
         if (defaultVal) {
             setCurrentValue(defaultVal)
         }
     }, [defaultVal])
 
+    // Set Value initial
     useEffect(() => {
         if (!index) return
-        if (Array.isArray(index)) {
-            let indexString = ''
-            index.map((index) => indexString.concat(index.toString()))
-            setCurrentIndex(indexString)
-            return
-        }
         setCurrentIndex(index)
     }, [index])
 
+    // Close IndexChoiceModal when Index changes
     useEffect(() => {
-        if (currentIndex !== '' && showIndexChoice === id) {
-            setShowIndexChoice('')
-        }
-    }, [currentIndex, id, showIndexChoice, setShowIndexChoice])
+        setShowIndexChoice('')
+    }, [currentIndex, setShowIndexChoice])
+
+    // Check if there are more values in an attribute than indices
+    useEffect(() => {
+        setIndexMissing(numIndices === 0 || numValues > numIndices)
+    }, [numValues, numIndices])
 
     useEffect(() => {
-        if (!(awaitingIndex && selectedColumnIndex !== null)) return
+        const splitValue = splitStrBySemicolon(currentValue)
 
-        handleUpdate(id, undefined, undefined, selectedColumnIndex.toString())
-        setCurrentIndex(selectedColumnIndex)
-        setAwaitingIndex(false)
-    }, [awaitingIndex, selectedColumnIndex, handleUpdate, id])
-
-    const toggleSelectOpen = () => {
-        if (selectOpen) {
-            setTimeout(() => {
-                setSelectOpen(false)
-            }, 100)
-        } else {
-            setSelectOpen(true)
+        if (!splitValue) {
+            setNumValues(0)
+            return
         }
-    }
+        if (!Array.isArray(splitValue)) {
+            setNumValues(1)
+            return
+        }
+        setNumValues(splitValue.length)
+    }, [currentValue])
+
+    useEffect(() => {
+        const splitIndex = splitStrBySemicolon(currentIndex.toString())
+
+        if (!splitIndex) {
+            setNumIndices(0)
+            return
+        }
+        if (!Array.isArray(splitIndex)) {
+            setNumIndices(1)
+            return
+        }
+        setNumIndices(splitIndex.length)
+    }, [currentIndex])
+
+    const stopPropagation = useCallback((e: MouseEvent) => {
+        e.stopPropagation()
+    }, [])
+
+    const handleDropdownOpen = useCallback(() => {
+        document.addEventListener('mouseup', stopPropagation, true)
+        setSelectOpen(true)
+    }, [stopPropagation])
+
+    const handleDropdownClose = useCallback(() => {
+        setTimeout(() => {
+            document.removeEventListener('mouseup', stopPropagation, true)
+            setSelectOpen(false)
+        }, 100)
+    }, [stopPropagation])
 
     const handleOpChangeLocal = (e: string | null) => {
         if (e === null) {
@@ -104,11 +134,20 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const deleteIndexLocal = () => {
         handleUpdate(id, undefined, undefined, '')
         setCurrentIndex('')
-        setCurrentValue('')
         return
     }
 
-    const handleIndexChoiceModal = () => {
+    const constructNextIndex = useCallback((newIndex: string | number) => {
+        let nextIndex: number | string = ''
+        if (currentIndex === '') {
+            nextIndex = newIndex
+        } else {
+            nextIndex = currentIndex + ';' + newIndex
+        }
+        return nextIndex.toString()
+    }, [currentIndex])
+
+    const toggleIndexChoiceModal = () => {
         if (showIndexChoice === id) {
             setAwaitingIndex(false)
             setShowIndexChoice('')
@@ -117,49 +156,93 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
         }
     }
 
-    const handleIndexChoice = (choice: string) => {
-        if (choice === 'inferred') {
-            handleUpdate(id, undefined, undefined, choice)
-            setCurrentIndex(choice)
-        }
-    }
+    const handleIndexChoice = useCallback(
+        (choice: string | number) => {
+            const nextIndex = constructNextIndex(choice)
+
+            handleUpdate(id, undefined, undefined, nextIndex)
+            setCurrentIndex(nextIndex)
+            setAwaitingIndex(false)
+        },
+        [handleUpdate, id, constructNextIndex]
+    )
+
+    // Listen to selectedColumnIndex and set Index when awaitingIndex is true
+    useEffect(() => {
+        if (!awaitingIndex || selectedColumnIndex === null) return
+
+        handleIndexChoice(selectedColumnIndex)
+        setAwaitingIndex(false)
+    }, [awaitingIndex, selectedColumnIndex, handleIndexChoice])
 
     const handleIndexDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        const dragDataString = e.dataTransfer.getData('text/plain');
+        e.preventDefault()
+
+        const dragDataString = e.dataTransfer.getData('text/plain')
         const dragData = JSON.parse(dragDataString)
 
-        const {columnIndex} = dragData 
-    
-        setCurrentIndex(columnIndex);
-        handleUpdate(id, undefined, undefined, columnIndex)
+        const { columnIndex } = dragData
+
+        if (!['string', 'number'].includes(typeof columnIndex)) {
+            return
+        }
+
+        const nextIndex = constructNextIndex(columnIndex)
+
+        handleUpdate(id, undefined, undefined, nextIndex)
+        setCurrentIndex(nextIndex)
 
         if (indexInputRef.current) {
             indexInputRef.current.focus()
         }
+    }
 
-        e.preventDefault();
-    };
+    const deleteValueLocal = () => {
+        handleUpdate(id, '', undefined, undefined)
+        setCurrentValue('')
+        return
+    }
+
+    const constructNextValue = useCallback((newValue: string) => {
+        let nextValue: string = ''
+        if (currentValue === '') {
+            nextValue = newValue
+        } else {
+            nextValue = currentValue + ';' + newValue
+        }
+        return nextValue
+    }, [currentValue])
 
     const handleColumnDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        const dragDataString = e.dataTransfer.getData('text/plain');
-        const dragData = JSON.parse(dragDataString);
+        e.preventDefault()
 
-        const { columnContent, columnIndex } = dragData;
+        const dragDataString = e.dataTransfer.getData('text/plain')
+        const dragData = JSON.parse(dragDataString)
 
-        setCurrentValue(columnContent)
-        setCurrentIndex(columnIndex)
-        handleUpdate(id, columnContent, undefined, columnIndex)
+        const { columnContent, columnIndex } = dragData
+
+        if (
+            !(typeof columnContent === 'string') ||
+            !['string', 'number'].includes(typeof columnIndex)
+        ) {
+            return
+        }
+
+        const nextIndex = constructNextIndex(columnIndex)
+        const nextValue = constructNextValue(columnContent)
+
+        setCurrentValue(nextValue)
+        setCurrentIndex(nextIndex)
+        handleUpdate(id, nextValue, undefined, nextIndex)
 
         if (stringInputRef.current) {
             stringInputRef.current.focus()
         }
-
-        e.preventDefault();
     }
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault(); // Necessary to allow the drop
-    };
+        e.preventDefault() // Necessary to allow the drop
+    }
 
     // choiceHoverColor = '#373A40'
 
@@ -183,8 +266,8 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                     defaultValue={defaultOp}
                     data={SELECT_DATA}
                     allowDeselect
-                    onDropdownOpen={toggleSelectOpen}
-                    onDropdownClose={toggleSelectOpen}
+                    onDropdownOpen={handleDropdownOpen}
+                    onDropdownClose={handleDropdownClose}
                     maxDropdownHeight={Infinity}
                     styles={{
                         input: {
@@ -204,27 +287,58 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                         borderRadius: 5,
                     }}
                 />
-                <input
-                    disabled={uploadMode && index !== 'inferred'}
-                    onDragOver={handleDragOver}
-                    onDrop={handleColumnDrop}
-                    ref={stringInputRef}
-                    className={`${inputClass}`}
-                    type="text"
-                    placeholder={placeholder}
-                    value={currentValue}
-                    onChange={(e) => {
-                        setCurrentValue(e.target.value)
-                        handleUpdate(id, e.target.value)
-                    }}
-                    onKeyUp={handleKeyUp}
-                    autoFocus={autoFocus}
-                    style={{
-                        width: 157,
-                        marginLeft: 8,
-                        zIndex: zIndex,
-                    }}
-                />
+                <div style={{ position: 'relative', display: 'flex' }}>
+                    <input
+                        // readOnly={uploadMode && index !== 'inferred'}
+                        onDragOver={handleDragOver}
+                        onDrop={handleColumnDrop}
+                        ref={stringInputRef}
+                        className={`${inputClass}`}
+                        type="text"
+                        placeholder={placeholder}
+                        value={currentValue}
+                        onChange={(e) => {
+                            setCurrentValue(e.target.value)
+                            handleUpdate(id, e.target.value)
+                        }}
+                        onKeyUp={handleKeyUp}
+                        autoFocus={autoFocus}
+                        style={{
+                            width: 157,
+                            marginLeft: 8,
+                            zIndex: zIndex,
+                            paddingRight: currentValue ? 25 : 0,
+                        }}
+                    />
+                    {currentValue && <div
+                        onMouseEnter={() => setValueButtonHovered(true)}
+                        onMouseLeave={() => setValueButtonHovered(false)}
+                        onClick={deleteValueLocal}
+                        style={{
+                            position: 'absolute',
+                            display: 'flex',
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 30,
+                            height: 30,
+                            zIndex: zIndex + 1,
+                            right: 0,
+                            cursor: 'pointer',
+                            color: valueButtonHovered
+                                ? '#ff0000'
+                                : darkTheme
+                                ? '#444'
+                                : '#ced4da',
+                        }}
+                    >
+                        <CloseIcon
+                            style={{
+                                color: 'inherit',
+                            }}
+                        />
+                    </div>}
+                </div>
                 {showIndices && (
                     <div style={{ position: 'relative', display: 'flex' }}>
                         <input
@@ -244,9 +358,10 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                                 marginLeft: 8,
                                 zIndex: zIndex,
                                 width: 100,
+                                paddingRight: 25,
                             }}
                         />
-                        {currentIndex !== '' ? (
+                        {!indexMissing ? (
                             <div
                                 onMouseEnter={() => setIndexButtonHovered(true)}
                                 onMouseLeave={() => setIndexButtonHovered(false)}
@@ -279,7 +394,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                             <div
                                 onMouseEnter={() => setIndexButtonHovered(true)}
                                 onMouseLeave={() => setIndexButtonHovered(false)}
-                                onClick={handleIndexChoiceModal}
+                                onClick={toggleIndexChoiceModal}
                                 style={{
                                     position: 'absolute',
                                     display: 'flex',
@@ -310,7 +425,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                             <div
                                 onMouseEnter={() => setIndexButtonHovered(true)}
                                 onMouseLeave={() => setIndexButtonHovered(false)}
-                                onClick={handleIndexChoiceModal}
+                                onClick={toggleIndexChoiceModal}
                                 style={{
                                     position: 'absolute',
                                     display: 'flex',
@@ -380,8 +495,11 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
                                     height: 30,
                                     margin: '0 4px 4px 4px',
                                     borderRadius: 3,
-                                    backgroundColor:
-                                        awaitingIndex ? '#1864ab' : indexChoiceHovered === 2 ? '#373A40' : 'inherit',
+                                    backgroundColor: awaitingIndex
+                                        ? '#1864ab'
+                                        : indexChoiceHovered === 2
+                                        ? '#373A40'
+                                        : 'inherit',
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
