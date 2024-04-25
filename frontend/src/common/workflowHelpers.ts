@@ -35,9 +35,8 @@ export const relationshipToRelType: Record<string, string> = {
     'measurement-metadata': 'HAS_METADATA',
     'matter-matter': 'HAS_PART',
     'manufacturing-manufacturing': 'HAS_PART',
-    'measurement-measurement': 'HAS_PART',
-    'measurement-parameter': 'HAS_PARAMETER',
-}
+    'measurement-measurement': 'HAS_PART'
+    }
 
 /**
  * Map a node type from the application's internal format to the desired output format.
