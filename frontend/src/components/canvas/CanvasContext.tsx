@@ -16,6 +16,12 @@ import MeasurementIcon from "@mui/icons-material/SquareFoot"
 import MatterIcon from "@mui/icons-material/Diamond"
 import MetadataIcon from '@mui/icons-material/DataObject';
 
+import { LiaAtomSolid } from "react-icons/lia";
+import { HiMiniCube } from "react-icons/hi2";
+import { FaCircle } from "react-icons/fa";
+
+import { GiBrain } from "react-icons/gi";
+
 import { Position } from "../../types/canvas.types"
 import { colorPalette } from "../../types/colors"
 import { INode } from "../../types/canvas.types"
@@ -40,6 +46,7 @@ interface ContextButtonProps {
   extendedHover: INode["type"] | null
   setExtendedHover: React.Dispatch<React.SetStateAction<INode["type"] | null>>
   moveOnHover: boolean
+  darkTheme: boolean
 }
 
 function ContextButton(props: ContextButtonProps) {
@@ -55,6 +62,7 @@ function ContextButton(props: ContextButtonProps) {
     extendedHover,
     setExtendedHover,
     moveOnHover,
+    darkTheme,
   } = props
   const timerIdRef = useRef<NodeJS.Timeout | null>(null)
   const buttonRef = useRef<HTMLDivElement>(null)
@@ -164,8 +172,6 @@ function ContextButton(props: ContextButtonProps) {
   }
 
   // color stuff
-  const { colorScheme } = useMantineColorScheme()
-  const darkTheme = colorScheme === 'dark'
   const colorIndex = darkTheme ? 0 : 1
   const colors = colorPalette[colorIndex]
   const backgroundColor = colors[nodeType]
@@ -227,6 +233,9 @@ export default function CanvasContext(props: CanvasContextProps) {
   const [hovered, setHovered] = useState<INode["type"] | null>(null)
   const [extendedHover, setExtendedHover] = useState<INode["type"] | null>(null)
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   // get all buttons, that should be rendered
   const buttonsToRender = useMemo(() => {
     const buttonList = possibleRelationships(contextRestrict)
@@ -269,6 +278,7 @@ export default function CanvasContext(props: CanvasContextProps) {
             extendedHover={extendedHover}
             setExtendedHover={setExtendedHover}
             moveOnHover={buttonsToRender.length > 3}
+            darkTheme={darkTheme}
           />
         ))}
       </Planet>
@@ -279,11 +289,16 @@ export default function CanvasContext(props: CanvasContextProps) {
 
 const BUTTON_TYPES: { type: INode["type"], icon: JSX.Element, fColor: string, fSize: number }[] = [
   { type: 'matter', icon: <MatterIcon style={{ color: "#1a1b1e" }} />, fColor: "#1a1b1e", fSize: 11 },
+  { type: 'measurement', icon: <MeasurementIcon style={{ color: "#1a1b1e" }} />, fColor: "#1a1b1e", fSize: 11 },
   { type: 'manufacturing', icon: <ManufacturingIcon style={{ color: "#ececec" }} />, fColor: "#ececec", fSize: 10 },
-  { type: 'parameter', icon: <ParameterIcon style={{ color: "#ececec" }} />, fColor: "#ececec", fSize: 11 },
   { type: 'property', icon: <PropertyIcon style={{ color: "#ececec" }} />, fColor: "#ececec", fSize: 11 },
   { type: 'metadata', icon: <MetadataIcon style={{ color: "#1a1b1e" }} />, fColor: "#1a1b1e", fSize: 11 },
-  { type: 'measurement', icon: <MeasurementIcon style={{ color: "#1a1b1e" }} />, fColor: "#1a1b1e", fSize: 11 },
+  { type: 'parameter', icon: <ParameterIcon style={{ color: "#ececec" }} />, fColor: "#ececec", fSize: 11 },
+  { type: 'simulation', icon: <div style={{position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', transform: 'scale(1)'}}>
+  <LiaAtomSolid style={{ color: "#1a1b1e", fontSize: 30 }} />
+  <FaCircle style={{ color: "#thisColor", position: 'absolute', fontSize: 16 }} />
+  <HiMiniCube style={{ color: "#1a1b1e", position: 'absolute', fontSize: 16 }} />
+</div>, fColor: '#1a1b1e', fSize: 11 }
 ];
 
 const ROTATIONS: { [key: number]: number } = {
@@ -292,4 +307,5 @@ const ROTATIONS: { [key: number]: number } = {
   3: 120,
   5: 144,
   6: 120,
+  7: 100,
 };
