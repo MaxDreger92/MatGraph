@@ -43,18 +43,18 @@ interface CanvasProps {
         setNodeEditing: React.Dispatch<React.SetStateAction<boolean>>
     }
     indexFn: {
-        rebuildIndexDictionary: () => void;
-        updateIndexDictionary: (node: INode) => void;
+        rebuildIndexDictionary: () => void
+        updateIndexDictionary: (node: INode) => void
     }
     saveWorkflow: () => void
     historyFn: {
-        updateHistory: () => void;
-        updateHistoryWithCaution: () => void;
-        updateHistoryRevert: () => void;
-        updateHistoryComplete: () => void;
-        handleReset: () => void;
-        undo: () => void;
-        redo: () => void;
+        updateHistory: () => void
+        updateHistoryWithCaution: () => void
+        updateHistoryRevert: () => void
+        updateHistoryComplete: () => void
+        handleReset: () => void
+        undo: () => void
+        redo: () => void
     }
     needLayout: boolean
     setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
@@ -63,13 +63,7 @@ interface CanvasProps {
 }
 
 export default function Canvas(props: CanvasProps) {
-    const {
-        saveWorkflow,
-        needLayout,
-        setNeedLayout,
-        style,
-        canvasRect,
-    } = props
+    const { saveWorkflow, needLayout, setNeedLayout, style, canvasRect } = props
 
     const {
         nodes,
@@ -90,13 +84,10 @@ export default function Canvas(props: CanvasProps) {
         updateHistoryComplete,
         handleReset,
         undo,
-        redo
+        redo,
     } = props.historyFn
 
-    const {
-        rebuildIndexDictionary,
-        updateIndexDictionary
-    } = props.indexFn
+    const { rebuildIndexDictionary, updateIndexDictionary } = props.indexFn
 
     // Canvas
     const [navOpen, setNavOpen] = useState(false)
@@ -301,6 +292,7 @@ export default function Canvas(props: CanvasProps) {
             )
             setNodeEditing(true)
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [nodeEditing, ctrlPressed, updateHistoryRevert, setNodes, setNodeEditing]
     )
 
@@ -387,6 +379,7 @@ export default function Canvas(props: CanvasProps) {
                 }
             }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             altPressed,
             ctrlPressed,
@@ -423,6 +416,7 @@ export default function Canvas(props: CanvasProps) {
     const completeNodeMove = useCallback(() => {
         cleanupDrag()
         updateHistoryComplete()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateHistoryComplete])
 
     const cleanupDrag = () => {
@@ -494,6 +488,7 @@ export default function Canvas(props: CanvasProps) {
                 }
             }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             connectingNode,
             selectNodesBySelectionRect,
@@ -929,38 +924,42 @@ export default function Canvas(props: CanvasProps) {
         }
     }
 
-    const canvasZoom = _.throttle(useCallback(
-        (delta: number, mousePos: Position) => {
-            const updatedNodes = nodes.map((node) => {
-                const zoomFactor = 1 - 0.1 * delta
+    const canvasZoom = _.throttle(
+        useCallback(
+            (delta: number, mousePos: Position) => {
+                // console.log('test')
+                const updatedNodes = nodes.map((node) => {
+                    const zoomFactor = 1 - 0.1 * delta
 
-                const dx = node.position.x - mousePos.x
-                const dy = node.position.y - mousePos.y
+                    const dx = node.position.x - mousePos.x
+                    const dy = node.position.y - mousePos.y
 
-                const newNodePosition: Position = {
-                    x: mousePos.x + dx * zoomFactor,
-                    y: mousePos.y + dy * zoomFactor,
-                }
+                    const newNodePosition: Position = {
+                        x: mousePos.x + dx * zoomFactor,
+                        y: mousePos.y + dy * zoomFactor,
+                    }
 
-                const nodeSize = node.size * (1 - delta * 0.1)
-                const nodeOptimalSize = calculateNodeOptimalSize(
-                    nodeSize,
-                    node.name,
-                    node.value,
-                    node.type
-                )
-                return {
-                    ...node,
-                    size: nodeSize,
-                    optimalSize: nodeOptimalSize,
-                    position: newNodePosition,
-                }
-            })
+                    const nodeSize = node.size * (1 - delta * 0.1)
+                    const nodeOptimalSize = calculateNodeOptimalSize(
+                        nodeSize,
+                        node.name,
+                        node.value,
+                        node.type
+                    )
+                    return {
+                        ...node,
+                        size: nodeSize,
+                        optimalSize: nodeOptimalSize,
+                        position: newNodePosition,
+                    }
+                })
 
-            setNodes(updatedNodes)
-        },
-        [nodes, setNodes]
-    ), 13)
+                setNodes(updatedNodes)
+            },
+            [nodes, setNodes]
+        ),
+        1000
+    )
 
     useEffect(() => {
         const handleCanvasWheel = (e: WheelEvent) => {
