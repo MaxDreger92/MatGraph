@@ -18,6 +18,7 @@ export function isRelationshipLegitimate(start: INode, end: INode): boolean {
         ['measurement', 'property'], // IS_MEASUREMENT_OUTPUT
         ['manufacturing', 'metadata'], // HAS_METADATA
         ['measurement', 'metadata'], // HAS_METADATA
+        ['measurement', 'parameter'] // HAS_PARAMETER
     ]
 
     // Check if the [start.type, end.type] tuple exists in the allowed relationships array
