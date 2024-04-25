@@ -32,6 +32,7 @@ export const relationshipToRelType: Record<string, string> = {
     'measurement-property': 'IS_MEASUREMENT_OUTPUT',
     'manufacturing-metadata': 'HAS_METADATA',
     'measurement-metadata': 'HAS_METADATA',
+    'measurement-parameter': 'HAS_PARAMETER',
 }
 
 /**
