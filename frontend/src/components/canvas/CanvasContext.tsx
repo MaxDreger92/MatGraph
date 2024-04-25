@@ -312,24 +312,24 @@ const BUTTON_TYPES: { type: INode['type']; icon: JSX.Element; fColor: string; fS
         fColor: '#ececec',
         fSize: 10,
     },
-    // {
-    //     type: 'property',
-    //     icon: <PropertyIcon style={{ color: '#ececec' }} />,
-    //     fColor: '#ececec',
-    //     fSize: 11,
-    // },
-    // {
-    //     type: 'metadata',
-    //     icon: <MetadataIcon style={{ color: '#1a1b1e' }} />,
-    //     fColor: '#1a1b1e',
-    //     fSize: 11,
-    // },
-    // {
-    //     type: 'parameter',
-    //     icon: <ParameterIcon style={{ color: '#ececec' }} />,
-    //     fColor: '#ececec',
-    //     fSize: 11,
-    // },
+    {
+        type: 'property',
+        icon: <PropertyIcon style={{ color: '#ececec' }} />,
+        fColor: '#ececec',
+        fSize: 11,
+    },
+    {
+        type: 'metadata',
+        icon: <MetadataIcon style={{ color: '#1a1b1e' }} />,
+        fColor: '#1a1b1e',
+        fSize: 11,
+    },
+    {
+        type: 'parameter',
+        icon: <ParameterIcon style={{ color: '#ececec' }} />,
+        fColor: '#ececec',
+        fSize: 11,
+    },
 ]
 
 const BUTTON_SIM_DARK: { type: INode['type']; icon: JSX.Element; fColor: string; fSize: number } = {
