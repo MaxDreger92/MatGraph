@@ -4,10 +4,10 @@ Each class registers its associated model in the Django admin site and specifies
 forms to be used, and actions available for the model in the admin page.
 """
 
-from neomodel import RelationshipTo, StringProperty, ArrayProperty
+
+from graphutils.admin import NodeModelAdmin
 from matgraph.forms.formsMetadata import ResearcherAdminForm, InstitutionAdminForm
 from matgraph.models.metadata import Researcher, Institution, Instrument
-from matgraph.admins.adminBase import (NodeModelAdmin)
 from django.contrib import admin as dj_admin
 
 

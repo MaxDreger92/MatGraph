@@ -1,8 +1,6 @@
 import os
-import io
-import requests
 
-from django.db import models
+import requests
 from neomodel import (
     StringProperty,
     DateTimeProperty,
@@ -10,10 +8,10 @@ from neomodel import (
     RelationshipTo,
     RelationshipFrom, One,
 )
-from tenacity import retry, wait_random_exponential, stop_after_attempt
 
+from graphutils.models import UniqueNode
 from matgraph.choices.ChoiceFields import INSTITUTION_TYPE_CHOICEFIELD
-from matgraph.models.abstractclasses import CausalObject, UniqueNode
+from matgraph.models.abstractclasses import CausalObject
 from matgraph.models.relationships import ByRel, InLocationRel, HasPIDRel, ResearcherOwnsRel
 
 
@@ -21,6 +19,7 @@ class PIDA(CausalObject):
     """
     Represents a PIDA.
     """
+
     class Meta:
         app_label = 'matgraph'
 
@@ -47,13 +46,14 @@ class Institution(CausalObject):
     acronym = StringProperty()
     wikipedia_url = StringProperty()
     type = StringProperty(choices=INSTITUTION_TYPE_CHOICEFIELD)
-    country = RelationshipTo(Country, "IN", model=InLocationRel,  cardinality=One)
+    country = RelationshipTo(Country, "IN", model=InLocationRel, cardinality=One)
 
 
 class Instrument(CausalObject):
     """
     Represents an instrument.
     """
+
     class Meta:
         app_label = 'matgraph'
 
@@ -86,6 +86,7 @@ class Publication(UniqueNode):
     """
     Represents a publication.
     """
+
     class Meta:
         app_label = 'matgraph'
 
@@ -145,7 +146,6 @@ class File(CausalObject):
         # ... add other MIME types as needed
     }
 
-
     link = StringProperty(unique=True)
     format = StringProperty(choices=FILE_FORMAT_CHOICES)
     context = StringProperty()
@@ -153,12 +153,10 @@ class File(CausalObject):
 
     # @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None, save_to_file_server = True):
+             update_fields=None, save_to_file_server=True):
         if save_to_file_server:
             # Upload report logic
             self.file.seek(0)
-
-
 
             url = f"{os.environ.get('FILESERVER_URL_POST')}{self.name}"
             payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
@@ -175,7 +173,7 @@ class File(CausalObject):
         super().save()
 
     def delete(self, force_insert=False, force_update=False, using=None,
-               update_fields=None, save_to_file_server = True):
+               update_fields=None, save_to_file_server=True):
         print("delete")
         url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
         print("URL before request:", url)  # Add a print statement to log the URL
