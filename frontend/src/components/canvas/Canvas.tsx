@@ -199,7 +199,7 @@ export default function Canvas(props: CanvasProps) {
             error: { valOp: { value: '', operator: '' }, index: '' },
             identifier: { value: '', index: '' },
             type,
-            with_indices: uploadMode,
+            withIndices: uploadMode,
             position,
             size,
             optimalSize,

@@ -36,7 +36,7 @@ export interface INode {
   error: NodeValOpAttribute
   identifier: NodeAttribute
   type: NodeType
-  with_indices: boolean
+  withIndices: boolean
   position: Position
   size: number
   optimalSize: number
