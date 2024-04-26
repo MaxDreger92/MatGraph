@@ -80,7 +80,8 @@ export const calculateNodeOptimalSize = (
 
     combinedSplitLabels.forEach((value, index) => {
         const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
-        const characterWidth = index < splitName.length ? 11 : 9
+        let characterWidth = index < splitName.length ? 11 : 9
+        characterWidth *= 1 - (value.length * 0.007)
         
         nodeMinimumSize = Math.max((value.length + (Math.pow(distanceFromCenter + 1.5 ,3)) / (value.length + 1) ) * characterWidth, nodeMinimumSize)
     })

@@ -48,6 +48,17 @@ export default function NodeLabel(props: NodeLabelsProps) {
     //     // set labelFontSize
     // }, [])
 
+    // useEffect(() => {
+    //     if (!isAttrDefined(name) && !isAttrDefined(valOp)) return
+
+    //     const { splitName, splitValue } = getAllLabels(name, valOp.value)
+    //     const combinedSplitLabels = [...splitName,...splitValue]
+
+    //     const numLabels = combinedSplitLabels.length
+
+
+    // })
+
     useEffect(() => {
         if (!isAttrDefined(name)) return
 
@@ -77,6 +88,23 @@ export default function NodeLabel(props: NodeLabelsProps) {
             setRenderValue(valOp.value)
         }
     }, [valOp, size])
+
+    useEffect(() => {
+        if (size > 250) {
+            setLabelFontSize(13)
+            console.log(14)
+        } else if (size > 200) {
+            setLabelFontSize(14)
+            console.log(15)
+        } else if (size > 150) {
+            setLabelFontSize(15)
+            console.log(16)
+        } else {
+            setLabelFontSize(16)
+        }
+
+        
+    }, [size])
 
     const mapOperatorSign = () => {
         let operatorCode: string
