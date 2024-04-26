@@ -103,7 +103,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
         style={{
           marginTop: isValueNode && isAttrDefined(valOp) ? 3 : 0,
           marginBottom: isValueNode && isAttrDefined(valOp) ? -3 : 0,
-          color: ["matter", "measurement", "metadata"].includes(type)
+          color: ["matter", "measurement", "metadata", 'simulation'].includes(type)
             ? "#1a1b1e"
             : "#ececec",
           zIndex: layer + 1,
