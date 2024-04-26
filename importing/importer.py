@@ -107,14 +107,9 @@ class Importer:
         """
         query, params = self.build_query()
 
-        query = query.replace(
-            '$pagination',
-            self.paginator.build_query_fragment() if self.paginator else ''
-        )
 
         start = time.time()
         self.db_result, self.db_columns = db.cypher_query(query, params)
-        print(f'{query} \n \n {params}')
         print(self.db_result, self.db_columns)
         end = time.time()
 
@@ -344,7 +339,6 @@ class TableImporter(Importer):
 
         data['column_values'] = [list(column_set) for column_set in column_values]
 
-        print("Run OntologyMapper")
         self.ontology_mapper.run()
         self.mapping = self.ontology_mapper.mapping
 
@@ -365,7 +359,8 @@ class TableImporter(Importer):
         # Construct the query for adding ontology relations
         ontology_mapping = str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")
         add_ontology = f"""WITH * UNWIND {ontology_mapping} as input
-        MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess), (n:Matter|Parameter|Manufacturing|Measurement|Property)
+        MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess),
+        (n:Matter|Parameter|Manufacturing|Measurement|Property)
         WHERE ontology.uid = input.id AND (n.name = input.name OR input.name in n.name)
         MERGE (n)-[:IS_A]->(ontology)
         """

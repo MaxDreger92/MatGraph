@@ -3,10 +3,7 @@ import csv
 import json
 from io import StringIO
 
-from dbcommunication.ai.setupMessages import MATTER_ONTOLOGY_CANDIDATES_MESSAGES, PROCESS_ONTOLOGY_CANDIDATES_MESSAGES, \
-    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES, QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES, PROCESS_ONTOLOGY_ASSISTANT_MESSAGES, \
-    MATTER_ONTOLOGY_ASSISTANT_MESSAGES, MATTER_ONTOLOGY_CONNECTOR_MESSAGES, PROCESS_ONTOLOGY_CONNECTOR_MESSAGES, \
-    QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
+
 from graphutils.embeddings import request_embedding
 from graphutils.models import AlternativeLabel
 from importing.OntologyMapper.setupMessages import PARAMETER_SETUP_MESSAGE, MEASUREMENT_SETUP_MESSAGE, \
@@ -15,6 +12,10 @@ from importing.utils.openai import chat_with_gpt3, chat_with_gpt4
 from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
 from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
+from ontologymanagement.setupMessages import MATTER_ONTOLOGY_CANDIDATES_MESSAGES, PROCESS_ONTOLOGY_CANDIDATES_MESSAGES, \
+    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES, MATTER_ONTOLOGY_CONNECTOR_MESSAGES, PROCESS_ONTOLOGY_CONNECTOR_MESSAGES, \
+    QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES, MATTER_ONTOLOGY_ASSISTANT_MESSAGES, PROCESS_ONTOLOGY_ASSISTANT_MESSAGES, \
+    QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
 
 ONTOLOGY_MAPPER = {
     'matter': EMMOMatter,
@@ -32,8 +33,6 @@ SETUP_MESSAGES = {
     'property': PROPERTY_SETUP_MESSAGE
 }
 
-
-
 EMBEDDING_MODEL_MAPPER = {
     'matter': MatterEmbedding,
     'manufacturing': ProcessEmbedding,
@@ -41,8 +40,6 @@ EMBEDDING_MODEL_MAPPER = {
     'parameter': QuantityEmbedding,
     'property': QuantityEmbedding
 }
-
-
 
 ONTOLOGY_CANDIDATES = {
     'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
@@ -69,7 +66,6 @@ SETUP_MAPPER = {
 
 class OntologyMapper:
 
-
     def __init__(self, data, file_link, context):
         self.data = data
         self.file_link = file_link
@@ -77,8 +73,6 @@ class OntologyMapper:
         self._mapping = []
         self.names = []
         self._table = self._load_table(file_link)
-
-
 
     def _load_table(self, file_link):
         file = File.nodes.get(link=file_link)
@@ -95,7 +89,7 @@ class OntologyMapper:
 
     def _process_node(self, node, name):
         label = node['label']
-        if name['index'] == 'inferred' and name['value'] not in self.names:
+        if name['index'] == 'inferred' or name['value'] not in self.names:
             self._append_mapping(name['value'], label)
         elif label != 'metadata':
             self._handle_table_mapping(name, label)
@@ -108,9 +102,11 @@ class OntologyMapper:
     def _append_mapping(self, name_value, label):
         ontology_generator = OntologyGenerator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
         node_uid = ontology_generator.get_or_create(name_value, label).uid
-        self._mapping.append({'name': name_value, 'id': node_uid, 'label': ONTOLOGY_MAPPER[label].__name__})
+        self._mapping.append({'name': name_value,
+                              'id': node_uid,
+                              'ontology_label': ONTOLOGY_MAPPER[label].__name__,
+                             'label': label.upper()})
         self.names.append(name_value)
-
 
     @property
     def table(self):
@@ -132,8 +128,7 @@ class OntologyGenerator:
         self.label = label
         self.ontology_class = ontology_class
 
-
-    def save_ontology_node(self, node, add_labels_create_embeddings=True, connect_to_ontology=True):
+    def save_ontology_node(self, node):
         """
         Save an ontology node with the option to add labels, create embeddings, and connect to the ontology.
 
@@ -144,9 +139,6 @@ class OntologyGenerator:
         node.save()  # Assuming node has a save method for basic saving operations
         self.add_labels_create_embeddings(node)
         self.connect_to_ontology(node)
-
-
-
 
     def connect_to_ontology(self, node):
         # Check if the node is already connected in the ontology
@@ -180,12 +172,11 @@ class OntologyGenerator:
 
                 previous_node = current_node
 
-
-
     def find_candidates(self, node):
-        nodes = self.ontology_class.nodes.get_by_string(string = node.name, limit = 8, include_similarity = False)
+        nodes = self.ontology_class.nodes.get_by_string(string=node.name, limit=8, include_similarity=False)
         prompt = f"""Input: {node.name}\nCandidates: {", ".join([node.name for node in nodes if node.name != node.name])} \nOnly return the final output!"""
-        ontology_advice = chat_with_gpt4(prompt= prompt, setup_message= ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name])
+        ontology_advice = chat_with_gpt4(prompt=prompt,
+                                         setup_message=ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name])
         if ontology_advice.lower().strip(" ").strip("\n") == "false":
             uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
             return node.get_superclasses(uids)
@@ -200,19 +191,19 @@ class OntologyGenerator:
 
     def find_connection(self, candidates):
         prompt = f"""Input: {self.name}\nCandidates: {", ".join([candidate[1] for candidate in candidates])} \nOnly Return The Final List!"""
-        connecting_path = chat_with_gpt4(prompt= prompt, setup_message= ONTOLOGY_CONNECTOR[self.label])
+        connecting_path = chat_with_gpt4(prompt=prompt, setup_message=ONTOLOGY_CONNECTOR[self.label])
         return ast.literal_eval(connecting_path)
 
     def add_labels_create_embeddings(self, node):
-        alternative_labels = chat_with_gpt4(prompt= node.name, setup_message= SETUP_MAPPER[self.label])
+        alternative_labels = chat_with_gpt4(prompt=node.name, setup_message=SETUP_MAPPER[self.label])
         alternative_labels = json.loads(alternative_labels)
         for label in alternative_labels['alternative_labels']:
-            alternative_label_node = AlternativeLabel(label = label).save()
+            alternative_label_node = AlternativeLabel(label=label).save()
             node.alternative_label.connect(alternative_label_node)
             embedding = request_embedding(label)
-            embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector = embedding, input = label).save()
+            embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector=embedding, input=label).save()
             node.model_embedding.connect(embedding_node)
-        embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector = request_embedding(node.name), input = node.name).save()
+        embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector=request_embedding(node.name), input=node.name).save()
         node.model_embedding.connect(embedding_node)
 
     def get_or_create(self, input, label):

@@ -90,6 +90,7 @@ class EmbeddingNodeSet(NodeSet):
         :param kwargs: same syntax as `filter()`
         :return: node
         """
+        print('get by string')
         kwargs["vector"] = request_embedding(kwargs['string'])
         result = self._get_by_embedding(include_similarity, include_input_string, **kwargs)
         return result

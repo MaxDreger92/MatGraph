@@ -3,10 +3,8 @@ from langchain_core.runnables import RunnableParallel, Runnable
 from langsmith import Client
 from langsmith.schemas import Run, Example
 
-from langsmith.evaluation import evaluate
+from langsmith.evaluation import evaluate, run_evaluator
 
-from importing.NodeExtraction.nodeExtractor import aggregate_manufacturing, validate_manufacturings
-from importing.NodeExtraction.nodeExtractor import build_results
 
 def predict_nodes(chain) -> dict:
     def predict(inputs) -> dict:
@@ -30,6 +28,7 @@ def predict_rels(chain) -> dict:
         return node_list
     return predict
 
+@run_evaluator
 def evaluate_JSONs(run: Run, example: Example) -> dict:
     print("Evaluating JSONs")
     prediction = run.outputs.get("output")
@@ -45,6 +44,7 @@ def evaluate_JSONs(run: Run, example: Example) -> dict:
     result = evaluator.evaluate_strings(prediction=str(prediction).replace("'",'"'), reference=str(required).replace("'",'"'))
     return {"key":"evaluate_output", "score": result["score"]}
 
+@run_evaluator
 def evaluate_rels(run, example):
     """Calculate precision, recall, and F1 score based on the overlap of connections between the output and reference."""
     print("Evaluating relationships")
@@ -75,7 +75,7 @@ def evaluate_rels(run, example):
         f1_score = 0
     else:
         f1_score = 2 * (precision * recall) / (precision + recall)
-    return {"key":"evaluate_rels", "score": f1_score}
+    return {"key":"evaluate_rels", "score": f1_score, "comment": f"Precision: {precision}, Recall: {recall}"}
 
 
 class LLMEvaluator:

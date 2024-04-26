@@ -174,7 +174,6 @@ class File(CausalObject):
 
     def delete(self, force_insert=False, force_update=False, using=None,
                update_fields=None, save_to_file_server=True):
-        print("delete")
         url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
         print("URL before request:", url)  # Add a print statement to log the URL
         payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
