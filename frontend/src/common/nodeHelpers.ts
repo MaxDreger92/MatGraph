@@ -1,4 +1,5 @@
-import { INode } from "../types/canvas.types"
+import { INode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
+import { splitStrBySemicolon } from "./helpers"
 import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
 
 /**
@@ -61,25 +62,48 @@ export function isConnectableNode(nodeType: string | undefined): boolean {
 
 export const calculateNodeOptimalSize = (
     nodeSize: number,
-    nodeName: INode['name'],
-    nodeValue: INode['value'],
-    nodeType: INode['type']
+    nodeName: NodeAttribute,
+    nodeValue: NodeValOpAttribute,
 ) => {
     if (!isAttrDefined(nodeName.value)) {
         return nodeSize
     }
 
-    const characterFactor = 16 - calculateLabelFontSize(nodeSize)
+    let nodeMinimumSize = 0
 
-    const nameMinimumSize = nodeName.value.length * (11 - characterFactor)
-    let nodeMinimumSize = nameMinimumSize
+    const confirmedNodeValue = isAttrDefined(nodeValue.valOp) ? nodeValue.valOp.value : ''
 
-    if (getIsValueNode(nodeType) && isAttrDefined(nodeValue.valOp)) {
-        const valueMinimumSize = nodeValue.valOp.value.length * (9 - characterFactor) + 20
-        nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
+    const { splitName, splitValue } = getAllLabels(nodeName.value, confirmedNodeValue)
+    const combinedSplitLabels = [...splitName, ...splitValue]
+    
+    const numLabels = combinedSplitLabels.length
+
+    combinedSplitLabels.forEach((value, index) => {
+        const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
+        const characterWidth = index < splitName.length ? 11 : 9
+        
+        nodeMinimumSize = Math.max((value.length + (Math.pow(distanceFromCenter + 1.5 ,3)) / (value.length + 1) ) * characterWidth, nodeMinimumSize)
+    })
+
+    return Math.min(nodeMinimumSize > nodeSize ? nodeMinimumSize : nodeSize, 300)
+}
+
+export const getAllLabels = (name: string, value: string) => {
+    const splitName = ensureStrArray(splitStrBySemicolon(name)) as string[]
+    let splitValue: string[] = []
+    if (value !== '') {
+        splitValue = ensureStrArray(splitStrBySemicolon(value)) as string[]
     }
 
-    return nodeMinimumSize > nodeSize ? nodeMinimumSize : nodeSize
+    return { splitName, splitValue }
+}
+
+const ensureStrArray = (item: any): string[] => {
+    if (Array.isArray(item)) {
+        return item
+    } else {
+        return [item]
+    }
 }
 
 const calculateLabelFontSize = (nodeSize: number) => {

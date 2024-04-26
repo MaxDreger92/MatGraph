@@ -324,7 +324,6 @@ export default function Canvas(props: CanvasProps) {
                                 node.size,
                                 node.name,
                                 node.value,
-                                node.type
                             )
                             // Call updateHistory only if a change has occurred
                             updateHistory()
@@ -735,7 +734,6 @@ export default function Canvas(props: CanvasProps) {
                         nodeSize,
                         node.name,
                         node.value,
-                        node.type
                     )
 
                     // ############# handle nodes out of bounds
@@ -948,7 +946,6 @@ export default function Canvas(props: CanvasProps) {
                         nodeSize,
                         node.name,
                         node.value,
-                        node.type
                     )
                     return {
                         ...node,

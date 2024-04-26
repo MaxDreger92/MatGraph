@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { INode, ValOpPair } from '../../../types/canvas.types'
 import { isAttrDefined } from '../../../common/workflowHelpers'
+import { splitStrBySemicolon } from '../../../common/helpers'
+import { getAllLabels } from '../../../common/nodeHelpers'
 
 interface NodeLabelsProps {
     // isEditing: boolean
@@ -35,8 +37,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
         onMouseUp,
     } = props
 
-    const [slicedName, setSlicedName] = useState<string>('')
-    const [slicedValue, setSlicedValue] = useState<string>('')
+    const [renderName, setRenderName] = useState<string | string[]>('')
+    const [renderValue, setRenderValue] = useState<string | string[]>('')
     const [isNameSliced, setIsNameSliced] = useState(false)
     const [isValueSliced, setIsValueSliced] = useState(false)
     const [labelHovered, setLabelHovered] = useState(false)
@@ -48,26 +50,31 @@ export default function NodeLabel(props: NodeLabelsProps) {
 
     useEffect(() => {
         if (!isAttrDefined(name)) return
+
         const characterFactor = (16 - labelFontSize) * 0.4 // adjusts the width of characters for sizes other than 16
         const subName = name.substring(0, size / (9.65 - characterFactor)) // 9.65 = width of 1 char in size 16
         if (subName.length < name.length) {
             setIsNameSliced(true)
-            setSlicedName(subName.slice(0, -2))
+            if (isSelected === 1) {
+                setRenderName(splitStrBySemicolon(name))
+                return
+            }
+            setRenderName(subName.slice(0, -2))
         } else {
             setIsNameSliced(false)
-            setSlicedName(name)
+            setRenderName(name)
         }
-    }, [name, size, labelFontSize])
+    }, [name, size, labelFontSize, isSelected])
 
     useEffect(() => {
         if (!valOp?.value || !valOp.operator) return
         const subValue = valOp.value.substring(0, (size - 20) / 8.2) // 8.2 = width of 1 char
         if (subValue.length < valOp.value.length) {
             setIsValueSliced(true)
-            setSlicedValue(subValue.slice(0, -2))
+            setRenderValue(subValue.slice(0, -2))
         } else {
             setIsValueSliced(false)
-            setSlicedValue(valOp.value)
+            setRenderValue(valOp.value)
         }
     }, [valOp, size])
 
@@ -113,9 +120,23 @@ export default function NodeLabel(props: NodeLabelsProps) {
                 }}
             >
                 {/* name span  */}
-                <span>{slicedName}</span>
+                {Array.isArray(renderName) ? (
+                    isNameSliced ? (
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {renderName.map((name, index) => (
+                                <span key={index}>{name}</span>
+                            ))}
+                        </div>
+                    ) : (
+                        <span>{renderName.map((name) => name).join(';')}</span>
+                    )
+                ) : (
+                    <span>{renderName}</span>
+                )}
                 {/* additional dotspan if name is sliced  */}
-                {isNameSliced && <span className="node-label-dots" children="..." />}
+                {isNameSliced && isSelected !== 1 && (
+                    <span className="node-label-dots" children="..." />
+                )}
             </div>
 
             {/* value label  */}
@@ -133,7 +154,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
                     {/* operator */}
                     {valOp?.operator && <span children={mapOperatorSign()} />}
                     {/* value */}
-                    <span style={{ paddingLeft: 2 }}>{slicedValue}</span>
+                    <span style={{ paddingLeft: 2 }}>{renderValue}</span>
                     {/* dots */}
                     {isValueSliced && <span className="node-label-dots" children="..." />}
                 </div>

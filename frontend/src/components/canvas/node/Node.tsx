@@ -254,28 +254,6 @@ export default React.memo(function Node(props: NodeProps) {
         },
     })
 
-    // const [springProps, setSpringProps] = useSpring(() => ({
-    //     positionTop: node.position.y,
-    //     positionLeft: node.position.x,
-    //     size:
-    //         node.optimalSize && isSelected === 1
-    //             ? node.optimalSize
-    //             : node.size,
-    //     config: {
-    //         tension: isHovered && mouseDist < 25 ? 1000 : 200,
-    //         friction: 26,
-    //     },
-    // }))
-
-    // useEffect(() => {
-    //     // console.log(node.optimalSize)
-    //     setSpringProps({
-    //         size:             node.optimalSize && isSelected === 1
-    //         ? node.optimalSize
-    //         : node.size,
-    //     })
-    // }, [node, isSelected, setSpringProps])
-
     // ######################################################################################## HTML
     return (
         <animated.div

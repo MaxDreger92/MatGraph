@@ -377,7 +377,6 @@ export default function Workflow(props: WorkflowProps) {
     }, [highlightedColumnIndex, nodes, indexDictionary])
 
     const forceEndEditing = () => {
-        console.log('this')
         const updatedNodes = nodes.map((node) => {
             node.isEditing = false
             return node
