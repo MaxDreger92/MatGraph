@@ -47,7 +47,6 @@ export default React.memo(function Node(props: NodeProps) {
     const [isHovered, setIsHovered] = useState(false)
     const [isValueNode, setIsValueNode] = useState(false)
     const [fieldsMissing, setFieldsMissing] = useState(true)
-    const [labelFontSize, setLabelFontSize] = useState(16)
     const [colors, setColors] = useState<string[]>([])
 
     // Node movement parameters
@@ -255,6 +254,28 @@ export default React.memo(function Node(props: NodeProps) {
         },
     })
 
+    // const [springProps, setSpringProps] = useSpring(() => ({
+    //     positionTop: node.position.y,
+    //     positionLeft: node.position.x,
+    //     size:
+    //         node.optimalSize && isSelected === 1
+    //             ? node.optimalSize
+    //             : node.size,
+    //     config: {
+    //         tension: isHovered && mouseDist < 25 ? 1000 : 200,
+    //         friction: 26,
+    //     },
+    // }))
+
+    // useEffect(() => {
+    //     // console.log(node.optimalSize)
+    //     setSpringProps({
+    //         size:             node.optimalSize && isSelected === 1
+    //         ? node.optimalSize
+    //         : node.size,
+    //     })
+    // }, [node, isSelected, setSpringProps])
+
     // ######################################################################################## HTML
     return (
         <animated.div
@@ -332,7 +353,6 @@ export default React.memo(function Node(props: NodeProps) {
                             labelRef={nodeLabelRef}
                             hovered={isHovered}
                             size={nodeRenderedSize}
-                            labelFontSize={labelFontSize}
                             name={node.name.value}
                             valOp={node.value.valOp}
                             type={node.type}

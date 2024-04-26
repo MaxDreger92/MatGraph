@@ -344,6 +344,10 @@ export default function Canvas(props: CanvasProps) {
         [setNodeEditing, setNodes, setSelectedNodes, updateHistory, updateIndexDictionary]
     )
 
+    // useEffect(() => {
+    //     nodes.map((node) => console.log(node.optimalSize))
+    // }, [nodes])
+
     // Initialize node movement
     // mainly prevents unwanted actions
     // like moving nodes that are not involved
