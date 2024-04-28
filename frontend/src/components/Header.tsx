@@ -202,22 +202,30 @@ export default function Header(props: HeaderProps) {
                         )}
                     </div>
 
+                    {!user && location.pathname !== '/login' && (
+                        <Link to="/login" style={{ paddingTop: 4, paddingRight: 30, fontSize: 14 }}>
+                            <u>Login</u>
+                        </Link>
+                    )}
+
                     {/* Tabs */}
-                    <Tabs
-                        value={activeTab}
-                        // onTabChange={setActiveTab}
-                        variant="outline"
-                        style={{
-                            transform: 'translate(0px,0)',
-                        }}
-                        classNames={{
-                            root: classes.tabs,
-                            tabsList: classes.tabsList,
-                            tab: classes.tab,
-                        }}
-                    >
-                        <Tabs.List>{items}</Tabs.List>
-                    </Tabs>
+                    {user && (
+                        <Tabs
+                            value={activeTab}
+                            // onTabChange={setActiveTab}
+                            variant="outline"
+                            style={{
+                                transform: 'translate(0px,0)',
+                            }}
+                            classNames={{
+                                root: classes.tabs,
+                                tabsList: classes.tabsList,
+                                tab: classes.tab,
+                            }}
+                        >
+                            <Tabs.List>{items}</Tabs.List>
+                        </Tabs>
+                    )}
 
                     {/* User (settings) Menu */}
 
@@ -264,13 +272,6 @@ export default function Header(props: HeaderProps) {
                                     </Link>
                                     <Menu.Divider />
                                     <Menu.Item
-                                        icon={<IconLogout size="0.9rem" stroke={1.5} />}
-                                        onClick={handleLogoutLocal}
-                                    >
-                                        Logout
-                                    </Menu.Item>
-                                    <Menu.Divider />
-                                    <Menu.Item
                                         icon={
                                             darkTheme ? (
                                                 <MdOutlineLightMode />
@@ -281,6 +282,13 @@ export default function Header(props: HeaderProps) {
                                         onClick={() => toggleColorScheme()}
                                     >
                                         Color Theme
+                                    </Menu.Item>
+                                    <Menu.Divider />
+                                    <Menu.Item
+                                        icon={<IconLogout size="0.9rem" stroke={1.5} />}
+                                        onClick={handleLogoutLocal}
+                                    >
+                                        Logout
                                     </Menu.Item>
                                 </Menu.Dropdown>
                             </Menu>

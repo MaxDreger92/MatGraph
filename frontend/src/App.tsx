@@ -22,15 +22,16 @@ import { useMantineColorScheme } from "@mantine/core"
 
 export default function App() {
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const version = process.env.REACT_APP_VERSION?.slice(1,-1) ?? "???"
 
-  useEffect(() => {
-    const token = getCookie('token')
-    if (!token) {
-      navigate("/login")
-    }
-  }, [navigate])
+//   useEffect(() => {
+//     const token = getCookie('token')
+//     if (!token) {
+//       navigate("/login")
+//     }
+//   }, [navigate])
 
   const {
     data: currentUser,
@@ -42,14 +43,14 @@ export default function App() {
     client.getCurrentUser
   )
 
-  useEffect(() => {
-    // navigate to login after getCurrentUser is 
-    // resolved and currentUser is undefined
-    // errors are caught separately
-    if (!isLoading && !currentUser) {
-      navigate("/login")
-    }
-  }, [isLoading, currentUser, navigate])
+//   useEffect(() => {
+//     // navigate to login after getCurrentUser is 
+//     // resolved and currentUser is undefined
+//     // errors are caught separately
+//     if (!isLoading && !currentUser) {
+//       navigate("/login")
+//     }
+//   }, [isLoading, currentUser, navigate])
 
   useEffect(() => {
     if (isError) {
@@ -63,6 +64,13 @@ export default function App() {
   //     //something
   //   }
   // }, [isLoading])
+
+  useEffect(() => {
+    const token = getCookie('token')
+    if (!token && !['/', '/login'].includes(location.pathname)) {
+        navigate('/')
+    }
+  }, [location, navigate])
   
   const handleHeaderLinkClick = (key: string) => {
     navigate(key)
@@ -71,7 +79,7 @@ export default function App() {
   const handleLogout = () => {
     queryClient.setQueryData<IUser | null | undefined>("getCurrentUser", undefined)
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure";
-    navigate("/login")
+    navigate("/")
   }
 
   const { colorScheme } = useMantineColorScheme()
@@ -80,11 +88,9 @@ export default function App() {
   return (
     <div className="app" style={{backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa'}}>
       <UserContext.Provider value={currentUser}>
-        {currentUser && (
-          <div className="header">
+        <div className="header">
             <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
-          </div>
-        )}
+        </div>
         {/* <div className="header">
           <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
         </div> */}

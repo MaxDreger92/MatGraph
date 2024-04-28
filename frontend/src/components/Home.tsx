@@ -8,7 +8,7 @@ export default function Home() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIndex(state => (state + 1) % CLAIMS.length);
-        }, 5000);
+        }, 7000);
         return () => clearTimeout(timer);  // Clear the timeout if the component unmounts
     }, [index]);
 
