@@ -18,6 +18,7 @@ import Authentication from "./components/Authentication"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
+import { useMantineColorScheme } from "@mantine/core"
 
 export default function App() {
   const navigate = useNavigate()
@@ -73,8 +74,11 @@ export default function App() {
     navigate("/login")
   }
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
-    <div className="app">
+    <div className="app" style={{backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa'}}>
       <UserContext.Provider value={currentUser}>
         {currentUser && (
           <div className="header">

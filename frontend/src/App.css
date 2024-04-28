@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'poppins-regular';
+    src: url('fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 label {
   display: block;
   margin-top: 10px;
@@ -484,6 +491,13 @@ a:link {
   pointer-events: none;
 }
 
+.unselectable {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
 .user-menu-container {
   width: 25vw;
   height: auto;
@@ -579,10 +593,10 @@ a:link {
 
 .wrap-login {
   width: 400px;
-  position: absolute;
-  top: calc(-45px + 50%);
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  top: calc(50% - 220px);
+  left: calc(50% - 200px);
+  /* transform: translate(-50%, -50%); */
 }
 
 .wrap-navbar {
