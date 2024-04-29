@@ -130,21 +130,17 @@ export default function Authentication() {
     const darkTheme = colorScheme === 'dark'
 
     const springProps = useSpring({
-        transform: `scale(${loginSuccess ? 0 : 1})`,
+        to: {
+            transform: `translateX(0) scale(${loginSuccess ? 0 : 1})`
+        },
+        from: {
+            transform: 'translateX(150%) scale(1)'
+        },
         config: {
             tension: 400,
-            friction: 40,
-        },
-        // onStart: () => {
-        //     setLoginSuccess(false)
-        // },
-        // onRest: () => {
-        //     if (!loginSuccess && currentUser) {
-        //         // navigate('/')
-        //     }
-        // },
-        // immediate: !loginSuccess
-    })
+            friction: 40
+        }
+    });
 
     return (
         <animated.div className="wrap-login"
