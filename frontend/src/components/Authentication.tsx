@@ -133,9 +133,7 @@ export default function Authentication() {
           src={darkTheme ? logo : logo_light}
           alt="matGraphAI Logo"
           className="login-logo"
-          style={{
-            filter: `drop-shadow(2px 2px 2px ${darkTheme ? "#111" : "#bbb"})`
-          }}
+          style={{transform: 'scale(125%)', paddingTop: 20}}
         />
         {/* <Text size="lg" weight={500}>
           Welcome to matGraphAI, {type} with

@@ -38,7 +38,7 @@ export function isRelationshipLegitimate(start: INode, end: INode): boolean {
  */
 export function possibleRelationships(startType: string | undefined): string[] {
     if (!startType)
-        return ['matter', 'manufacturing', 'parameter', 'property', 'measurement', 'metadata']
+        return ['matter', 'manufacturing', 'parameter', 'property', 'measurement', 'metadata', 'simulation']
 
     // Filter the keys to find matches and extract the endType
     return Object.keys(relationshipToRelType)

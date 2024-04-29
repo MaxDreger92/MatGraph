@@ -20,7 +20,6 @@ class TokenAuthenticationMiddleware:
         #             token = token_parts[1]
         #         else:
         #             return JsonResponse({'error': 'Invalid token format'}, status=401)
-        #
         #         try:
         #             payload = jwt.decode(token, os.getenv('TOKEN_SECRET', 'default_secret'), algorithms=['HS256'])
         #             request.user_payload = payload
