@@ -7,7 +7,7 @@ from pandarallel import pandarallel
 
 from graphutils.config import EMBEDDING_FETCHING_PROCESSES
 from graphutils.embeddings import request_embedding
-from matgraph.models.ontology import EMMOMatter, EMMOProcess
+from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
 
 
 def build_cypher_query(Model, fetch_properties, fetch_filter='', unwind_alternative_labels=False, id_property='uid'):
@@ -233,10 +233,25 @@ def main():
     from neomodel import config
 
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
-
     get_embeddings_for_model(
         "",
         Model=EMMOProcess,
+        fetch_properties= ['name'],
+        combine_func=lambda s: s['name'],
+        unwind_alternative_labels = True
+        # add other parameters here...
+    )
+    get_embeddings_for_model(
+        "",
+        Model=EMMOMatter,
+        fetch_properties= ['name'],
+        combine_func=lambda s: s['name'],
+        unwind_alternative_labels = True
+        # add other parameters here...
+    )
+    get_embeddings_for_model(
+        "",
+        Model=EMMOQuantity,
         fetch_properties= ['name'],
         combine_func=lambda s: s['name'],
         unwind_alternative_labels = True

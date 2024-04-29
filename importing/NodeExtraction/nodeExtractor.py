@@ -339,21 +339,21 @@ class NodeExtractor(TableDataTransformer):
                 return aggregator
 
     def get_table_understanding(self):
-        # chain = RunnableParallel(
-        #     propertyNodes=aggregate_properties | validate_properties,
-        #     matterNodes=aggregate_matters | validate_matters,
-        #     parameterNodes=aggregate_parameters | validate_parameters,
-        #     manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
-        #     measurementNodes=aggregate_measurement | validate_measurements,
-        #     metadataNodes=aggregate_metadata | validate_metadata
-        # ) | build_results
-        # chain = chain.with_config({"run_name": "node-extraction"})
-        # self.node_list = chain.invoke({
-        #     'input': self.iterable,
-        #     'context': self.context,
-        #     'header': self.headers,
-        #     'first_line': self.first_row
-        # })
+        chain = RunnableParallel(
+            propertyNodes=aggregate_properties | validate_properties,
+            matterNodes=aggregate_matters | validate_matters,
+            parameterNodes=aggregate_parameters | validate_parameters,
+            manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
+            measurementNodes=aggregate_measurement | validate_measurements,
+            metadataNodes=aggregate_metadata | validate_metadata
+        ) | build_results
+        chain = chain.with_config({"run_name": "node-extraction"})
+        self.node_list = chain.invoke({
+            'input': self.iterable,
+            'context': self.context,
+            'header': self.headers,
+            'first_line': self.first_row
+        })
         self.node_list = test_data
 
 

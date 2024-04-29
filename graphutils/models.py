@@ -37,12 +37,12 @@ class EmbeddingNodeSet(NodeSet):
 
         #TODO: Needs to have big numbers for limit
         query = """
-            CALL db.index.vector.queryNodes($embedding, 10, $vector)
+            CALL db.index.vector.queryNodes($embedding, 50, $vector)
             YIELD node AS similarEmbedding, score
             MATCH (similarEmbedding)-[:FOR]->(n)
-            RETURN n, score, similarEmbedding.input
+            RETURN DISTINCT n, score, similarEmbedding.input
             ORDER BY score DESC
-            LIMIT $limit
+            LIMIT 15
         """
 
         kwargs['embedding'] = self.source_class.embedding
@@ -58,7 +58,6 @@ class EmbeddingNodeSet(NodeSet):
         # version prior to cypher_query with the resolve_objects capability.
         # It seems that certain calls are only supposed to be focusing to the first
         # result item returned (?)
-        print(results, _)
         if results:
             if include_similarity and include_input_string:
                 return [[n[0], n[1], n[2]] for n in results]
@@ -96,6 +95,21 @@ class EmbeddingNodeSet(NodeSet):
 
 
 class UIDDjangoNode(DjangoNode):
+    """
+    UIDDjangoNode is an abstract base class for Django-Neo4j nodes that provides a unique identifier (uid)
+    as the primary key for DjangoNode instances. It inherits from DjangoNode, which is a base class for
+    Neo4j nodes that are compatible with Django.
+
+    The class defines a UniqueIdProperty, 'uid', which serves as the primary key for instances of the class.
+    The 'abstract_node' attribute is set to True to ensure that UIDDjangoNode is only used as a base class.
+
+    The _meta method is a class property that sets the app_label and alias property for the primary key (pk) used
+    in Django applications. The primary key (pk) is aliased to the 'uid' property using AliasProperty. This ensures
+    that Django admin and other parts of the Django framework that use .pk can work seamlessly with this class.
+
+    The Meta class is defined as a nested class inside UIDDjangoNode but left empty. It can be used by subclasses
+    to set additional metadata options.
+    """
     uid = UniqueIdProperty(
         primary_key=True
     )
@@ -113,6 +127,34 @@ class UIDDjangoNode(DjangoNode):
 
     class Meta:
         pass
+
+
+
+
+    def __hash__(self):
+        """
+        Computes the hash value of the UIDDjangoNode instance based on its unique identifier (uid).
+
+        Raises a TypeError if the uid is not set.
+        """
+        if self.uid is None:
+            raise TypeError("Model instances without primary key value are unhashable")
+        return hash(self.uid)
+
+
+class UniqueNode(DjangoNode):
+    """
+    Abstract base class for unique nodes in a Django-Neo4j graph.
+
+    uid: A unique identifier property.
+    """
+    uid = UniqueIdProperty()
+    __abstract_node__ = True
+
+    @classmethod
+    def category(cls):
+        pass
+
 
 
 class LabeledDjangoNode(UIDDjangoNode):

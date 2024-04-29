@@ -1,6 +1,6 @@
 from django.contrib import admin as dj_admin
 
-from matgraph.admins.adminBase import NodeModelAdmin
+from graphutils.admin import NodeModelAdmin
 # from matgraph.forms.adminForms import ComponentAdminForm
 from matgraph.models.properties import Property, Parameter
 

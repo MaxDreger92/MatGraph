@@ -8,11 +8,30 @@ Contains:
     ManufacturingAdmin(NodeModelAdmin)
 """
 from django.contrib import admin as dj_admin
+from neomodel import NodeSet
 
-from matgraph.admins.adminBase import (NodeModelAdmin)
+from graphutils.admin import NodeModelAdmin
+from graphutils.helpers import FixedQueryBuilder
+from graphutils.models import UIDDjangoNode
+from matgraph.forms.formsProcess import SimulationAdminForm, DataProcessingAdminForm
+from matgraph.models.processes import Measurement, Manufacturing, DataProcessing, Simulation
 
-from matgraph.models.processes import Measurement, Manufacturing
 
+
+class TestNode(UIDDjangoNode):
+    """
+    TestNode is a class that is used to test the NodeModelAdmin class. It inherits from the UUIDNode class.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    pass
+
+@dj_admin.register(TestNode)
+class TestNodeAdmin(NodeModelAdmin):
+    """
+    TestNodeAdmin registers the TestNode model to the Django Admin page.
+    """
+    list_display = ("uid",)
 
 
 class ProcessAdmin(NodeModelAdmin):
@@ -76,29 +95,29 @@ class ManufacturingAdmin(ProcessAdmin):
     pass
 
 
-# @dj_admin.register(Simulation)
-# class SimulationAdmin(ProcessAdmin):
-#     """
-#     ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
-#     Measurement model at the admin page.
-#     """
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.fields += (('file_output', 'property_output'))
-#
-#     form = SimulationAdminForm
-#
-#
-# @dj_admin.register(DataProcessing)
-# class DataProcessingAdmin(ProcessAdmin):
-#     """
-#     ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
-#     Measurement model at the admin page.
-#     """
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.fields += (('file_output', 'property_output'))
-#
-#     form = DataProcessingAdminForm
+@dj_admin.register(Simulation)
+class SimulationAdmin(ProcessAdmin):
+    """
+    ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
+    Measurement model at the admin page.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields += (('file_output', 'property_output'))
+
+    form = SimulationAdminForm
+
+
+@dj_admin.register(DataProcessing)
+class DataProcessingAdmin(ProcessAdmin):
+    """
+    ManufacturingAdmin extends the _fields property by the manufacturing specific outputs and registers the
+    Measurement model at the admin page.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields += (('file_output', 'property_output'))
+
+    form = DataProcessingAdminForm
