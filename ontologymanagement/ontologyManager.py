@@ -90,7 +90,6 @@ class OntologyManager:
             return
 
 
-        print("Update Ontology", ontology_file)
         ontology_path1 = os.path.join(self.ontology_folder, ontology_file)
         ontology_path = os.path.join(self.ontology_folder, ontology_file)
 

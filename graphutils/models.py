@@ -37,12 +37,12 @@ class EmbeddingNodeSet(NodeSet):
 
         #TODO: Needs to have big numbers for limit
         query = """
-            CALL db.index.vector.queryNodes($embedding, 10, $vector)
+            CALL db.index.vector.queryNodes($embedding, 50, $vector)
             YIELD node AS similarEmbedding, score
             MATCH (similarEmbedding)-[:FOR]->(n)
-            RETURN n, score, similarEmbedding.input
+            RETURN DISTINCT n, score, similarEmbedding.input
             ORDER BY score DESC
-            LIMIT $limit
+            LIMIT 15
         """
 
         kwargs['embedding'] = self.source_class.embedding
@@ -58,7 +58,6 @@ class EmbeddingNodeSet(NodeSet):
         # version prior to cypher_query with the resolve_objects capability.
         # It seems that certain calls are only supposed to be focusing to the first
         # result item returned (?)
-        print(results, _)
         if results:
             if include_similarity and include_input_string:
                 return [[n[0], n[1], n[2]] for n in results]
@@ -90,7 +89,6 @@ class EmbeddingNodeSet(NodeSet):
         :param kwargs: same syntax as `filter()`
         :return: node
         """
-        print('get by string')
         kwargs["vector"] = request_embedding(kwargs['string'])
         result = self._get_by_embedding(include_similarity, include_input_string, **kwargs)
         return result

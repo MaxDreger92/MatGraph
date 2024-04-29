@@ -69,22 +69,21 @@ PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES = [{"input": """Fabrication""",
 
 MATTER_ONTOLOGY_CANDIDATES_EXAMPLES = [
     {"input": """input: ActiveLayer
-Candidates: ActiveMaterial, CatalystLayer, GasDiffusionLayer, Electron Transport Layer, Membrane, CatalystLayer, CurrentCollector, Component"""},
-    {"output": """{
-{"candidate": "CatalystLayer", "input_is_subclass_of_candidate": false}
-}"""},
+Candidates: ActiveMaterial, CatalystLayer, GasDiffusionLayer, Electron Transport Layer, Membrane, CatalystLayer, CurrentCollector, Component""",
+    "output": {
+"answer": {"parents_name": "CatalystLayer"}}
+},
     {"input": """input: Molybdenumdioxide
 candidates:
-Molybdenum Oxide, Molybdenum, Oxidant"""},
-    {"output": """{
-{"candidate": "Molybdenum Oxide", "input_is_subclass_of_candidate": true}                                   
-}"""},
+Molybdenum Oxide, Molybdenum, Oxidant""",
+    "output":
+{"answer": { "child_name": "Molybdenum Oxide"}
+}},
     {"input": """input: MembraneElectrodeAssembly
 candidates:
-Nickel-Based Diamond-Like Carbon Coated Bipolar Plate, Bipolar Plate, Carbon Coated Bipolar Plate, Diamond-Like Carbon Coated Bipolar Plate"""},
-    {"output": """
-false                                   
-"""}
+Nickel-Based Diamond-Like Carbon Coated Bipolar Plate, Bipolar Plate, Carbon Coated Bipolar Plate, Diamond-Like Carbon Coated Bipolar Plate""",
+    "output": None
+}
 ]
 
 QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES = [{"input": """Input: ActiveLayer
