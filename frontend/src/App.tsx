@@ -10,7 +10,7 @@ import {MDB_IUser as IUser} from "./types/user.type"
 import client from "./client"
 import { getCookie } from "./client"
 
-import Home from "./components/Home"
+import Home from "./components/home/Home"
 import Workflow from "./components/workflow/Workflow"
 import Database from "./components/Database"
 import Profile from "./components/Profile"
@@ -26,13 +26,6 @@ export default function App() {
   const queryClient = useQueryClient()
   const version = process.env.REACT_APP_VERSION?.slice(1,-1) ?? "???"
 
-//   useEffect(() => {
-//     const token = getCookie('token')
-//     if (!token) {
-//       navigate("/login")
-//     }
-//   }, [navigate])
-
   const {
     data: currentUser,
     isLoading,
@@ -43,15 +36,6 @@ export default function App() {
     client.getCurrentUser
   )
 
-//   useEffect(() => {
-//     // navigate to login after getCurrentUser is 
-//     // resolved and currentUser is undefined
-//     // errors are caught separately
-//     if (!isLoading && !currentUser) {
-//       navigate("/login")
-//     }
-//   }, [isLoading, currentUser, navigate])
-
   useEffect(() => {
     if (isError) {
       const err = error as Error
@@ -59,18 +43,11 @@ export default function App() {
     }
   }, [isError, error])
 
-  // useEffect(() => {
-  //   if (isLoading) {
-  //     //something
-  //   }
-  // }, [isLoading])
-
   useEffect(() => {
-    const token = getCookie('token')
-    if (!token && !['/', '/login'].includes(location.pathname)) {
+    if (!currentUser && !isLoading && !['/', '/login'].includes(location.pathname)) {
         navigate('/')
     }
-  }, [location, navigate])
+  }, [location, navigate, currentUser, isLoading])
   
   const handleHeaderLinkClick = (key: string) => {
     navigate(key)
@@ -91,9 +68,7 @@ export default function App() {
         <div className="header">
             <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
         </div>
-        {/* <div className="header">
-          <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
-        </div> */}
+
         <div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -105,6 +80,7 @@ export default function App() {
           </Routes>
         </div>
       </UserContext.Provider>
+
       <Toaster
         position="top-center"
         containerStyle={{
@@ -118,6 +94,7 @@ export default function App() {
           }
         }}
       />
+
       <div
         className="app-version"
         children={`v${version}`}
