@@ -53,7 +53,7 @@ class EmbeddingNodeSet(NodeSet):
         # return self.query_cls(self).build_ast()._execute(False)
 
         results, _ = db.cypher_query(query, kwargs, resolve_objects=True)
-
+        print(kwargs['string'], "Results:",results)
         # The following is not as elegant as it could be but had to be copied from the
         # version prior to cypher_query with the resolve_objects capability.
         # It seems that certain calls are only supposed to be focusing to the first

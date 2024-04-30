@@ -118,17 +118,18 @@ class OntologyGenerator:
     def get_or_create(self, input, label):
         ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input.replace("_", " "), limit=15,
                                                               include_similarity=True)
-        if ontology[0][1] < 0.97:
-            output = self.create_synonym(input, ontology, label)
-            nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
-            if nodes[0][1] < 0.97:
-                ontology_node = ONTOLOGY_MAPPER[label](name=output)
-                self.save_ontology_node(ontology_node)
-                return ontology_node
-            else:
-                return nodes[0][0]
-        else:
-            return ontology[0][0]
+        return ontology[0][0]
+        # if ontology[0][1] < 0.97:
+        #     output = self.create_synonym(input, ontology, label)
+        #     nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
+        #     if nodes[0][1] < 0.97:
+        #         ontology_node = ONTOLOGY_MAPPER[label](name=output)
+        #         self.save_ontology_node(ontology_node)
+        #         return ontology_node
+        #     else:
+        #         return nodes[0][0]
+        # else:
+        #     return ontology[0][0]
 
     def save_ontology_node(self, node):
         """
@@ -147,7 +148,6 @@ class OntologyGenerator:
         if not node.emmo_subclass and not node.emmo_parentclass:
             candidates = self.find_candidates(node)
             connection_names = self.find_connection(candidates)
-            print(f"Connecting '{node.name}' to '{connection_names}'")
             previous_node = None
             for name in connection_names:
                 # Search for the node by name, with similarity consideration
@@ -179,13 +179,11 @@ class OntologyGenerator:
             'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
             'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES
         }
-        print(f"Finding candidates for '{node.name}'")
         nodes = self.ontology_class.nodes.get_by_string(string=node.name, limit=8, include_similarity=False)
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name]
         prompt = ChatPromptTemplate.from_messages(setup_message)
         query = f"""Input: {node.name}\nCandidates: {", ".join([el.name for el in nodes if el.name != node.name])} \nContext: {self.context}"""
-        print("query", query)
         if examples := ONTOLOGY_CANDIDATES_EXAMPLES[self.ontology_class._meta.object_name]:
             example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
             few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
@@ -194,7 +192,6 @@ class OntologyGenerator:
         chain = create_structured_output_runnable(Response, llm, prompt).with_config(
             {"run_name": f"{node.name}-generation"})
         ontology_advice = chain.invoke({"input": query})
-        print("answer", ontology_advice)
         if (chosen_candidate := ontology_advice.answer) is None:
             uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
             return node.get_superclasses(uids)
@@ -206,7 +203,6 @@ class OntologyGenerator:
             return node.get_superclasses([candidate_uid])
 
     def find_connection(self, candidates):
-        print("find connection", candidates)
         ONTOLOGY_CONNECTOR = {
             'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
             'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
@@ -222,8 +218,6 @@ class OntologyGenerator:
         chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
             {"run_name": f"{self.name}-connection"})
         response = chain.invoke({"input": query})
-        print(query)
-        print(response)
         return [el.name for el in response.classes]
 
     def add_labels_create_embeddings(self, node):

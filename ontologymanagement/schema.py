@@ -13,6 +13,7 @@ class OntologyClass(BaseModel):
     They should never be more general or more specific or less specific as the name. Give at least one and at max 5 alternative labels.
     """
     name: str = Field(description="Name of the class")
+    description: str = Field(description="Short scientific one sentence description of the class")
     alternative_labels: List[str] = Field([], description="Alternative labels/synonymns of the class")
 
 
