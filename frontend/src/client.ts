@@ -455,16 +455,17 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
+            let formData = new FormData();
+            formData.append('file', file);
+            formData.append('context', context);
+
             // Make the POST request with formData
-            const response = await this.dataClient.post('data/file-retrieve', {
-                'file': file,
-                'context': context,
-            }, {
+            const response = await this.dataClient.post('data/file-retrieve', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
+                    // Don't set 'Content-Type': 'multipart/form-data' manually
                 },
-            })
+            });
 
             if (!response || !response.data) {
                 throw new Error()

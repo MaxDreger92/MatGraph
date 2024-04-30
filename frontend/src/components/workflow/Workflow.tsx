@@ -13,7 +13,7 @@
 //   localStorage.setItem("viewSplitViewWidth", JSON.stringify(splitViewWidth))
 // }, [splitView, splitViewWidth])
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { useMantineColorScheme } from '@mantine/core'
 
@@ -29,6 +29,7 @@ import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
 import WorkflowContext from './context/WorkflowContext'
 import _ from 'lodash'
+import { UserContext } from '../../common/UserContext'
 
 const undoSteps = 200
 
@@ -37,6 +38,7 @@ interface WorkflowProps {
 }
 
 export default function Workflow(props: WorkflowProps) {
+    const user = useContext(UserContext)
     const { uploadMode } = props
     const [nodes, setNodes] = useState<INode[]>([])
     const [relationships, setRelationships] = useState<IRelationship[]>([])
@@ -112,8 +114,9 @@ export default function Workflow(props: WorkflowProps) {
 
     // fetch workflows
     useEffect(() => {
+        if (!user) return
         fetchWorkflows()
-    }, [])
+    }, [user])
 
     async function saveWorkflow() {
         const workflow = convertToJSONFormat(nodes, relationships, true)
