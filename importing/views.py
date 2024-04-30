@@ -37,12 +37,12 @@ class LabelExtractView(APIView):
         file_obj.seek(0)
         first_line = str(file_obj.readline().decode('utf-8')).strip().lower()
         file_record = self.store_file(file_obj)
-        # if cached := FullTableCache.fetch(first_line):
-        #     cached = str(cached).replace("'", "\"")
-        #     return response.Response({'graph_json': cached,
-        #                               'file_link': file_record.link,
-        #                               'file_name': file_record.name
-        #                               })
+        if cached := FullTableCache.fetch(first_line):
+            cached = str(cached).replace("'", "\"")
+            return response.Response({'graph_json': cached,
+                                      'file_link': file_record.link,
+                                      'file_name': file_record.name
+                                      })
 
         labels = self.extract_labels(file, context, file_record.link, file_record.name)
 
@@ -105,11 +105,9 @@ class AttributeExtractView(APIView):
         })
 
     def prepare_data(self, labels):
-        print("prepare_data")
         input_data = [{'column_values': ['test'], 'header': key, '1_label': value['Label']} for key, value in labels.items()]
         for index, key in enumerate(input_data):
             key['index'] = index
-        print(input_data)
         return input_data
 
     def extract_attributes(self, labels, file_link, file_name, context):
@@ -133,7 +131,6 @@ class NodeExtractView(APIView):
     def post(self, request, *args, **kwargs):
         # Parsing JSON data from request body
         data = json.loads(request.body)
-        print(data)
 
 
         # Validate the presence of required fields

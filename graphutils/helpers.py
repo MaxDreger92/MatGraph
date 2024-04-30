@@ -4,11 +4,11 @@ from uuid import UUID
 
 from django_neomodel import NeoNodeSet
 from neomodel import StringProperty, db, NodeSet
+from neomodel.match import QueryBuilder
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
-from graphutils.views import FixedQueryBuilder
 
 
 # deletes existing connections
@@ -161,13 +161,71 @@ class NeoPaginator:
         setattr(node_set, 'skip', self.start)
 
 
+class FixedQueryBuilder(QueryBuilder):
+
+    # neomodel's querybuilder crashes on count if skip/limit are used (eg. pagination)
+    def _count(self):
+
+        # ignore skip/limit to avoid unexpected results
+        skip = self._ast.skip
+        limit = self._ast.limit
+        self._ast.skip = None
+        self._ast.limit = None
+
+        result = super()._count()
+
+        self._ast.skip = skip
+        self._ast.limit = limit
+
+        return result
+
+    # enable neo4j's parallel runtime to accelerate queries
+    def build_query(self):
+
+        if hasattr(db, '_session'):
+            if hasattr(db._session, "_connection_access_mode"):
+                if db._session._connection_access_mode != "WRITE":
+                    return "CYPHER runtime = parallel " + super().build_query()
+
+        return super().build_query()
+
+
+
+# make sure FixedQueryBuilder is used by default
 NodeSet.query_cls = FixedQueryBuilder
 NeoNodeSet.query_cls = FixedQueryBuilder
+
+
+
+
+# make sure FixedQueryBuilder is used by default
+NodeSet.query_cls = FixedQueryBuilder
+NeoNodeSet.query_cls = FixedQueryBuilder
+
+# only supports ordering by a single property for now
+class DistanceOrderingQueryBuilder(FixedQueryBuilder):
+
+    def build_single_order_by(self, ident, source, property_name):
+
+        tokens = source.split()
+        source = tokens.pop(0)
+        order = ' '.join(tokens)
+
+        if source == property_name:
+            return f'apoc.text.distance({ident}.{source}, $distance_ordering_query) {order}'
+        else:
+            return '{0}.{1}'.format(ident, source)
+
+    def build_order_by(self, ident, source):
+        self._query_params['distance_ordering_query'] = source.distance_ordering_query
+        self._ast.order_by = [
+            self.build_single_order_by(ident, p, source.distance_ordering_field)
+            for p in source.order_by_elements
+        ]
 
 class LocaleOrderingQueryBuilder(FixedQueryBuilder):
 
     def build_order_by(self, ident, source):
-        print('LocaleOrderingQueryBuilder.build_order_by')
 
         # cypher uses reversed ordering
         source.order_by_elements.reverse()

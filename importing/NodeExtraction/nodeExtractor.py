@@ -7,7 +7,7 @@ from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
-from importing.NodeExtraction.dummydata import test_data
+# from importing.NodeExtraction.dummydata import test_data
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
@@ -339,22 +339,22 @@ class NodeExtractor(TableDataTransformer):
                 return aggregator
 
     def get_table_understanding(self):
-        # chain = RunnableParallel(
-        #     propertyNodes=aggregate_properties | validate_properties,
-        #     matterNodes=aggregate_matters | validate_matters,
-        #     parameterNodes=aggregate_parameters | validate_parameters,
-        #     manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
-        #     measurementNodes=aggregate_measurement | validate_measurements,
-        #     metadataNodes=aggregate_metadata | validate_metadata
-        # ) | build_results
-        # chain = chain.with_config({"run_name": "node-extraction"})
-        # self.node_list = chain.invoke({
-        #     'input': self.iterable,
-        #     'context': self.context,
-        #     'header': self.headers,
-        #     'first_line': self.first_row
-        # })
-        self.node_list = test_data
+        chain = RunnableParallel(
+            propertyNodes=aggregate_properties | validate_properties,
+            matterNodes=aggregate_matters | validate_matters,
+            parameterNodes=aggregate_parameters | validate_parameters,
+            manufacturingNodes=aggregate_manufacturing | validate_manufacturings,
+            measurementNodes=aggregate_measurement | validate_measurements,
+            metadataNodes=aggregate_metadata | validate_metadata
+        ) | build_results
+        chain = chain.with_config({"run_name": "node-extraction"})
+        self.node_list = chain.invoke({
+            'input': self.iterable,
+            'context': self.context,
+            'header': self.headers,
+            'first_line': self.first_row
+        })
+        # self.node_list = test_data
 
 
     @property
