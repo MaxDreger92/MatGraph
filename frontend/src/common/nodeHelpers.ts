@@ -78,12 +78,32 @@ export const calculateNodeOptimalSize = (
     
     const numLabels = combinedSplitLabels.length
 
+    const standardWidth = 10.5
+
     combinedSplitLabels.forEach((value, index) => {
         const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
-        let characterWidth = index < splitName.length ? 11 : 9
-        characterWidth *= 1 - (value.length * 0.007)
+
+        const numCharacters = value.length
+        // console.log(labelLength)
+        const fontSizeReduction = numCharacters * (0.03 + 0.01 * distanceFromCenter)
+        let equalsSign = 0
+        let valueLabelFactor = 1
+        if (index === splitName.length) {
+            equalsSign = 4
+        } else if (index >= splitName.length) {
+            valueLabelFactor = 0.85
+        }
+        // console.log(fontSizeReduction)
+
+        const distanceFactor = distanceFromCenter * 35 - (fontSizeReduction * 20)
+        // console.log(distanceFactor)
+
+        nodeMinimumSize = Math.max((numCharacters * (standardWidth - fontSizeReduction) + distanceFactor + equalsSign) * valueLabelFactor, nodeMinimumSize)
+        // console.log(nodeMinimumSize)
+        // let characterWidth = index < splitName.length ? value.l : 9
+        // characterWidth *= 1 - (value.length * 0.007)
         
-        nodeMinimumSize = Math.max((value.length + (Math.pow(distanceFromCenter + 1.5 ,3)) / (value.length + 1) ) * characterWidth, nodeMinimumSize)
+        // nodeMinimumSize = Math.max((value.length + (Math.pow(distanceFromCenter + 1.5 ,3)) / (value.length + 1) ) * characterWidth, nodeMinimumSize)
     })
 
     return Math.min(nodeMinimumSize > nodeSize ? nodeMinimumSize : nodeSize, 300)

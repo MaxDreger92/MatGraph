@@ -56,7 +56,6 @@ export default function NodeLabel(props: NodeLabelsProps) {
 
     //     const numLabels = combinedSplitLabels.length
 
-
     // })
 
     useEffect(() => {
@@ -82,28 +81,21 @@ export default function NodeLabel(props: NodeLabelsProps) {
         const subValue = valOp.value.substring(0, (size - 20) / 8.2) // 8.2 = width of 1 char
         if (subValue.length < valOp.value.length) {
             setIsValueSliced(true)
+            if (isSelected === 1) {
+                setRenderValue(splitStrBySemicolon(valOp.value))
+                return
+            }
             setRenderValue(subValue.slice(0, -2))
         } else {
             setIsValueSliced(false)
             setRenderValue(valOp.value)
         }
-    }, [valOp, size])
+    }, [valOp, size, isSelected])
 
     useEffect(() => {
-        if (size > 250) {
-            setLabelFontSize(13)
-            console.log(14)
-        } else if (size > 200) {
-            setLabelFontSize(14)
-            console.log(15)
-        } else if (size > 150) {
-            setLabelFontSize(15)
-            console.log(16)
-        } else {
-            setLabelFontSize(16)
-        }
-
-        
+        const sizeReduction = Math.floor((size - 100) / 66)
+        setLabelFontSize(16 - sizeReduction)
+        console.log(16 - sizeReduction)
     }, [size])
 
     const mapOperatorSign = () => {
@@ -177,14 +169,34 @@ export default function NodeLabel(props: NodeLabelsProps) {
                         top: name && 'calc(50% + 5px)', //
                         color: ['matter', 'measurement'].includes(type) ? '#1a1b1e' : '#ececec',
                         zIndex: layer + 1,
+                        fontSize: labelFontSize * 0.85
                     }}
                 >
                     {/* operator */}
-                    {valOp?.operator && <span children={mapOperatorSign()} />}
+                    {valOp?.operator && (!Array.isArray(renderValue) || isSelected !== 1) && <span children={mapOperatorSign()} />}
                     {/* value */}
-                    <span style={{ paddingLeft: 2 }}>{renderValue}</span>
+                    {Array.isArray(renderValue) ? (
+                        isValueSliced ? (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                {renderValue.map((value, index) => (
+                                    <span style={{ paddingLeft: 2 }} key={index}>
+                                        {index === 0 ? mapOperatorSign() + value : value}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : (
+                            <span style={{ paddingLeft: 2 }}>
+                                {renderValue.map((value) => value).join(';')}
+                            </span>
+                        )
+                    ) : (
+                        <span style={{ paddingLeft: 2 }}>{renderValue}</span>
+                    )}
+
                     {/* dots */}
-                    {isValueSliced && <span className="node-label-dots" children="..." />}
+                    {isValueSliced && isSelected !== 1 && (
+                        <span className="node-label-dots" children="..." />
+                    )}
                 </div>
             )}
         </div>
