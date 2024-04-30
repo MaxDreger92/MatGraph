@@ -16,7 +16,7 @@ router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
 
 let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {

@@ -35,7 +35,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
 
-ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost", "matgraph.xyz"]
+ALLOWED_HOSTS = ["134.94.199.168", "127.0.0.1", "localhost", "matgraph.xyz"]
 
 #Openai API Key
 
@@ -46,7 +46,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '../debug.log',
+            'filename': './debug.log',
         },
     },
     'root': {
@@ -113,6 +113,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
