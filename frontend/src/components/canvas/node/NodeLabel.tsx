@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { INode, ValOpPair } from '../../../types/canvas.types'
 import { isAttrDefined } from '../../../common/workflowHelpers'
-import { splitStrBySemicolon } from '../../../common/helpers'
+import { splitStrByLength, splitStrBySemicolon } from '../../../common/helpers'
 import { getAllLabels } from '../../../common/nodeHelpers'
 
 interface NodeLabelsProps {
@@ -66,7 +66,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
         if (subName.length < name.length) {
             setIsNameSliced(true)
             if (isSelected === 1) {
-                setRenderName(splitStrBySemicolon(name))
+                const splitName = splitStrBySemicolon(name)
+                setRenderName(splitStrByLength(splitName, 36))
                 return
             }
             setRenderName(subName.slice(0, -2))
@@ -82,7 +83,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
         if (subValue.length < valOp.value.length) {
             setIsValueSliced(true)
             if (isSelected === 1) {
-                setRenderValue(splitStrBySemicolon(valOp.value))
+                const splitValue = splitStrBySemicolon(valOp.value)
+                setRenderValue(splitStrByLength(splitValue,))
                 return
             }
             setRenderValue(subValue.slice(0, -2))
