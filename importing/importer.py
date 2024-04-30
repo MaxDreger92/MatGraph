@@ -107,14 +107,9 @@ class Importer:
         """
         query, params = self.build_query()
 
-        query = query.replace(
-            '$pagination',
-            self.paginator.build_query_fragment() if self.paginator else ''
-        )
 
         start = time.time()
         self.db_result, self.db_columns = db.cypher_query(query, params)
-        print(f'{query} \n \n {params}')
         print(self.db_result, self.db_columns)
         end = time.time()
 
@@ -344,7 +339,6 @@ class TableImporter(Importer):
 
         data['column_values'] = [list(column_set) for column_set in column_values]
 
-        print("Run OntologyMapper")
         self.ontology_mapper.run()
         self.mapping = self.ontology_mapper.mapping
 
@@ -359,13 +353,13 @@ class TableImporter(Importer):
         def format_attr_value(attr_value):
             if attr_value['index'] == 'inferred':
                 return f"'{attr_value['value']}'"
-            print("attr_value", attr_value)
             return f"row[{int(attr_value['index'])}]"
 
         # Construct the query for adding ontology relations
         ontology_mapping = str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")
         add_ontology = f"""WITH * UNWIND {ontology_mapping} as input
-        MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess), (n:Matter|Parameter|Manufacturing|Measurement|Property)
+        MATCH (ontology:EMMOMatter|EMMOQuantity|EMMOProcess),
+        (n:Matter|Parameter|Manufacturing|Measurement|Property)
         WHERE ontology.uid = input.id AND (n.name = input.name OR input.name in n.name)
         MERGE (n)-[:IS_A]->(ontology)
         """
@@ -392,7 +386,6 @@ class TableImporter(Importer):
             query_parts.append(f"CREATE (n{node_id}:{label.capitalize()} {{uid: randomUUID(), flag: 'dev'}})")
 
             for attr_name, attr_values in node_config['attributes'].items():
-                print(node_config)
                 attr_values = [attr_values] if not isinstance(attr_values, list) else attr_values
                 attribute_query = construct_setter(attr_name, attr_values, node_id)
                 query_parts.append(attribute_query)
@@ -405,7 +398,6 @@ class TableImporter(Importer):
 
         # Combine all parts of the query
         full_query = '\n'.join(query_parts + relationship_queries + [add_ontology])
-        print("query", full_query)
 
         return full_query, {}
 
@@ -414,12 +406,9 @@ class TableImporter(Importer):
         Method to ingest data into the database.
         """
         query, params = self.build_query()
-        print("query", query)
-        print("params", params)
         start = time.time()
         self.db_results = db.run(query, **params)
         end = time.time()
-        print("ingest time", end-start)
         # self._build_query_report(query, params, start, end)
 
     def _build_query_report(self, query, params, start, end):

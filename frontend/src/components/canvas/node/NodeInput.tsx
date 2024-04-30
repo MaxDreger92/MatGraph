@@ -80,36 +80,30 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     }
 
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
-        let typed_index: string | number | undefined = undefined
-
-        if (index !== undefined) {
-            const numericValue = parseFloat(index)
-            typed_index = isNaN(numericValue) ? index : numericValue
-        }
 
         switch (id) {
             case 'name':
                 setNodeName({
                     value: value ?? nodeName.value,
-                    index: typed_index ?? nodeName.index,
+                    index: index ?? nodeName.index,
                 })
                 break
             case 'batch':
                 setNodeBatchNum({
                     value: value ?? nodeBatchNum.value,
-                    index: typed_index ?? nodeBatchNum.index,
+                    index: index ?? nodeBatchNum.index,
                 })
                 break
             case 'unit':
                 setNodeUnit({
                     value: value ?? nodeUnit.value,
-                    index: typed_index ?? nodeUnit.index,
+                    index: index ?? nodeUnit.index,
                 })
                 break
             case 'identifier':
                 setNodeIdentifier({
                     value: value ?? nodeIdentifier.value,
-                    index: typed_index ?? nodeIdentifier.index,
+                    index: index ?? nodeIdentifier.index,
                 })
                 break
             case 'value':
@@ -118,7 +112,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         value: value ?? nodeValue.valOp.value,
                         operator: operator ?? nodeValue.valOp.operator,
                     },
-                    index: typed_index ?? nodeValue.index,
+                    index: index ?? nodeValue.index,
                 })
                 break
             case 'ratio':
@@ -127,7 +121,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         value: value ?? nodeRatio.valOp.value,
                         operator: operator ?? nodeRatio.valOp.operator,
                     },
-                    index: typed_index ?? nodeRatio.index,
+                    index: index ?? nodeRatio.index,
                 })
                 break
             case 'concentration':
@@ -136,7 +130,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         value: value ?? nodeConcentration.valOp.value,
                         operator: operator ?? nodeConcentration.valOp.operator,
                     },
-                    index: typed_index ?? nodeConcentration.index,
+                    index: index ?? nodeConcentration.index,
                 })
                 break
             case 'std':
@@ -145,7 +139,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         value: value ?? nodeStd.valOp.value,
                         operator: operator ?? nodeStd.valOp.operator,
                     },
-                    index: typed_index ?? nodeStd.index,
+                    index: index ?? nodeStd.index,
                 })
                 break
             case 'error':
@@ -154,43 +148,43 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         value: value ?? nodeError.valOp.value,
                         operator: operator ?? nodeError.valOp.operator,
                     },
-                    index: typed_index ?? nodeError.index,
+                    index: index ?? nodeError.index,
                 })
                 break
             default:
                 break
         }
 
-        if (typed_index !== undefined) {
+        if (index !== undefined) {
             const updatedNode = { ...node }
 
             switch (id) {
                 case 'name':
-                    updatedNode.name.index = typed_index
+                    updatedNode.name.index = index
                     break
                 case 'value':
-                    updatedNode.value.index = typed_index
+                    updatedNode.value.index = index
                     break
                 case 'batch':
-                    updatedNode.batch_num.index = typed_index
+                    updatedNode.batch_num.index = index
                     break
                 case 'ratio':
-                    updatedNode.ratio.index = typed_index
+                    updatedNode.ratio.index = index
                     break
                 case 'concentration':
-                    updatedNode.concentration.index = typed_index
+                    updatedNode.concentration.index = index
                     break
                 case 'unit':
-                    updatedNode.unit.index = typed_index
+                    updatedNode.unit.index = index
                     break
                 case 'std':
-                    updatedNode.std.index = typed_index
+                    updatedNode.std.index = index
                     break
                 case 'error':
-                    updatedNode.error.index = typed_index
+                    updatedNode.error.index = index
                     break
                 case 'identifier':
-                    updatedNode.identifier.index = typed_index
+                    updatedNode.identifier.index = index
                     break
                 default:
                     break
@@ -230,7 +224,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 handleKeyUp={handleKeyUp}
                 id="name"
                 defaultValue={nodeName.value}
-                showIndices={node.with_indices}
+                showIndices={node.withIndices}
                 showIndexChoice={showIndexChoice}
                 setShowIndexChoice={setShowIndexChoice}
                 index={nodeName.index}
@@ -245,7 +239,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     handleKeyUp={handleKeyUp}
                     id="identifier"
                     defaultValue={nodeIdentifier.value}
-                    showIndices={node.with_indices}
+                    showIndices={node.withIndices}
                     index={nodeIdentifier.index}
                     showIndexChoice={showIndexChoice}
                     setShowIndexChoice={setShowIndexChoice}
@@ -262,7 +256,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="identifier"
                         defaultValue={nodeIdentifier.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeIdentifier.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -275,7 +269,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="batch"
                         defaultValue={nodeBatchNum.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeBatchNum.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -289,7 +283,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="ratio"
                         defaultOp={nodeRatio.valOp.operator}
                         defaultVal={nodeRatio.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeRatio.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -302,7 +296,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="concentration"
                         defaultOp={nodeConcentration.valOp.operator}
                         defaultVal={nodeConcentration.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeConcentration.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -320,7 +314,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="value"
                         defaultOp={nodeValue.valOp.operator}
                         defaultVal={nodeValue.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeValue.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -334,7 +328,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="unit"
                         defaultValue={nodeUnit.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeUnit.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -348,7 +342,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="std"
                         defaultOp={nodeStd.valOp.operator}
                         defaultVal={nodeStd.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeStd.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -361,7 +355,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="error"
                         defaultOp={nodeError.valOp.operator}
                         defaultVal={nodeError.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeError.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}

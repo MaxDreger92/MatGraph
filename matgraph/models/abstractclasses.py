@@ -21,69 +21,7 @@ from django_neomodel import DjangoNode, classproperty
 from neomodel import AliasProperty, StringProperty, UniqueIdProperty, RelationshipTo, ZeroOrMore, \
     RelationshipFrom, BooleanProperty
 
-from graphutils.models import EmbeddingNodeSet
-
-
-class UIDDjangoNode(DjangoNode):
-    """
-    UIDDjangoNode is an abstract base class for Django-Neo4j nodes that provides a unique identifier (uid)
-    as the primary key for DjangoNode instances. It inherits from DjangoNode, which is a base class for
-    Neo4j nodes that are compatible with Django.
-
-    The class defines a UniqueIdProperty, 'uid', which serves as the primary key for instances of the class.
-    The 'abstract_node' attribute is set to True to ensure that UIDDjangoNode is only used as a base class.
-
-    The _meta method is a class property that sets the app_label and alias property for the primary key (pk) used
-    in Django applications. The primary key (pk) is aliased to the 'uid' property using AliasProperty. This ensures
-    that Django admin and other parts of the Django framework that use .pk can work seamlessly with this class.
-
-    The Meta class is defined as a nested class inside UIDDjangoNode but left empty. It can be used by subclasses
-    to set additional metadata options.
-    """
-    uid = UniqueIdProperty(
-        primary_key=True
-    )
-
-    __abstract_node__ = True
-
-    # django (esp. admin) uses .pk in a few places and expects a UUID.
-    # add an AliasProperty to handle this
-    @classproperty
-    def _meta(self):
-        self.Meta.app_label = apps.get_containing_app_config(self.__module__).label
-        opts = super()._meta
-        self.pk = AliasProperty(to='uid')
-        return opts
-
-    class Meta:
-        pass
-
-
-
-
-    def __hash__(self):
-        """
-        Computes the hash value of the UIDDjangoNode instance based on its unique identifier (uid).
-
-        Raises a TypeError if the uid is not set.
-        """
-        if self.uid is None:
-            raise TypeError("Model instances without primary key value are unhashable")
-        return hash(self.uid)
-
-
-class UniqueNode(DjangoNode):
-    """
-    Abstract base class for unique nodes in a Django-Neo4j graph.
-
-    uid: A unique identifier property.
-    """
-    uid = UniqueIdProperty()
-    __abstract_node__ = True
-
-    @classmethod
-    def category(cls):
-        pass
+from graphutils.models import EmbeddingNodeSet, UIDDjangoNode
 
 
 class CausalObject(UIDDjangoNode):

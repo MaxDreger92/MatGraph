@@ -15,9 +15,13 @@ export function isRelationshipLegitimate(start: INode, end: INode): boolean {
         ['matter', 'measurement'], // IS_MEASUREMENT_INPUT
         ['matter', 'property'], // HAS_PROPERTY
         ['manufacturing', 'parameter'], // HAS_PARAMETER
-        ['measurement', 'property'], // IS_MEASUREMENT_OUTPUT
+        ['measurement', 'parameter'], //HAS_PARAMETER
+        ['measurement', 'property'], // HAS_MEASUREMENT_OUTPUT
         ['manufacturing', 'metadata'], // HAS_METADATA
         ['measurement', 'metadata'], // HAS_METADATA
+        ['matter', 'matter'], // HAS_PART
+        ['manufacturing', 'manufacturing'], // HAS_PART
+        ['measurement', 'measurement'], // HAS_PART
     ]
 
     // Check if the [start.type, end.type] tuple exists in the allowed relationships array
@@ -34,7 +38,7 @@ export function isRelationshipLegitimate(start: INode, end: INode): boolean {
  */
 export function possibleRelationships(startType: string | undefined): string[] {
     if (!startType)
-        return ['matter', 'manufacturing', 'parameter', 'property', 'measurement', 'metadata']
+        return ['matter', 'manufacturing', 'parameter', 'property', 'measurement', 'metadata', 'simulation']
 
     // Filter the keys to find matches and extract the endType
     return Object.keys(relationshipToRelType)

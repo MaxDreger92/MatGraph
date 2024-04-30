@@ -9,7 +9,7 @@ for EMMOProcess and EMMOMatter instances in the Django admin interface.
 
 from django.contrib import admin as dj_admin
 
-from matgraph.admins.adminBase import (NodeModelAdmin)
+from graphutils.admin import NodeModelAdmin
 from matgraph.models.ontology import EMMOProcess, EMMOMatter, EMMOQuantity
 
 

@@ -55,19 +55,19 @@ class AttributeClassifier(TableDataTransformer):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
             return
-        elif kwargs['element']['1_label'] == 'Property' or kwargs['element']['1_label'] == 'Parameter':
-            prompt = f"""
-            Context: {self.context}.
-            Header: {kwargs['element']['header']}
-            Column values: {', '.join(kwargs['element']['column_values'][:4])}
-            """
-            result = chat_with_gpt4(setup_message= PROPERTY_PARAMETER_MESSAGE, prompt = prompt)
-            if result == "value" or result == "unit" or result == "error" or result == "standard deviation":
-                ImporterCache.update(kwargs['element']['header'], column_attribute=result, attribute_type=self.attribute_type)
-            else:
-                result = "value"
-            self._update_with_chat(result = result, input_string = prompt, **kwargs)
-            return
+        # elif kwargs['element']['1_label'] == 'Property' or kwargs['element']['1_label'] == 'Parameter':
+        #     prompt = f"""
+        #     Context: {self.context}.
+        #     Header: {kwargs['element']['header']}
+        #     Column values: {', '.join(kwargs['element']['column_values'][:4])}
+        #     """
+        #     result = chat_with_gpt4(setup_message= PROPERTY_PARAMETER_MESSAGE, prompt = prompt)
+        #     if result == "value" or result == "unit" or result == "error" or result == "standard deviation":
+        #         ImporterCache.update(kwargs['element']['header'], column_attribute=result, attribute_type=self.attribute_type)
+        #     else:
+        #         result = "value"
+        #     self._update_with_chat(result = result, input_string = prompt, **kwargs)
+        #     return
         else:
             self._transform(index = kwargs['index'], element = kwargs['element'])
 
