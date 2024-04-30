@@ -455,15 +455,11 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            // Create an instance of FormData
-            let formData = new FormData()
-
-            // Append the file and context to formData
-            formData.append('file', file)
-            formData.append('context', context)
-
             // Make the POST request with formData
-            const response = await this.dataClient.post('data/file-retrieve', formData, {
+            const response = await this.dataClient.post('data/file-retrieve', {
+                'file': file,
+                'context': context,
+            }, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
@@ -495,6 +491,7 @@ class Client {
                     file_link: link,
                     file_name: name,
                 },
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -525,6 +522,7 @@ class Client {
                     file_link: link,
                     file_name: name,
                 },
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -555,6 +553,7 @@ class Client {
                     file_link: link,
                     file_name: name,
                 },
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -590,6 +589,7 @@ class Client {
                     file_link: fileLink, // Use the corrected parameter name
                     file_name: fileName, // Use the corrected parameter name
                 },
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
