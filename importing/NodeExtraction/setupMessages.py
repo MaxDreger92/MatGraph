@@ -57,14 +57,21 @@ Thought 3: Each node attribute consists of a value and an reference:
     -AttributeReference:  -integer(ColumhnIndex) if extracted from the 'Value' key,
                           -"header" if extracted from the header,
                           -"guess" if inferred from the context or the header.
-Thought 4: The header of the tables can contain additional descriptions of materials that you should add to the name list . 
+Thought 4: The header of the tables can contain additional descriptions of materials that you should add to the name list. 
+Thought 5. Never store components and its parts in one and the same node.
 """),
     ("human",
      """Use the given format to extract the nodes and their attributes from the following data: {input}"""),
-    ("human", """REMEMBER:
-1. Check if you have extracted all distinguishable nodes from the table.
-2. Check if you can infer additional attributes from the context or the table headers.
-3. the index is "AttributeReference" is either an integer or "header" or "guess" depending on the source of the attribute."""),
+    ("human", """Please double check if you have followed the given advices:
+Thought 1: Use the input data and the Context (table and domain) to generate a complete list of nodes.
+Thought 2: The nodes will be used to construct a graph therefore it is important to extract all relevant nodes from the table.
+Thought 3: Each node attribute consists of a value and an reference:
+    -AttributeValue: extract from value or infer from the header or context"
+    -AttributeReference:  -integer(ColumhnIndex) if extracted from the 'Value' key,
+                          -"header" if extracted from the header,
+                          -"guess" if inferred from the context or the header.
+Thought 4: The header of the tables can contain additional descriptions of materials that you should add to the name list. 
+Thought 5. Never store components and its parts in one and the same node."""),
 ]
 MANUFACTURING_AGGREGATION_MESSAGE = [
     ("system", """You are a world-class knowledge graph generating algorithm to extract nodes from materials science tables.

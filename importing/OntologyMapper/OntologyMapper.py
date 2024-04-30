@@ -86,6 +86,8 @@ class OntologyMapper:
                 self._append_mapping(col_value, label)
 
     def _append_mapping(self, name_value, label):
+        if label == 'metadata':
+            return
         ontology_generator = OntologyGenerator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
         if name_value not in [mapping['name'] for mapping in self._mapping]:
             node_uid = ontology_generator.get_or_create(name_value, label).uid

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import { IDictionary } from './types/workflow.types'
 
-const LOCAL = false
+const LOCAL = true
 
 const API_URL = 'https://matgraph.xyz/api/'
 const LOCAL_API_URL = 'http://localhost:8000/api/'

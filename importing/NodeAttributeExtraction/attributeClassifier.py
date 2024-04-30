@@ -1,14 +1,12 @@
 import os
+
 from dotenv import load_dotenv
 
-from graphutils.general import ReportBuilder, TableDataTransformer
-from importing.NodeAttributeExtraction.setupMessages import PROPERTY_PARAMETER_MESSAGE
-from importing.models import (NodeAttribute, ManufacturingAttribute,
+from graphutils.general import TableDataTransformer
+from importing.models import (ManufacturingAttribute,
                               MeasurementAttribute, MatterAttribute,
                               MetadataAttribute, PropertyAttribute,
-                              ParameterAttribute, ImporterCache, LabelClassificationReport,
-                              AttributeClassificationReport)
-from importing.utils.openai import chat_with_gpt3, chat_with_gpt4
+                              ParameterAttribute, ImporterCache, LabelClassificationReport)
 from mat2devplatform import settings
 
 
