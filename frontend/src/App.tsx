@@ -10,7 +10,7 @@ import {MDB_IUser as IUser} from "./types/user.type"
 import client from "./client"
 import { getCookie } from "./client"
 
-import Home from "./components/Home"
+import Home from "./components/home/Home"
 import Workflow from "./components/workflow/Workflow"
 import Database from "./components/Database"
 import Profile from "./components/Profile"
@@ -18,18 +18,13 @@ import Authentication from "./components/Authentication"
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
+import { useMantineColorScheme } from "@mantine/core"
 
 export default function App() {
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const version = process.env.REACT_APP_VERSION?.slice(1,-1) ?? "???"
-
-  useEffect(() => {
-    const token = getCookie('token')
-    if (!token) {
-      navigate("/login")
-    }
-  }, [navigate])
 
   const {
     data: currentUser,
@@ -42,26 +37,17 @@ export default function App() {
   )
 
   useEffect(() => {
-    // navigate to login after getCurrentUser is 
-    // resolved and currentUser is undefined
-    // errors are caught separately
-    if (!isLoading && !currentUser) {
-      navigate("/login")
-    }
-  }, [isLoading, currentUser, navigate])
-
-  useEffect(() => {
     if (isError) {
       const err = error as Error
       console.log(err.message)
     }
   }, [isError, error])
 
-  // useEffect(() => {
-  //   if (isLoading) {
-  //     //something
-  //   }
-  // }, [isLoading])
+  useEffect(() => {
+    if (!currentUser && !isLoading && !['/', '/login'].includes(location.pathname)) {
+        navigate('/')
+    }
+  }, [location, navigate, currentUser, isLoading])
   
   const handleHeaderLinkClick = (key: string) => {
     navigate(key)
@@ -70,20 +56,19 @@ export default function App() {
   const handleLogout = () => {
     queryClient.setQueryData<IUser | null | undefined>("getCurrentUser", undefined)
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure";
-    navigate("/login")
+    navigate("/")
   }
 
+  const { colorScheme } = useMantineColorScheme()
+  const darkTheme = colorScheme === 'dark'
+
   return (
-    <div className="app">
+    <div className="app" style={{backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa'}}>
       <UserContext.Provider value={currentUser}>
-        {currentUser && (
-          <div className="header">
+        <div className="header">
             <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
-          </div>
-        )}
-        {/* <div className="header">
-          <HeaderTabs onHeaderLinkClick={handleHeaderLinkClick} onLogout={handleLogout} tab={activeTab} setTab={setTab}/>
-        </div> */}
+        </div>
+
         <div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -95,6 +80,7 @@ export default function App() {
           </Routes>
         </div>
       </UserContext.Provider>
+
       <Toaster
         position="top-center"
         containerStyle={{
@@ -108,6 +94,7 @@ export default function App() {
           }
         }}
       />
+
       <div
         className="app-version"
         children={`v${version}`}

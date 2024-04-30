@@ -439,7 +439,7 @@ export default function Profile(props: PaperProps) {
             </Paper>
           </div>
           {/* Main Profile Page  ########################## */}
-          <div className="profile-paper-main">
+          <div className="profile-paper-main" >
             <Paper
               radius="md"
               p="xl"
