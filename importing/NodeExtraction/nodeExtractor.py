@@ -7,7 +7,7 @@ from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
-from importing.NodeExtraction.dummydata import test_data
+# from importing.NodeExtraction.dummydata import test_data
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
@@ -354,7 +354,7 @@ class NodeExtractor(TableDataTransformer):
             'header': self.headers,
             'first_line': self.first_row
         })
-        self.node_list = test_data
+        # self.node_list = test_data
 
 
     @property
