@@ -40,18 +40,21 @@ ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost", "matgraph.xyz"]
 #Openai API Key
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': './debug.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "./log/debug.log",
         },
     },
-    'root': {
-        'handlers': ['file'],
-        'level': 'DEBUG',
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 
