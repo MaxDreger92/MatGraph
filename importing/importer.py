@@ -351,7 +351,7 @@ class TableImporter(Importer):
 
         # Function to construct attribute value strings
         def format_attr_value(attr_value):
-            if attr_value['index'] == 'inferred':
+            if attr_value['index'] == 'inferred' or attr_value['index'] == "missing":
                 return f"'{attr_value['value']}'"
             return f"row[{int(attr_value['index'])}]"
 

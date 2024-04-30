@@ -14,7 +14,8 @@ from importing.RelationshipExtraction.schema import (
     HasManufacturingRelationships,
     HasMeasurementRelationships,
     HasParameterRelationships,
-    HasPropertyRelationships, HasPartMatterRelationships,
+    HasPropertyRelationships, HasPartMatterRelationships, HasPartManufacturingRelationships,
+    HasPartMeasurementRelationships,
 )
 from importing.RelationshipExtraction.setupMessages import (
     MATTER_MANUFACTURING_MESSAGE,
@@ -138,7 +139,7 @@ class HasPartMatterExtractor(RelationshipExtractor):
         self.setup_message = MATTER_MATTER_MESSAGE
         self.label_one = ["matter"]
         self.label_two = ["matter"]
-        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
@@ -156,11 +157,11 @@ class HasPartManufacturingExtractor(RelationshipExtractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.schema = HasPartMatterRelationships
+        self.schema = HasPartManufacturingRelationships
         self.setup_message = MANUFACTURING_MANUFACTURING_MESSAGE
         self.label_one = ["manufacturing"]
         self.label_two = ["manufacturing"]
-        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
@@ -179,11 +180,11 @@ class HasPartMeasurementExtractor(RelationshipExtractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.schema = HasPartMatterRelationships
+        self.schema = HasPartMeasurementRelationships
         self.setup_message = MEASUREMENT_MEASUREMENT_MESSAGE
         self.label_one = ["measurement"]
         self.label_two = ["measurement"]
-        self._label_one_nodes, self.label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""

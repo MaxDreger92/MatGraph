@@ -53,6 +53,15 @@ class UserRepository {
     return result.insertedId
   }
 
+  static async verify(username: string) {
+    const collection = await this.connect()
+    const result = await collection.updateOne(
+        { username: username },
+        { $set: { verified: true } }
+    )
+    return result.modifiedCount > 0
+  }
+
   static async delete(id: string) {
     const collection = await this.connect()
     const result = await collection.deleteOne({ _id: new ObjectId(id) })

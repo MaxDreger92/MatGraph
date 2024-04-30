@@ -85,6 +85,8 @@ MANUFACTURING_MANUFACTURING_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
 and materials in the field of materials science. Your only task is to assign manufacturing nodes to their subprocesses.
 As additional you are given the Scientific context and the table data the nodes were extracted from.
+You do only generate relationsghips from the process to it subprocess. 
+you do not create relationships from proces steps to the following proces steps.
 The input data has the following structure:
 - Scientific context
 -Table header

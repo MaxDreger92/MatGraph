@@ -5,8 +5,8 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 
 class Edge(BaseModel):
-    source: int = Field(None, description='node_id of the source node')
-    target: int = Field(None, description='node_id of the target node')
+    source: str = Field(None, description='node_id of the source node')
+    target: str = Field(None, description='node_id of the target node')
 
 class HasProperty(Edge):
     """

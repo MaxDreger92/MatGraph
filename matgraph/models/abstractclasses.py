@@ -16,9 +16,8 @@ from UIDDjangoNode and contains properties for the name, URI, description, and a
 of the ontology node according to the EMMO (European Materials & Modelling Ontology).
 """
 
-from django.apps import apps
-from django_neomodel import DjangoNode, classproperty
-from neomodel import AliasProperty, StringProperty, UniqueIdProperty, RelationshipTo, ZeroOrMore, \
+from django_neomodel import classproperty
+from neomodel import StringProperty, RelationshipTo, ZeroOrMore, \
     RelationshipFrom, BooleanProperty
 
 from graphutils.models import EmbeddingNodeSet, UIDDjangoNode
@@ -47,12 +46,10 @@ class OntologyNode(UIDDjangoNode):
     name: The name of the ontology node according to the EMMO.
     uri: The unique URI of the ontology node according to the EMMO.
     """
+
     @classproperty
     def nodes(cls):
         return EmbeddingNodeSet(cls)
-
-
-
 
     def get_subclasses(self, uids):
         prompt = f"""
@@ -68,6 +65,7 @@ class OntologyNode(UIDDjangoNode):
         """
         results, meta = self.cypher(prompt)
         return [(node[0], node[1]) for node in results]
+
     def get_superclasses(self, uids):
         prompt = f"""
         // Part 1: Return details of `n`
@@ -83,18 +81,14 @@ class OntologyNode(UIDDjangoNode):
         results, meta = self.cypher(prompt)
         return [(node[0], node[1]) for node in results]
 
-
-
     name = StringProperty()
     uri = StringProperty()
     description = StringProperty()
-    alternative_label =RelationshipTo('graphutils.models.AlternativeLabel', 'HAS_LABEL', cardinality=ZeroOrMore)
+    alternative_label = RelationshipTo('graphutils.models.AlternativeLabel', 'HAS_LABEL', cardinality=ZeroOrMore)
     model_embedding = RelationshipFrom('matgraph.models.embeddings.ModelEmbedding', 'FOR', cardinality=ZeroOrMore)
-    validated_labels = BooleanProperty(default = False)
-    validated_ontology = BooleanProperty(default = False)
+    validated_labels = BooleanProperty(default=False)
+    validated_ontology = BooleanProperty(default=False)
     __abstract_node__ = True
 
     def __str__(self):
         return self.name
-
-

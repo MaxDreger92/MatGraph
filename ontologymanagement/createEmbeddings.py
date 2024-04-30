@@ -72,7 +72,6 @@ def apply_combine_func(df_all, combine_func, fetch_properties, unwind_alternativ
             labels.append(alt_label.replace("'", ""))
         return labels
     df_all["combined"] = df_all.apply(combine, axis=1)
-    print("DF_ALL", df_all)
     return df_all
 
 def fetch_embedding_from_db(input_string):
@@ -101,7 +100,6 @@ def fetch_embedding_from_db(input_string):
 def iterate_over_inputs(input_list):
     embeddings =[]
     for input in input_list:
-        print("INPUT", input)
         if fetch_embedding_from_db(input) == None:
             embeddings.append(request_embedding(input))
     return embeddings
@@ -111,7 +109,6 @@ def apply_embedding(df_all, resume):
     if resume:
         df_all['embedding'] = df_all['combined'].apply(lambda x: iterate_over_inputs(x))
     else:
-        print("APPLY EMBEDDING")
         df_all['embedding'] = df_all.combined.swifter.apply(request_embedding)
     return df_all
 
@@ -148,7 +145,6 @@ def ingest_data_into_db(chunks, db, query):
         db_rows = [ # to python array
             [r[0], r[1], r[2]] for r in chunk.to_records(index=False)
         ]
-        print("DB_ROWS", db_rows[0][0], db_rows[0][1][33], db_rows[0][2])
         db.cypher_query(query, {'vectors': db_rows})
 
 def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_filter='', required_properties=None, resume=True, id_property='uid', unwind_alternative_labels=False):
@@ -166,11 +162,8 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
          id_property (str, optional): The property to use as the unique identifier for nodes. Defaults to 'uid'.
          unwind_alternative_labels (bool, optional): Whether to create a separate embedding for every label. Defaults to False.
      """
-    print("GET EMBEDDINGS FOR MODEL")
     query = build_cypher_query(Model, fetch_properties, fetch_filter, unwind_alternative_labels, id_property)
-    print("QUERY", query)
     df_all, total, processable = fetch_data(query, db, required_properties, fetch_properties, id_property)
-    print("DF_ALL", df_all.columns.tolist(), "\n", df_all.iloc[0])
     # cmd.stdout.write(f'total nodes: {total}')
     # cmd.stdout.write(f'processable nodes: {processable}')
     # cmd.stdout.write(f'skipping {total-processable} nodes...')
@@ -180,7 +173,6 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
 
     # Apply your functions
     df_all = apply_combine_func(df_all, combine_func, fetch_properties, unwind_alternative_labels)
-    print("DF_ALL_combinded\n", df_all.columns.tolist(), "\n", df_all.iloc[0])
     df_all = apply_embedding(df_all, resume)
 
     # Filter out rows where 'embedding' is an empty list
@@ -189,7 +181,6 @@ def get_embeddings_for_model(cmd, Model, fetch_properties, combine_func, fetch_f
     # Continue with your existing code
     list_length = len(df_all['embedding'][0])
     min_length = min([len(x) for x in df_all['embedding']])
-    print("HIEHIRHI", min_length)
 
     # Create a list to hold each chunk dataframe
     chunks = []
