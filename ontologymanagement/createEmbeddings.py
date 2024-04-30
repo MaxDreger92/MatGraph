@@ -67,6 +67,7 @@ def apply_combine_func(df_all, combine_func, fetch_properties, unwind_alternativ
         print(item['name'])
         labels = []
         labels.append(item['name'])
+        labels.append(item['description'].replace("'", "").replace('[', '').replace(']', ''))
         for alt_label in item['alternative_labels']:
             labels.append(alt_label.replace("'", ""))
         return labels
@@ -233,30 +234,30 @@ def main():
     from neomodel import config
 
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
-    get_embeddings_for_model(
-        "",
-        Model=EMMOProcess,
-        fetch_properties= ['name'],
-        combine_func=lambda s: s['name'],
-        unwind_alternative_labels = True
-        # add other parameters here...
-    )
+    # get_embeddings_for_model(
+    #     "",
+    #     Model=EMMOProcess,
+    #     fetch_properties= ['name', 'description'],
+    #     combine_func=lambda s: s['name'],
+    #     unwind_alternative_labels = True
+    #     # add other parameters here...
+    # )
     get_embeddings_for_model(
         "",
         Model=EMMOMatter,
-        fetch_properties= ['name'],
+        fetch_properties= ['name', 'description'],
         combine_func=lambda s: s['name'],
         unwind_alternative_labels = True
         # add other parameters here...
     )
-    get_embeddings_for_model(
-        "",
-        Model=EMMOQuantity,
-        fetch_properties= ['name'],
-        combine_func=lambda s: s['name'],
-        unwind_alternative_labels = True
-        # add other parameters here...
-    )
+    # get_embeddings_for_model(
+    #     "",
+    #     Model=EMMOQuantity,
+    #     fetch_properties= ['name', 'description'],
+    #     combine_func=lambda s: s['name'],
+    #     unwind_alternative_labels = True
+    #     # add other parameters here...
+    # )
 
 
 if __name__ == '__main__':
