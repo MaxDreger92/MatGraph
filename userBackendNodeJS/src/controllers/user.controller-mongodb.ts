@@ -7,12 +7,26 @@ import { v2 as cloudinary } from "cloudinary"
 import axios from "axios"
 import fileUpload from "express-fileupload"
 import FormData from "form-data"
+import nodemailer from "nodemailer"
 
 import { CLOUDINARY_CONFIG } from "../config"
 
 const router = express.Router()
 router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
+
+let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        type: "OAuth2",
+        user: "matgraph.xyz@gmail.com",
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+    },
+})
 
 router.post("/api/users/login", async (req, res) => {
   try {
@@ -32,7 +46,7 @@ router.post("/api/users/login", async (req, res) => {
 
     if (!user.verified) {
       return res.status(401).json({
-        message: "Please await account verification!"
+        message: "Please await account verification!",
       })
     }
 
@@ -79,15 +93,27 @@ router.post("/api/users/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-    const createSuccess = await UserService.createUser(
-      username,
-      email,
-      hashedPassword
-    )
-    if (createSuccess) {
+    const user = await UserService.createUser(username, email, hashedPassword);
+    if (user) {
+      // Prepare and send the email
+      const mailOptions = {
+          from: 'matgraph.xyz@gmail.com', // Sender address
+          to: 'matgraph.xyz@gmail.com',   // List of recipients
+          subject: 'New User Registration', // Subject line
+          text: 'A new user has just registered: ' + username, // Plain text body
+      };
+      
+      transporter.sendMail(mailOptions, function(err, info) {
+          if (err) {
+              console.log('Error sending email:', err);
+          } else {
+              console.log('Email sent:', info.response);
+          }
+      });
+
       return res.status(201).json({
         message: "User created successfully!",
-      })
+      });
     }
   } catch (err) {
     return res.status(500).send("Internal Server Error!")
@@ -460,17 +486,17 @@ router.post(
       const updateSuccess = UserService.updateImgUrl(imgurl, id)
       if (!updateSuccess) {
         return res.status(400).json({
-          message: "User image could not be updated!"
+          message: "User image could not be updated!",
         })
       }
       return res.status(200).json({
-        message: "User image successfully updated!"
+        message: "User image successfully updated!",
       })
     } catch (err: any) {
       if (err.response) {
         console.error("error:", err.response.data)
         return res.status(err.response.status).json({
-          message: err.message
+          message: err.message,
         })
       }
       return res.status(500).json("Internal server error!")
@@ -502,12 +528,11 @@ router.post(
       return res.status(201).json({
         message: "Workflow saved successfully!",
       })
-
     } catch (err: any) {
       if (err.response) {
         console.error("error:", err.response.data)
         return res.status(err.response.status).json({
-          message: err.message
+          message: err.message,
         })
       }
       return res.status(500).json("Internal server error!")
@@ -539,12 +564,11 @@ router.delete(
       return res.status(200).json({
         message: "Workflow deleted successfully!",
       })
-
     } catch (err: any) {
       if (err.response) {
         console.error("error:", err.response.data)
         return res.status(err.response.status).json({
-          message: err.message
+          message: err.message,
         })
       }
       return res.status(500).json("Internal server error!")
@@ -570,12 +594,11 @@ router.get(
         message: "Workflows retrieved successfully!",
         workflows: workflows,
       })
-
     } catch (err: any) {
       if (err.response) {
         console.error("error:", err.response.data)
         return res.status(err.response.status).json({
-          message: err.message
+          message: err.message,
         })
       }
       return res.status(500).json("Internal server error!")
