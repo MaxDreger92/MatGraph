@@ -77,16 +77,17 @@ export const calculateNodeOptimalSize = (
     
     const numLabels = combinedSplitLabels.length
 
-    const baseCharWidth = 10.2
+    const baseCharWidth = 11
 
     combinedSplitLabels.forEach((value, index) => {
         const numCharacters = value.length
         const fontSizeReduction = numCharacters / 10 - 1
         const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
-        const distanceFactor = Math.floor(distanceFromCenter) * 2.5 - Math.floor(numCharacters * 0.075)
+        const distanceFactor = Math.floor(distanceFromCenter) * 1 - Math.floor(numCharacters * 0.075)
         const adjustedLength = (numCharacters + distanceFactor) * (baseCharWidth - fontSizeReduction)
 
         nodeMinimumSize = Math.max(nodeMinimumSize, adjustedLength)
+        console.log(nodeMinimumSize)
     })
     return Math.max(nodeSize, Math.min(nodeMinimumSize, 250))
 }

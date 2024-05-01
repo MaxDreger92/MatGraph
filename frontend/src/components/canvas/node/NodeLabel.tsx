@@ -96,6 +96,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
 
     useEffect(() => {
         const sizeReduction = Math.min(Math.floor((size - 90) / 50), 3)
+        console.log(16-sizeReduction)
         setLabelFontSize(16 - sizeReduction)
     }, [size])
 
