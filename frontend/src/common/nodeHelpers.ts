@@ -1,4 +1,5 @@
-import { INode } from "../types/canvas.types"
+import { INode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
+import { splitStrBySemicolon } from "./helpers"
 import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
 
 /**
@@ -61,25 +62,52 @@ export function isConnectableNode(nodeType: string | undefined): boolean {
 
 export const calculateNodeOptimalSize = (
     nodeSize: number,
-    nodeName: INode['name'],
-    nodeValue: INode['value'],
-    nodeType: INode['type']
+    nodeName: NodeAttribute,
+    nodeValue: NodeValOpAttribute,
 ) => {
     if (!isAttrDefined(nodeName.value)) {
         return nodeSize
     }
+    let nodeMinimumSize = 0
 
-    const characterFactor = 16 - calculateLabelFontSize(nodeSize)
+    const confirmedNodeValue = isAttrDefined(nodeValue.valOp) ? nodeValue.valOp.value : ''
 
-    const nameMinimumSize = nodeName.value.length * (11 - characterFactor)
-    let nodeMinimumSize = nameMinimumSize
+    const { splitName, splitValue } = getAllLabels(nodeName.value, confirmedNodeValue)
+    const combinedSplitLabels = [...splitName.slice(0,2), ...splitValue.slice(0,2)]
+    
+    const numLabels = combinedSplitLabels.length
 
-    if (getIsValueNode(nodeType) && isAttrDefined(nodeValue.valOp)) {
-        const valueMinimumSize = nodeValue.valOp.value.length * (9 - characterFactor) + 20
-        nodeMinimumSize = Math.max(nodeMinimumSize, valueMinimumSize)
+    const baseCharWidth = 11
+
+    combinedSplitLabels.forEach((value, index) => {
+        const numCharacters = value.length
+        const fontSizeReduction = numCharacters / 10 - 1
+        const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
+        const distanceFactor = Math.floor(distanceFromCenter) * 1 - Math.floor(numCharacters * 0.075)
+        const adjustedLength = (numCharacters + distanceFactor) * (baseCharWidth - fontSizeReduction)
+
+        nodeMinimumSize = Math.max(nodeMinimumSize, adjustedLength)
+        console.log(nodeMinimumSize)
+    })
+    return Math.max(nodeSize, Math.min(nodeMinimumSize, 250))
+}
+
+export const getAllLabels = (name: string, value: string) => {
+    const splitName = ensureStrArray(splitStrBySemicolon(name)) as string[]
+    let splitValue: string[] = []
+    if (value !== '') {
+        splitValue = ensureStrArray(splitStrBySemicolon(value)) as string[]
     }
 
-    return nodeMinimumSize > nodeSize ? nodeMinimumSize : nodeSize
+    return { splitName, splitValue }
+}
+
+const ensureStrArray = (item: any): string[] => {
+    if (Array.isArray(item)) {
+        return item
+    } else {
+        return [item]
+    }
 }
 
 const calculateLabelFontSize = (nodeSize: number) => {
@@ -89,4 +117,22 @@ const calculateLabelFontSize = (nodeSize: number) => {
 
 export const getIsValueNode = (nodeType: INode['type']) => {
     return ['property', 'parameter'].includes(nodeType)
+}
+
+export function getRenderLabel(str: string | string[], len: number = 30): string | string[] {
+    if (Array.isArray(str)) {
+        return str.slice(0, 2).map((s, i) => {
+            let label = ''
+            if (s.length > len) {
+                label = s.slice(0, len - 1) + '.'
+            } else if (str.length > 2 && i === 1) {
+                label = s + '.'
+            } else {
+                label = s
+            }
+            return label
+        });
+    } else {
+        return str.length > len ? str.slice(0, len - 1) + '.' : str;
+    }
 }

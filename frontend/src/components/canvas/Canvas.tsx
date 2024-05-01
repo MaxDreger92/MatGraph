@@ -324,7 +324,6 @@ export default function Canvas(props: CanvasProps) {
                                 node.size,
                                 node.name,
                                 node.value,
-                                node.type
                             )
                             // Call updateHistory only if a change has occurred
                             updateHistory()
@@ -343,6 +342,10 @@ export default function Canvas(props: CanvasProps) {
         },
         [setNodeEditing, setNodes, setSelectedNodes, updateHistory, updateIndexDictionary]
     )
+
+    // useEffect(() => {
+    //     nodes.map((node) => console.log(node.optimalSize))
+    // }, [nodes])
 
     // Initialize node movement
     // mainly prevents unwanted actions
@@ -427,6 +430,7 @@ export default function Canvas(props: CanvasProps) {
 
     // Move all nodes
     const handleCanvasGrab = _.throttle((displacement: Vector2D) => {
+        setIsLayouting(false)
         setNodes((prevNodes) =>
             prevNodes.map((n) => ({
                 ...n,
@@ -731,7 +735,6 @@ export default function Canvas(props: CanvasProps) {
                         nodeSize,
                         node.name,
                         node.value,
-                        node.type
                     )
 
                     // ############# handle nodes out of bounds
@@ -927,6 +930,11 @@ export default function Canvas(props: CanvasProps) {
     const canvasZoom = _.throttle(
         useCallback(
             (delta: number, mousePos: Position) => {
+                setIsLayouting(true)
+                if (layoutingTimeoutRef.current) {
+                    clearTimeout(layoutingTimeoutRef.current)
+                }
+
                 // console.log('test')
                 const updatedNodes = nodes.map((node) => {
                     const zoomFactor = 1 - 0.1 * delta
@@ -944,7 +952,6 @@ export default function Canvas(props: CanvasProps) {
                         nodeSize,
                         node.name,
                         node.value,
-                        node.type
                     )
                     return {
                         ...node,
@@ -955,6 +962,10 @@ export default function Canvas(props: CanvasProps) {
                 })
 
                 setNodes(updatedNodes)
+
+                layoutingTimeoutRef.current = setTimeout(() => {
+                    setIsLayouting(false)
+                }, 300)
             },
             [nodes, setNodes]
         ),
