@@ -68,7 +68,6 @@ export const calculateNodeOptimalSize = (
     if (!isAttrDefined(nodeName.value)) {
         return nodeSize
     }
-
     let nodeMinimumSize = 0
 
     const confirmedNodeValue = isAttrDefined(nodeValue.valOp) ? nodeValue.valOp.value : ''
@@ -78,35 +77,18 @@ export const calculateNodeOptimalSize = (
     
     const numLabels = combinedSplitLabels.length
 
-    const standardWidth = 10.5
+    const baseCharWidth = 10.2
 
     combinedSplitLabels.forEach((value, index) => {
-        const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
-
         const numCharacters = value.length
-        // console.log(labelLength)
-        const fontSizeReduction = numCharacters * (0.03 + 0.01 * distanceFromCenter)
-        let equalsSign = 0
-        let valueLabelFactor = 1
-        if (index === splitName.length) {
-            equalsSign = 4
-        } else if (index >= splitName.length) {
-            valueLabelFactor = 0.85
-        }
-        // console.log(fontSizeReduction)
+        const fontSizeReduction = numCharacters / 10 - 1
+        const distanceFromCenter = Math.abs(index - (numLabels / 2) + 0.5)
+        const distanceFactor = Math.floor(distanceFromCenter) * 2.5 - Math.floor(numCharacters * 0.075)
+        const adjustedLength = (numCharacters + distanceFactor) * (baseCharWidth - fontSizeReduction)
 
-        const distanceFactor = distanceFromCenter * 35 - (fontSizeReduction * 20)
-        // console.log(distanceFactor)
-
-        nodeMinimumSize = Math.max((numCharacters * (standardWidth - fontSizeReduction) + distanceFactor + equalsSign) * valueLabelFactor, nodeMinimumSize)
-        // console.log(nodeMinimumSize)
-        // let characterWidth = index < splitName.length ? value.l : 9
-        // characterWidth *= 1 - (value.length * 0.007)
-        
-        // nodeMinimumSize = Math.max((value.length + (Math.pow(distanceFromCenter + 1.5 ,3)) / (value.length + 1) ) * characterWidth, nodeMinimumSize)
+        nodeMinimumSize = Math.max(nodeMinimumSize, adjustedLength)
     })
-
-    return Math.min(nodeMinimumSize > nodeSize ? nodeMinimumSize : nodeSize, 300)
+    return Math.max(nodeSize, Math.min(nodeMinimumSize, 250))
 }
 
 export const getAllLabels = (name: string, value: string) => {
@@ -134,4 +116,12 @@ const calculateLabelFontSize = (nodeSize: number) => {
 
 export const getIsValueNode = (nodeType: INode['type']) => {
     return ['property', 'parameter'].includes(nodeType)
+}
+
+export function getRenderLabel(str: string | string[], len: number = 30): string | string[] {
+    if (Array.isArray(str)) {
+        return str.slice(0, 2).map(s => s.length > len ? s.slice(0, len - 1) + '.' : s);
+    } else {
+        return str.length > len ? str.slice(0, len - 1) + '.' : str;
+    }
 }

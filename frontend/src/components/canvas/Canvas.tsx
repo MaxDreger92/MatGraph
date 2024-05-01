@@ -430,6 +430,7 @@ export default function Canvas(props: CanvasProps) {
 
     // Move all nodes
     const handleCanvasGrab = _.throttle((displacement: Vector2D) => {
+        setIsLayouting(false)
         setNodes((prevNodes) =>
             prevNodes.map((n) => ({
                 ...n,
@@ -929,6 +930,11 @@ export default function Canvas(props: CanvasProps) {
     const canvasZoom = _.throttle(
         useCallback(
             (delta: number, mousePos: Position) => {
+                setIsLayouting(true)
+                if (layoutingTimeoutRef.current) {
+                    clearTimeout(layoutingTimeoutRef.current)
+                }
+
                 // console.log('test')
                 const updatedNodes = nodes.map((node) => {
                     const zoomFactor = 1 - 0.1 * delta
@@ -956,6 +962,10 @@ export default function Canvas(props: CanvasProps) {
                 })
 
                 setNodes(updatedNodes)
+
+                layoutingTimeoutRef.current = setTimeout(() => {
+                    setIsLayouting(false)
+                }, 300)
             },
             [nodes, setNodes]
         ),

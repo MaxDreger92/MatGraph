@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { INode, ValOpPair } from '../../../types/canvas.types'
 import { isAttrDefined } from '../../../common/workflowHelpers'
-import { splitStrByLength, splitStrBySemicolon } from '../../../common/helpers'
-import { getAllLabels } from '../../../common/nodeHelpers'
+import { splitStrBySemicolon } from '../../../common/helpers'
+import { getRenderLabel } from '../../../common/nodeHelpers'
 
 interface NodeLabelsProps {
     // isEditing: boolean
@@ -67,7 +67,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
             setIsNameSliced(true)
             if (isSelected === 1) {
                 const splitName = splitStrBySemicolon(name)
-                setRenderName(splitStrByLength(splitName, 36))
+                setRenderName(getRenderLabel(splitName, 30))
                 return
             }
             setRenderName(subName.slice(0, -2))
@@ -84,7 +84,7 @@ export default function NodeLabel(props: NodeLabelsProps) {
             setIsValueSliced(true)
             if (isSelected === 1) {
                 const splitValue = splitStrBySemicolon(valOp.value)
-                setRenderValue(splitStrByLength(splitValue,))
+                setRenderValue(getRenderLabel(splitValue, 34))
                 return
             }
             setRenderValue(subValue.slice(0, -2))
@@ -95,9 +95,8 @@ export default function NodeLabel(props: NodeLabelsProps) {
     }, [valOp, size, isSelected])
 
     useEffect(() => {
-        const sizeReduction = Math.floor((size - 100) / 66)
+        const sizeReduction = Math.min(Math.floor((size - 90) / 50), 3)
         setLabelFontSize(16 - sizeReduction)
-        console.log(16 - sizeReduction)
     }, [size])
 
     const mapOperatorSign = () => {
@@ -146,14 +145,26 @@ export default function NodeLabel(props: NodeLabelsProps) {
                     isNameSliced ? (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             {renderName.map((name, index) => (
-                                <span key={index}>{name}</span>
+                                <div key={index}>
+                                    <span>{name.endsWith('.') ? name.slice(0, -1) : name}</span>
+                                    {name.endsWith('.') && (
+                                        <span className="node-label-dots" children="..." />
+                                    )}
+                                </div>
                             ))}
                         </div>
                     ) : (
                         <span>{renderName.map((name) => name).join(';')}</span>
                     )
                 ) : (
-                    <span>{renderName}</span>
+                    <div>
+                        <span>
+                            {renderName.endsWith('.') ? renderName.slice(0, -1) : renderName}
+                        </span>
+                        {(renderName as string).endsWith('.') && (
+                            <span className="node-label-dots" children="..." />
+                        )}
+                    </div>
                 )}
                 {/* additional dotspan if name is sliced  */}
                 {isNameSliced && isSelected !== 1 && (
@@ -171,19 +182,23 @@ export default function NodeLabel(props: NodeLabelsProps) {
                         top: name && 'calc(50% + 5px)', //
                         color: ['matter', 'measurement'].includes(type) ? '#1a1b1e' : '#ececec',
                         zIndex: layer + 1,
-                        fontSize: labelFontSize * 0.85
+                        fontSize: labelFontSize * 0.85,
                     }}
                 >
-                    {/* operator */}
-                    {valOp?.operator && (!Array.isArray(renderValue) || isSelected !== 1) && <span children={mapOperatorSign()} />}
                     {/* value */}
                     {Array.isArray(renderValue) ? (
                         isValueSliced ? (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 {renderValue.map((value, index) => (
-                                    <span style={{ paddingLeft: 2 }} key={index}>
-                                        {index === 0 ? mapOperatorSign() + value : value}
-                                    </span>
+                                    <div key={index}>
+                                        <span style={{ paddingLeft: 2 }}>
+                                            {index === 0 ? mapOperatorSign() : ''}
+                                            {value.endsWith('.') ? value.slice(0, -1) : value}
+                                        </span>
+                                        {value.endsWith('.') && (
+                                            <span className="node-label-dots" children="..." />
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -192,12 +207,16 @@ export default function NodeLabel(props: NodeLabelsProps) {
                             </span>
                         )
                     ) : (
-                        <span style={{ paddingLeft: 2 }}>{renderValue}</span>
-                    )}
-
-                    {/* dots */}
-                    {isValueSliced && isSelected !== 1 && (
-                        <span className="node-label-dots" children="..." />
+                        <div>
+                            <span>
+                                {mapOperatorSign()}
+                                {renderValue.endsWith('.') ? renderValue.slice(0, -1) : renderValue}
+                            </span>
+                            {((renderValue as string).endsWith('.') ||
+                                (isValueSliced && isSelected !== 1)) && (
+                                <span className="node-label-dots" children="..." />
+                            )}
+                        </div>
                     )}
                 </div>
             )}
