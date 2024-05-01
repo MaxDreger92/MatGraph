@@ -333,7 +333,7 @@ a:link {
 }
 
 .node-label-value {
-  font-size: 85%;
+  /* font-size: 85%; */
   vertical-align: middle;
   /* border-radius: 3px; */
   /* padding: 0px 3px 0px 3px; */

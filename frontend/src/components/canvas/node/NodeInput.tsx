@@ -4,6 +4,7 @@ import React, { useState, useContext, useEffect, useRef, useCallback } from 'rea
 import { INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
 import NodeInputStr from './NodeInputStr'
 import NodeInputStrOp from './NodeInputStrOp'
+import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputProps {
     isValueNode: boolean
@@ -30,6 +31,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
+
+    const { forceEndEditing } = useContext(WorkflowContext)
 
     const updateNode = useCallback(() => {
         const updatedNode: INode = {
@@ -59,6 +62,15 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleNodeUpdate,
     ])
 
+    // Enter will force all nodes to be set to editing == false
+    // which will in turn execute updateNodeRef version of updateNode()
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            forceEndEditing()
+        }
+    }
+
     const updateNodeRef = useRef(updateNode)
 
     useEffect(() => {
@@ -71,16 +83,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }
     }, [])
 
-    // Update node through Enter key
-    const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            updateNode()
-        }
-    }
-
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
-
         switch (id) {
             case 'name':
                 setNodeName({

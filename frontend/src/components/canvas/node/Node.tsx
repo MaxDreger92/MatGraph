@@ -47,7 +47,6 @@ export default React.memo(function Node(props: NodeProps) {
     const [isHovered, setIsHovered] = useState(false)
     const [isValueNode, setIsValueNode] = useState(false)
     const [fieldsMissing, setFieldsMissing] = useState(true)
-    const [labelFontSize, setLabelFontSize] = useState(16)
     const [colors, setColors] = useState<string[]>([])
 
     // Node movement parameters
@@ -332,7 +331,6 @@ export default React.memo(function Node(props: NodeProps) {
                             labelRef={nodeLabelRef}
                             hovered={isHovered}
                             size={nodeRenderedSize}
-                            labelFontSize={labelFontSize}
                             name={node.name.value}
                             valOp={node.value.valOp}
                             type={node.type}
