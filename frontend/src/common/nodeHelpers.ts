@@ -73,7 +73,7 @@ export const calculateNodeOptimalSize = (
     const confirmedNodeValue = isAttrDefined(nodeValue.valOp) ? nodeValue.valOp.value : ''
 
     const { splitName, splitValue } = getAllLabels(nodeName.value, confirmedNodeValue)
-    const combinedSplitLabels = [...splitName, ...splitValue]
+    const combinedSplitLabels = [...splitName.slice(0,2), ...splitValue.slice(0,2)]
     
     const numLabels = combinedSplitLabels.length
 
@@ -121,7 +121,17 @@ export const getIsValueNode = (nodeType: INode['type']) => {
 
 export function getRenderLabel(str: string | string[], len: number = 30): string | string[] {
     if (Array.isArray(str)) {
-        return str.slice(0, 2).map(s => s.length > len ? s.slice(0, len - 1) + '.' : s);
+        return str.slice(0, 2).map((s, i) => {
+            let label = ''
+            if (s.length > len) {
+                label = s.slice(0, len - 1) + '.'
+            } else if (str.length > 2 && i === 1) {
+                label = s + '.'
+            } else {
+                label = s
+            }
+            return label
+        });
     } else {
         return str.length > len ? str.slice(0, len - 1) + '.' : str;
     }
