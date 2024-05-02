@@ -12,7 +12,7 @@ import WorkflowContext from './context/WorkflowContext'
 interface WorkflowTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
     setAttributeTable: React.Dispatch<React.SetStateAction<TableRow[]>>
-    setTableRows: React.Dispatch<React.SetStateAction<TableRow[]>>
+    setTableRows: (tableId: string, tableRows: TableRow[]) => void
     tableRows: TableRow[]
     progress: number
     outerTableHeight: number | null
@@ -134,7 +134,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         count: tableRows.length,
         getScrollElement: () => tableRef.current,
         estimateSize: () => 45, // Adjust based on your row height
-        overscan: 10,
+        overscan: 1,
     })
 
     const columnVirtualizer = useVirtualizer({
@@ -199,12 +199,16 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             }
             return { ...row }
         })
-        setTableRows(updatedTableRows)
+        let tableId = ''
         if (rowIndex === 0) {
             setLabelTable(updatedTableRows)
+            tableId = 'labelTable'
         } else {
             setAttributeTable(updatedTableRows)
+            tableId = 'attributeTable'
         }
+        setTableRows(tableId, updatedTableRows)
+
     }
 
     const handleDragStart = (
