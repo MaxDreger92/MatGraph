@@ -1,5 +1,5 @@
 import { INode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
-import { splitStrBySemicolon } from "./helpers"
+import { ensureArray, splitStrBySemicolon } from "./helpers"
 import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
 
 /**
@@ -93,21 +93,13 @@ export const calculateNodeOptimalSize = (
 }
 
 export const getAllLabels = (name: string, value: string) => {
-    const splitName = ensureStrArray(splitStrBySemicolon(name)) as string[]
+    const splitName = ensureArray(splitStrBySemicolon(name)) as string[]
     let splitValue: string[] = []
     if (value !== '') {
-        splitValue = ensureStrArray(splitStrBySemicolon(value)) as string[]
+        splitValue = ensureArray(splitStrBySemicolon(value)) as string[]
     }
 
     return { splitName, splitValue }
-}
-
-const ensureStrArray = (item: any): string[] => {
-    if (Array.isArray(item)) {
-        return item
-    } else {
-        return [item]
-    }
 }
 
 const calculateLabelFontSize = (nodeSize: number) => {
