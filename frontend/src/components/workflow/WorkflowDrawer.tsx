@@ -18,6 +18,7 @@ import {
 } from '../../common/workflowHelpers'
 import WorkflowTable from './WorkflowTable'
 import WorkflowPartialTable from './WorkflowPartialTable'
+import { ensureArray, splitStrBySemicolon, tryNumeric } from '../../common/helpers'
 // import testNodes from '../../alt/testNodesN.json'
 
 const USE_MOCK_DATA = false
@@ -462,15 +463,14 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
             // Function to extract and add number indices from attributes
             const addIndices = (attr: NodeAttribute | NodeValOpAttribute) => {
-                if (typeof attr.index === 'number') {
-                    indices.push(attr.index)
-                } else if (Array.isArray(attr.index)) {
-                    attr.index.forEach((index) => {
-                        if (typeof index === 'number') {
-                            indices.push(index)
-                        }
-                    })
-                }
+                if (!attr.index) return
+                const strIndices = ensureArray(splitStrBySemicolon(attr.index)) as string[]
+                strIndices.forEach((str) => {
+                    const typed = tryNumeric(str)
+                    if (typeof(typed) === 'number') {
+                        indices.push(typed)
+                    }
+                })
             }
 
             // First entry nodeType
