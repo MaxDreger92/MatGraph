@@ -562,11 +562,11 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         flexDirection: 'column',
                     }}
                 >
-                    {/* <WorkflowTableTabs
+                    <WorkflowTableTabs
                         progress={progress}
                         currentTableId={currentTableId}
                         setCurrentTableFn={setCurrentTableFn}
-                    /> */}
+                    />
                     {progress > 0 && csvTable && (
                         <WorkflowPipeline
                             loadNodes={loadNodes}
@@ -592,7 +592,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         }}
                     >
                         {/* Additional Tables */}
-                        {additionalTables.length > 0 && progress > 3 && (
+                        {additionalTables.length > 0 && progress > 3 && currentTableId === 'csvTable' &&(
                             <>
                                 <div
                                     style={{
@@ -678,6 +678,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                                     setTableRows={setCurrentTableFn}
                                     tableRows={currentTable}
                                     progress={progress}
+                                    currentTableId={currentTableId}
                                     outerTableHeight={tableViewHeight}
                                     darkTheme={darkTheme}
                                     columnsLength={columnLength}

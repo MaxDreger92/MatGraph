@@ -15,6 +15,7 @@ interface WorkflowTableProps {
     setTableRows: (tableId: string, tableRows: TableRow[]) => void
     tableRows: TableRow[]
     progress: number
+    currentTableId: string
     outerTableHeight: number | null
     darkTheme: boolean
     columnsLength: number
@@ -40,6 +41,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         setTableRows,
         tableRows,
         progress,
+        currentTableId,
         outerTableHeight,
         darkTheme,
         columnsLength,
@@ -95,14 +97,14 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }, [additionalTables])
 
     useEffect(() => {
-        if (progress < 4) return
+        if (progress < 4 || currentTableId !== 'csvTable') return
         if (!hovered) {
             setHighlightedColumnIndex(null)
             return
         }
 
         setHighlightedColumnIndex(hovered.column)
-    }, [hovered, progress, setHighlightedColumnIndex])
+    }, [hovered, progress, setHighlightedColumnIndex, currentTableId])
 
     // Define columns
     const columns: ColumnDef<TableRow>[] = useMemo(() => {
@@ -156,7 +158,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         row: number,
         columnId: string
     ): void => {
-        if (progress === 2 && row === 0) {
+        if (progress === 2 && row === 0 && currentTableId === 'labelTable') {
             if (
                 typeof cellData === 'string' &&
                 labelOptions.some((option) => option.value === (cellData.toLowerCase() as Label))
@@ -164,7 +166,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 setSelectData(labelOptions)
                 setSelected({ row: row, column: columnId })
             }
-        } else if (progress === 3 && row === 1) {
+        } else if (progress === 3 && row === 1 && currentTableId === 'attributeTable') {
             const labelKey = tableRows[0][columnId]
             if (
                 typeof labelKey === 'string' &&
@@ -239,7 +241,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getRowColor = (rowIndex: number, columnIndex: number): string => {
-        if (progress > 1 && progress < 4) {
+        if (progress > 1 && progress < 4 && currentTableId !== 'csvTable') {
             if (
                 rowIndex === tableRows.length - 1 &&
                 hovered &&
@@ -253,7 +255,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             }
         } else if (
             (columnIndex === hovered?.column ||
-            columnIndex === selectedColumnIndex) && progress > 3
+            columnIndex === selectedColumnIndex) && progress > 3 && currentTableId === 'csvTable'
         ) {
             return darkTheme ? '#25262b' : '#e9ecef'
         } else {
@@ -262,7 +264,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getHeaderBackgroundColor = (columnIndex: number): string => {
-        if (columnIndex in highlightedColumns) {
+        if (columnIndex in highlightedColumns && currentTableId === 'csvTable') {
             const colorIndex = darkTheme ? 0 : 1
             const colors = colorPalette[colorIndex]
             let nodeType = mapNodeTypeString(highlightedColumns[columnIndex])
@@ -270,7 +272,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             return colors[nodeType]
         } else if (
             (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) &&
-            progress > 3
+            progress > 3 && currentTableId === 'csvTable'
         ) {
             return darkTheme ? '#373A40' : '#dee2e6'
         } else {
@@ -279,7 +281,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getHeaderTextColor = (columnIndex: number): string => {
-        if (!(columnIndex in highlightedColumns)) {
+        if (!(columnIndex in highlightedColumns) || currentTableId !== 'csvTable') {
             return darkTheme ? '#a6a7ab' : '#040404'
         }
 
@@ -311,7 +313,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 height: innerTableHeight,
                 width: `calc(100% + 15px)`,
                 overflowX: 'auto',
-                overflowY: progress > 1 && progress < 4 ? 'hidden' : 'auto',
+                overflowY: progress > 1 && progress < 4 && currentTableId !== 'csvTable' ? 'hidden' : 'auto',
                 // border: partialTable ? `1px solid ${tableColors["borderColor"]}` : "none",
                 backgroundColor: darkTheme ? '#212226' : '#fff',
                 // zIndex: 0,
@@ -341,11 +343,11 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 setHovered(null)
                             }}
                             onMouseUp={
-                                progress > 3
+                                progress > 3 && currentTableId === 'csvTable'
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined
                             }
-                            draggable={progress > 3}
+                            draggable={progress > 3 && currentTableId === 'csvTable'}
                             onDragStart={(e) => handleDragStart(e, header, columnVirtual.index)}
                             key={columnVirtual.key}
                             style={{
@@ -360,7 +362,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 backgroundColor: getHeaderBackgroundColor(columnVirtual.index), // add hover to signalize interaction possibility
                                 color: getHeaderTextColor(columnVirtual.index),
                                 borderRight: `1px solid ${getBorderColor()}`,
-                                cursor: progress > 3 ? 'pointer' : 'default',
+                                cursor: progress > 3 && currentTableId === 'csvTable' ? 'pointer' : 'default',
                                 // paddingLeft: '.5rem',
                             }}
                         >
@@ -410,7 +412,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 height: `${rowVirtual.size}px`,
                                 width: '100%',
                                 cursor:
-                                    progress > 1 && rowVirtual.index === tableRows.length - 1
+                                    progress > 1 && progress < 4 && currentTableId !== 'csvTable' && rowVirtual.index === tableRows.length - 1
                                         ? 'pointer'
                                         : 'default',
                             }}
@@ -430,7 +432,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                 })
                                             }
                                             onMouseLeave={() => setHovered(null)}
-                                            draggable={progress > 3}
+                                            draggable={progress > 3 && currentTableId === 'csvTable'}
                                             onDragStart={(e) =>
                                                 handleDragStart(
                                                     e,
@@ -475,6 +477,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                         : undefined
                                                 }
                                                 style={{
+                                                    height: '100%',
+                                                    width: '100%',
                                                     position: 'relative',
                                                 }}
                                             >
@@ -529,6 +533,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                         </div>
                         {progress > 1 &&
                             progress < 4 &&
+                            currentTableId !== 'csvTable' &&
                             rowVirtual.index === tableRows.length - 1 && (
                                 <div
                                     style={{
