@@ -542,7 +542,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
     return (
         <>
-            {progress === 0 && <WorkflowTableDropzone handleFileUpload={handleFileUpload} />}
+            {progress === 0 && tableView && tableViewHeight >= 250 && <WorkflowTableDropzone handleFileUpload={handleFileUpload} />}
             {progress > 0 && (
                 <div
                     className="workflow-drawer"

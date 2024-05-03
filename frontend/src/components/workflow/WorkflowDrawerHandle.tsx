@@ -49,7 +49,7 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
                     setTableViewHeight(0)
                     drawerClosedRef.current = true
                 } else if (newHeight > 180) {
-                    setTableViewHeight((prevHeight) => Math.min(Math.max(230, newHeight), window.innerHeight - 160))
+                    setTableViewHeight((prevHeight) => Math.min(Math.max(250, newHeight), window.innerHeight - 160))
                     drawerClosedRef.current = false
                 } 
 
