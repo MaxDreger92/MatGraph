@@ -1,5 +1,6 @@
-import React, { useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { TableRow } from "../../types/workflow.types"
+import WorkflowContext from "./context/WorkflowContext"
 
 interface WorkflowTableTabsProps {
     progress: number
@@ -14,6 +15,8 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
         setCurrentTableFn
     } = props
     const [hoveredTableTab, setHoveredTableTab] = useState<number | null>(null)
+
+    const { tableViewHeight } = useContext(WorkflowContext)
 
     return (
         <div
@@ -36,7 +39,7 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
                             onMouseUp={() => setCurrentTableFn(tab.tabId)}
                             style={{
                                 position: 'relative',
-                                height: 106,
+                                height: '33%',
                                 width: 21,
                                 left: -1,
                                 backgroundColor: hoveredTableTab === index || currentTableId === tab.tabId ? '#2C2E33' : '#212226',
@@ -57,7 +60,7 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
                                             textOrientation: 'upright'
                                         }}
                                     >
-                                        {tab.tabName}
+                                        {tableViewHeight > 300 ? tab.tabName : tableViewHeight > 200 ? tab.tabAbbr : index}
                                     </span>
 
                                 
@@ -73,8 +76,8 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
     )
 }
 
-const TABLE_TABS: {tabName: string, tabId: string}[] = [
-    {tabName: 'CSV', tabId: 'csvTable'},
-    {tabName: 'LABELS', tabId: 'labelTable'},
-    {tabName: 'ATTRS', tabId: 'attributeTable'},
+const TABLE_TABS: {tabName: string, tabAbbr: string, tabId: string}[] = [
+    {tabName: 'SOURCE', tabAbbr: 'SRC', tabId: 'csvTable'},
+    {tabName: 'LABELS', tabAbbr: 'LBL', tabId: 'labelTable'},
+    {tabName: 'ATTRS', tabAbbr: 'ATT', tabId: 'attributeTable'},
 ]

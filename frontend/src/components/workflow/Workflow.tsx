@@ -30,6 +30,7 @@ import { IWorkflow } from '../../types/workflow.types'
 import WorkflowContext from './context/WorkflowContext'
 import _ from 'lodash'
 import { UserContext } from '../../common/UserContext'
+import WorkflowDrawerHandle from './WorkflowDrawerHandle'
 
 const undoSteps = 200
 
@@ -90,6 +91,7 @@ export default function Workflow(props: WorkflowProps) {
     const [historyViewWidth, setHistoryViewWidth] = useState(0)
     const [tableView, setTableView] = useState(false)
     const [tableViewHeight, setTableViewHeight] = useState(0)
+    const drawerHandleActiveRef = useRef(false)
 
     const [progress, setProgress] = useState<number>(0)
 
@@ -242,12 +244,16 @@ export default function Workflow(props: WorkflowProps) {
                 setHistoryView(!historyView)
                 break
             case 'table':
-                if (tableView) {
-                    setTableViewHeight(0)
-                } else {
+                // if (tableView) {
+                //     setTableViewHeight(0)
+                // } else {
+                //     setTableViewHeight(400)
+                // }
+                if (!tableView && tableViewHeight === 0) {
                     setTableViewHeight(400)
                 }
                 setTableView(!tableView)
+
                 break
             default:
                 break
@@ -264,12 +270,12 @@ export default function Workflow(props: WorkflowProps) {
     const springProps = useSpring({
         jsonViewWidth: jsonViewWidth,
         historyViewWidth: historyViewWidth,
-        tableViewHeight: tableViewHeight,
+        tableViewHeight: tableView ? tableViewHeight : 0,
         canvasWidth: canvasRect.width,
         canvasHeight: canvasRect.height,
         config: {
-            tension: 1000,
-            friction: 100,
+            tension: 300,
+            friction: 30,
         },
     })
 
@@ -479,6 +485,7 @@ export default function Workflow(props: WorkflowProps) {
         setSelectedColumnIndex,
         forceEndEditing,
         uploadMode,
+        tableViewHeight,
     }
 
     return (
@@ -564,9 +571,9 @@ export default function Workflow(props: WorkflowProps) {
 
                 {uploadMode && (
                     <animated.div
-                        className="workflow-table"
+                        className="workflow-drawer"
                         style={{
-                            height: springProps.tableViewHeight,
+                            height: drawerHandleActiveRef.current ? tableViewHeight : springProps.tableViewHeight,
                             width: '100%',
                             borderTop: tableView
                                 ? darkTheme
@@ -575,22 +582,36 @@ export default function Workflow(props: WorkflowProps) {
                                 : 'none',
                             backgroundColor: darkTheme ? '#25262b' : '#fff',
                             zIndex: 1,
+                            overflow: 'visible'
                         }}
                         children={
-                            <WorkflowDrawer
-                                tableView={tableView}
-                                tableViewHeight={tableViewHeight}
-                                progress={progress}
-                                setProgress={setProgress}
-                                setNodes={setNodes}
-                                setRelationships={setRelationships}
-                                setNeedLayout={setNeedLayout}
-                                workflow={workflow}
-                                workflows={workflows}
-                                selectedNodes={selectedNodes}
-                                rebuildIndexDictionary={rebuildIndexDictionary}
-                                darkTheme={darkTheme}
-                            />
+                            <div
+                                className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
+                                style={{
+                                    height: '100%'
+                                }}
+                            >
+                                <WorkflowDrawer
+                                    tableView={tableView}
+                                    tableViewHeight={tableViewHeight}
+                                    progress={progress}
+                                    setProgress={setProgress}
+                                    setNodes={setNodes}
+                                    setRelationships={setRelationships}
+                                    setNeedLayout={setNeedLayout}
+                                    workflow={workflow}
+                                    workflows={workflows}
+                                    selectedNodes={selectedNodes}
+                                    rebuildIndexDictionary={rebuildIndexDictionary}
+                                    darkTheme={darkTheme}
+                                />
+                                <WorkflowDrawerHandle
+                                    handleActive={drawerHandleActiveRef}
+                                    tableViewHeight={tableViewHeight}
+                                    setTableViewHeight={setTableViewHeight}
+                                    setTableView={setTableView}
+                                />
+                            </div>
                         }
                     />
                 )}

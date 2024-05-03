@@ -77,9 +77,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         } else if (progress === 3) {
             setTableActive(currentTableId === 'attributeTable' ? 2 : -1)
         } else if (progress > 3) {
-            if (currentTableId === 'csvTable') {
-                console.log('this')
-            }
             setTableActive(currentTableId === 'csvTable' ? 0 : -1)
         } else {
             setTableActive(-1)
@@ -231,7 +228,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         columnContent: string,
         columnIndex: number
     ): void => {
-        console.log('helooo')
         setDragging(true)
 
         const dragData = { columnContent, columnIndex }
@@ -364,7 +360,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined
                             }
-                            draggable={true}
+                            draggable={tableActive === 0}
                             onDragStart={(e) => handleDragStart(e, header, columnVirtual.index)}
                             key={columnVirtual.key}
                             style={{
@@ -381,19 +377,20 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 borderRight: `1px solid ${getBorderColor()}`,
                                 cursor:
                                     tableActive === 0
-                                        ? 'pointer'
-                                        : 'pointer',
+                                        ? 'grab'
+                                        : 'text',
                                 // paddingLeft: '.5rem',
                             }}
                         >
                             <div
+                                className='unselectable'
                                 style={{
                                     position: 'absolute',
                                     top: -12,
-                                    left: 4,
                                     display: 'flex',
-                                    width: 'calc(100% - 12px)',
                                     fontWeight: 'bold',
+                                    pointerEvents: 'none',
+                                    paddingLeft: 4,
                                 }}
                             >
                                 {columnVirtual.index}
@@ -401,8 +398,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                             <div
                                 style={{
                                     position: 'absolute',
-                                    top: 11,
-                                    left: 11,
+                                    width: "100%",
+                                    height: '100%',
+                                    padding: '11px 0 0 11px'
                                 }}
                             >
                                 {header}
@@ -432,10 +430,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 height: `${rowVirtual.size}px`,
                                 width: '100%',
                                 cursor:
-                                    (tableActive === 1 || tableActive === 2) &&
-                                    rowVirtual.index === tableRows.length - 1
+                                    ((tableActive === 1 || tableActive === 2) &&
+                                    rowVirtual.index === tableRows.length - 1)
                                         ? 'pointer'
-                                        : 'default',
+                                        : tableActive === 0
+                                            ? 'grab' 
+                                            : 'text',
                             }}
                         >
                             {columnVirtualizer.getVirtualItems().map((columnVirtual) => {

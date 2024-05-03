@@ -65,11 +65,11 @@ export default function App() {
   return (
     <div className="app" style={{backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa'}}>
       <UserContext.Provider value={currentUser}>
-        <div className="header">
+        <div className="header" style={{zIndex:20}}>
             <Header handleHeaderLinkClick={handleHeaderLinkClick} handleLogout={handleLogout}/>
         </div>
 
-        <div className="main">
+        <div className="main" style={{zIndex:10}}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/upload" element={<Workflow uploadMode={true} />} />
