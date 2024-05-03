@@ -6,19 +6,12 @@ import 'react-virtualized/styles.css'
 import WorkflowTableDropzone from './WorkflowTableDropzone'
 import WorkflowPipeline from './WorkflowPipeline'
 import { TableRow, IDictionary, IWorkflow } from '../../types/workflow.types'
-import {
-    IRelationship,
-    INode,
-    NodeAttribute,
-    NodeValOpAttribute,
-} from '../../types/canvas.types'
-import {
-    convertFromJsonFormat,
-    mapNodeTypeNumerical,
-} from '../../common/workflowHelpers'
+import { IRelationship, INode, NodeAttribute, NodeValOpAttribute } from '../../types/canvas.types'
+import { convertFromJsonFormat, mapNodeTypeNumerical } from '../../common/workflowHelpers'
 import WorkflowTable from './WorkflowTable'
 import WorkflowPartialTable from './WorkflowPartialTable'
 import { ensureArray, splitStrBySemicolon, tryNumeric } from '../../common/helpers'
+import WorkflowTableTabs from './WorkflowTableTabs'
 // import testNodes from '../../alt/testNodesN.json'
 
 const USE_MOCK_DATA = false
@@ -51,6 +44,7 @@ interface WorkflowDrawerProps {
 
 export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const {
+        tableView,
         tableViewHeight,
         progress,
         setProgress,
@@ -71,6 +65,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const [labelTable, setLabelTable] = useState<TableRow[]>([])
     const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
     const [currentTable, setCurrentTable] = useState<TableRow[]>([])
+    const [currentTableId, setCurrentTableId] = useState('')
     const [additionalTables, setAdditionalTables] = useState<number[][]>([])
     const [columnLength, setColumnLength] = useState(0)
 
@@ -103,28 +98,28 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                     break
                 case 2:
                     if (storedLabelTable) {
-                        setCurrentTable(JSON.parse(storedLabelTable))
+                        setCurrentTableFn('labelTable', JSON.parse(storedLabelTable))
                     } else {
                         handlePipelineReset()
                     }
                     break
                 case 3:
                     if (storedAttributeTable) {
-                        setCurrentTable(JSON.parse(storedAttributeTable))
+                        setCurrentTableFn('attributeTable', JSON.parse(storedAttributeTable))
                     } else {
                         handlePipelineReset()
                     }
                     break
                 default:
                     if (storedCsvTable) {
-                        setCurrentTable(JSON.parse(storedCsvTable))
+                        setCurrentTableFn('csvTable', JSON.parse(storedCsvTable))
                     } else {
                         handlePipelineReset()
                     }
                     break
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Save tables and progress to local storage
@@ -156,9 +151,31 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         localStorage.setItem('upload-attribute-table', JSON.stringify(attributeTable))
     }, [attributeTable])
 
+    const setCurrentTableFn = (tableId: string, tableRows?: TableRow[]) => {
+        if (tableRows) {
+            setCurrentTable(tableRows)
+        } else {
+            switch (tableId) {
+                case 'csvTable':
+                    setCurrentTable(csvTable)
+                    break
+                case 'labelTable':
+                    setCurrentTable(labelTable)
+                    break
+                case 'attributeTable':
+                    setCurrentTable(attributeTable)
+                    break
+                default:
+                    // do nothing
+                    break
+            }
+        }
+        setCurrentTableId(tableId)
+    }
+
     const handlePipelineReset = () => {
         setCsvTable([])
-        setCurrentTable([])
+        setCurrentTableFn('', [])
         setProgress(0)
     }
 
@@ -197,7 +214,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         return typedRow
                     })
                     setCsvTable(typedData)
-                    setCurrentTable(typedData)
+                    setCurrentTableFn('csvTable', typedData)
                     setColumnLength(Object.keys(typedData[0]).length)
                 },
                 skipEmptyLines: true,
@@ -233,7 +250,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             if (USE_MOCK_DATA) {
                 const dictArray = dictToArray(exampleLabelDict)
                 setLabelTable(dictArray)
-                setCurrentTable(dictArray)
+                setCurrentTableFn('labelTable', dictArray)
             } else {
                 const data = await client.requestExtractLabels(file as File, context)
 
@@ -253,7 +270,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
                 const labelArray = dictToArray(data.label_dict)
                 setLabelTable(labelArray)
-                setCurrentTable(labelArray)
+                setCurrentTableFn('labelTable', labelArray)
                 setFileLink(data.file_link)
                 setFileName(data.file_name)
             }
@@ -270,11 +287,13 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             if (USE_MOCK_DATA) {
                 const dictArray = dictToArray(exampleAttrDict)
                 setAttributeTable(dictArray)
-                setCurrentTable(dictArray)
+                setCurrentTableFn('attributeTable', dictArray)
             } else {
                 const labelDict = arrayToDict(labelTable)
 
-                if (!labelDict) return
+                if (!labelDict) {
+                    throw new Error('Table containing labels not found!')
+                }
 
                 const data = await client.requestExtractAttributes(
                     labelDict,
@@ -290,7 +309,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 const attrArray = dictToArray(data.attribute_dict)
 
                 setAttributeTable(attrArray)
-                setCurrentTable(attrArray)
+                setCurrentTableFn('attributeTable', attrArray)
             }
 
             setProgress(3)
@@ -302,13 +321,12 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     // (attribute_dict, context, file_link, file_name) => node_json
     async function requestExtractNodes() {
         try {
-            if (USE_MOCK_DATA) {
-                setCurrentTable(csvTable)
-                setProgress(4)
-            } else {
+            if (!USE_MOCK_DATA) {
                 const attrDict = arrayToDict(attributeTable)
 
-                if (!attrDict) return
+                if (!attrDict) {
+                    throw new Error('Table containing attributes not found!')
+                }
 
                 const data = await client.requestExtractNodes(attrDict, context, fileLink, fileName)
 
@@ -322,17 +340,10 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 setNodes(nodes)
                 setNeedLayout(true)
                 rebuildIndexDictionary()
-
-                setProgress(4)
             }
 
-            // if (!workflows || !workflows[1]) {
-            //   console.log("workflow not found")
-            //   return
-            // }
-            // const { nodes, relationships } = convertFromJSONFormat(
-            //   workflows[1].workflow
-            // )
+            setCurrentTableFn('csvTable', csvTable)
+            setProgress(4)
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -343,7 +354,9 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
         try {
             const nodeJson = workflow
 
-            if (!nodeJson) return
+            if (!nodeJson) {
+                throw new Error('Workflow could not be converted to JSON format!')
+            }
 
             const data = await client.requestExtractGraph(nodeJson, context, fileLink, fileName)
 
@@ -359,14 +372,6 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             rebuildIndexDictionary()
 
             setProgress(5)
-
-            // if (!workflows || !workflows[2]) {
-            //   console.log("workflow not found")
-            //   return
-            // }
-            // const { nodes, relationships } = convertFromJSONFormat(
-            //   workflows[2].workflow
-            // )
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -467,7 +472,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 const strIndices = ensureArray(splitStrBySemicolon(attr.index)) as string[]
                 strIndices.forEach((str) => {
                     const typed = tryNumeric(str)
-                    if (typeof(typed) === 'number') {
+                    if (typeof typed === 'number') {
                         indices.push(typed)
                     }
                 })
@@ -547,9 +552,13 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
-                        // justifyContent:"center",
                     }}
                 >
+                    <WorkflowTableTabs
+                        progress={progress}
+                        currentTableId={currentTableId}
+                        setCurrentTableFn={setCurrentTableFn}
+                    />
                     {progress > 0 && csvTable && (
                         <WorkflowPipeline
                             loadNodes={loadNodes}
@@ -575,99 +584,111 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                         }}
                     >
                         {/* Additional Tables */}
-                        {additionalTables.length > 0 && progress > 3 && (
-                            <>
-                                <div
-                                    style={{
-                                        paddingLeft: 10,
-                                        paddingRight: 10,
-                                        maxWidth: '50%',
-                                        overflow: 'hidden',
-                                    }}
-                                >
+                        {additionalTables.length > 0 &&
+                            progress > 3 &&
+                            currentTableId === 'csvTable' &&
+                            tableView && (
+                                <>
                                     <div
                                         style={{
-                                            position: 'relative',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            overflowX: 'auto',
+                                            paddingLeft: 10,
+                                            paddingRight: 10,
+                                            maxWidth: '50%',
+                                            overflow: 'hidden',
                                         }}
                                     >
-                                        {filterCsvTable(csvTable, additionalTables).map(
-                                            (additionalTable, index) => (
-                                                <div
-                                                    id={'portalRoot' + index}
-                                                    key={index}
-                                                    style={{
-                                                        position: 'relative',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        overflow: 'hidden',
-                                                        paddingLeft: index > 0 ? 10 : 0,
-                                                        minWidth: 'fit-content',
-                                                    }}
-                                                >
-                                                    <WorkflowPartialTable
-                                                        tableRows={additionalTable}
-                                                        outerTableHeight={tableViewHeight}
-                                                        darkTheme={darkTheme}
-                                                        columnsLength={
-                                                            Object.keys(additionalTable[0]).length
-                                                        }
-                                                        filteredColumns={additionalTables[
-                                                            index
-                                                        ].slice(1)}
-                                                        numericalNodeType={
-                                                            additionalTables[index][0]
-                                                        }
-                                                    />
-                                                </div>
-                                            )
-                                        )}
+                                        <div
+                                            style={{
+                                                position: 'relative',
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                overflowX: 'auto',
+                                            }}
+                                        >
+                                            {filterCsvTable(csvTable, additionalTables).map(
+                                                (additionalTable, index) => (
+                                                    <div
+                                                        id={'portalRoot' + index}
+                                                        key={index}
+                                                        style={{
+                                                            position: 'relative',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            overflow: 'hidden',
+                                                            paddingLeft: index > 0 ? 10 : 15,
+                                                            minWidth: 'fit-content',
+                                                        }}
+                                                    >
+                                                        <WorkflowPartialTable
+                                                            tableRows={additionalTable}
+                                                            outerTableHeight={tableViewHeight}
+                                                            darkTheme={darkTheme}
+                                                            columnsLength={
+                                                                Object.keys(additionalTable[0])
+                                                                    .length
+                                                            }
+                                                            filteredColumns={additionalTables[
+                                                                index
+                                                            ].slice(1)}
+                                                            numericalNodeType={
+                                                                additionalTables[index][0]
+                                                            }
+                                                        />
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                                <div
-                                    style={{
-                                        height: '100%',
-                                        width: 2,
-                                        backgroundColor: darkTheme ? '#555' : '#ced4da',
-                                    }}
-                                />
-                            </>
-                        )}
+                                    <div
+                                        style={{
+                                            height: '100%',
+                                            width: 2,
+                                            backgroundColor: darkTheme ? '#555' : '#ced4da',
+                                        }}
+                                    />
+                                </>
+                            )}
 
                         {/* CSV Table */}
-                        <div
-                            style={{
-                                position: 'relative',
-                                minWidth: '50%',
-                                flex: '1 1 50%',
-                                paddingLeft: 10,
-                                paddingRight: 25,
-                            }}
-                        >
+                        {tableView && (
                             <div
                                 style={{
                                     position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    maxWidth: 'fit-content',
-                                    minWidth: '100%',
+                                    minWidth: '50%',
+                                    flex: '1 1 50%',
+                                    paddingLeft:
+                                        additionalTables.length > 0 &&
+                                        progress > 3 &&
+                                        currentTableId === 'csvTable'
+                                            ? 10
+                                            : 25,
+                                    paddingRight: 25,
                                 }}
                             >
-                                <WorkflowTable
-                                    setLabelTable={setLabelTable}
-                                    setAttributeTable={setAttributeTable}
-                                    setTableRows={setCurrentTable}
-                                    tableRows={currentTable}
-                                    progress={progress}
-                                    outerTableHeight={tableViewHeight}
-                                    darkTheme={darkTheme}
-                                    columnsLength={columnLength}
-                                    additionalTables={additionalTables}
-                                />
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        maxWidth: 'fit-content',
+                                        minWidth: '100%',
+                                    }}
+                                >
+                                    <WorkflowTable
+                                        setLabelTable={setLabelTable}
+                                        setAttributeTable={setAttributeTable}
+                                        setTableRows={setCurrentTableFn}
+                                        tableRows={currentTable}
+                                        progress={progress}
+                                        currentTableId={currentTableId}
+                                        outerTableHeight={tableViewHeight}
+                                        darkTheme={darkTheme}
+                                        columnsLength={columnLength}
+                                        additionalTables={additionalTables}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             )}

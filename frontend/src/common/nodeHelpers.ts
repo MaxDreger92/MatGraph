@@ -87,7 +87,6 @@ export const calculateNodeOptimalSize = (
         const adjustedLength = (numCharacters + distanceFactor) * (baseCharWidth - fontSizeReduction)
 
         nodeMinimumSize = Math.max(nodeMinimumSize, adjustedLength)
-        console.log(nodeMinimumSize)
     })
     return Math.max(nodeSize, Math.min(nodeMinimumSize, 250))
 }

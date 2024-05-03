@@ -12,9 +12,10 @@ import WorkflowContext from './context/WorkflowContext'
 interface WorkflowTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
     setAttributeTable: React.Dispatch<React.SetStateAction<TableRow[]>>
-    setTableRows: React.Dispatch<React.SetStateAction<TableRow[]>>
+    setTableRows: (tableId: string, tableRows: TableRow[]) => void
     tableRows: TableRow[]
     progress: number
+    currentTableId: string
     outerTableHeight: number | null
     darkTheme: boolean
     columnsLength: number
@@ -40,6 +41,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         setTableRows,
         tableRows,
         progress,
+        currentTableId,
         outerTableHeight,
         darkTheme,
         columnsLength,
@@ -63,13 +65,23 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         [key: number]: number
     }>({})
 
+    const [tableActive, setTableActive] = useState<number | null>(null)
     const [dragging, setDragging] = useState(false)
 
-    const {
-        setHighlightedColumnIndex,
-        selectedColumnIndex,
-        setSelectedColumnIndex,
-    } = useContext(WorkflowContext)
+    const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex } =
+        useContext(WorkflowContext)
+
+    useEffect(() => {
+        if (progress === 2) {
+            setTableActive(currentTableId === 'labelTable' ? 1 : -1)
+        } else if (progress === 3) {
+            setTableActive(currentTableId === 'attributeTable' ? 2 : -1)
+        } else if (progress > 3) {
+            setTableActive(currentTableId === 'csvTable' ? 0 : -1)
+        } else {
+            setTableActive(-1)
+        }
+    }, [progress, currentTableId])
 
     useEffect(() => {
         // 52 + 45 * tableRows
@@ -95,14 +107,15 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }, [additionalTables])
 
     useEffect(() => {
-        if (progress < 4) return
+        if (!(tableActive === 0)) return
+
         if (!hovered) {
             setHighlightedColumnIndex(null)
             return
         }
 
         setHighlightedColumnIndex(hovered.column)
-    }, [hovered, progress, setHighlightedColumnIndex])
+    }, [hovered, progress, setHighlightedColumnIndex, currentTableId, tableActive])
 
     // Define columns
     const columns: ColumnDef<TableRow>[] = useMemo(() => {
@@ -134,7 +147,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         count: tableRows.length,
         getScrollElement: () => tableRef.current,
         estimateSize: () => 45, // Adjust based on your row height
-        overscan: 10,
+        overscan: 1,
     })
 
     const columnVirtualizer = useVirtualizer({
@@ -156,7 +169,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         row: number,
         columnId: string
     ): void => {
-        if (progress === 2 && row === 0) {
+        if (tableActive === 1 && row === 0) {
             if (
                 typeof cellData === 'string' &&
                 labelOptions.some((option) => option.value === (cellData.toLowerCase() as Label))
@@ -164,7 +177,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 setSelectData(labelOptions)
                 setSelected({ row: row, column: columnId })
             }
-        } else if (progress === 3 && row === 1) {
+        } else if (tableActive === 2 && row === 1) {
             const labelKey = tableRows[0][columnId]
             if (
                 typeof labelKey === 'string' &&
@@ -199,12 +212,15 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             }
             return { ...row }
         })
-        setTableRows(updatedTableRows)
+        let tableId = ''
         if (rowIndex === 0) {
             setLabelTable(updatedTableRows)
+            tableId = 'labelTable'
         } else {
             setAttributeTable(updatedTableRows)
+            tableId = 'attributeTable'
         }
+        setTableRows(tableId, updatedTableRows)
     }
 
     const handleDragStart = (
@@ -235,7 +251,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getRowColor = (rowIndex: number, columnIndex: number): string => {
-        if (progress > 1 && progress < 4) {
+        if (tableActive === 1 || tableActive === 2) {
             if (
                 rowIndex === tableRows.length - 1 &&
                 hovered &&
@@ -248,8 +264,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 return darkTheme ? '#212226' : '#f8f9fa'
             }
         } else if (
-            (columnIndex === hovered?.column ||
-            columnIndex === selectedColumnIndex) && progress > 3
+            (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) &&
+            tableActive === 0
         ) {
             return darkTheme ? '#25262b' : '#e9ecef'
         } else {
@@ -258,7 +274,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getHeaderBackgroundColor = (columnIndex: number): string => {
-        if (columnIndex in highlightedColumns) {
+        if (columnIndex in highlightedColumns && currentTableId === 'csvTable') {
             const colorIndex = darkTheme ? 0 : 1
             const colors = colorPalette[colorIndex]
             let nodeType = mapNodeTypeString(highlightedColumns[columnIndex])
@@ -266,7 +282,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             return colors[nodeType]
         } else if (
             (columnIndex === hovered?.column || columnIndex === selectedColumnIndex) &&
-            progress > 3
+            tableActive === 0
         ) {
             return darkTheme ? '#373A40' : '#dee2e6'
         } else {
@@ -275,7 +291,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     }
 
     const getHeaderTextColor = (columnIndex: number): string => {
-        if (!(columnIndex in highlightedColumns)) {
+        if (!(columnIndex in highlightedColumns) || currentTableId !== 'csvTable') {
             return darkTheme ? '#a6a7ab' : '#040404'
         }
 
@@ -307,7 +323,10 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 height: innerTableHeight,
                 width: `calc(100% + 15px)`,
                 overflowX: 'auto',
-                overflowY: progress > 1 && progress < 4 ? 'hidden' : 'auto',
+                overflowY:
+                    tableActive === 1 || tableActive === 2
+                        ? 'hidden'
+                        : 'auto',
                 // border: partialTable ? `1px solid ${tableColors["borderColor"]}` : "none",
                 backgroundColor: darkTheme ? '#212226' : '#fff',
                 // zIndex: 0,
@@ -337,11 +356,11 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 setHovered(null)
                             }}
                             onMouseUp={
-                                progress > 3
+                                tableActive === 0
                                     ? () => handleHeaderClick(columnVirtual.index)
                                     : undefined
                             }
-                            draggable={progress > 3}
+                            draggable={tableActive === 0}
                             onDragStart={(e) => handleDragStart(e, header, columnVirtual.index)}
                             key={columnVirtual.key}
                             style={{
@@ -356,18 +375,22 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 backgroundColor: getHeaderBackgroundColor(columnVirtual.index), // add hover to signalize interaction possibility
                                 color: getHeaderTextColor(columnVirtual.index),
                                 borderRight: `1px solid ${getBorderColor()}`,
-                                cursor: progress > 3 ? 'pointer' : 'default',
+                                cursor:
+                                    tableActive === 0
+                                        ? 'grab'
+                                        : 'text',
                                 // paddingLeft: '.5rem',
                             }}
                         >
                             <div
+                                className='unselectable'
                                 style={{
                                     position: 'absolute',
                                     top: -12,
-                                    left: 4,
                                     display: 'flex',
-                                    width: 'calc(100% - 12px)',
                                     fontWeight: 'bold',
+                                    pointerEvents: 'none',
+                                    paddingLeft: 4,
                                 }}
                             >
                                 {columnVirtual.index}
@@ -375,8 +398,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                             <div
                                 style={{
                                     position: 'absolute',
-                                    top: 11,
-                                    left: 11,
+                                    width: "100%",
+                                    height: '100%',
+                                    padding: '11px 0 0 11px'
                                 }}
                             >
                                 {header}
@@ -406,9 +430,12 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 height: `${rowVirtual.size}px`,
                                 width: '100%',
                                 cursor:
-                                    progress > 1 && rowVirtual.index === tableRows.length - 1
+                                    ((tableActive === 1 || tableActive === 2) &&
+                                    rowVirtual.index === tableRows.length - 1)
                                         ? 'pointer'
-                                        : 'default',
+                                        : tableActive === 0
+                                            ? 'grab' 
+                                            : 'text',
                             }}
                         >
                             {columnVirtualizer.getVirtualItems().map((columnVirtual) => {
@@ -426,7 +453,9 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                 })
                                             }
                                             onMouseLeave={() => setHovered(null)}
-                                            draggable={progress > 3}
+                                            draggable={
+                                                tableActive === 0
+                                            }
                                             onDragStart={(e) =>
                                                 handleDragStart(
                                                     e,
@@ -471,6 +500,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                                         : undefined
                                                 }
                                                 style={{
+                                                    height: '100%',
+                                                    width: '100%',
                                                     position: 'relative',
                                                 }}
                                             >
@@ -523,8 +554,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                 return null // Or handle the undefined case appropriately
                             })}
                         </div>
-                        {progress > 1 &&
-                            progress < 4 &&
+                        {(tableActive === 1 || tableActive === 2) &&
                             rowVirtual.index === tableRows.length - 1 && (
                                 <div
                                     style={{
