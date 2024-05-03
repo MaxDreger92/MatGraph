@@ -112,7 +112,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
             display: "flex",
             flexDirection: "column",
             width: 250,
-            paddingLeft: 10,
+            paddingLeft: 25,
             alignItems: "center",
             justifyContent: "center",
           }}

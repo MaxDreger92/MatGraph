@@ -8,7 +8,7 @@ import {
 } from '../types/canvas.types'
 import { IGraphData, Attribute, ParsableAttribute, Label } from '../types/workflow.types'
 import { v4 as uuidv4 } from 'uuid'
-import { getTypedIndex, splitStrBySemicolon } from './helpers'
+import { tryNumeric, splitStrBySemicolon } from './helpers'
 
 const labelAttributes = {
     matter: ['name', 'identifier', 'batch_number', 'ratio', 'concentration'],
@@ -183,7 +183,7 @@ function parseIdxValAttrOut(value: string, index: string): ParsableAttribute {
         if (Array.isArray(parsedIndex) && parsedValue.length === parsedIndex.length) {
             const rawIndices = parsedIndex
             return parsedValue.map((val, i) => {
-                const typedIndex = getTypedIndex(rawIndices[i])
+                const typedIndex = tryNumeric(rawIndices[i])
                 return { value: val, index: typedIndex }
             })
         } else {
@@ -195,7 +195,7 @@ function parseIdxValAttrOut(value: string, index: string): ParsableAttribute {
     } else if (Array.isArray(parsedIndex)) {
         return { value: parsedValue, index: 'ARRAY_LENGTH_MISMATCH' }
     } else {
-        const typedIndex = getTypedIndex(parsedIndex)
+        const typedIndex = tryNumeric(parsedIndex)
         return { value: parsedValue, index: typedIndex }
     }
 }
@@ -223,7 +223,7 @@ function parseIdxValOpAttrOut(value: string, operator: string, index: string): P
         if (Array.isArray(parsedIndex) && parsedValue.length === parsedIndex.length) {
             const rawIndices = parsedIndex
             return parsedValue.map((val, i) => {
-                const typedIndex = getTypedIndex(rawIndices[i])
+                const typedIndex = tryNumeric(rawIndices[i])
                 return { value: val, operator: operator, index: typedIndex }
             })
         } else {
@@ -236,7 +236,7 @@ function parseIdxValOpAttrOut(value: string, operator: string, index: string): P
     } else if (Array.isArray(parsedIndex)) {
         return { value: parsedValue, operator: operator, index: 'ARRAY_LENGTH_MISMATCH' }
     } else {
-        const typedIndex = getTypedIndex(parsedIndex)
+        const typedIndex = tryNumeric(parsedIndex)
         return { value: parsedValue, operator: operator, index: typedIndex }
     }
 }

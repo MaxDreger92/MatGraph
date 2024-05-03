@@ -10,8 +10,16 @@ export function splitStrBySemicolon(str: string): string | string[] {
     return splitStrings.length === 1 ? splitStrings[0] : splitStrings
 }
 
-export function getTypedIndex(index: string): string | number {
-    const numericIndex = parseFloat(index)
-    const typedIndex = isNaN(numericIndex) ? index : numericIndex
-    return typedIndex
+export function tryNumeric(str: string): string | number {
+    const numeric = parseFloat(str)
+    const typed = isNaN(numeric) ? str : numeric
+    return typed
+}
+
+export const ensureArray = (item: any): any[] => {
+    if (Array.isArray(item)) {
+        return item
+    } else {
+        return [item]
+    }
 }

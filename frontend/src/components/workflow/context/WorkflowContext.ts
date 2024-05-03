@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import React, { createContext } from "react";
 
 interface IWorkflowContext {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
@@ -6,6 +6,7 @@ interface IWorkflowContext {
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     forceEndEditing: () => void
     uploadMode: boolean
+    tableViewHeight: number
 }
 
 const defaultContextValue: IWorkflowContext = {
@@ -14,6 +15,7 @@ const defaultContextValue: IWorkflowContext = {
     setSelectedColumnIndex: () => {},
     forceEndEditing: () => {},
     uploadMode: false,
+    tableViewHeight: 0,
 }
 
 const WorkflowContext = createContext<IWorkflowContext>(defaultContextValue)
