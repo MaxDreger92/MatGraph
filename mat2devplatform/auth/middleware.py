@@ -11,7 +11,7 @@ class TokenAuthenticationMiddleware:
 
     def __call__(self, request):
         api_path = '/api/data/'
-        
+
         if request.path.startswith(api_path):
             token = request.META.get('HTTP_AUTHORIZATION', '')
             if token:
@@ -32,3 +32,4 @@ class TokenAuthenticationMiddleware:
 
         response = self.get_response(request)
         return response
+

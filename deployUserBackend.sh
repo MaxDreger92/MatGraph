@@ -4,7 +4,7 @@
 cd userBackendNodeJS/
 
 # Stop the PM2-managed process
-pm2 stop build/server.js
+pm2 stop default
 
 # Remove existing build directory
 sudo rm -rf build/
@@ -13,4 +13,4 @@ sudo rm -rf build/
 npm run build
 
 # Start the PM2-managed process
-pm2 start build/server.js
+pm2 start ecosystem.config.js
