@@ -231,6 +231,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         columnContent: string,
         columnIndex: number
     ): void => {
+        console.log('helooo')
         setDragging(true)
 
         const dragData = { columnContent, columnIndex }
