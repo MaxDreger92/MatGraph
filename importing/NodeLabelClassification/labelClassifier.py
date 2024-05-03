@@ -1,7 +1,7 @@
 import _io
 import csv
 import os
-
+import re
 import django
 
 from graphutils.general import TableDataTransformer
@@ -45,6 +45,59 @@ class NodeClassifier(TableDataTransformer):
         """
         quantities = parser.parse(text)
         return len(quantities) > 0
+
+
+
+    def analyze_results(self, results):
+        """
+        Analyze the results to find the most occurring name and calculate its ratio to the total number of names.
+
+        Parameters:
+            results (list): A list of lists, where each inner list's first element is a node with an attribute 'name'.
+
+        Returns:
+            tuple: A tuple containing the most occurring name and its ratio to the total number of names.
+        """
+
+        if results[0][1] > 0.95:
+            final_result = results[0][0]
+            print(results[0][3], final_result.name)
+            return final_result.name
+        from collections import Counter
+
+        # Extract names from the results
+        names = [result[0].name for result in results if result]
+        names.append(results[0][0].name)
+        inputs = [result[2] for result in results if result]
+
+        cell_value = results[0][3]
+
+        number_present = re.search(r'\d+\.?\d*', cell_value)
+        unit_present = (len(parser.parse(cell_value)) > 0)
+        # Check specifically if both numbers and units are found
+
+        if number_present or unit_present:
+            print(results[0][3], "Number or unit are found.")
+            names =[*names, "Property", "Parameter"]
+            # Count each name's occurrence
+        name_counts = Counter(names)
+        # Find the most common name and the number of times it appears
+        most_common_name, most_common_count = name_counts.most_common(1)[0]
+
+
+
+
+
+
+
+
+        # Calculate the ratio of the most common name to the total number of names
+        total_names = len(names)
+        ratio = most_common_count / total_names
+        print(results[0][3], most_common_name, ratio)
+        print(inputs)
+        print(names)
+        return most_common_name
 
     def create_data(self):
         """
@@ -104,7 +157,7 @@ class NodeClassifier(TableDataTransformer):
 
     def _create_input_string(self, index, element):
         first_non_null_value = element['column_values'][0]
-        return f"\"{element['header']}\" (example: \"{first_non_null_value}\" is a \"{element['header']}\")"
+        return f"\"{element['header']}\": \"{first_non_null_value}\""
 
     def _pre_check(self, index, element):
         """
@@ -123,11 +176,9 @@ class NodeClassifier(TableDataTransformer):
             **kwargs['element'],
             "cached": False,
             "input_string": input_string.replace("\n", ""),
-            **{f"{i+1}_label": r[0].name for i, r in enumerate(result)},
-            **{f"{i+1}_sublabel": r[2] for i, r in enumerate(result)},
-            **{f"{i+1}_similarity": r[1] for i, r in enumerate(result)}
+            "1_label": result,
         })
-        ImporterCache.update(kwargs['element']['header'], column_label=result[0][0].name, attribute_type=self.attribute_type)
+        ImporterCache.update(kwargs['element']['header'], column_label=result, attribute_type=self.attribute_type)
 
     def _llm_request(self, input_string, **kwargs):
         """
@@ -147,9 +198,6 @@ class NodeClassifier(TableDataTransformer):
             "cached": True,
             "input_string": None,
             "1_label": cached[1],
-            **{f"{i}_label": None for i in range(2, 5)},
-            **{f"{i}_sublabel": None for i in range(1, 5)},
-            **{f"{i}_similarities": None for i in range(1, 5)}
         })
 
     def _update_with_chat(self, result, input_string, **kwargs):

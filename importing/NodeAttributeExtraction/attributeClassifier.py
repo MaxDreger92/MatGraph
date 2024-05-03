@@ -80,6 +80,8 @@ class AttributeClassifier(TableDataTransformer):
             return True
         return False
 
+    def analyze_results(self, query_results):
+        return query_results
 
     def _update_with_chat(self, result, input_string, **kwargs):
         """
@@ -119,9 +121,7 @@ class AttributeClassifier(TableDataTransformer):
                     **element,
                     "cached": True,
                     "input_string": None,
-                    **{f"{i+1}_attribute": attribute for i in range(4)},  # Assuming 4 attributes
-                    **{f"{i+1}_subattribute": attribute for i in range(4)},  # Assuming 4 subattributes
-                    **{f"{i+1}_attribute_similarity": 1 for i in range(4)}  # Assuming similarity is 1 for all
+                    "1_attribute": cached # Assuming similarity is 1 for all
                 })
                 return True
         return False
@@ -143,9 +143,7 @@ class AttributeClassifier(TableDataTransformer):
             **element,
             "cached": False,
             "input_string": input_string.replace("\n", ""),
-            **{f"{i+1}_attribute": r[0].name for i, r in enumerate(result)},
-            **{f"{i+1}_subattribute": r[2] for i, r in enumerate(result)},
-            **{f"{i+1}_attribute_silirity": r[1] for i, r in enumerate(result)}
+            "1_attribute": result[0][0].name
         })
         ImporterCache.update(element['header'], column_attribute=result[0][0].name, attribute_type= self.attribute_type)
 
@@ -173,8 +171,12 @@ class AttributeClassifier(TableDataTransformer):
         """
         Send a request to the node label model.
         """
-        return self._get_node_class(kwargs['element']['1_label']).nodes.get_by_string(string=input_string, limit=5,
-                                             include_similarity=True, include_input_string=True)
+        result = self._get_node_class(kwargs['element']['1_label']).nodes.get_by_string(string=input_string, limit=5,
+                                                                                        include_similarity=True, include_input_string=True)
+        print("Input string", input_string)
+        print("result", result)
+        print(self._get_node_class(kwargs['element']['1_label']))
+        return result
 
     def _create_input_string(self, index, element):
         """

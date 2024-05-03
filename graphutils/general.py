@@ -121,6 +121,7 @@ class TableDataTransformer(ReportBuilder):
 
             # Map the _process_wrapper to each element in the iterable
             results = list(executor.map(self._process_wrapper, elements_with_index))
+
     def _process(self, **kwargs):
         """
         Processes each header, checking cache and transforming data as needed.
@@ -147,8 +148,6 @@ class TableDataTransformer(ReportBuilder):
             bool: True if cached data is used.
         """
         column_value = kwargs['element']['column_values'][0]
-        print("header:", kwargs['element']['header'])
-
         if cached := ImporterCache.fetch(kwargs['element']['header'], column_value, attribute_type= self.attribute_type ):
             self._update_with_cache(cached, **kwargs)
             return True
@@ -166,13 +165,17 @@ class TableDataTransformer(ReportBuilder):
         Transform the data.
         """
         input_string = self._create_input_string(**kwargs)
-        query_result = self._llm_request(input_string, **kwargs)
-        self._update(query_result, input_string, **kwargs)
+        query_results = self._llm_request(input_string, **kwargs)
+        result = self.analyze_results(query_results)
+        self._update(result, input_string, **kwargs)
 
     def _update_with_cache(self, element, cached, **kwargs):
         return NotImplemented
 
     def _update(self, element, **kwargs):
+        return NotImplemented
+
+    def analyze_results(self, query_results):
         return NotImplemented
 
     @property

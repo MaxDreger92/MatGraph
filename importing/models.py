@@ -3,7 +3,7 @@ import os
 
 import requests
 from django.db import models, IntegrityError
-from neomodel import classproperty
+from neomodel import classproperty, RelationshipFrom, ZeroOrMore
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
@@ -132,7 +132,7 @@ class NodeLabel(UIDDjangoNode):
         """Return the embedding of the node label."""
         return "label-embeddings"
 
-    label = RelationshipTo('importing.models.NodeLabel', 'FOR', One)  # This should be a self-relation
+    label = RelationshipFrom('importing.models.NodeLabelEmbedding', 'FOR', ZeroOrMore)  # This should be a self-relation
 
 
 class NodeAttribute(UIDDjangoNode):
@@ -154,6 +154,7 @@ class NodeAttribute(UIDDjangoNode):
     label = RelationshipTo('importing.models.NodeAttribute', 'FOR', One)  # Assuming this should point to a NodeLabel
 
 class MatterAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.MatterAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
@@ -161,6 +162,7 @@ class MatterAttribute(NodeAttribute):
     pass
 
 class PropertyAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.PropertyAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
@@ -168,6 +170,7 @@ class PropertyAttribute(NodeAttribute):
     pass
 
 class ParameterAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.ParameterAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
@@ -175,18 +178,21 @@ class ParameterAttribute(NodeAttribute):
     pass
 
 class MeasurementAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.MeasurementAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
         return "measurement-attribute-embeddings"
     pass
 class ManufacturingAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.ManufacturingAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
         return "manufacturing-attribute-embeddings"
     pass
 class MetadataAttribute(NodeAttribute):
+    label = RelationshipFrom('importing.models.MetadataAttributeEmbedding', 'FOR', ZeroOrMore)  # Points at NodeAttribute
     @classproperty
     def embedding(cls):
         """Return the embedding of the node attribute."""
@@ -196,7 +202,6 @@ class NodeLabelEmbedding(ModelEmbedding):
     """
     Django model to store embeddings of node labels.
     """
-    label = RelationshipTo('importing.models.NodeLabel', 'FOR', One)  # Points at NodeLabel
     vector = ArrayProperty(FloatProperty(), required=False)
 
     class Meta:
@@ -283,9 +288,11 @@ class Cache:
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
         else:
             print("header:",header)
-            new_record = cls.objects.create(
-                header=str(header)[:200],
-                sample_column=column_value[:200])
+            new_record = cls.objects.get_or_create(
+                header=str(header)[:200]
+                )
+            new_record.sample_column=column_value[:200]
+            new_record.save()
             return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
 
 
@@ -295,7 +302,6 @@ class Cache:
             if not cached.get_validation_state(attribute_type):
                 for key, value in kwargs.items():
                     if hasattr(cached, key):
-                        print(f"Setting {key}, {type(key)}, {type(cached)}, {type(value)}")
                         setattr(cached, key, value)
                     else:
                         raise AttributeError(f"{cls.__name__} has no attribute '{key}'")
