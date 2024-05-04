@@ -2,6 +2,7 @@ import { useSpring, animated } from 'react-spring'
 
 import WarningIcon from '@mui/icons-material/Warning'
 import { MutableRefObject, useRef, useState } from 'react'
+import { useMantineColorScheme } from '@mantine/core'
 
 interface NodeWarningProps {
     size: number
@@ -24,9 +25,12 @@ export default function NodeWarning(props: NodeWarningProps) {
         },
     })
 
+    const { colorScheme } = useMantineColorScheme()
+    const darkTheme = colorScheme === 'dark'
+
     return (
         <div
-            className="node-warning"
+            className="node-warning unselectable"
             style={{
                 left: size / 2 + 10,
                 top: size / 2 + 10,
@@ -64,13 +68,14 @@ export default function NodeWarning(props: NodeWarningProps) {
                             width: '100%',
                             height: '100%',
                             position: 'absolute',
-                            backgroundColor: '#25262b',
+                            backgroundColor: darkTheme ? '#25262b' : '#fff',
                             opacity: 0,
                             transform: 'translateX(100px)',
                             transition: 'opacity 0.1s ease-in-out',
                             animation: 'fade-in-slide-up 0.1s forwards',
-                            filter: 'drop-shadow(1px 1px 1px #111)',
+                            filter: `drop-shadow(1px 1px 1px ${darkTheme ? '#111' : '#868e96'})`,
                             borderRadius: 3,
+                            border: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
                             left: 0,
                         }}
                     />
@@ -78,6 +83,7 @@ export default function NodeWarning(props: NodeWarningProps) {
                     style={{
                         position: 'relative',
                         paddingLeft: 5,
+                        color: '#c1c2c5'
                     }}
                 >
                     {message}

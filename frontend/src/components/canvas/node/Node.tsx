@@ -322,14 +322,29 @@ export default React.memo(function Node(props: NodeProps) {
         const colorIndex = darkTheme ? 0 : 1
         const paletteColors = colorPalette[colorIndex]
 
-        setColors([
-            paletteColors[node.type], // node color
-            chroma(paletteColors[node.type]).brighten(1).hex(), // node outline hovered
-            chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
-            chroma(paletteColors[node.type]).darken(0.85).desaturate(1).hex(), // node has errors
-            chroma(paletteColors[node.type]).darken(0.65).desaturate(1).hex(), // node outline hovered has errors
-            chroma(paletteColors[node.type]).darken(1.1).desaturate(1).hex(), // node outline has errors
-        ])
+        let colors = []
+
+        if (darkTheme) {
+            colors = [            
+                paletteColors[node.type], // node color
+                chroma(paletteColors[node.type]).brighten(1).hex(), // node outline hovered
+                chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
+                chroma(paletteColors[node.type]).darken(0.5).desaturate(.6).hex(), // node has errors
+                chroma(paletteColors[node.type]).darken(0.35).desaturate(.8).hex(), // node outline hovered has errors
+                chroma(paletteColors[node.type]).darken(.75).desaturate(1).hex(), // node outline has errors
+            ]
+        } else {
+            colors = [            
+                paletteColors[node.type], // node color
+                chroma(paletteColors[node.type]).brighten(.5).hex(), // node outline hovered
+                chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
+                chroma(paletteColors[node.type]).darken(0.5).desaturate(.8).hex(), // node has errors
+                chroma(paletteColors[node.type]).darken(0.35).desaturate(.8).hex(), // node outline hovered has errors
+                chroma(paletteColors[node.type]).darken(.75).desaturate(1).hex(), // node outline has errors
+            ]
+        }
+
+        setColors(colors)
     }, [node.type, darkTheme])
 
     const getOutlineColor = () => {
