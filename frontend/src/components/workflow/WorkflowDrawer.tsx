@@ -14,7 +14,7 @@ import { ensureArray, splitStrBySemicolon, tryNumeric } from '../../common/helpe
 import WorkflowTableTabs from './WorkflowTableTabs'
 // import testNodes from '../../alt/testNodesN.json'
 
-const USE_MOCK_DATA = false
+const USE_MOCK_DATA = true
 
 const exampleLabelDict: IDictionary = {
     Header1: { Label: 'matter' },
