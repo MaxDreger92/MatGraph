@@ -10,10 +10,11 @@ interface NodeInputProps {
     isValueNode: boolean
     node: INode
     handleNodeUpdate: (node: INode, endEditing?: boolean) => void
+    getFieldErrors: (field: NodeAttribute | NodeValOpAttribute, attributeName: string) => void
 }
 
 export default React.memo(function NodeInput(props: NodeInputProps) {
-    const { isValueNode, node, handleNodeUpdate } = props
+    const { isValueNode, node, handleNodeUpdate, getFieldErrors } = props
 
     const [nodeName, setNodeName] = useState<NodeAttribute>(node.name)
     const [nodeValue, setNodeValue] = useState<NodeValOpAttribute>(node.value)
@@ -86,73 +87,91 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
         switch (id) {
             case 'name':
-                setNodeName({
+                const newNodeName = {
                     value: value ?? nodeName.value,
                     index: index ?? nodeName.index,
-                })
-                break
+                };
+                setNodeName(prev => newNodeName);
+                getFieldErrors(newNodeName, 'Name');
+                break;
             case 'batch':
-                setNodeBatchNum({
+                const newNodeBatchNum = {
                     value: value ?? nodeBatchNum.value,
                     index: index ?? nodeBatchNum.index,
-                })
-                break
+                };
+                setNodeBatchNum(newNodeBatchNum);
+                getFieldErrors(newNodeBatchNum, 'Batch');
+                break;
             case 'unit':
-                setNodeUnit({
+                const newNodeUnit = {
                     value: value ?? nodeUnit.value,
                     index: index ?? nodeUnit.index,
-                })
-                break
+                };
+                setNodeUnit(newNodeUnit);
+                getFieldErrors(newNodeUnit, 'Unit');
+                break;
             case 'identifier':
-                setNodeIdentifier({
+                const newNodeIdentifier = {
                     value: value ?? nodeIdentifier.value,
                     index: index ?? nodeIdentifier.index,
-                })
-                break
+                };
+                setNodeIdentifier(newNodeIdentifier);
+                getFieldErrors(newNodeIdentifier, 'Identifier');
+                break;
             case 'value':
-                setNodeValue({
+                const newNodeValue = {
                     valOp: {
                         value: value ?? nodeValue.valOp.value,
                         operator: operator ?? nodeValue.valOp.operator,
                     },
                     index: index ?? nodeValue.index,
-                })
-                break
+                };
+                setNodeValue(newNodeValue);
+                getFieldErrors(newNodeValue, 'Value');
+                break;
             case 'ratio':
-                setNodeRatio({
+                const newNodeRatio = {
                     valOp: {
                         value: value ?? nodeRatio.valOp.value,
                         operator: operator ?? nodeRatio.valOp.operator,
                     },
                     index: index ?? nodeRatio.index,
-                })
-                break
+                };
+                setNodeRatio(newNodeRatio);
+                getFieldErrors(newNodeRatio, 'Ratio');
+                break;
             case 'concentration':
-                setNodeConcentration({
+                const newNodeConcentration = {
                     valOp: {
                         value: value ?? nodeConcentration.valOp.value,
                         operator: operator ?? nodeConcentration.valOp.operator,
                     },
                     index: index ?? nodeConcentration.index,
-                })
+                }
+                setNodeConcentration(prev => newNodeConcentration)
+                getFieldErrors(newNodeConcentration, 'Concentration');
                 break
             case 'std':
-                setNodeStd({
+                const newNodeStd = {
                     valOp: {
                         value: value ?? nodeStd.valOp.value,
                         operator: operator ?? nodeStd.valOp.operator,
                     },
                     index: index ?? nodeStd.index,
-                })
+                }
+                setNodeStd(prev => newNodeStd)
+                getFieldErrors(newNodeStd, 'Std');
                 break
             case 'error':
-                setNodeError({
+                const newNodeError = {
                     valOp: {
                         value: value ?? nodeError.valOp.value,
                         operator: operator ?? nodeError.valOp.operator,
                     },
                     index: index ?? nodeError.index,
-                })
+                }
+                setNodeError(prev => newNodeError)
+                getFieldErrors(newNodeError, 'Error');
                 break
             default:
                 break

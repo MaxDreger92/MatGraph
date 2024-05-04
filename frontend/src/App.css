@@ -384,13 +384,14 @@ a:link {
   display: flex;
   justify-content: right;
   align-items: center;
-  width: 170px;
+  width: auto;
+  white-space: nowrap;
   height: 50px;
   user-select: none;
   border-radius: 3px;
   border: 1px solid #333333;
-  padding: 10px;
-  padding-top: 12px;
+  padding: 12px 10px 10px 10px;
+  /*padding-top: 12px; */
   background-color: #25262b;
   opacity: 0;
   transform: translateX(100px);

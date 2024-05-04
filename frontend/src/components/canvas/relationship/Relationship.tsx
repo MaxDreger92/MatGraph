@@ -30,7 +30,7 @@ export function TempRelationship(props: TempRelationshipProps) {
     }
     const moveHandler = (e: MouseEvent) => {
       if (!canvasRect) return
-      const x = e.clientX - canvasRect.left
+      const x = e.clientX
       const y = e.clientY - canvasRect.top
       setEnd({ x, y })
     }

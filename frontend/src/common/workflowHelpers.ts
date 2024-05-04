@@ -112,7 +112,7 @@ function determineRelationshipType(startType: string, endType: string): string {
     return relationshipToRelType[`${startType}-${endType}`] || 'UNKNOWN_RELATIONSHIP'
 }
 
-function isValidOperator(operator: string): boolean {
+export function isValidOperator(operator: string): boolean {
     return (
         operator === '<' ||
         operator === '<=' ||
@@ -123,7 +123,7 @@ function isValidOperator(operator: string): boolean {
     )
 }
 
-export function isAttrDefined(attribute: string | ValOpPair): boolean {
+export function isAttrDefined(attribute?: string | ValOpPair): boolean {
     if (typeof attribute === 'string') {
         return attribute !== ''
     } else if (typeof attribute === 'object' && 'value' in attribute) {
