@@ -238,8 +238,26 @@ export default React.memo(function Node(props: NodeProps) {
             paletteColors[node.type],
             chroma(paletteColors[node.type]).brighten(1).hex(),
             chroma(paletteColors[node.type]).darken(0.5).hex(),
+            chroma(paletteColors[node.type]).darken(0.85).hex(),
+            chroma(paletteColors[node.type]).darken(1.1).hex(),
         ])
     }, [node.type, darkTheme])
+
+    const getOutlineColor = () => {
+        if (isSelected > 0 || isHovered || isHighlighted) {
+            if (fieldsMissing) {
+                return colors[2]
+            } else {
+                return colors[1]
+            }
+        } else {
+            if (fieldsMissing) {
+                return colors[4]
+            } else {
+                return colors[2]
+            }
+        }
+    }
 
     const springProps = useSpring({
         positionTop: node.position.y,
@@ -312,10 +330,9 @@ export default React.memo(function Node(props: NodeProps) {
                     style={{
                         width: springProps.size,
                         height: springProps.size,
-                        backgroundColor: colors[0],
-                        opacity: !fieldsMissing ? 1 : 0.7,
-                        outlineColor:
-                            isSelected > 0 || isHovered || isHighlighted ? colors[1] : colors[2],
+                        backgroundColor: fieldsMissing ? colors[3] : colors[0],
+                        // opacity: !fieldsMissing ? 1 : 0.7,
+                        outlineColor: getOutlineColor(),
                         outlineStyle: 'solid',
                         outlineWidth: '4px',
                         outlineOffset: isHighlighted && isSelected === 0 ? '3px' : '-1px',
