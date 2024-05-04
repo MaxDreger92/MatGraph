@@ -20,8 +20,8 @@ export default function NodeWarning(props: NodeWarningProps) {
     const iconAnimProps = useSpring({
         color: hovered ? '#E15554' : color,
         config: {
-            tension: hovered ? 170 : 150,
-            friction: hovered ? 26 : 170,
+            tension: hovered ? 300 : 150,
+            friction: hovered ? 30 : 170,
         },
     })
 
@@ -83,7 +83,7 @@ export default function NodeWarning(props: NodeWarningProps) {
                     style={{
                         position: 'relative',
                         paddingLeft: 5,
-                        color: '#c1c2c5'
+                        color: darkTheme ? '#c1c2c5' : '#222222',
                     }}
                 >
                     {message}
