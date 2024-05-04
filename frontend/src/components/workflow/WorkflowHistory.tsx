@@ -13,8 +13,6 @@ interface WorkflowHistoryProps {
   setNodes: React.Dispatch<React.SetStateAction<INode[]>>
   setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
   setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
-  canvasWidth: number
-  canvasHeight: number
   darkTheme: boolean
 }
 
@@ -26,8 +24,6 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
     setNodes,
     setRelationships,
     setNeedLayout,
-    canvasWidth,
-    canvasHeight,
     darkTheme,
   } = props
   const [hovered, setHovered] = useState<number | undefined>()

@@ -5,19 +5,13 @@ import { splitStrBySemicolon } from '../../../common/helpers'
 import { getRenderLabel } from '../../../common/nodeHelpers'
 
 interface NodeLabelsProps {
-    // isEditing: boolean
     isSelected: number
     isValueNode: boolean
-    fieldsMissing: boolean
-    labelRef: React.RefObject<HTMLDivElement>
-    hovered: boolean
     size: number
     name: string
     valOp: ValOpPair
     type: INode['type']
     layer: number
-    // hasLabelOverflow: boolean
-    color: string
     onMouseUp: (e: React.MouseEvent) => void
 }
 
@@ -25,15 +19,11 @@ export default function NodeLabel(props: NodeLabelsProps) {
     const {
         isSelected,
         isValueNode,
-        fieldsMissing,
-        labelRef,
-        hovered,
         size,
         name,
         valOp,
         type,
         layer,
-        color,
         onMouseUp,
     } = props
 

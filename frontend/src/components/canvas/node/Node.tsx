@@ -9,11 +9,12 @@ import NodeInput from './NodeInput'
 import NodeLabel from './NodeLabel'
 import NodeWarning from './NodeWarning'
 import NodeConnector from './NodeConnector'
-import { INode, Position } from '../../../types/canvas.types'
+import { INode, NodeAttribute, NodeValOpAttribute, Position } from '../../../types/canvas.types'
 import { colorPalette } from '../../../types/colors'
-import { isAttrDefined } from '../../../common/workflowHelpers'
+import { isAttrDefined, isValidOperator } from '../../../common/workflowHelpers'
 import { getIsValueNode } from '../../../common/nodeHelpers'
-import _ from 'lodash'
+import _, { split } from 'lodash'
+import { ensureArray, splitStrBySemicolon } from '../../../common/helpers'
 
 interface NodeProps {
     node: INode
@@ -46,7 +47,9 @@ export default React.memo(function Node(props: NodeProps) {
     const [nodeRenderedSize, setNodeRenderedSize] = useState(100)
     const [isHovered, setIsHovered] = useState(false)
     const [isValueNode, setIsValueNode] = useState(false)
-    const [fieldsMissing, setFieldsMissing] = useState(true)
+    const [hasErrors, setHasErrors] = useState(false)
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({})
+    const [displayedError, setDisplayedError] = useState('')
     const [colors, setColors] = useState<string[]>([])
 
     // Node movement parameters
@@ -171,7 +174,7 @@ export default React.memo(function Node(props: NodeProps) {
             Math.abs(dragStartPos.y - node.position.y) < 5
         ) {
             handleNodeAction(node, 'click')
-            if (fieldsMissing) handleNodeAction(node, 'setIsEditing')
+            if (hasErrors) handleNodeAction(node, 'setIsEditing')
         } else if (dragStartPos || e.button === 1) {
             handleNodeAction(node, 'completeMove')
         } else if (!dragStartPos) {
@@ -194,20 +197,105 @@ export default React.memo(function Node(props: NodeProps) {
     }
 
     // ####################################################################################### Stuff
-
-    useEffect(() => {
-        const result = getIsValueNode(node.type)
-        setIsValueNode(result)
-    }, [node.type])
-
-    // Update missing fields
-    useEffect(() => {
-        if (isValueNode) {
-            setFieldsMissing(!isAttrDefined(node.name.value) || !isAttrDefined(node.value.valOp))
+    const getFieldErrors = (field: NodeAttribute | NodeValOpAttribute, attributeName: string) => {
+        if ('value' in field) { // not valOp
+            if (attributeName === 'Name') {
+                if (!isAttrDefined(field.value)) {
+                    setErrorMessages(prev => ({
+                        ...prev,
+                        [attributeName]: `${attributeName} required!`
+                    }))
+                    return
+                }
+            }
+            if (node.withIndices) {
+                if (isAttrDefined(field.value) || isAttrDefined(field.index)) {
+                    const values = ensureArray(splitStrBySemicolon(field.value))
+                    const indices = ensureArray(splitStrBySemicolon(field.index??''))
+                    if (values.length !== indices.length) {
+                        setErrorMessages(prev => ({
+                            ...prev,
+                            [attributeName]: `Error in ${attributeName}!`
+                        }))
+                        return
+                    }
+                }
+            }
         } else {
-            setFieldsMissing(!isAttrDefined(node.name.value))
+            if (attributeName === 'Value') {
+                if (!isAttrDefined(field.valOp)) {
+                    setErrorMessages(prev => ({
+                        ...prev,
+                        [attributeName]: `${attributeName} required!`
+                    }))
+                    return
+                }
+            }
+            if (node.withIndices) {
+                if (isAttrDefined(field.valOp.value) || isValidOperator(field.valOp.operator) || isAttrDefined(field.index)) {
+                    if (!isValidOperator(field.valOp.operator)) {
+                        setErrorMessages(prev => ({
+                            ...prev,
+                            [attributeName]: `Error in ${attributeName}!`
+                        }))
+                        return
+                    }
+                    const values = ensureArray(splitStrBySemicolon(field.valOp.value))
+                    const indices = ensureArray(splitStrBySemicolon(field.index??''))
+                    if (values.length !== indices.length) {
+                        setErrorMessages(prev => ({
+                            ...prev,
+                            [attributeName]: `Error in ${attributeName}!`
+                        }))
+                        return
+                    }
+                }
+            } else {
+                if (isAttrDefined(field.valOp.value) || isValidOperator(field.valOp.operator)) {
+                    if (!isAttrDefined(field.valOp)) {
+                        setErrorMessages(prev => ({
+                            ...prev,
+                            [attributeName]: `Error in ${attributeName}!`
+                        }))
+                        return
+                    }
+                }
+            }
         }
-    }, [node.name, node.value, isValueNode])
+        // No errors
+        setErrorMessages(prev => {
+            const { [attributeName]: omit, ...rest } = prev;
+            return rest;
+        });
+    }
+
+    useEffect(() => {
+        const errorKeys = Object.keys(errorMessages)
+        setHasErrors(errorKeys.length > 0)
+        if (errorKeys.length > 0) {
+            setDisplayedError(errorMessages[errorKeys[0]])
+        } else {
+            setDisplayedError('')
+        }
+    }, [errorMessages]);
+
+    useEffect(() => {
+        const hasValueField = getIsValueNode(node.type)
+        setIsValueNode(hasValueField)
+
+        getFieldErrors(node.name, 'Name')
+        getFieldErrors(node.batch_num, 'Batch')
+        getFieldErrors(node.ratio, 'Ratio')
+        getFieldErrors(node.concentration, 'Concentration')
+        getFieldErrors(node.unit, 'Unit')
+        getFieldErrors(node.std, 'Std')
+        getFieldErrors(node.error, 'Error')
+        getFieldErrors(node.identifier, 'Identifier')
+        if (hasValueField) {
+            getFieldErrors(node.value, 'Value')
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Handle context menu action (e.g. delete node)
     const handleContextActionLocal = (ctxtAction: string) => {
@@ -234,12 +322,46 @@ export default React.memo(function Node(props: NodeProps) {
         const colorIndex = darkTheme ? 0 : 1
         const paletteColors = colorPalette[colorIndex]
 
-        setColors([
-            paletteColors[node.type],
-            chroma(paletteColors[node.type]).brighten(1).hex(),
-            chroma(paletteColors[node.type]).darken(0.5).hex(),
-        ])
+        let colors = []
+
+        if (darkTheme) {
+            colors = [            
+                paletteColors[node.type], // node color
+                chroma(paletteColors[node.type]).brighten(1).hex(), // node outline hovered
+                chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
+                chroma(paletteColors[node.type]).darken(0.5).desaturate(.6).hex(), // node has errors
+                chroma(paletteColors[node.type]).darken(0.35).desaturate(.8).hex(), // node outline hovered has errors
+                chroma(paletteColors[node.type]).darken(.75).desaturate(1).hex(), // node outline has errors
+            ]
+        } else {
+            colors = [            
+                paletteColors[node.type], // node color
+                chroma(paletteColors[node.type]).brighten(.5).hex(), // node outline hovered
+                chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
+                chroma(paletteColors[node.type]).darken(0.5).desaturate(.8).hex(), // node has errors
+                chroma(paletteColors[node.type]).darken(0.35).desaturate(.8).hex(), // node outline hovered has errors
+                chroma(paletteColors[node.type]).darken(.75).desaturate(1).hex(), // node outline has errors
+            ]
+        }
+
+        setColors(colors)
     }, [node.type, darkTheme])
+
+    const getOutlineColor = () => {
+        if (isSelected > 0 || isHovered || isHighlighted) {
+            if (hasErrors) {
+                return colors[4]
+            } else {
+                return colors[1]
+            }
+        } else {
+            if (hasErrors) {
+                return colors[5]
+            } else {
+                return colors[2]
+            }
+        }
+    }
 
     const springProps = useSpring({
         positionTop: node.position.y,
@@ -312,10 +434,8 @@ export default React.memo(function Node(props: NodeProps) {
                     style={{
                         width: springProps.size,
                         height: springProps.size,
-                        backgroundColor: colors[0],
-                        opacity: !fieldsMissing ? 1 : 0.7,
-                        outlineColor:
-                            isSelected > 0 || isHovered || isHighlighted ? colors[1] : colors[2],
+                        backgroundColor: hasErrors ? colors[3] : colors[0],
+                        outlineColor: getOutlineColor(),
                         outlineStyle: 'solid',
                         outlineWidth: '4px',
                         outlineOffset: isHighlighted && isSelected === 0 ? '3px' : '-1px',
@@ -327,16 +447,11 @@ export default React.memo(function Node(props: NodeProps) {
                         <NodeLabel
                             isSelected={isSelected}
                             isValueNode={isValueNode}
-                            fieldsMissing={fieldsMissing}
-                            labelRef={nodeLabelRef}
-                            hovered={isHovered}
                             size={nodeRenderedSize}
                             name={node.name.value}
                             valOp={node.value.valOp}
                             type={node.type}
                             layer={node.layer}
-                            // hasLabelOverflow={hasLabelOverflow}
-                            color={colors[0]}
                             onMouseUp={handleNameMouseUp}
                         />
                     )}
@@ -360,17 +475,18 @@ export default React.memo(function Node(props: NodeProps) {
                         isValueNode={isValueNode}
                         node={node}
                         handleNodeUpdate={handleNodeUpdate}
+                        getFieldErrors={getFieldErrors}
                     />
                 )}
                 {/* node warning */}
-                {fieldsMissing &&
+                {hasErrors &&
                     !isSelected &&
                     !node.isEditing && ( // warning: !nodeName
                         <NodeWarning
                             size={node.size}
                             hovered={isHovered}
                             color={colors[0]}
-                            layer={node.layer}
+                            message={displayedError}
                         />
                     )}
             </animated.div>

@@ -196,14 +196,14 @@ export default function Workflow(props: WorkflowProps) {
     useEffect(() => {
         if (workflowWindowRect) {
             const width = workflowWindowRect.width - jsonViewWidth - historyViewWidth
-            const height = workflowWindowRect.height - tableViewHeight
+            const height = workflowWindowRect.height - (tableView ? tableViewHeight : 0)
 
             setCanvasRect(new DOMRect(historyViewWidth, workflowWindowRect.top, width, height))
 
             // setCanvasWidth(width)
             // setCanvasHeight(height)
         }
-    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight])
+    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight, tableView])
 
     // Resize Observer for workflow window
     useEffect(() => {
@@ -540,8 +540,6 @@ export default function Workflow(props: WorkflowProps) {
                             setNodes={setNodes}
                             setRelationships={setRelationships}
                             setNeedLayout={setNeedLayout}
-                            canvasWidth={canvasRect.width}
-                            canvasHeight={canvasRect.height}
                             darkTheme={darkTheme}
                         />
                     }
@@ -573,7 +571,9 @@ export default function Workflow(props: WorkflowProps) {
                     <animated.div
                         className="workflow-drawer"
                         style={{
-                            height: drawerHandleActiveRef.current ? tableViewHeight : springProps.tableViewHeight,
+                            height: drawerHandleActiveRef.current
+                                ? tableViewHeight
+                                : springProps.tableViewHeight,
                             width: '100%',
                             borderTop: tableView
                                 ? darkTheme
@@ -582,13 +582,13 @@ export default function Workflow(props: WorkflowProps) {
                                 : 'none',
                             backgroundColor: darkTheme ? '#25262b' : '#fff',
                             zIndex: 1,
-                            overflow: 'visible'
+                            overflow: 'visible',
                         }}
                         children={
                             <div
                                 className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
                                 style={{
-                                    height: '100%'
+                                    height: '100%',
                                 }}
                             >
                                 <WorkflowDrawer
@@ -605,12 +605,14 @@ export default function Workflow(props: WorkflowProps) {
                                     rebuildIndexDictionary={rebuildIndexDictionary}
                                     darkTheme={darkTheme}
                                 />
-                                <WorkflowDrawerHandle
-                                    handleActive={drawerHandleActiveRef}
-                                    tableViewHeight={tableViewHeight}
-                                    setTableViewHeight={setTableViewHeight}
-                                    setTableView={setTableView}
-                                />
+                                {tableView && (
+                                    <WorkflowDrawerHandle
+                                        handleActive={drawerHandleActiveRef}
+                                        tableViewHeight={tableViewHeight}
+                                        setTableViewHeight={setTableViewHeight}
+                                        setTableView={setTableView}
+                                    />
+                                )}
                             </div>
                         }
                     />

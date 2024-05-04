@@ -17,17 +17,6 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
     const initialHeightRef = useRef(0)
     const drawerClosedRef = useRef(false)
 
-    // useEffect(() => {
-    //     const handleResize = () => {
-    //         setScreenSize(window.innerHeight)
-    //     }
-
-    //     window.addEventListener('resize', handleResize)
-    //     return () => {
-    //         window.removeEventListener('resize', handleResize)
-    //     }
-    // }, [])
-
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         draggingRef.current = true
         handleActive.current = true
@@ -45,7 +34,7 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
                 const newY = e.clientY
                 const diffY = startYRef.current - newY
                 const newHeight = initialHeightRef.current + diffY
-                if (newHeight < 50) {
+                if (newHeight < 25) {
                     setTableViewHeight(0)
                     drawerClosedRef.current = true
                 } else if (newHeight > 180) {
