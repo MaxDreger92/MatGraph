@@ -196,14 +196,14 @@ export default function Workflow(props: WorkflowProps) {
     useEffect(() => {
         if (workflowWindowRect) {
             const width = workflowWindowRect.width - jsonViewWidth - historyViewWidth
-            const height = workflowWindowRect.height - tableViewHeight
+            const height = workflowWindowRect.height - (tableView ? tableViewHeight : 0)
 
             setCanvasRect(new DOMRect(historyViewWidth, workflowWindowRect.top, width, height))
 
             // setCanvasWidth(width)
             // setCanvasHeight(height)
         }
-    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight])
+    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight, tableView])
 
     // Resize Observer for workflow window
     useEffect(() => {
@@ -540,8 +540,6 @@ export default function Workflow(props: WorkflowProps) {
                             setNodes={setNodes}
                             setRelationships={setRelationships}
                             setNeedLayout={setNeedLayout}
-                            canvasWidth={canvasRect.width}
-                            canvasHeight={canvasRect.height}
                             darkTheme={darkTheme}
                         />
                     }
