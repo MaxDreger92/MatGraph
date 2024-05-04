@@ -323,24 +323,25 @@ export default React.memo(function Node(props: NodeProps) {
         const paletteColors = colorPalette[colorIndex]
 
         setColors([
-            paletteColors[node.type],
-            chroma(paletteColors[node.type]).brighten(1).hex(),
-            chroma(paletteColors[node.type]).darken(0.5).hex(),
-            chroma(paletteColors[node.type]).darken(0.85).hex(),
-            chroma(paletteColors[node.type]).darken(1.1).hex(),
+            paletteColors[node.type], // node color
+            chroma(paletteColors[node.type]).brighten(1).hex(), // node outline hovered
+            chroma(paletteColors[node.type]).darken(0.5).hex(), // node outline
+            chroma(paletteColors[node.type]).darken(0.85).desaturate(1).hex(), // node has errors
+            chroma(paletteColors[node.type]).darken(0.65).desaturate(1).hex(), // node outline hovered has errors
+            chroma(paletteColors[node.type]).darken(1.1).desaturate(1).hex(), // node outline has errors
         ])
     }, [node.type, darkTheme])
 
     const getOutlineColor = () => {
         if (isSelected > 0 || isHovered || isHighlighted) {
             if (hasErrors) {
-                return colors[2]
+                return colors[4]
             } else {
                 return colors[1]
             }
         } else {
             if (hasErrors) {
-                return colors[4]
+                return colors[5]
             } else {
                 return colors[2]
             }
