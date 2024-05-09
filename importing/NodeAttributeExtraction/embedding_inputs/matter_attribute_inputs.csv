@@ -1,70 +1,47 @@
-CAS number,identifier,MatterAttributeEmbedding,MatterAttribute
-molecular weight,ratio,MatterAttributeEmbedding,MatterAttribute
-chemical name,name,MatterAttributeEmbedding,MatterAttribute
-lot number,batch number,MatterAttributeEmbedding,MatterAttribute
-solubility concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-product code,identifier,MatterAttributeEmbedding,MatterAttribute
-purity ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-trade name,name,MatterAttributeEmbedding,MatterAttribute
-production date,batch number,MatterAttributeEmbedding,MatterAttribute
-viscosity concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-SKU number,identifier,MatterAttributeEmbedding,MatterAttribute
-density ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-scientific name,name,MatterAttributeEmbedding,MatterAttribute
-serial number,batch number,MatterAttributeEmbedding,MatterAttribute
-active ingredient concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-registration number,identifier,MatterAttributeEmbedding,MatterAttribute
-boiling point ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-brand name,name,MatterAttributeEmbedding,MatterAttribute
-expiry date,batch number,MatterAttributeEmbedding,MatterAttribute
-acidity concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-formula code,identifier,MatterAttributeEmbedding,MatterAttribute
-melting point ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-generic name,name,MatterAttributeEmbedding,MatterAttribute
-batch code,batch number,MatterAttributeEmbedding,MatterAttribute
-alcohol concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-patent number,identifier,MatterAttributeEmbedding,MatterAttribute
-solvent ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-proprietary name,name,MatterAttributeEmbedding,MatterAttribute
-manufacture date,batch number,MatterAttributeEmbedding,MatterAttribute
-drug concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-EINECS number,identifier,MatterAttributeEmbedding,MatterAttribute
-partition coefficient ratio,ratio,MatterAttributeEmbedding,MatterAttribute
-synonym name,name,MatterAttributeEmbedding,MatterAttribute
-revision number,batch number,MatterAttributeEmbedding,MatterAttribute
-nitrate concentration,concentration,MatterAttributeEmbedding,MatterAttribute
-material type,name,MatterAttributeEmbedding,MatterAttribute
-electrode configuration,name,MatterAttributeEmbedding,MatterAttribute
-battery type,name,MatterAttributeEmbedding,MatterAttribute
-cathode material,name,MatterAttributeEmbedding,MatterAttribute
-anode material,name,MatterAttributeEmbedding,MatterAttribute
-photovoltaic technology type,name,MatterAttributeEmbedding,MatterAttribute
-electrolyte type,name,MatterAttributeEmbedding,MatterAttribute
-cell architecture,name,MatterAttributeEmbedding,MatterAttribute
-semiconductor material,name,MatterAttributeEmbedding,MatterAttribute
-fuel cell type,name,MatterAttributeEmbedding,MatterAttribute
-superconductor material,name,MatterAttributeEmbedding,MatterAttribute
-energy storage technology,name,MatterAttributeEmbedding,MatterAttribute
-solar cell material,name,MatterAttributeEmbedding,MatterAttribute
-thermoelectric material,name,MatterAttributeEmbedding,MatterAttribute
-hybrid device configuration,name,MatterAttributeEmbedding,MatterAttribute
-catalyst type,name,MatterAttributeEmbedding,MatterAttribute
-material product code,identifier,MatterAttributeEmbedding,MatterAttribute
-panel serial number,batch number,MatterAttributeEmbedding,MatterAttribute
-energy converter type,name,MatterAttributeEmbedding,MatterAttribute
-chemical storage form,name,MatterAttributeEmbedding,MatterAttribute
-production lot number,batch number,MatterAttributeEmbedding,MatterAttribute
-reactor design,name,MatterAttributeEmbedding,MatterAttribute
-nanoparticle composition,name,MatterAttributeEmbedding,MatterAttribute
-absorber material,name,MatterAttributeEmbedding,MatterAttribute
-storage cell identifier,identifier,MatterAttributeEmbedding,MatterAttribute
-energy cell lot number,batch number,MatterAttributeEmbedding,MatterAttribute
-electrochemical system type,name,MatterAttributeEmbedding,MatterAttribute
-material SKU number,identifier,MatterAttributeEmbedding,MatterAttribute
-conversion technology name,name,MatterAttributeEmbedding,MatterAttribute
-collector material,name,MatterAttributeEmbedding,MatterAttribute
-insulation material,name,MatterAttributeEmbedding,MatterAttribute
-conversion efficiency data,name,MatterAttributeEmbedding,MatterAttribute
-component serial number,batch number,MatterAttributeEmbedding,MatterAttribute
-device configuration,name,MatterAttributeEmbedding,MatterAttribute
-product batch code,batch number,MatterAttributeEmbedding,MatterAttribute
+"Substance Class: Conductive Polymers",name,MatterAttributeEmbedding,MatterAttribute
+"Space Group": "P63/mmc",name,MatterAttributeEmbedding,MatterAttribute
+"Crystal System": "Hexagonal",name,MatterAttributeEmbedding,MatterAttribute
+"Crystal Family": "Oxides",name,MatterAttributeEmbedding,MatterAttribute
+"Composition": "Al2O3",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Formula": "SiO2",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Composition": "Fe2O3",name,MatterAttributeEmbedding,MatterAttribute
+"Substance Class: Oxide Ceramics",name,MatterAttributeEmbedding,MatterAttribute
+"Compound Type: Structural Steel",name,MatterAttributeEmbedding,MatterAttribute
+"Composite Category: Epoxy Resin",name,MatterAttributeEmbedding,MatterAttribute
+"Alloy Group: Amorphous Metals",name,MatterAttributeEmbedding,MatterAttribute
+"Active Material: Solar Absorbing",name,MatterAttributeEmbedding,MatterAttribute
+"Compound Family: High-Tc Superconductors",name,MatterAttributeEmbedding,MatterAttribute
+"Element Set: Rare Earth Metals",name,MatterAttributeEmbedding,MatterAttribute
+"Polymer Sort: Bioplastics",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Variant: Photocatalysts",name,MatterAttributeEmbedding,MatterAttribute
+"Material Makeup: Carbon Fiber",name,MatterAttributeEmbedding,MatterAttribute
+"Material Type: Electrolyte Solution",name,MatterAttributeEmbedding,MatterAttribute
+"Substance Kind: Ferromagnetic Material",name,MatterAttributeEmbedding,MatterAttribute
+"Particle Type: Colloidal Quantum Dots",name,MatterAttributeEmbedding,MatterAttribute
+"Material Form: Shape Memory Polymers",name,MatterAttributeEmbedding,MatterAttribute
+"ID Tag: CMP-101",identifier,MatterAttributeEmbedding,MatterAttribute
+"Code Label: OXD-102",identifier,MatterAttributeEmbedding,MatterAttribute
+"Spec Number: SST-103",identifier,MatterAttributeEmbedding,MatterAttribute
+"Product_id: EPR-104",identifier,MatterAttributeEmbedding,MatterAttribute
+"Device_Id: AMM-105",identifier,MatterAttributeEmbedding,MatterAttribute
+"Component_id: SAP-106",identifier,MatterAttributeEmbedding,MatterAttribute
+"Item_id: HTS-107",identifier,MatterAttributeEmbedding,MatterAttribute
+"Identification: AMM-105",identifier,MatterAttributeEmbedding,MatterAttribute
+"Tag Series: SAP-106",identifier,MatterAttributeEmbedding,MatterAttribute
+"Product id: HTS-107",identifier,MatterAttributeEmbedding,MatterAttribute
+"Item Number: RMT-108",identifier,MatterAttributeEmbedding,MatterAttribute
+"Lot ID: BPL-109",identifier,MatterAttributeEmbedding,MatterAttribute
+"Catalog No: PHC-110",identifier,MatterAttributeEmbedding,MatterAttribute
+"Production Lot: FBR-211",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Code: ELS-212",batch number,MatterAttributeEmbedding,MatterAttribute
+"Series Mark: FMM-213",batch number,MatterAttributeEmbedding,MatterAttribute
+"Lot Series: CQD-214",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Label: SMP-215",batch number,MatterAttributeEmbedding,MatterAttribute
+"Run ID: CMP-311",identifier,MatterAttributeEmbedding,MatterAttribute
+"Lot Code: OXD-312",batch number,MatterAttributeEmbedding,MatterAttribute
+"Production Series: SST-313",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Number: EPR-314",batch number,MatterAttributeEmbedding,MatterAttribute
+"Lot Reference: AMM-315",batch number,MatterAttributeEmbedding,MatterAttribute
+"Membrane: memMat,"name,MatterAttributeEmbedding,MatterAttribute
+"Gas Diffusion Layer: GDL",name,MatterAttributeEmbedding,MatterAttribute
+"Electrode: eleMat",name,MatterAttributeEmbedding,MatterAttribute

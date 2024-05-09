@@ -71,7 +71,6 @@ class EmbeddingGenerator:
                     label_node.label.connect(embedding_node)
 
             except Exception as e:
-                print(f"Error during node processing: {e}")
                 continue
 
 
@@ -95,7 +94,7 @@ if __name__ == "__main__":
     directory = "./NodeAttributeExtraction/embedding_inputs/"
     #iterate over all csv files
     for file in os.listdir(directory):
-        if file.endswith("matter_inputs.csv"):
+        if file.endswith("matter_attribute_inputs.csv"):
             print(file)
             generator = EmbeddingGenerator(directory+file)
             df = generator.parse_data()

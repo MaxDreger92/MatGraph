@@ -1,100 +1,36 @@
-thermal conductivity,name,PropertyAttributeEmbedding,PropertyAttribute
-thermal conductivity value,value,PropertyAttributeEmbedding,PropertyAttribute
-thermal conductivity error,error,PropertyAttributeEmbedding,PropertyAttribute
-thermal conductivity unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-thermal conductivity std,std,PropertyAttributeEmbedding,PropertyAttribute
-electrical resistivity,name,PropertyAttributeEmbedding,PropertyAttribute
-electrical resistivity value,value,PropertyAttributeEmbedding,PropertyAttribute
-electrical resistivity error,error,PropertyAttributeEmbedding,PropertyAttribute
-electrical resistivity unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-electrical resistivity std,std,PropertyAttributeEmbedding,PropertyAttribute
-tensile strength,name,PropertyAttributeEmbedding,PropertyAttribute
-tensile strength value,value,PropertyAttributeEmbedding,PropertyAttribute
-tensile strength error,error,PropertyAttributeEmbedding,PropertyAttribute
-tensile strength unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-tensile strength std,std,PropertyAttributeEmbedding,PropertyAttribute
-corrosion rate,name,PropertyAttributeEmbedding,PropertyAttribute
-corrosion rate value,value,PropertyAttributeEmbedding,PropertyAttribute
-corrosion rate error,error,PropertyAttributeEmbedding,PropertyAttribute
-corrosion rate unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-corrosion rate std,std,PropertyAttributeEmbedding,PropertyAttribute
-flexural modulus,name,PropertyAttributeEmbedding,PropertyAttribute
-flexural modulus value,value,PropertyAttributeEmbedding,PropertyAttribute
-flexural modulus error,error,PropertyAttributeEmbedding,PropertyAttribute
-flexural modulus unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-flexural modulus std,std,PropertyAttributeEmbedding,PropertyAttribute
-impact resistance,name,PropertyAttributeEmbedding,PropertyAttribute
-impact resistance value,value,PropertyAttributeEmbedding,PropertyAttribute
-impact resistance error,error,PropertyAttributeEmbedding,PropertyAttribute
-impact resistance unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-impact resistance std,std,PropertyAttributeEmbedding,PropertyAttribute
-dielectric strength,name,PropertyAttributeEmbedding,PropertyAttribute
-dielectric strength value,value,PropertyAttributeEmbedding,PropertyAttribute
-dielectric strength error,error,PropertyAttributeEmbedding,PropertyAttribute
-dielectric strength unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-dielectric strength std,std,PropertyAttributeEmbedding,PropertyAttribute
-hardness,name,PropertyAttributeEmbedding,PropertyAttribute
-hardness value,value,PropertyAttributeEmbedding,PropertyAttribute
-hardness error,error,PropertyAttributeEmbedding,PropertyAttribute
-hardness unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-hardness std,std,PropertyAttributeEmbedding,PropertyAttribute
-moisture sensitivity,name,PropertyAttributeEmbedding,PropertyAttribute
-moisture sensitivity value,value,PropertyAttributeEmbedding,PropertyAttribute
-moisture sensitivity error,error,PropertyAttributeEmbedding,PropertyAttribute
-moisture sensitivity unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-moisture sensitivity std,std,PropertyAttributeEmbedding,PropertyAttribute
-optical transparency,name,PropertyAttributeEmbedding,PropertyAttribute
-optical transparency value,value,PropertyAttributeEmbedding,PropertyAttribute
-optical transparency error,error,PropertyAttributeEmbedding,PropertyAttribute
-optical transparency unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-optical transparency std,std,PropertyAttributeEmbedding,PropertyAttribute
-viscosity,name,PropertyAttributeEmbedding,PropertyAttribute
-viscosity value,value,PropertyAttributeEmbedding,PropertyAttribute
-viscosity error,error,PropertyAttributeEmbedding,PropertyAttribute
-viscosity unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-viscosity std,std,PropertyAttributeEmbedding,PropertyAttribute
-melting point,name,PropertyAttributeEmbedding,PropertyAttribute
-melting point value,value,PropertyAttributeEmbedding,PropertyAttribute
-melting point error,error,PropertyAttributeEmbedding,PropertyAttribute
-melting point unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-melting point std,std,PropertyAttributeEmbedding,PropertyAttribute
-thermal expansion,name,PropertyAttributeEmbedding,PropertyAttribute
-thermal expansion value,value,PropertyAttributeEmbedding,PropertyAttribute
-thermal expansion error,error,PropertyAttributeEmbedding,PropertyAttribute
-thermal expansion unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-thermal expansion std,std,PropertyAttributeEmbedding,PropertyAttribute
-acoustic impedance,name,PropertyAttributeEmbedding,PropertyAttribute
-acoustic impedance value,value,PropertyAttributeEmbedding,PropertyAttribute
-acoustic impedance error,error,PropertyAttributeEmbedding,PropertyAttribute
-acoustic impedance unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-acoustic impedance std,std,PropertyAttributeEmbedding,PropertyAttribute
-permeability,name,PropertyAttributeEmbedding,PropertyAttribute
-permeability value,value,PropertyAttributeEmbedding,PropertyAttribute
-permeability error,error,PropertyAttributeEmbedding,PropertyAttribute
-permeability unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-permeability std,std,PropertyAttributeEmbedding,PropertyAttribute
-chemical stability,name,PropertyAttributeEmbedding,PropertyAttribute
-chemical stability value,value,PropertyAttributeEmbedding,PropertyAttribute
-chemical stability error,error,PropertyAttributeEmbedding,PropertyAttribute
-chemical stability unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-chemical stability std,std,PropertyAttributeEmbedding,PropertyAttribute
-biocompatibility,name,PropertyAttributeEmbedding,PropertyAttribute
-biocompatibility value,value,PropertyAttributeEmbedding,PropertyAttribute
-biocompatibility error,error,PropertyAttributeEmbedding,PropertyAttribute
-biocompatibility unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-biocompatibility std,std,PropertyAttributeEmbedding,PropertyAttribute
-radiation resistance,name,PropertyAttributeEmbedding,PropertyAttribute
-radiation resistance value,value,PropertyAttributeEmbedding,PropertyAttribute
-radiation resistance error,error,PropertyAttributeEmbedding,PropertyAttribute
-radiation resistance unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-radiation resistance std,std,PropertyAttributeEmbedding,PropertyAttribute
-electrical insulation,name,PropertyAttributeEmbedding,PropertyAttribute
-electrical insulation value,value,PropertyAttributeEmbedding,PropertyAttribute
-electrical insulation error,error,PropertyAttributeEmbedding,PropertyAttribute
-electrical insulation unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-electrical insulation std,std,PropertyAttributeEmbedding,PropertyAttribute
-fatigue resistance,name,PropertyAttributeEmbedding,PropertyAttribute
-fatigue resistance value,value,PropertyAttributeEmbedding,PropertyAttribute
-fatigue resistance error,error,PropertyAttributeEmbedding,PropertyAttribute
-fatigue resistance unit,unit,PropertyAttributeEmbedding,PropertyAttribute
-fatigue resistance std,std,PropertyAttributeEmbedding,PropertyAttribute
+"Resistance Measure (Ohms)": "200",value,PropertyAttributeEmbedding,PropertyAttribute
+"Tensile Strength (MPa)": "350",value,PropertyAttributeEmbedding,PropertyAttribute
+"Thermal Conductivity (W/mK)": "0.25",value,PropertyAttributeEmbedding,PropertyAttribute
+"Moisture Sensitivity (g/m2)": "0.02",value,PropertyAttributeEmbedding,PropertyAttribute
+"Corrosion Rate (mm/year)": "0.3",value,PropertyAttributeEmbedding,PropertyAttribute
+"Optical Transparency (%)": "85",value,PropertyAttributeEmbedding,PropertyAttribute
+"Magnetic Susceptibility (SI units)": "1.2",value,PropertyAttributeEmbedding,PropertyAttribute
+"Elastic Modulus (GPa)": "100",value,PropertyAttributeEmbedding,PropertyAttribute
+"Dielectric Strength (MV/m)": "14",value,PropertyAttributeEmbedding,PropertyAttribute
+"Hardness (Mohs)": "7",value,PropertyAttributeEmbedding,PropertyAttribute
+"Resistance Error (Ohms)": "±10",error,PropertyAttributeEmbedding,PropertyAttribute
+"Tensile Error (MPa)": "±5",error,PropertyAttributeEmbedding,PropertyAttribute
+"Conductivity Error (W/mK)": "±0.02",error,PropertyAttributeEmbedding,PropertyAttribute
+"Moisture Error (g/m2)": "±0.001",error,PropertyAttributeEmbedding,PropertyAttribute
+"Corrosion Error (mm/year)": "±0.05",error,PropertyAttributeEmbedding,PropertyAttribute
+"Transparency Error (%)": "±2",error,PropertyAttributeEmbedding,PropertyAttribute
+"Magnetic Error (SI units)": "±0.1",error,PropertyAttributeEmbedding,PropertyAttribute
+"Elastic Error (GPa)": "±2",error,PropertyAttributeEmbedding,PropertyAttribute
+"Dielectric Error (MV/m)": "±1",error,PropertyAttributeEmbedding,PropertyAttribute
+"Hardness Error (Mohs)": "±0.5",error,PropertyAttributeEmbedding,PropertyAttribute
+"Resistance standard deviation(Ohms)": "5",std,PropertyAttributeEmbedding,PropertyAttribute
+"Strength standard deviation(MPa)": "3",std,PropertyAttributeEmbedding,PropertyAttribute
+"Conductivity standard deviation(W/mK)": "0.01",std,PropertyAttributeEmbedding,PropertyAttribute
+"Moisture standard deviation(g/m2)": "0.0005",std,PropertyAttributeEmbedding,PropertyAttribute
+"Corrosion standard deviation(mm/year)": "0.02",std,PropertyAttributeEmbedding,PropertyAttribute
+"Transparency standard deviation(%)": "1",std,PropertyAttributeEmbedding,PropertyAttribute
+"Magnetic standard deviation(SI units)": "0.05",std,PropertyAttributeEmbedding,PropertyAttribute
+"Elastic standard deviation(GPa)": "1",std,PropertyAttributeEmbedding,PropertyAttribute
+"Dielectric standard deviation(MV/m)": "0.5",std,PropertyAttributeEmbedding,PropertyAttribute
+"Hardness standard deviation(Mohs)": "0.2",std,PropertyAttributeEmbedding,PropertyAttribute
+"Target Property": "Resistance Measure (Ohms)",name,PropertyAttributeEmbedding,PropertyAttribute
+"Property" : "Performanec",name,PropertyAttributeEmbedding,PropertyAttribute
+"Property" : "Resistance Measure",name,PropertyAttributeEmbedding,PropertyAttribute
+"Property" : "Tensile Strength (MPa)",name,PropertyAttributeEmbedding,PropertyAttribute
+"Metric" : "Activity",name,PropertyAttributeEmbedding,PropertyAttribute
+"Metric" : "Performance",name,PropertyAttributeEmbedding,PropertyAttribute

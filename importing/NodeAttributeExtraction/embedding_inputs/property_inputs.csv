@@ -59,5 +59,7 @@ chemical volume%,Property,NodeLabelEmbedding,NodeLabel
 chemical concentration,Property,NodeLabelEmbedding,NodeLabel
 chemical ratio,Property,NodeLabelEmbedding,NodeLabel
 polarization,Property,NodeLabelEmbedding,NodeLabel
+hot polarization,Property,NodeLabelEmbedding,NodeLabel
+noc polarization,Property,NodeLabelEmbedding,NodeLabel
 cell polarization,Property,NodeLabelEmbedding,NodeLabel
 Equivalent weight,Property,NodeLabelEmbedding,NodeLabel

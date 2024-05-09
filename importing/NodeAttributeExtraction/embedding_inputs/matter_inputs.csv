@@ -16,7 +16,6 @@ material function,Matter,NodeLabelEmbedding,NodeLabel
 educt material,Matter,NodeLabelEmbedding,NodeLabel
 product,Matter,NodeLabelEmbedding,NodeLabel
 chemical formula,Matter,NodeLabelEmbedding,NodeLabel
-catalyst,Matter,NodeLabelEmbedding,NodeLabel
 solvent,Matter,NodeLabelEmbedding,NodeLabel
 donor,Matter,NodeLabelEmbedding,NodeLabel
 acceptor,Matter,NodeLabelEmbedding,NodeLabel
@@ -40,7 +39,7 @@ Electrode,Matter,NodeLabelEmbedding,NodeLabel
 Membrane,Matter,NodeLabelEmbedding,NodeLabel
 Insulator,Matter,NodeLabelEmbedding,NodeLabel
 Semiconductor,Matter,NodeLabelEmbedding,NodeLabel
-Superconductor,Matter,NodeLabelEmbedding,NodeLabel
+spacegroup,Matter,NodeLabelEmbedding,NodeLabel
 Metal,Matter,NodeLabelEmbedding,NodeLabel
 Alloy,Matter,NodeLabelEmbedding,NodeLabel
 Ceramic,Matter,NodeLabelEmbedding,NodeLabel
@@ -56,3 +55,7 @@ material crystal system,Matter,NodeLabelEmbedding,NodeLabel
 chrystal spacegroup,Matter,NodeLabelEmbedding,NodeLabel
 membrane electrode assembly,Matter,NodeLabelEmbedding,NodeLabel
 gas diffusion layer,Matter,NodeLabelEmbedding,NodeLabel
+MEA,Matter,NodeLabelEmbedding,NodeLabel
+GDL,Matter,NodeLabelEmbedding,NodeLabel
+membrane electrode assembly (MEA),Matter,NodeLabelEmbedding,NodeLabel
+gas diffusion layer (GDL),Matter,NodeLabelEmbedding,NodeLabel

@@ -1,31 +1,28 @@
 manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
-manufacturing process,Manufacturing,NodeLabelEmbedding,NodeLabel
 material manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
 component manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
 device manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
 material process,Manufacturing,NodeLabelEmbedding,NodeLabel
 component process,Manufacturing,NodeLabelEmbedding,NodeLabel
-device process,Manufacturing,NodeLabelEmbedding,NodeLabel
 material change,Manufacturing,NodeLabelEmbedding,NodeLabel
-component change,Manufacturing,NodeLabelEmbedding,NodeLabel
 device change,Manufacturing,NodeLabelEmbedding,NodeLabel
 material conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
 component conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
 device conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
 material synthesis,Manufacturing,NodeLabelEmbedding,NodeLabel
 nanomaterial production,Manufacturing,NodeLabelEmbedding,NodeLabel
-biomaterial fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 composite manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
-polymer extrusion,Manufacturing,NodeLabelEmbedding,NodeLabel
 ceramic processing,Manufacturing,NodeLabelEmbedding,NodeLabel
 metallurgical processing,Manufacturing,NodeLabelEmbedding,NodeLabel
 material deposition,Manufacturing,NodeLabelEmbedding,NodeLabel
-3D printing of materials,Manufacturing,NodeLabelEmbedding,NodeLabel
 coating and surface engineering,Manufacturing,NodeLabelEmbedding,NodeLabel
 powder metallurgy,Manufacturing,NodeLabelEmbedding,NodeLabel
 material extrusion,Manufacturing,NodeLabelEmbedding,NodeLabel
-fiber spinning,Manufacturing,NodeLabelEmbedding,NodeLabel
-material molding,Manufacturing,NodeLabelEmbedding,NodeLabel
+component assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
+material fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
+ink formulation,Manufacturing,NodeLabelEmbedding,NodeLabel
+ink fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
+MEA fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 electrospinning,Manufacturing,NodeLabelEmbedding,NodeLabel
 battery electrode fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 solar cell manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
@@ -33,7 +30,6 @@ fuel cell assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
 energy storage device production,Manufacturing,NodeLabelEmbedding,NodeLabel
 thermoelectric material synthesis,Manufacturing,NodeLabelEmbedding,NodeLabel
 hydrogen storage system fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
-supercapacitor manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
 photovoltaic module assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
 energy material coating,Manufacturing,NodeLabelEmbedding,NodeLabel
 piezoelectric material processing,Manufacturing,NodeLabelEmbedding,NodeLabel

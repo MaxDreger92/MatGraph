@@ -48,7 +48,7 @@ class NodeClassifier(TableDataTransformer):
 
 
 
-    def analyze_results(self, results):
+    def analyze_results(self, results, **kwargs):
         """
         Analyze the results to find the most occurring name and calculate its ratio to the total number of names.
 
@@ -58,7 +58,7 @@ class NodeClassifier(TableDataTransformer):
         Returns:
             tuple: A tuple containing the most occurring name and its ratio to the total number of names.
         """
-
+        results = results[0:6]
         if results[0][1] > 0.95:
             final_result = results[0][0]
             print(results[0][3], final_result.name)
@@ -76,9 +76,12 @@ class NodeClassifier(TableDataTransformer):
         unit_present = (len(parser.parse(cell_value)) > 0)
         # Check specifically if both numbers and units are found
 
-        if number_present or unit_present:
+        if number_present:
             print(results[0][3], "Number or unit are found.")
             names =[*names, "Property", "Parameter"]
+        if unit_present:
+            print(results[0][3], "Unit is found.")
+            names = [*names, "Property", "Parameter"]
             # Count each name's occurrence
         name_counts = Counter(names)
         # Find the most common name and the number of times it appears
@@ -117,29 +120,9 @@ class NodeClassifier(TableDataTransformer):
             return False
 
 
-    # def check_if_abbreviation(self, header):
-    #     # Assuming 'kwargs' contains a dictionary with a key 'element',
-    #     # and 'element' is a dictionary with a key 'header' which is a string.
-    #
-    #     # Regular Expression to match abbreviations
-    #     abbreviation_pattern = re.compile(r'^[\w\d%°Ω()\/\-\+.\s]+(A/cm²|V|RH|C)?$', re.IGNORECASE)
-    #
-    #     # Check if the header matches the abbreviation pattern
-    #     if abbreviation_pattern.match(header):
-    #         return True
-    #     else:
-    #         return False
 
-    def handle_units(self, index, element):
-        """
-        Handle units in the data.
-        """
-        query = (f"Context: \"{self.context}\".\n"
-                 f"Header: of the \"{element['header']}\" \n"
-                 f"""Rows: {", ".join(element['column_values'][:4])} \n""")
-        result = chat_with_gpt4(setup_message= CLASSIFY_PROPERTY_PARAMETERS, prompt = query)
-        if result == "Parameter" or result == "Property":
-            self._update_with_chat(result = result, input_string = query, index = index, element = element)
+
+
 
 
     def _process(self, **kwargs):
@@ -150,8 +133,6 @@ class NodeClassifier(TableDataTransformer):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
             return
-        # elif self.contains_units(kwargs['element']['header'] + str(kwargs['element']['column_values'][0])):
-        #     self.handle_units(index = kwargs['index'], element = kwargs['element'])
         else:
             self._transform(index = kwargs['index'], element = kwargs['element'])
 

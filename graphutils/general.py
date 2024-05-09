@@ -166,7 +166,7 @@ class TableDataTransformer(ReportBuilder):
         """
         input_string = self._create_input_string(**kwargs)
         query_results = self._llm_request(input_string, **kwargs)
-        result = self.analyze_results(query_results)
+        result = self.analyze_results(query_results, **kwargs)
         self._update(result, input_string, **kwargs)
 
     def _update_with_cache(self, element, cached, **kwargs):
