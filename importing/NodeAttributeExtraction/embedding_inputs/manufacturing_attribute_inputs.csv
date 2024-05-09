@@ -1,45 +1,34 @@
 "Fabrication Method: Spin Coating",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Assembly Line: Battery Units",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Coating Technique: Atomic Layer Deposition",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
+"Component Assembly: Component Assembly",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
+"Component Fabrication: Component Fabrication",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Fabrication Type: Photovoltaic Cells",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Synthesis Protocol: Catalysts",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Production Strategy: Nanotubes",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Deposition Method: Chemical Vapor",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Tempering Steps: Annealing",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Sintering Specifications: Laser Precision",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Molding Operations: Compression",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Printing Details: 3D Metal",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Metalwork Procedure: Milling",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Casting Specs: Solvent Based",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Spinning Setup: Electro",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Material Handling: Roll Processing",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Forming Technique: Stamping",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Extruding Operations: Polymer",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Forging Schedule: Hot",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Drawing Parameters: Wire",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Cooling Regimen: Quenching",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Impregnating Process: Resin",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Calendering Procedure: High Tension",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Molding Cycle: Heat Compression",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Bonding Activity: Ultrasonic Fusion",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Cutting Operation: Precision Lasers",name,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Tag Number: 001SC",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Production ID: 002HP",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Setup Code: AD003",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Cell Line ID: 004PV",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Batch Key: 005CS",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Lot ID: NT006",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "System Ref: CVD007",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Sequence No: 008TM",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Unit Designation: LS009",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Module Code: MC010",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Device Stamp: 0113DP",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Operation Tag: MG012",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Spec Code: 013SB",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Station ID: 014FE",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Track Label: RP015",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Stamp No: MS016",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Extruder ID: PE017",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Forge Code: HF018",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Wire Number: DW019",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Quench Code: QN020",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
@@ -47,4 +36,3 @@
 "Roll Code: HT022",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Press Number: HC023",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
 "Link Key: FB024",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
-"Cutting Serial: PL025",identifier,ManufacturingAttributeEmbedding,ManufacturingAttribute
