@@ -1,0 +1,50 @@
+"Measurement Type: Voltage Level",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Category: Current Flow",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Detail: Resistance",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Area: Capacitance",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Aspect: Inductance",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Feature: Impedance",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Section: Conductivity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Factor: Thermal Efficiency",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Item: Optical Density",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Point: Acoustic Pressure",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Attribute: Humidity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Field: Temperature",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Aspect: Airflow",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Parameter: Viscosity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Characteristic: Light Intensity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Type: Magnetic Flux",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Factor: Particle Size",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Feature: pH Level",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Area: Radiation Levels",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Detail: Turbidity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Point: Stress Strain",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Category: Emission Spectrum",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Attribute: Chemical Concentration",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Section: Bioactivity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measurement Item: Toxicity",name,MeasurementAttributeEmbedding,MeasurementAttribute
+"Ref. Code: VLT-001",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Setup ID: CRF-002",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Sensor Tag: RST-003",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Instrument No.: CPN-004",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Device ID: IND-005",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"System Code: IMP-006",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Channel Label: CDN-007",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Unit ID: THE-008",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Module Serial: OPD-009",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Probe Code: ACP-010",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Sensor Number: HMD-011",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Detector ID: TMP-012",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Reader Tag: AFW-013",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Logger Ref.: VSC-014",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Transducer ID: LIT-015",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Analyzer Code: MGF-016",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Meter Setup: PSZ-017",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Calibrator No.: PLV-018",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Measure ID: RAD-019",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Inspect Code: TRB-020",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Scale ID: SST-021",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Recorder Serial: EMS-022",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Gauge Number: CHC-023",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Monitor Key: BIO-024",identifier,MeasurementAttributeEmbedding,MeasurementAttribute
+"Tester Tag: TXC-025",identifier,MeasurementAttributeEmbedding,MeasurementAttribute

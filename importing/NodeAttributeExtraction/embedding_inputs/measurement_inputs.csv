@@ -1,0 +1,56 @@
+measurement process,Measurement,NodeLabelEmbedding,NodeLabel
+measurement,Measurement,NodeLabelEmbedding,NodeLabel
+measurement identification,Measurement,NodeLabelEmbedding,NodeLabel
+measurement id,Measurement,NodeLabelEmbedding,NodeLabel
+measurement type,Measurement,NodeLabelEmbedding,NodeLabel
+measurement technique,Measurement,NodeLabelEmbedding,NodeLabel
+measurement method,Measurement,NodeLabelEmbedding,NodeLabel
+measurement approach,Measurement,NodeLabelEmbedding,NodeLabel
+measurement procedure,Measurement,NodeLabelEmbedding,NodeLabel
+spectral analysis,Measurement,NodeLabelEmbedding,NodeLabel
+atomic force microscopy (AFM),Measurement,NodeLabelEmbedding,NodeLabel
+laser scanning,Measurement,NodeLabelEmbedding,NodeLabel
+capacitance measurement,Measurement,NodeLabelEmbedding,NodeLabel
+inductance measurement,Measurement,NodeLabelEmbedding,NodeLabel
+resistivity profiling,Measurement,NodeLabelEmbedding,NodeLabel
+gas adsorption,Measurement,NodeLabelEmbedding,NodeLabel
+powder X-ray diffraction,Measurement,NodeLabelEmbedding,NodeLabel
+Hall effect measurement,Measurement,NodeLabelEmbedding,NodeLabel
+neutron diffraction,Measurement,NodeLabelEmbedding,NodeLabel
+Raman spectroscopy,Measurement,NodeLabelEmbedding,NodeLabel
+material characterization,Measurement,NodeLabelEmbedding,NodeLabel
+thermal characterization,Measurement,NodeLabelEmbedding,NodeLabel
+chemical characterization,Measurement,NodeLabelEmbedding,NodeLabel
+physical characterization,Measurement,NodeLabelEmbedding,NodeLabel
+structural characterization,Measurement,NodeLabelEmbedding,NodeLabel
+performance evaluation,Measurement,NodeLabelEmbedding,NodeLabel
+reliability testing,Measurement,NodeLabelEmbedding,NodeLabel
+validation testing,Measurement,NodeLabelEmbedding,NodeLabel
+accuracy assessment,Measurement,NodeLabelEmbedding,NodeLabel
+precision evaluation,Measurement,NodeLabelEmbedding,NodeLabel
+efficiency testing,Measurement,NodeLabelEmbedding,NodeLabel
+surface analysis,Measurement,NodeLabelEmbedding,NodeLabel
+material inspection,Measurement,NodeLabelEmbedding,NodeLabel
+purity analysis,Measurement,NodeLabelEmbedding,NodeLabel
+grain size determination,Measurement,NodeLabelEmbedding,NodeLabel
+particle tracking,Measurement,NodeLabelEmbedding,NodeLabel
+solubility testing,Measurement,NodeLabelEmbedding,NodeLabel
+catalytic activity testing,Measurement,NodeLabelEmbedding,NodeLabel
+emission testing,Measurement,NodeLabelEmbedding,NodeLabel
+dissolution testing,Measurement,NodeLabelEmbedding,NodeLabel
+diffusion testing,Measurement,NodeLabelEmbedding,NodeLabel
+bulk density measurement,Measurement,NodeLabelEmbedding,NodeLabel
+microhardness testing,Measurement,NodeLabelEmbedding,NodeLabel
+film thickness measurement,Measurement,NodeLabelEmbedding,NodeLabel
+optical transmission measurement,Measurement,NodeLabelEmbedding,NodeLabel
+magnetic susceptibility testing,Measurement,NodeLabelEmbedding,NodeLabel
+electrochemical impedance spectroscopy,Measurement,NodeLabelEmbedding,NodeLabel
+dielectric constant measurement,Measurement,NodeLabelEmbedding,NodeLabel
+ferroelectric testing,Measurement,NodeLabelEmbedding,NodeLabel
+piezoelectric testing,Measurement,NodeLabelEmbedding,NodeLabel
+tribological testing,Measurement,NodeLabelEmbedding,NodeLabel
+fatigue life prediction,Measurement,NodeLabelEmbedding,NodeLabel
+friction coefficient determination,Measurement,NodeLabelEmbedding,NodeLabel
+corrosion inhibition evaluation,Measurement,NodeLabelEmbedding,NodeLabel
+bioactivity testing,Measurement,NodeLabelEmbedding,NodeLabel
+thermal expansion measurement,Measurement,NodeLabelEmbedding,NodeLabel

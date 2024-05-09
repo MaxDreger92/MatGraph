@@ -64,7 +64,7 @@ class LabelExtractView(APIView):
                                          file_name = file_name)
         node_classifier.run()
         node_classifier.results
-        node_labels = {element['header']: [element['1_label']] for element in node_classifier.results}
+        node_labels = {element['header']: [[element['1_label']], element['column_values'][0]] for element in node_classifier.results}
         return node_labels
     def store_file(self, file_obj):
         """Store the uploaded file and return the file record."""
@@ -105,7 +105,7 @@ class AttributeExtractView(APIView):
         })
 
     def prepare_data(self, labels):
-        input_data = [{'column_values': ['test'], 'header': key, '1_label': value['Label']} for key, value in labels.items()]
+        input_data = [{'column_values': value['Attribute'], 'header': key, '1_label': value['Label']} for key, value in labels.items()]
         for index, key in enumerate(input_data):
             key['index'] = index
         return input_data
@@ -121,6 +121,7 @@ class AttributeExtractView(APIView):
         _predicted_attributes = attribute_classifier.results
         attributes = {element['header']: {"Label": element["1_label"],
                                          "Attribute": element['1_attribute']} for element in _predicted_attributes}
+
         return attributes
 
 

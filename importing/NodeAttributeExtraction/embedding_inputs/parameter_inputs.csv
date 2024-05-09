@@ -1,0 +1,64 @@
+condition parameter,Parameter,NodeLabelEmbedding,NodeLabel
+process parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material condition,Parameter,NodeLabelEmbedding,NodeLabel
+material manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material process parameter,Parameter,NodeLabelEmbedding,NodeLabel
+component manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material manufacturing condition,Parameter,NodeLabelEmbedding,NodeLabel
+material process condition,Parameter,NodeLabelEmbedding,NodeLabel
+component manufacturing condition,Parameter,NodeLabelEmbedding,NodeLabel
+device manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+component measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+device measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+process condition,Parameter,NodeLabelEmbedding,NodeLabel
+process material parameter,Parameter,NodeLabelEmbedding,NodeLabel
+fabrication condition,Parameter,NodeLabelEmbedding,NodeLabel
+process quantity,Parameter,NodeLabelEmbedding,NodeLabel
+manufacturing quantity,Parameter,NodeLabelEmbedding,NodeLabel
+measurement quantity,Parameter,NodeLabelEmbedding,NodeLabel
+manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+temperature control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+humidity control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+pressure control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+speed control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+flow rate parameter,Parameter,NodeLabelEmbedding,NodeLabel
+voltage control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+current control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+time control parameter,Parameter,NodeLabelEmbedding,NodeLabel
+particle size parameter,Parameter,NodeLabelEmbedding,NodeLabel
+chemical concentration parameter,Parameter,NodeLabelEmbedding,NodeLabel
+curing time parameter,Parameter,NodeLabelEmbedding,NodeLabel
+annealing temperature parameter,Parameter,NodeLabelEmbedding,NodeLabel
+sintering pressure parameter,Parameter,NodeLabelEmbedding,NodeLabel
+cooling rate parameter,Parameter,NodeLabelEmbedding,NodeLabel
+layer thickness parameter,Parameter,NodeLabelEmbedding,NodeLabel
+energy input parameter,Parameter,NodeLabelEmbedding,NodeLabel
+gas flow parameter,Parameter,NodeLabelEmbedding,NodeLabel
+feed rate parameter,Parameter,NodeLabelEmbedding,NodeLabel
+tool wear parameter,Parameter,NodeLabelEmbedding,NodeLabel
+lubrication level parameter,Parameter,NodeLabelEmbedding,NodeLabel
+sealing condition parameter,Parameter,NodeLabelEmbedding,NodeLabel
+surface roughness parameter,Parameter,NodeLabelEmbedding,NodeLabel
+tolerance level parameter,Parameter,NodeLabelEmbedding,NodeLabel
+alignment accuracy parameter,Parameter,NodeLabelEmbedding,NodeLabel
+output quality parameter,Parameter,NodeLabelEmbedding,NodeLabel
+hardness parameter,Parameter,NodeLabelEmbedding,NodeLabel
+flexibility parameter,Parameter,NodeLabelEmbedding,NodeLabel
+viscosity parameter,Parameter,NodeLabelEmbedding,NodeLabel
+oxidation level parameter,Parameter,NodeLabelEmbedding,NodeLabel
+corrosion rate parameter,Parameter,NodeLabelEmbedding,NodeLabel
+thermal stability parameter,Parameter,NodeLabelEmbedding,NodeLabel
+electrical resistance parameter,Parameter,NodeLabelEmbedding,NodeLabel
+magnetic field strength parameter,Parameter,NodeLabelEmbedding,NodeLabel
+acoustic impedance parameter,Parameter,NodeLabelEmbedding,NodeLabel
+optical clarity parameter,Parameter,NodeLabelEmbedding,NodeLabel
+radiation exposure parameter,Parameter,NodeLabelEmbedding,NodeLabel
+biocompatibility parameter,Parameter,NodeLabelEmbedding,NodeLabel
+fatigue resistance parameter,Parameter,NodeLabelEmbedding,NodeLabel
+permeability parameter,Parameter,NodeLabelEmbedding,NodeLabel
+measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+duration,Parameter,NodeLabelEmbedding,NodeLabel
+temperature,Parameter,NodeLabelEmbedding,NodeLabel
+process duration,Parameter,NodeLabelEmbedding,NodeLabel
+exposure duration,Parameter,NodeLabelEmbedding,NodeLabel

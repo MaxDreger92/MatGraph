@@ -1,0 +1,60 @@
+material name,Matter,NodeLabelEmbedding,NodeLabel
+material name abbreviation,Matter,NodeLabelEmbedding,NodeLabel
+material composition,Matter,NodeLabelEmbedding,NodeLabel
+component name,Matter,NodeLabelEmbedding,NodeLabel
+component id,Matter,NodeLabelEmbedding,NodeLabel
+component type,Matter,NodeLabelEmbedding,NodeLabel
+device name,Matter,NodeLabelEmbedding,NodeLabel
+device id,Matter,NodeLabelEmbedding,NodeLabel
+device type,Matter,NodeLabelEmbedding,NodeLabel
+device composition,Matter,NodeLabelEmbedding,NodeLabel
+material,Matter,NodeLabelEmbedding,NodeLabel
+component,Matter,NodeLabelEmbedding,NodeLabel
+device,Matter,NodeLabelEmbedding,NodeLabel
+layer material,Matter,NodeLabelEmbedding,NodeLabel
+material function,Matter,NodeLabelEmbedding,NodeLabel
+educt material,Matter,NodeLabelEmbedding,NodeLabel
+product,Matter,NodeLabelEmbedding,NodeLabel
+chemical formula,Matter,NodeLabelEmbedding,NodeLabel
+solvent,Matter,NodeLabelEmbedding,NodeLabel
+donor,Matter,NodeLabelEmbedding,NodeLabel
+acceptor,Matter,NodeLabelEmbedding,NodeLabel
+alcohol,Matter,NodeLabelEmbedding,NodeLabel
+acid,Matter,NodeLabelEmbedding,NodeLabel
+base,Matter,NodeLabelEmbedding,NodeLabel
+identification matter,Matter,NodeLabelEmbedding,NodeLabel
+batch number matter,Matter,NodeLabelEmbedding,NodeLabel
+chemical batch number,Matter,NodeLabelEmbedding,NodeLabel
+chemical abbreviation,Matter,NodeLabelEmbedding,NodeLabel
+Fuel Cell,Matter,NodeLabelEmbedding,NodeLabel
+Solar Cell,Matter,NodeLabelEmbedding,NodeLabel
+Battery,Matter,NodeLabelEmbedding,NodeLabel
+Transistor,Matter,NodeLabelEmbedding,NodeLabel
+Diode,Matter,NodeLabelEmbedding,NodeLabel
+Resistor,Matter,NodeLabelEmbedding,NodeLabel
+Ionomer,Matter,NodeLabelEmbedding,NodeLabel
+Electrolyte,Matter,NodeLabelEmbedding,NodeLabel
+Catalyst,Matter,NodeLabelEmbedding,NodeLabel
+Electrode,Matter,NodeLabelEmbedding,NodeLabel
+Membrane,Matter,NodeLabelEmbedding,NodeLabel
+Insulator,Matter,NodeLabelEmbedding,NodeLabel
+Semiconductor,Matter,NodeLabelEmbedding,NodeLabel
+spacegroup,Matter,NodeLabelEmbedding,NodeLabel
+Metal,Matter,NodeLabelEmbedding,NodeLabel
+Alloy,Matter,NodeLabelEmbedding,NodeLabel
+Ceramic,Matter,NodeLabelEmbedding,NodeLabel
+Polymer,Matter,NodeLabelEmbedding,NodeLabel
+Composite,Matter,NodeLabelEmbedding,NodeLabel
+Nanomaterial,Matter,NodeLabelEmbedding,NodeLabel
+Nanoparticle,Matter,NodeLabelEmbedding,NodeLabel
+Nanotube,Matter,NodeLabelEmbedding,NodeLabel
+Nanowire,Matter,NodeLabelEmbedding,NodeLabel
+Quantum Dot,Matter,NodeLabelEmbedding,NodeLabel
+material spacegroup,Matter,NodeLabelEmbedding,NodeLabel
+material crystal system,Matter,NodeLabelEmbedding,NodeLabel
+chrystal spacegroup,Matter,NodeLabelEmbedding,NodeLabel
+membrane electrode assembly,Matter,NodeLabelEmbedding,NodeLabel
+gas diffusion layer,Matter,NodeLabelEmbedding,NodeLabel
+MEA,Matter,NodeLabelEmbedding,NodeLabel
+GDL,Matter,NodeLabelEmbedding,NodeLabel
+gas diffusion layer (GDL),Matter,NodeLabelEmbedding,NodeLabel

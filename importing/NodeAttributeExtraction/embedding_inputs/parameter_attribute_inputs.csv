@@ -1,0 +1,57 @@
+"Temperature Operating Range (°C)": "100-200",value,ParameterAttributeEmbedding,ParameterAttribute
+"Pressure Operating Level (bar)": "10",value,ParameterAttributeEmbedding,ParameterAttribute
+"Flow Rate (L/min)": "15",value,ParameterAttributeEmbedding,ParameterAttribute
+"Mixing Speed (rpm)": "500",value,ParameterAttributeEmbedding,ParameterAttribute
+"Heating Time (hours)": "2",value,ParameterAttributeEmbedding,ParameterAttribute
+"Cooling Rate (°C/min)": "5",value,ParameterAttributeEmbedding,ParameterAttribute
+"Voltage (V)": "220",value,ParameterAttributeEmbedding,ParameterAttribute
+"Current Output (A)": "5",value,ParameterAttributeEmbedding,ParameterAttribute
+"Reaction Time (seconds)": "3600",value,ParameterAttributeEmbedding,ParameterAttribute
+"Activation Energy (kJ/mol)": "42",value,ParameterAttributeEmbedding,ParameterAttribute
+"Temperature Error (°C)": "±2",error,ParameterAttributeEmbedding,ParameterAttribute
+"Pressure Error (bar)": "±0.5",error,ParameterAttributeEmbedding,ParameterAttribute
+"Flow Rate Error (L/min)": "±0.1",error,ParameterAttributeEmbedding,ParameterAttribute
+"Mixing Error (rpm)": "±10",error,ParameterAttributeEmbedding,ParameterAttribute
+"Heating Time Error (hours)": "±0.1",error,ParameterAttributeEmbedding,ParameterAttribute
+"Cooling Rate Error (°C/min)": "±0.2",error,ParameterAttributeEmbedding,ParameterAttribute
+"Voltage Error (V)": "±1",error,ParameterAttributeEmbedding,ParameterAttribute
+"Current Error (A)": "±0.05",error,ParameterAttributeEmbedding,ParameterAttribute
+"Reaction Time Error (seconds)": "±30",error,ParameterAttributeEmbedding,ParameterAttribute
+"Activation Energy Error (kJ/mol)": "±0.5",error,ParameterAttributeEmbedding,ParameterAttribute
+"Temperature standard deviation(°C)": "1",std,ParameterAttributeEmbedding,ParameterAttribute
+"Pressure standard deviation(bar)": "0.2",std,ParameterAttributeEmbedding,ParameterAttribute
+"Flow Rate standard deviation(L/min)": "0.05",std,ParameterAttributeEmbedding,ParameterAttribute
+"Mixing standard deviation(rpm)": "5",std,ParameterAttributeEmbedding,ParameterAttribute
+"Heating Time standard deviation(hours)": "0.05",std,ParameterAttributeEmbedding,ParameterAttribute
+"Cooling Rate standard deviation(°C/min)": "0.1",std,ParameterAttributeEmbedding,ParameterAttribute
+"Voltage standard deviation(V)": "0.5",std,ParameterAttributeEmbedding,ParameterAttribute
+"Current standard deviation(A)": "0.02",std,ParameterAttributeEmbedding,ParameterAttribute
+"Reaction Time standard deviation(seconds)": "15",std,ParameterAttributeEmbedding,ParameterAttribute
+"Activation Energy standard deviation(kJ/mol)": "0.2",std,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Temperature": "°C",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Pressure": "bar",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Flow Rate": "L/min",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Mixing Speed": "rpm",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Heating Time": "hours",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Cooling Rate": "°C/min",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Voltage": "V",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Current": "A",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Reaction Time": "seconds",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Unit of Activation Energy": "kJ/mol",unit,ParameterAttributeEmbedding,ParameterAttribute
+"Average Temperature (°C)": "150",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Pressure (bar)": "9.8",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Flow Rate (L/min)": "14.5",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Mixing Speed (rpm)": "495",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Heating Time (hours)": "1.95",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Cooling Rate (°C/min)": "4.9",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Voltage (V)": "218",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Current (A)": "4.98",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Reaction Time (seconds)": "3580",average,ParameterAttributeEmbedding,ParameterAttribute
+"Average Activation Energy (kJ/mol)": "41.8",average,ParameterAttributeEmbedding,ParameterAttribute
+"Processing Condition": "Temperature",name,ParameterAttributeEmbedding,ParameterAttribute
+"Processing Condition": "Pressure",name,ParameterAttributeEmbedding,ParameterAttribute
+"Processing Parameter": "Flow Rate",name,ParameterAttributeEmbedding,ParameterAttribute
+"Processing Parameter": "Mixing Speed",name,ParameterAttributeEmbedding,ParameterAttribute
+"Measurement Parameter": "Heating Time",name,ParameterAttributeEmbedding,ParameterAttribute
+"Measurement Parameter": "Cooling Rate",name,ParameterAttributeEmbedding,ParameterAttribute
+"Measurement Parameter": "Voltage",name,ParameterAttributeEmbedding,ParameterAttribute
