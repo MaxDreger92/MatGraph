@@ -408,7 +408,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 throw new Error('Error while importing graph!')
             }
 
-            toast.success(data.success)
+            toast.success('Data ingestion successful!')
         } catch (err: any) {
             toast.error(err.message)
         }
