@@ -405,7 +405,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             )
 
             if (!(data && data.success)) {
-                throw new Error('Error while extracting graph!')
+                throw new Error('Error while importing graph!')
             }
 
             toast.success(data.success)
