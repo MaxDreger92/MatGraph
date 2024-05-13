@@ -12,7 +12,7 @@ import WorkflowContext from './context/WorkflowContext'
 interface WorkflowTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
     setAttributeTable: React.Dispatch<React.SetStateAction<TableRow[]>>
-    setTableRows: (tableId: string, tableRows: TableRow[]) => void
+    setCurrentTableFn: (tableId: string, tableRows: TableRow[]) => void
     tableRows: TableRow[]
     progress: number
     currentTableId: string
@@ -38,7 +38,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const {
         setLabelTable,
         setAttributeTable,
-        setTableRows,
+        setCurrentTableFn,
         tableRows,
         progress,
         currentTableId,
@@ -220,7 +220,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
             setAttributeTable(updatedTableRows)
             tableId = 'attributeTable'
         }
-        setTableRows(tableId, updatedTableRows)
+        setCurrentTableFn(tableId, updatedTableRows)
     }
 
     const handleDragStart = (
@@ -310,7 +310,6 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     // Render your table
     return (
         <div
-            key={tableRows.length}
             ref={tableRef}
             className="workflow-table"
             tabIndex={0}
@@ -421,9 +420,8 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                 }}
             >
                 {rowVirtualizer.getVirtualItems().map((rowVirtual) => (
-                    <>
+                    <div key={rowVirtual.key}>
                         <div
-                            key={rowVirtual.key}
                             style={{
                                 position: 'absolute',
                                 top: `${rowVirtual.start}px`,
@@ -551,7 +549,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                         </div>
                                     )
                                 }
-                                return null // Or handle the undefined case appropriately
+                                return <div key={columnVirtual.key} /> // Or handle the undefined case appropriately
                             })}
                         </div>
                         {(tableActive === 1 || tableActive === 2) &&
@@ -571,23 +569,11 @@ export default function WorkflowTable(props: WorkflowTableProps) {
                                         pointerEvents: 'none',
                                     }}
                                 />
-                            )}
-                    </>
+                            )
+                        }
+                    </div>
                 ))}
             </div>
-
-            {/* Shadow */}
-            {/* <div
-				style={{
-					position: "fixed",
-					width: `calc(100% - 22px)`,
-					height: tableRect ? `${tableRect.height}px` : "100%",
-					boxShadow: "inset 0px 0px 4px rgba(0, 0, 0, 0.3)",
-					zIndex: 3,
-					pointerEvents: "none",
-					// backgroundColor: "rgba(240,100,0,0.5)",
-				}}
-			/> */}
         </div>
     )
 }

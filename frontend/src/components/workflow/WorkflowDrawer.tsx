@@ -755,7 +755,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                                     <WorkflowTable
                                         setLabelTable={setLabelTable}
                                         setAttributeTable={setAttributeTable}
-                                        setTableRows={setCurrentTableFn}
+                                        setCurrentTableFn={setCurrentTableFn}
                                         tableRows={currentTable}
                                         progress={progress}
                                         currentTableId={currentTableId}
