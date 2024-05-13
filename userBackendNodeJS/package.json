@@ -1,22 +1,22 @@
 {
-  "name": "reactgraphai",
+  "name": "matgraph-user-db",
   "version": "1.0.0",
-  "description": "backend to reactGraphAI",
+  "description": "backend to matgraph",
+  "homepage": "https://matgraph.xyz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaxDreger92/MatGraph.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node build/server.js",
     "build": "tsc"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/thiloschenkelberg/reactGraphAI.git"
-  },
   "author": "thiloschenkelberg",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/thiloschenkelberg/reactGraphAI/issues"
+    "email": "matgraph.xyz@gmail.com"
   },
-  "homepage": "https://github.com/thiloschenkelberg/reactGraphAI#readme",
   "dependencies": {
     "axios": "^1.5.1",
     "bcrypt": "^5.1.0",
