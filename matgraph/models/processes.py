@@ -89,3 +89,40 @@ class Measurement(Process):
     device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MEASUREMENT_INPUT",
                                     model=IsMeasurementInputRel, cardinality=ZeroOrMore)
 
+
+class Simulation(Process):
+    """
+    Class representing measurement processes in the knowledge graph.
+    """
+    def __str__(self):
+        return "Simulation " + self.uid
+    property_output = RelationshipTo('matgraph.models.properties.Property', "HAS_SIMULATION_OUTPUT",
+                                         model=HasMeasurementOutputRel, cardinality=OneOrMore)
+    file_output = RelationshipTo('matgraph.models.metadata.File', "HAS_FILE_OUTPUT",
+                                 model=HasFileOutputRel, cardinality=ZeroOrMore)
+    file_input = RelationshipFrom('matgraph.models.metadata.File', "HAS_FILE_INPUT",
+                                 model=HasFileOutputRel, cardinality=ZeroOrMore)
+
+    material_input = RelationshipFrom('matgraph.models.matter.Material', 'IS_MEASUREMENT_INPUT',
+                                      model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+    molecule_input = RelationshipFrom('matgraph.models.matter.Molecule', "IS_MEASUREMENT_INPUT",
+                                      model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+    component_input = RelationshipFrom('matgraph.models.matter.Component', "IS_MEASUREMENT_INPUT",
+                                       model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+    device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MEASUREMENT_INPUT",
+                                    model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+
+class DataProcessing(Process):
+    """
+    Class representing measurement processes in the knowledge graph.
+    """
+    def __str__(self):
+        return "DataProcessing " + self.uid
+
+    is_a = None
+    property_output = RelationshipTo('matgraph.models.properties.Property', "HAS_SIMULATION_OUTPUT",
+                                     model=HasMeasurementOutputRel, cardinality=OneOrMore)
+    file_output = RelationshipTo('matgraph.models.metadata.File', "HAS_FILE_OUTPUT",
+                                 model=HasFileOutputRel, cardinality=ZeroOrMore)
+    file_input = RelationshipFrom('matgraph.models.metadata.File', "HAS_FILE_INPUT",
+                                  model=HasFileOutputRel, cardinality=ZeroOrMore)

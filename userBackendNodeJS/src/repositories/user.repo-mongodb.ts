@@ -1,9 +1,5 @@
 import { MongoClient, ObjectId } from "mongodb"
-import dotenv from "dotenv"
-
 import {MDB_IUser as IUser} from "../types/user.type"
-
-dotenv.config()
 
 const url = process.env.MONGODB_URI as string
 const client = new MongoClient(url)
@@ -51,9 +47,19 @@ class UserRepository {
       roles: [],
       institution: "",
       imgurl: "",
+      verified: false,
     }
     const result = await collection.insertOne(newUser)
     return result.insertedId
+  }
+
+  static async verify(username: string) {
+    const collection = await this.connect()
+    const result = await collection.updateOne(
+        { username: username },
+        { $set: { verified: true } }
+    )
+    return result.modifiedCount > 0
   }
 
   static async delete(id: string) {

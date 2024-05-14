@@ -1,6 +1,6 @@
 MATTER_MANUFACTURING_EXAMPLES = [
     {
-        'input': {
+        'input':
             """    
 Context: FuelCell Fabrication                            
 matter: [
@@ -17,7 +17,7 @@ manufacturing: [
     {'node_id': '22', 'label': 'manufacturing', 'attributes': {'name': ['Dry Milling']}},
     {'node_id': '24', 'label': 'manufacturing', 'attributes': {'name': ['CatalysInkManufacturing']}}
 ]"""
-        },
+        ,
         'output': """{
   "output": [
     {

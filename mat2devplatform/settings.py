@@ -11,14 +11,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-from decouple import Csv, config
+from decouple import config
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -35,7 +35,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 GITHUB_WEBHOOK_SECRET = config(os.getenv('GITHUB_WEBHOOK_SECRET'), default='')
 
 
-ALLOWED_HOSTS = ["134.94.199.247", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["134.94.199.168", "127.0.0.1", "localhost", "matgraph.xyz"]
 
 #Openai API Key
 
@@ -46,7 +46,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '../debug.log',
+            'filename': './debug.log',
         },
     },
     'root': {
@@ -86,7 +86,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'dal',
     'dal_select2',
-    'rest_framework'
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'
@@ -113,6 +113,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -199,13 +200,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'mat2devplatform/static')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/build'),
     os.path.join(BASE_DIR, 'matching/static'),
     ]
-print(STATICFILES_DIRS)
 # Media Files
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'

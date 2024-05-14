@@ -13,7 +13,7 @@
 //   localStorage.setItem("viewSplitViewWidth", JSON.stringify(splitViewWidth))
 // }, [splitView, splitViewWidth])
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { useMantineColorScheme } from '@mantine/core'
 
@@ -28,6 +28,9 @@ import toast from 'react-hot-toast'
 import client from '../../client'
 import { IWorkflow } from '../../types/workflow.types'
 import WorkflowContext from './context/WorkflowContext'
+import _ from 'lodash'
+import { UserContext } from '../../common/UserContext'
+import WorkflowDrawerHandle from './WorkflowDrawerHandle'
 
 const undoSteps = 200
 
@@ -36,13 +39,16 @@ interface WorkflowProps {
 }
 
 export default function Workflow(props: WorkflowProps) {
+    const user = useContext(UserContext)
     const { uploadMode } = props
     const [nodes, setNodes] = useState<INode[]>([])
     const [relationships, setRelationships] = useState<IRelationship[]>([])
     const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
     const [nodeEditing, setNodeEditing] = useState(false)
-
+    let setWorkflowRef: React.MutableRefObject<
+        _.DebouncedFunc<(nodes: INode[], relationships: IRelationship[]) => void> | undefined
+    > = React.useRef()
     const nodesFn = {
         nodes,
         setNodes,
@@ -52,7 +58,7 @@ export default function Workflow(props: WorkflowProps) {
         setSelectedNodes,
         highlightedNodeIds,
         nodeEditing,
-        setNodeEditing
+        setNodeEditing,
     }
 
     const [workflow, setWorkflow] = useState<string | null>(null)
@@ -85,20 +91,34 @@ export default function Workflow(props: WorkflowProps) {
     const [historyViewWidth, setHistoryViewWidth] = useState(0)
     const [tableView, setTableView] = useState(false)
     const [tableViewHeight, setTableViewHeight] = useState(0)
+    const drawerHandleActiveRef = useRef(false)
 
     const [progress, setProgress] = useState<number>(0)
 
     // WORKFLOW STUFF ########################################################
 
     // set current workflow (and show in json viewer)
+    if (!setWorkflowRef.current) {
+        setWorkflowRef.current = _.throttle(
+            (nodes: INode[], relationships: IRelationship[]) => {
+                setWorkflow(convertToJSONFormat(nodes, relationships, true))
+            },
+            1000,
+            { trailing: true }
+        ) // Trailing: true ensures the last call in a trailing edge is executed
+    }
+
     useEffect(() => {
-        setWorkflow(convertToJSONFormat(nodes, relationships, true))
+        if (setWorkflowRef.current) {
+            setWorkflowRef.current(nodes, relationships)
+        }
     }, [nodes, relationships])
 
     // fetch workflows
     useEffect(() => {
+        if (!user) return
         fetchWorkflows()
-    }, [])
+    }, [user])
 
     async function saveWorkflow() {
         const workflow = convertToJSONFormat(nodes, relationships, true)
@@ -176,14 +196,14 @@ export default function Workflow(props: WorkflowProps) {
     useEffect(() => {
         if (workflowWindowRect) {
             const width = workflowWindowRect.width - jsonViewWidth - historyViewWidth
-            const height = workflowWindowRect.height - tableViewHeight
+            const height = workflowWindowRect.height - (tableView ? tableViewHeight : 0)
 
             setCanvasRect(new DOMRect(historyViewWidth, workflowWindowRect.top, width, height))
 
             // setCanvasWidth(width)
             // setCanvasHeight(height)
         }
-    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight])
+    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight, tableView])
 
     // Resize Observer for workflow window
     useEffect(() => {
@@ -224,12 +244,16 @@ export default function Workflow(props: WorkflowProps) {
                 setHistoryView(!historyView)
                 break
             case 'table':
-                if (tableView) {
-                    setTableViewHeight(0)
-                } else {
+                // if (tableView) {
+                //     setTableViewHeight(0)
+                // } else {
+                //     setTableViewHeight(400)
+                // }
+                if (!tableView && tableViewHeight === 0) {
                     setTableViewHeight(400)
                 }
                 setTableView(!tableView)
+
                 break
             default:
                 break
@@ -246,12 +270,12 @@ export default function Workflow(props: WorkflowProps) {
     const springProps = useSpring({
         jsonViewWidth: jsonViewWidth,
         historyViewWidth: historyViewWidth,
-        tableViewHeight: tableViewHeight,
+        tableViewHeight: tableView ? tableViewHeight : 0,
         canvasWidth: canvasRect.width,
         canvasHeight: canvasRect.height,
         config: {
-            tension: 1000,
-            friction: 100,
+            tension: 300,
+            friction: 30,
         },
     })
 
@@ -263,13 +287,13 @@ export default function Workflow(props: WorkflowProps) {
         let savedNodes: any = null
         let savedRelationships: any = null
         if (uploadMode) {
-            localStorage.setItem('search-nodes', JSON.stringify(nodes));
-            localStorage.setItem('search-relationships', JSON.stringify(relationships));
+            localStorage.setItem('search-nodes', JSON.stringify(nodes))
+            localStorage.setItem('search-relationships', JSON.stringify(relationships))
             savedNodes = localStorage.getItem('upload-nodes')
             savedRelationships = localStorage.getItem('upload-relationships')
         } else {
-            localStorage.setItem('upload-nodes', JSON.stringify(nodes));
-            localStorage.setItem('upload-relationships', JSON.stringify(relationships));
+            localStorage.setItem('upload-nodes', JSON.stringify(nodes))
+            localStorage.setItem('upload-relationships', JSON.stringify(relationships))
             savedNodes = localStorage.getItem('search-nodes')
             savedRelationships = localStorage.getItem('search-relationships')
         }
@@ -277,14 +301,14 @@ export default function Workflow(props: WorkflowProps) {
             setNodes(JSON.parse(savedNodes))
             if (savedRelationships) setRelationships(JSON.parse(savedRelationships))
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uploadMode])
 
     // Rebuilds entire Index Dictionary
     const rebuildIndexDictionary = useCallback(() => {
-        const newIndexDictionary: IndexDictionary = {};
-    
-        nodes.forEach(node => {
+        const newIndexDictionary: IndexDictionary = {}
+
+        nodes.forEach((node) => {
             const indices = getNodeIndices(node)
 
             indices.forEach((index) => {
@@ -300,38 +324,41 @@ export default function Workflow(props: WorkflowProps) {
     }, [nodes])
 
     // Rebuilds singular Node Entry in Index Dictionary
-    const updateIndexDictionary = useCallback((node: INode) => {
-        setIndexDictionary(prevIndexDictionary => {
-            let updatedIndexDictionary = { ...prevIndexDictionary }
+    const updateIndexDictionary = useCallback(
+        (node: INode) => {
+            setIndexDictionary((prevIndexDictionary) => {
+                let updatedIndexDictionary = { ...prevIndexDictionary }
 
-            const nodeIndices = getNodeIndices(node)
-    
-            Object.keys(updatedIndexDictionary).forEach(index => {
-                const indexNumber = parseInt(index)
-                const nodeIndex = updatedIndexDictionary[indexNumber].indexOf(node.id)
-                if (nodeIndex > -1) {
-                    updatedIndexDictionary[indexNumber].splice(nodeIndex, 1)
-                    if (updatedIndexDictionary[indexNumber].length === 0) {
-                        delete updatedIndexDictionary[indexNumber]
+                const nodeIndices = getNodeIndices(node)
+
+                Object.keys(updatedIndexDictionary).forEach((index) => {
+                    const indexNumber = parseInt(index)
+                    const nodeIndex = updatedIndexDictionary[indexNumber].indexOf(node.id)
+                    if (nodeIndex > -1) {
+                        updatedIndexDictionary[indexNumber].splice(nodeIndex, 1)
+                        if (updatedIndexDictionary[indexNumber].length === 0) {
+                            delete updatedIndexDictionary[indexNumber]
+                        }
                     }
-                }
+                })
+
+                nodeIndices.forEach((index) => {
+                    if (!updatedIndexDictionary[index]) {
+                        updatedIndexDictionary[index] = [node.id]
+                    } else if (!updatedIndexDictionary[index].includes(node.id)) {
+                        updatedIndexDictionary[index].push(node.id)
+                    }
+                })
+
+                return updatedIndexDictionary
             })
-            
-            nodeIndices.forEach(index => {
-                if (!updatedIndexDictionary[index]) {
-                    updatedIndexDictionary[index] = [node.id];
-                } else if (!updatedIndexDictionary[index].includes(node.id)) {
-                    updatedIndexDictionary[index].push(node.id);
-                }
-            });
-    
-            return updatedIndexDictionary
-        })
-    }, [setIndexDictionary])
+        },
+        [setIndexDictionary]
+    )
 
     const indexFn = {
         rebuildIndexDictionary,
-        updateIndexDictionary
+        updateIndexDictionary,
     }
 
     // Select nodes based on selectedColumnIndex
@@ -356,11 +383,10 @@ export default function Workflow(props: WorkflowProps) {
         }
 
         setHighlightedNodeIds(new Set(indexDictionary[highlightedColumnIndex] || []))
-
     }, [highlightedColumnIndex, nodes, indexDictionary])
 
     const forceEndEditing = () => {
-        const updatedNodes = nodes.map(node => {
+        const updatedNodes = nodes.map((node) => {
             node.isEditing = false
             return node
         })
@@ -459,104 +485,112 @@ export default function Workflow(props: WorkflowProps) {
         setSelectedColumnIndex,
         forceEndEditing,
         uploadMode,
+        tableViewHeight,
     }
 
     return (
         <WorkflowContext.Provider value={value}>
-                <div className="workflow" ref={workflowWindowRef}>
-                    <div
-                        className="workflow-canvas"
+            <div className="workflow" ref={workflowWindowRef}>
+                <div
+                    className="workflow-canvas"
+                    style={{
+                        overflow: 'hidden',
+                        position: 'absolute',
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 0,
+                    }}
+                    children={
+                        <Canvas
+                            nodesFn={nodesFn}
+                            indexFn={indexFn}
+                            saveWorkflow={saveWorkflow}
+                            historyFn={historyFn}
+                            needLayout={needLayout}
+                            setNeedLayout={setNeedLayout}
+                            style={{
+                                position: 'relative',
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            canvasRect={canvasRect}
+                        />
+                    }
+                />
+
+                <animated.div
+                    className="workflow-history"
+                    style={{
+                        height: springProps.canvasHeight,
+                        width: springProps.historyViewWidth,
+                        borderRight: historyView
+                            ? darkTheme
+                                ? '1px solid #333'
+                                : '1px solid #ced4da'
+                            : 'none',
+                        backgroundColor: darkTheme ? '#25262b' : '#fff',
+                        zIndex: 1,
+                    }}
+                    children={
+                        <WorkflowHistory
+                            uploadMode={uploadMode}
+                            workflows={workflows}
+                            deleteWorkflow={deleteWorkflow}
+                            setNodes={setNodes}
+                            setRelationships={setRelationships}
+                            setNeedLayout={setNeedLayout}
+                            darkTheme={darkTheme}
+                        />
+                    }
+                />
+
+                <animated.div
+                    className="workflow-json"
+                    style={{
+                        height: springProps.canvasHeight,
+                        width: springProps.jsonViewWidth,
+                        borderLeft: jsonView
+                            ? darkTheme
+                                ? '1px solid #333'
+                                : '1px solid #ced4da'
+                            : 'none',
+                        backgroundColor: darkTheme ? '#25262b' : '#fff',
+                        zIndex: 1,
+                    }}
+                    children={
+                        <WorkflowJson
+                            workflow={workflow}
+                            setWorkflow={setWorkflow}
+                            darkTheme={darkTheme}
+                        />
+                    }
+                />
+
+                {uploadMode && (
+                    <animated.div
+                        className="workflow-drawer"
                         style={{
-                            overflow: 'hidden',
-                            position: 'absolute',
-                            left: 0,
+                            height: drawerHandleActiveRef.current
+                                ? tableViewHeight
+                                : springProps.tableViewHeight,
                             width: '100%',
-                            height: '100%',
-                            zIndex: 0,
+                            borderTop: tableView
+                                ? darkTheme
+                                    ? '1px solid #333'
+                                    : '1px solid #ced4da'
+                                : 'none',
+                            backgroundColor: darkTheme ? '#25262b' : '#fff',
+                            zIndex: 1,
+                            overflow: 'visible',
                         }}
                         children={
-                            <Canvas
-                                nodesFn={nodesFn}
-                                indexFn={indexFn}
-                                saveWorkflow={saveWorkflow}
-                                historyFn={historyFn}
-                                needLayout={needLayout}
-                                setNeedLayout={setNeedLayout}
+                            <div
+                                className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
                                 style={{
-                                    position: 'relative',
-                                    width: '100%',
                                     height: '100%',
                                 }}
-                                canvasRect={canvasRect}
-                            />
-                        }
-                    />
-
-                    <animated.div
-                        className="workflow-history"
-                        style={{
-                            height: springProps.canvasHeight,
-                            width: springProps.historyViewWidth,
-                            borderRight: historyView
-                                ? darkTheme
-                                    ? '1px solid #333'
-                                    : '1px solid #ced4da'
-                                : 'none',
-                            backgroundColor: darkTheme ? '#25262b' : '#fff',
-                            zIndex: 1,
-                        }}
-                        children={
-                            <WorkflowHistory
-                                uploadMode={uploadMode}
-                                workflows={workflows}
-                                deleteWorkflow={deleteWorkflow}
-                                setNodes={setNodes}
-                                setRelationships={setRelationships}
-                                setNeedLayout={setNeedLayout}
-                                canvasWidth={canvasRect.width}
-                                canvasHeight={canvasRect.height}
-                                darkTheme={darkTheme}
-                            />
-                        }
-                    />
-
-                    <animated.div
-                        className="workflow-json"
-                        style={{
-                            height: springProps.canvasHeight,
-                            width: springProps.jsonViewWidth,
-                            borderLeft: jsonView
-                                ? darkTheme
-                                    ? '1px solid #333'
-                                    : '1px solid #ced4da'
-                                : 'none',
-                            backgroundColor: darkTheme ? '#25262b' : '#fff',
-                            zIndex: 1,
-                        }}
-                        children={
-                            <WorkflowJson
-                                workflow={workflow}
-                                setWorkflow={setWorkflow}
-                                darkTheme={darkTheme}
-                            />
-                        }
-                    />
-
-                    {uploadMode && (
-                        <animated.div
-                            className="workflow-table"
-                            style={{
-                                height: springProps.tableViewHeight,
-                                width: '100%',
-                                borderTop: tableView
-                                    ? darkTheme
-                                        ? '1px solid #333'
-                                        : '1px solid #ced4da'
-                                    : 'none',
-                                backgroundColor: darkTheme ? '#25262b' : '#fff',
-                                zIndex: 1,
-                            }}
-                            children={
+                            >
                                 <WorkflowDrawer
                                     tableView={tableView}
                                     tableViewHeight={tableViewHeight}
@@ -571,23 +605,32 @@ export default function Workflow(props: WorkflowProps) {
                                     rebuildIndexDictionary={rebuildIndexDictionary}
                                     darkTheme={darkTheme}
                                 />
-                            }
-                        />
-                    )}
-                    <div className="workflow-btn-wrap" style={{ zIndex: 1 }}>
-                        <WorkflowButtons
-                            uploadMode={uploadMode}
-                            jsonView={jsonView}
-                            jsonViewWidth={jsonViewWidth}
-                            historyView={historyView}
-                            historyViewWidth={historyViewWidth}
-                            tableView={tableView}
-                            tableViewHeight={tableViewHeight}
-                            onSelect={handleSplitView}
-                            darkTheme={darkTheme}
-                        />
-                    </div>
+                                {tableView && (
+                                    <WorkflowDrawerHandle
+                                        handleActive={drawerHandleActiveRef}
+                                        tableViewHeight={tableViewHeight}
+                                        setTableViewHeight={setTableViewHeight}
+                                        setTableView={setTableView}
+                                    />
+                                )}
+                            </div>
+                        }
+                    />
+                )}
+                <div className="workflow-btn-wrap" style={{ zIndex: 1 }}>
+                    <WorkflowButtons
+                        uploadMode={uploadMode}
+                        jsonView={jsonView}
+                        jsonViewWidth={jsonViewWidth}
+                        historyView={historyView}
+                        historyViewWidth={historyViewWidth}
+                        tableView={tableView}
+                        tableViewHeight={tableViewHeight}
+                        onSelect={handleSplitView}
+                        darkTheme={darkTheme}
+                    />
                 </div>
+            </div>
         </WorkflowContext.Provider>
     )
 }

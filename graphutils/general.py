@@ -91,6 +91,10 @@ class TableDataTransformer(ReportBuilder):
         self.html_report = ""
         self.cache = cache
         self.ReportClass = ReportClass
+        self.first_row = [el['column_values'][0] if type(el['column_values']) == list and el['column_values'] else "" for el in self.data]
+
+
+        self.headers = [el['header'] for el in self.data]
 
 
     @property
@@ -143,6 +147,7 @@ class TableDataTransformer(ReportBuilder):
             bool: True if cached data is used.
         """
         column_value = kwargs['element']['column_values'][0]
+        print("header:", kwargs['element']['header'])
 
         if cached := ImporterCache.fetch(kwargs['element']['header'], column_value, attribute_type= self.attribute_type ):
             self._update_with_cache(cached, **kwargs)

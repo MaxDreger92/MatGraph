@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'poppins-regular';
+    src: url('fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 label {
   display: block;
   margin-top: 10px;
@@ -326,7 +333,7 @@ a:link {
 }
 
 .node-label-value {
-  font-size: 85%;
+  /* font-size: 85%; */
   vertical-align: middle;
   /* border-radius: 3px; */
   /* padding: 0px 3px 0px 3px; */
@@ -377,13 +384,14 @@ a:link {
   display: flex;
   justify-content: right;
   align-items: center;
-  width: 170px;
+  width: auto;
+  white-space: nowrap;
   height: 50px;
   user-select: none;
   border-radius: 3px;
   border: 1px solid #333333;
-  padding: 10px;
-  padding-top: 12px;
+  padding: 12px 10px 10px 10px;
+  /*padding-top: 12px; */
   background-color: #25262b;
   opacity: 0;
   transform: translateX(100px);
@@ -484,6 +492,13 @@ a:link {
   pointer-events: none;
 }
 
+.unselectable {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
 .user-menu-container {
   width: 25vw;
   height: auto;
@@ -562,7 +577,7 @@ a:link {
   height: 100%;
 }
 
-.workflow-table {
+.workflow-drawer {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -579,10 +594,10 @@ a:link {
 
 .wrap-login {
   width: 400px;
-  position: absolute;
-  top: calc(-45px + 50%);
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  top: calc(50% - 220px);
+  left: calc(50% - 200px);
+  /* transform: translate(-50%, -50%); */
 }
 
 .wrap-navbar {

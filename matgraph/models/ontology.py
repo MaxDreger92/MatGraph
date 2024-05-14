@@ -1,7 +1,6 @@
-from neomodel import RelationshipTo, RelationshipFrom, ArrayProperty, FloatProperty, One, ZeroOrMore, \
-    StringProperty
+from neomodel import RelationshipTo, RelationshipFrom, ZeroOrMore
 
-from matgraph.models.abstractclasses import OntologyNode, UIDDjangoNode
+from matgraph.models.abstractclasses import OntologyNode
 from matgraph.models.relationships import IsARel
 
 
@@ -11,8 +10,7 @@ class EMMOQuantity(OntologyNode):
     Ontology (EMMO).
     """
     @classmethod
-    @property
-    def embedding(self):
+    def embedding(cls):
         """
         Returns the embedding of the node as a numpy array.
         :return: numpy array
@@ -39,8 +37,7 @@ class EMMOMatter(OntologyNode):
     """
     # Properties
     @classmethod
-    @property
-    def embedding(self):
+    def embedding(cls):
         """
         Returns the embedding of the node as a numpy array.
         :return: numpy array
@@ -77,8 +74,7 @@ class EMMOProcess(OntologyNode):
     Class representing EMMO process in the knowledge graph. This node is a component of the European Materials Modelling Ontology (EMMO).
     """
     @classmethod
-    @property
-    def embedding(self):
+    def embedding(cls):
         """
         Returns the embedding of the node as a numpy array.
         :return: numpy array

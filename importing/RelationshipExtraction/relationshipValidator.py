@@ -14,8 +14,6 @@ class relationshipValidator:
         self._label_one_nodes, self._label_two_nodes = None, None
         self._validation_results = None
 
-        print("triples")
-        print(self.result)
         for rel in self.result.relationships:
             self.triples.append([str(rel.source), rel.type, str(rel.target)])
             print(str(rel.source), rel.type, str(rel.target))
@@ -106,7 +104,8 @@ class relationshipValidator:
                              triple[0] not in self.node_label_ids(self.label_two_nodes) and triple[1] == rel_type]
         wrong_second_nodes = [triple[2] for triple in self.triples if
                               triple[2] not in self.node_label_ids(self.label_one_nodes) and triple[1] == rel_type]
-        return [wrong_first_nodes, rel_type, wrong_second_nodes] if len(wrong_first_nodes) != 0 or len(
+        return {'wrong_first_nodes': wrong_first_nodes, 'rel_type': rel_type,
+                'wrong_second_nodes': wrong_second_nodes} if len(wrong_first_nodes) != 0 or len(
             wrong_second_nodes) != 0 else True
 
     def no_cycles(self, rel1, rel2):
@@ -229,4 +228,44 @@ class hasMeasurementValidator(relationshipValidator):
         """Run all validation functions and gather results."""
         self._validation_results = {
             self.no_isolated_nodes.__name__: self.no_isolated_nodes_node_list(self.label_one_nodes, 0)
+        }
+
+
+class hasPartMatterValidator(relationshipValidator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rel_type = "has_part"
+        self.label_one, self.label_two = ["matter"], ["matter"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
+
+    def validate(self):
+        """Run all validation functions and gather results."""
+        self._validation_results = {
+            self.triples_correct.__name__: self.triples_correct(self.rel_type)
+        }
+
+class hasPartManufacturingValidator(relationshipValidator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rel_type = "has_part"
+        self.label_one, self.label_two = ["manufacturing"], ["manufacturing"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
+
+    def validate(self):
+        """Run all validation functions and gather results."""
+        self._validation_results = {
+            self.triples_correct.__name__: self.triples_correct(self.rel_type)
+        }
+
+class hasPartMeasurementValidator(relationshipValidator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rel_type = "has_part"
+        self.label_one, self.label_two = ["measurement"], ["measurement"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
+
+    def validate(self):
+        """Run all validation functions and gather results."""
+        self._validation_results = {
+            self.triples_correct.__name__: self.triples_correct(self.rel_type)
         }

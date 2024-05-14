@@ -36,7 +36,7 @@ export interface INode {
   error: NodeValOpAttribute
   identifier: NodeAttribute
   type: NodeType
-  with_indices: boolean
+  withIndices: boolean
   position: Position
   size: number
   optimalSize: number
@@ -61,12 +61,12 @@ export interface ICanvasButton {
 
 export type NodeAttribute = {
   value: string
-  index?: AttributeIndex | AttributeIndex[]
+  index?: string
 }
 
 export type NodeValOpAttribute = {
   valOp: ValOpPair
-  index?: AttributeIndex | AttributeIndex[]
+  index?: string
 }
 
 export type ValOpPair = {
@@ -74,9 +74,7 @@ export type ValOpPair = {
   operator: Operator | string
 }
 
-export type AttributeIndex = number | string
-
-export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata"
+export type NodeType = "matter" | "manufacturing" | "measurement" | "parameter" | "property" | "metadata" | "simulation"
 
 export type IndexDictionary = {
     [index: number]: string[]

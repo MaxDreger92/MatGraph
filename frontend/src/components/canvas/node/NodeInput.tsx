@@ -4,15 +4,17 @@ import React, { useState, useContext, useEffect, useRef, useCallback } from 'rea
 import { INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
 import NodeInputStr from './NodeInputStr'
 import NodeInputStrOp from './NodeInputStrOp'
+import WorkflowContext from '../../workflow/context/WorkflowContext'
 
 interface NodeInputProps {
     isValueNode: boolean
     node: INode
     handleNodeUpdate: (node: INode, endEditing?: boolean) => void
+    getFieldErrors: (field: NodeAttribute | NodeValOpAttribute, attributeName: string) => void
 }
 
 export default React.memo(function NodeInput(props: NodeInputProps) {
-    const { isValueNode, node, handleNodeUpdate } = props
+    const { isValueNode, node, handleNodeUpdate, getFieldErrors } = props
 
     const [nodeName, setNodeName] = useState<NodeAttribute>(node.name)
     const [nodeValue, setNodeValue] = useState<NodeValOpAttribute>(node.value)
@@ -30,6 +32,8 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
+
+    const { forceEndEditing } = useContext(WorkflowContext)
 
     const updateNode = useCallback(() => {
         const updatedNode: INode = {
@@ -59,6 +63,15 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         handleNodeUpdate,
     ])
 
+    // Enter will force all nodes to be set to editing == false
+    // which will in turn execute updateNodeRef version of updateNode()
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            forceEndEditing()
+        }
+    }
+
     const updateNodeRef = useRef(updateNode)
 
     useEffect(() => {
@@ -71,126 +84,129 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
         }
     }, [])
 
-    // Update node through Enter key
-    const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            updateNode()
-        }
-    }
-
     const handleUpdateLocal = (id: string, value?: string, operator?: string, index?: string) => {
-        let typed_index: string | number | undefined = undefined
-
-        if (index !== undefined) {
-            const numericValue = parseFloat(index)
-            typed_index = isNaN(numericValue) ? index : numericValue
-        }
-
         switch (id) {
             case 'name':
-                setNodeName({
+                const newNodeName = {
                     value: value ?? nodeName.value,
-                    index: typed_index ?? nodeName.index,
-                })
-                break
+                    index: index ?? nodeName.index,
+                };
+                setNodeName(prev => newNodeName);
+                getFieldErrors(newNodeName, 'Name');
+                break;
             case 'batch':
-                setNodeBatchNum({
+                const newNodeBatchNum = {
                     value: value ?? nodeBatchNum.value,
-                    index: typed_index ?? nodeBatchNum.index,
-                })
-                break
+                    index: index ?? nodeBatchNum.index,
+                };
+                setNodeBatchNum(newNodeBatchNum);
+                getFieldErrors(newNodeBatchNum, 'Batch');
+                break;
             case 'unit':
-                setNodeUnit({
+                const newNodeUnit = {
                     value: value ?? nodeUnit.value,
-                    index: typed_index ?? nodeUnit.index,
-                })
-                break
+                    index: index ?? nodeUnit.index,
+                };
+                setNodeUnit(newNodeUnit);
+                getFieldErrors(newNodeUnit, 'Unit');
+                break;
             case 'identifier':
-                setNodeIdentifier({
+                const newNodeIdentifier = {
                     value: value ?? nodeIdentifier.value,
-                    index: typed_index ?? nodeIdentifier.index,
-                })
-                break
+                    index: index ?? nodeIdentifier.index,
+                };
+                setNodeIdentifier(newNodeIdentifier);
+                getFieldErrors(newNodeIdentifier, 'Identifier');
+                break;
             case 'value':
-                setNodeValue({
+                const newNodeValue = {
                     valOp: {
                         value: value ?? nodeValue.valOp.value,
                         operator: operator ?? nodeValue.valOp.operator,
                     },
-                    index: typed_index ?? nodeValue.index,
-                })
-                break
+                    index: index ?? nodeValue.index,
+                };
+                setNodeValue(newNodeValue);
+                getFieldErrors(newNodeValue, 'Value');
+                break;
             case 'ratio':
-                setNodeRatio({
+                const newNodeRatio = {
                     valOp: {
                         value: value ?? nodeRatio.valOp.value,
                         operator: operator ?? nodeRatio.valOp.operator,
                     },
-                    index: typed_index ?? nodeRatio.index,
-                })
-                break
+                    index: index ?? nodeRatio.index,
+                };
+                setNodeRatio(newNodeRatio);
+                getFieldErrors(newNodeRatio, 'Ratio');
+                break;
             case 'concentration':
-                setNodeConcentration({
+                const newNodeConcentration = {
                     valOp: {
                         value: value ?? nodeConcentration.valOp.value,
                         operator: operator ?? nodeConcentration.valOp.operator,
                     },
-                    index: typed_index ?? nodeConcentration.index,
-                })
+                    index: index ?? nodeConcentration.index,
+                }
+                setNodeConcentration(prev => newNodeConcentration)
+                getFieldErrors(newNodeConcentration, 'Concentration');
                 break
             case 'std':
-                setNodeStd({
+                const newNodeStd = {
                     valOp: {
                         value: value ?? nodeStd.valOp.value,
                         operator: operator ?? nodeStd.valOp.operator,
                     },
-                    index: typed_index ?? nodeStd.index,
-                })
+                    index: index ?? nodeStd.index,
+                }
+                setNodeStd(prev => newNodeStd)
+                getFieldErrors(newNodeStd, 'Std');
                 break
             case 'error':
-                setNodeError({
+                const newNodeError = {
                     valOp: {
                         value: value ?? nodeError.valOp.value,
                         operator: operator ?? nodeError.valOp.operator,
                     },
-                    index: typed_index ?? nodeError.index,
-                })
+                    index: index ?? nodeError.index,
+                }
+                setNodeError(prev => newNodeError)
+                getFieldErrors(newNodeError, 'Error');
                 break
             default:
                 break
         }
 
-        if (typed_index !== undefined) {
+        if (index !== undefined) {
             const updatedNode = { ...node }
 
             switch (id) {
                 case 'name':
-                    updatedNode.name.index = typed_index
+                    updatedNode.name.index = index
                     break
                 case 'value':
-                    updatedNode.value.index = typed_index
+                    updatedNode.value.index = index
                     break
                 case 'batch':
-                    updatedNode.batch_num.index = typed_index
+                    updatedNode.batch_num.index = index
                     break
                 case 'ratio':
-                    updatedNode.ratio.index = typed_index
+                    updatedNode.ratio.index = index
                     break
                 case 'concentration':
-                    updatedNode.concentration.index = typed_index
+                    updatedNode.concentration.index = index
                     break
                 case 'unit':
-                    updatedNode.unit.index = typed_index
+                    updatedNode.unit.index = index
                     break
                 case 'std':
-                    updatedNode.std.index = typed_index
+                    updatedNode.std.index = index
                     break
                 case 'error':
-                    updatedNode.error.index = typed_index
+                    updatedNode.error.index = index
                     break
                 case 'identifier':
-                    updatedNode.identifier.index = typed_index
+                    updatedNode.identifier.index = index
                     break
                 default:
                     break
@@ -230,7 +246,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                 handleKeyUp={handleKeyUp}
                 id="name"
                 defaultValue={nodeName.value}
-                showIndices={node.with_indices}
+                showIndices={node.withIndices}
                 showIndexChoice={showIndexChoice}
                 setShowIndexChoice={setShowIndexChoice}
                 index={nodeName.index}
@@ -245,7 +261,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                     handleKeyUp={handleKeyUp}
                     id="identifier"
                     defaultValue={nodeIdentifier.value}
-                    showIndices={node.with_indices}
+                    showIndices={node.withIndices}
                     index={nodeIdentifier.index}
                     showIndexChoice={showIndexChoice}
                     setShowIndexChoice={setShowIndexChoice}
@@ -262,7 +278,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="identifier"
                         defaultValue={nodeIdentifier.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeIdentifier.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -275,7 +291,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="batch"
                         defaultValue={nodeBatchNum.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeBatchNum.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -289,7 +305,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="ratio"
                         defaultOp={nodeRatio.valOp.operator}
                         defaultVal={nodeRatio.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeRatio.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -302,7 +318,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="concentration"
                         defaultOp={nodeConcentration.valOp.operator}
                         defaultVal={nodeConcentration.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeConcentration.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -320,7 +336,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="value"
                         defaultOp={nodeValue.valOp.operator}
                         defaultVal={nodeValue.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeValue.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -334,7 +350,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         handleKeyUp={handleKeyUp}
                         id="unit"
                         defaultValue={nodeUnit.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeUnit.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -348,7 +364,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="std"
                         defaultOp={nodeStd.valOp.operator}
                         defaultVal={nodeStd.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeStd.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}
@@ -361,7 +377,7 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
                         id="error"
                         defaultOp={nodeError.valOp.operator}
                         defaultVal={nodeError.valOp.value}
-                        showIndices={node.with_indices}
+                        showIndices={node.withIndices}
                         index={nodeError.index}
                         showIndexChoice={showIndexChoice}
                         setShowIndexChoice={setShowIndexChoice}

@@ -1,8 +1,0 @@
-.scrollable-table {
-    width: 600px;
-    overflow-x: auto;
-}
-
-.scrollable-table table {
-    min-width: 1000px;
-}

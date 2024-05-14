@@ -97,8 +97,8 @@ class NodeClassifier(TableDataTransformer):
             return
         elif self._check_cache(index = kwargs['index'], element = kwargs['element']):
             return
-        elif self.contains_units(kwargs['element']['header'] + str(kwargs['element']['column_values'][0])):
-            self.handle_units(index = kwargs['index'], element = kwargs['element'])
+        # elif self.contains_units(kwargs['element']['header'] + str(kwargs['element']['column_values'][0])):
+        #     self.handle_units(index = kwargs['index'], element = kwargs['element'])
         else:
             self._transform(index = kwargs['index'], element = kwargs['element'])
 

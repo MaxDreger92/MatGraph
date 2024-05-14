@@ -13,14 +13,12 @@ subClassOfRel:"IS_A"}
 call n10s.graphconfig.set({handleRDFTypes: "NODES",force:true}) ;
 
 // first pass, load the onto. Note that there are irregular uris, but we accept them with verifyUriSyntax: false
-call n10s.rdf.import.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/matter.owl", "Turtle") ;
 CALL n10s.rdf.stream.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/matter.owl", "Turtle") YIELD subject, predicate, object
 WHERE predicate CONTAINS "alternative_label"
 MATCH (cls:Resource {uri: subject })
 //MERGE (cls)<-[:IS_ALTERNATIVE_LABEL]-(al:Alternative_Label {name: object});
 
 
-CALL n10s.onto.import.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/quantities.owl","RDF/XML", { verifyUriSyntax: false }) ;
 CALL n10s.rdf.stream.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/quanitities.owl", "RDF/XML") YIELD subject, predicate, object
 WHERE predicate CONTAINS "alternative_label"
 MATCH (cls:Resource { uri: subject })
@@ -32,7 +30,6 @@ MATCH (cls:Resource { uri: subject })
 //MATCH (cls:Resource { uri: subject })
 //MERGE (cls)<-[:IS_ALTERNATIVE_LABEL]-(al:Alternative_Label {name: object});
 
-call n10s.onto.import.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/manufacturing.owl","RDF/XML", { verifyUriSyntax: false }) ;
 CALL n10s.rdf.stream.fetch("https://raw.githubusercontent.com/MaxDreger92/MatGraph/master/Ontology/manufcaturing.owl", "RDF/XML") YIELD subject, predicate, object
 WHERE predicate CONTAINS "alternative_label"
 MATCH (cls:Resource { uri: subject })

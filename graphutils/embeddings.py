@@ -25,7 +25,6 @@ def request_embedding(text: str) -> List[float]:
     Returns:
         List[float]: A list of floating-point numbers representing the embedding.
     """
-    print("Requesting embedding for text: ", text)
     # Replace newlines in the input text with spaces, as they can negatively affect performance.
     text = str(text).replace("\n", " ").strip().replace("'", "")
     # Call the OpenAI Embedding API to create an embedding for the input text.

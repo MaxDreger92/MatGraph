@@ -1,7 +1,6 @@
-from django_neomodel import classproperty
 from neomodel import StringProperty, FloatProperty, ArrayProperty, RelationshipTo, OneOrMore
 
-from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
+from graphutils.models import UIDDjangoNode
 
 
 class ModelEmbedding(UIDDjangoNode):

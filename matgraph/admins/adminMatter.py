@@ -12,14 +12,12 @@ Contains the classes
 from django.contrib import admin as dj_admin
 from neomodel import Q
 
-from matgraph.admins.adminBase import (NodeModelAdmin)
+from graphutils.admin import NodeModelAdmin
 from matgraph.forms.formsMatter import MoleculeAdminForm, MaterialAdminForm, DeviceAdminForm, ComponentAdminForm
 from matgraph.inlines.inlinesProperties import TabularPropertyInline
 from matgraph.models.matter import (Molecule,
-                                      Component,
-                                      Device, Material, Element)
-
-
+                                    Component,
+                                    Device, Material, Element)
 
 
 @dj_admin.register(Element)

@@ -1,5 +1,4 @@
-from matgraph.admins.adminBase import NeoModelForm
-from graphutils.forms import RelationMultipleChoiceField
+from graphutils.forms import RelationMultipleChoiceField, NeoModelForm
 
 """
 Forms classes for all adminMatters. 

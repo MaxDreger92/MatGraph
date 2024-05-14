@@ -3,7 +3,7 @@ import os
 
 import requests
 from django.db import models, IntegrityError
-from django_neomodel import classproperty
+from neomodel import classproperty
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
@@ -282,10 +282,12 @@ class Cache:
             if cached.get_validation_state(attribute_type):
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
         else:
-            print(cached)
-            new_record = cls.objects.create(
-                header=header[:200],
-                sample_column=column_value[:200])
+            print("header:",header)
+            new_record = cls.objects.get_or_create(
+                header=str(header)[:200]
+                )
+            new_record.sample_column=column_value[:200]
+            new_record.save()
             return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
 
 
@@ -364,6 +366,6 @@ class FullTableCache(models.Model, Cache):
             if cached.get_validation_state('graph'):
                 return (cached.graph)
         else:
-            new_record = cls.objects.create(
+            new_record = cls.objects.get_or_create(
                 header=header)
             new_record.save()

@@ -1,5 +1,4 @@
 import { Response, NextFunction } from "express"
-import dotenv from "dotenv"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 
@@ -8,8 +7,6 @@ import WorkflowRepository from "../repositories/workflow.repo-mongodb"
 import {MDB_IUser as IUser} from "../types/user.type"
 import { IWorkflow } from "../types/workflow.type"
 import { IGetUserAuthInfoRequest } from "../types/req"
-
-dotenv.config()
 
 class UserService {
   static findByMail(email: string): Promise<IUser | null> {
@@ -30,6 +27,12 @@ class UserService {
     password: string
   ): Promise<ObjectId> {
     return UserRepository.create(username, email, password)
+  }
+
+  static verifyUser(
+    username: string
+  ): Promise<boolean> {
+    return UserRepository.verify(username)
   }
 
   static deleteUser(
@@ -80,9 +83,9 @@ class UserService {
     return UserRepository.updateImgUrl(url, id)
   }
 
-  static async generateAccessToken(email: string) {
+  static async generateAccessToken(email: string, purpose: string = 'default-purpose') {
     const userId = await UserRepository.getUserID(email)
-    const token = jwt.sign({ userId: userId }, process.env.TOKEN_SECRET as string)
+    const token = jwt.sign({ userId: userId, purpose: purpose }, process.env.TOKEN_SECRET as string)
     return token
   }
 
@@ -93,20 +96,36 @@ class UserService {
   ) {
     const authHeader = req.headers["authorization"]
 
-    const token = authHeader && authHeader.split(" ")[1]
+    let token = authHeader && authHeader.split(" ")[1]
 
-    if (token == null) return res.sendStatus(401)
+    if (!token) {
+        token = req.query.token as string
+    }
+
+    if (!token) return res.sendStatus(401)
 
     // decodes the token to userId
     jwt.verify(
       token,
       process.env.TOKEN_SECRET as string,
-      (err: Error | null, payload: any) => {
+      async (err: Error | null, payload: any) => {
         if (err) return res.sendStatus(403)
 
-        req.userId = payload.userId
+        try {
+            if (payload.purpose === 'verify-user') {
+                const admin = await UserRepository.findByID(payload.userId);
+                if (!admin || admin.username !== 'admin') {
+                    return res.status(403).json({message: "Needs to be admin for this action."});
+                }
+                req.adminId = payload.userId
+            } else {
+                req.userId = payload.userId;
+            }
 
-        next()
+            next();
+        } catch (error) {
+            return res.status(500).json({message: "Internal Server Error"});
+        }
       }
     )
   }

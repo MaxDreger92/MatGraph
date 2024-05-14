@@ -7,17 +7,20 @@ from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI
 
 from graphutils.general import TableDataTransformer
+# from importing.NodeExtraction.dummydata import test_data
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
     MeasurementNodeList, MetadataNodeList, ParameterNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
-    PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE
+    PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE, \
+    METADATA_AGGREGATION_MESSAGE
 from importing.models import NodeExtractionReport
 
 
 class NodeAggregator:
-    def __init__(self, data, context, setup_message, additional_context):
+    def __init__(self, data, context, first_row, header, setup_message, additional_context):
+        self.data = data
         self.header = [f"{element['header']}" for element in data]
         self.attributes = [f"{element['attribute']}" for element in data]
         self.indices = [f"{element['index']}" for element in data]
@@ -26,18 +29,26 @@ class NodeAggregator:
         self.context = context
         self.additional_context = additional_context
         self.conversation = self.setup_message
+        self.headers = header
+        self.first_row = first_row
         self.label = None
         self.schema = None
         self._intermediate = None
+        print(self.label)
 
     def create_query(self):
         return f"""
-        Context: {self.context}
-    
-        ColumnIndex: {", ".join(self.indices)}
-        AttributeType: {", ".join(self.attributes)}
-        TableHeader: {", ".join(self.header)}
-        Sample Row: {", ".join(self.row)}
+        Context: 
+            Domain: {self.context}
+            Full Table: 
+                headers: {self.headers}
+                first row: {self.first_row}
+                
+        
+        Input Data: {[{"ColumnIndex": self.indices[i], 
+                 "AttributeType": self.attributes[i], 
+                 "TableHeader": self.header[i], 
+                 "AttributeValue": self.row[i]} for i in range(len(self.header))]}
         
         {self.additional_context}
         """
@@ -56,6 +67,7 @@ class NodeAggregator:
     def aggregate(self):
         """Performs the initial extraction of relationships using GPT-4."""
         print(f"Aggregate {self.schema} nodes")
+        print({"header": self.header, "context": self.context, "first_row": self.first_row, "raw_data": {self.label.upper(): self.data}})
         query = self.create_query()
         print(query)
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
@@ -78,9 +90,11 @@ class MatterAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
+                 first_row,
+                 header,
                  setup_message=MATTER_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, header, first_row, setup_message, additional_context)
         self.label = "matter"
         self.schema = MatterNodeList
         self.examples = MATTER_AGGREGATION_EXAMPLES
@@ -90,9 +104,11 @@ class PropertyAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
+                 first_row,
+                 header,
                  setup_message=PROPERTY_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
         self.label = "property"
         self.schema = PropertyNodeList
         self.examples = None
@@ -102,9 +118,11 @@ class ParameterAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
+                 first_row,
+                 header,
                  setup_message=PARAMETER_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
         self.label = "parameter"
         self.schema = ParameterNodeList
         self.examples = PARAMETER_AGGREGATION_EXAMPLES
@@ -114,9 +132,11 @@ class ManufacturingAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
+                 first_row,
+                 header,
                  setup_message=MANUFACTURING_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
         self.label = "manufacturing"
         self.schema = ManufacturingNodeList
         self.examples = MANUFACTURING_AGGREGATION_EXAMPLES
@@ -126,9 +146,11 @@ class MeasurementAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
+                 first_row,
+                 header,
                  setup_message=MEASUREMENT_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
         self.label = "measurement"
         self.schema = MeasurementNodeList
         self.examples = None
@@ -138,9 +160,11 @@ class MetadataAggregator(NodeAggregator):
     def __init__(self,
                  data,
                  context,
-                 setup_message=PARAMETER_AGGREGATION_MESSAGE,
+                 first_row,
+                 header,
+                 setup_message=METADATA_AGGREGATION_MESSAGE,
                  additional_context=""):
-        super().__init__(data, context, setup_message, additional_context)
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
         self.label = "metadata"
         self.schema = MetadataNodeList
         self.examples = None
@@ -154,19 +178,19 @@ def group_by_prefix(self, data):
     return grouped
 
 
-def get_aggregator(iterable, data_type, aggregator_class, context):
+def get_aggregator(iterable, data_type, aggregator_class, context, header, first_row):
     if data_type in iterable and iterable[data_type]:
         data = iterable[data_type]
         context = context
 
         grouped_data = group_by_prefix(data) if data_type == "property" else {None: data}
         for entries in grouped_data.values():
-            aggregator = aggregator_class(entries, context)
+            aggregator = aggregator_class(entries, context, header, first_row)
             return aggregator
 
 
 def aggregate_nodes(data, type, aggregator_class):
-    if aggregator := get_aggregator(data['input'], type, aggregator_class, data['context']):
+    if aggregator := get_aggregator(data['input'], type, aggregator_class, data['context'], data['first_line'], data['header']):
         return aggregator.aggregate()
     return
 
@@ -245,37 +269,58 @@ def validate_metadata(aggregator):
 
 
 
+def process_attribute(value):
+    """Process attribute based on its type."""
+    if isinstance(value, list):
+        return [
+            {
+                'value': str(el.AttributeValue).encode('unicode_escape').decode('ascii'),
+                'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+            }
+            for el in value if hasattr(el, 'AttributeValue') and hasattr(el, 'AttributeReference')
+        ]
+    elif hasattr(value, 'AttributeValue') and hasattr(value, 'AttributeReference'):
+        return [
+            {
+                'value': str(value.AttributeValue).encode('unicode_escape').decode('ascii'),
+                'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+            }
+        ]
+    else:
+        # Fallback for unexpected attribute types
+        return [{'value': str(value), 'index': 'inferred'}]
+
 @chain
 def build_results(data):
     total_node_list = []
     uid = 0
     for key, node_list in data.items():
-        if node_list is None:
+        if not node_list or not getattr(node_list, 'nodes', None):
             continue
-        if node_list.nodes is None:
-            continue
-        for i in node_list.nodes:
-            # Initialize node with basic structure
+
+        for node_item in node_list.nodes:
+            label = node_item.__class__.__name__.strip('Node').lower()
             node = {
-                'label': i.__class__.__name__.strip('Node').lower(),
+                'label': label,
                 'id': str(uid),
-                'attributes': {k: v for k, v in dict(i.attributes).items() if v not in ([], None)}  # Filter out empty or None values upfront
+                'attributes': {}
             }
 
-            # Refactor attributes processing for efficiency and clarity
-            node['attributes'] = {
-                attribute: [{'value': str(el.value), 'index': str(el.index)} for el in value] if isinstance(value, list)
-                else [{'value': str(value.value), 'index': str(value.index)}]
-                for attribute, value in node['attributes'].items() if value not in ([], None)
-            }
+            # Populate node attributes
+            raw_attributes = {k: v for k, v in vars(node_item).get('attributes', {}) if v not in ([], None)}
+            for attribute, value in raw_attributes.items():
+                processed_value = process_attribute(value)
+                if processed_value:
+                    node['attributes'][attribute] = processed_value
 
-            print(node)
-
-            uid = uid + 1
             total_node_list.append(node)
-    print(total_node_list)
+            uid += 1
 
-    return {'nodes': total_node_list, 'relationships': []}
+    return total_node_list
+
+
+# Example usage:
+# build_results(data_from_your_application)
 
 
 class NodeExtractor(TableDataTransformer):
@@ -294,7 +339,6 @@ class NodeExtractor(TableDataTransformer):
                 return aggregator
 
     def get_table_understanding(self):
-
         chain = RunnableParallel(
             propertyNodes=aggregate_properties | validate_properties,
             matterNodes=aggregate_matters | validate_matters,
@@ -307,7 +351,11 @@ class NodeExtractor(TableDataTransformer):
         self.node_list = chain.invoke({
             'input': self.iterable,
             'context': self.context,
+            'header': self.headers,
+            'first_line': self.first_row
         })
+        # self.node_list = test_data
+
 
     @property
     def iterable(self):
@@ -339,7 +387,7 @@ class NodeExtractor(TableDataTransformer):
         return False
 
     def build_results(self):
-        self._results = self.node_list
+        self._results = {"nodes": self.node_list, "relationships": []}
 
     def run(self):
         self.get_table_understanding()
