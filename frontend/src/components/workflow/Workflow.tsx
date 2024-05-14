@@ -31,6 +31,7 @@ import WorkflowContext from './context/WorkflowContext'
 import _ from 'lodash'
 import { UserContext } from '../../common/UserContext'
 import WorkflowDrawerHandle from './WorkflowDrawerHandle'
+import WorkflowSearch from './WorkflowSearch'
 
 const undoSteps = 200
 
@@ -79,8 +80,6 @@ export default function Workflow(props: WorkflowProps) {
         relationships: IRelationship[][]
     }>({ nodes: [], relationships: [] })
 
-    // const [canvasWidth, setCanvasWidth] = useState(0)
-    // const [canvasHeight, setCanvasHeight] = useState(0)
     const [canvasRect, setCanvasRect] = useState<DOMRect>(new DOMRect())
     const workflowWindowRef = useRef<HTMLDivElement>(null)
     const [workflowWindowRect, setWorkflowWindowRect] = useState<DOMRect | null>(null)
@@ -180,17 +179,6 @@ export default function Workflow(props: WorkflowProps) {
         }
     }
 
-    // useEffect(() => {
-    //     // if (progress < 4) return
-
-    //     // const nodes: INode[] = highlightedNode
-    //     //   ? [...selectedNodes, highlightedNode].filter((node, index, self) =>
-    //     //       index === self.findIndex((t) => t.id === node.id))
-    //     //   : [...selectedNodes];
-
-    //     setHighlightedNodes(selectedNodes)
-    // }, [progress, selectedNodes])
-
     // WINDOW STUFF ########################################################
 
     useEffect(() => {
@@ -244,11 +232,6 @@ export default function Workflow(props: WorkflowProps) {
                 setHistoryView(!historyView)
                 break
             case 'table':
-                // if (tableView) {
-                //     setTableViewHeight(0)
-                // } else {
-                //     setTableViewHeight(400)
-                // }
                 if (!tableView && tableViewHeight === 0) {
                     setTableViewHeight(400)
                 }
@@ -546,7 +529,7 @@ export default function Workflow(props: WorkflowProps) {
                 />
 
                 <animated.div
-                    className="workflow-json"
+                    className="workflow-drawer-right"
                     style={{
                         height: springProps.canvasHeight,
                         width: springProps.jsonViewWidth,
@@ -559,17 +542,18 @@ export default function Workflow(props: WorkflowProps) {
                         zIndex: 1,
                     }}
                     children={
-                        <WorkflowJson
-                            workflow={workflow}
-                            setWorkflow={setWorkflow}
-                            darkTheme={darkTheme}
-                        />
+                        <>
+                            {!uploadMode && (
+                                <WorkflowSearch workflow={workflow} darkTheme={darkTheme} />
+                            )}
+                            <WorkflowJson workflow={workflow} darkTheme={darkTheme} />
+                        </>
                     }
                 />
 
                 {uploadMode && (
                     <animated.div
-                        className="workflow-drawer"
+                        className="workflow-drawer-bottom"
                         style={{
                             height: drawerHandleActiveRef.current
                                 ? tableViewHeight

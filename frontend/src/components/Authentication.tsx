@@ -176,7 +176,7 @@ export default function Authentication() {
                         <TextInput
                             required
                             label="Email"
-                            placeholder="hello@matGraph.AI"
+                            placeholder="hello@matGraph.xyz"
                             value={form.values.email}
                             onChange={(event) =>
                                 form.setFieldValue('email', event.currentTarget.value)
@@ -204,6 +204,16 @@ export default function Authentication() {
                                 onChange={(event) =>
                                     form.setFieldValue('terms', event.currentTarget.checked)
                                 }
+                                style={{
+                                    position: "relative",
+                                }}
+                                sx={{
+                                    label: {
+                                        position: "relative",
+                                        top: -8,
+                                        left: -5,
+                                    }
+                                }}
                             />
                         )}
                     </Stack>

@@ -7,39 +7,26 @@ import toast from "react-hot-toast"
 
 interface WorkflowJsonProps {
   workflow: string | null
-  setWorkflow: React.Dispatch<React.SetStateAction<string | null>>
   darkTheme: boolean
 }
 
 export default function WorkflowJson(props: WorkflowJsonProps) {
   const {
     workflow,
-    setWorkflow,
     darkTheme,
   } = props
 
-  async function workflowSearch() {
-    try {
-      const response = await client.workflowSearch(workflow)
-      if (response) {
-        saveBlobAsFile(response.data, "workflows.csv")
-      }
-    } catch (err: any) {
-      toast.error(err.message)
-    }
-  }
+
 
   return (
     <>
-      <div className="workflow-json-btn-group">
-        <SearchIcon onClick={workflowSearch} />
-      </div>
       <div
-        className="workflow-json-textarea"
+        className="workflow-json"
         style={{
           position: "relative",
           width: "100%",
           flex: 1,
+          paddingTop: 15,
         }}
       >
         <textarea
