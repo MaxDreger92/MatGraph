@@ -42,7 +42,7 @@ class EmbeddingNodeSet(NodeSet):
             MATCH (similarEmbedding)-[:FOR]->(n)
             RETURN DISTINCT n, score, similarEmbedding.input
             ORDER BY score DESC
-            LIMIT 15
+            LIMIT 10
         """
 
         kwargs['embedding'] = self.source_class.embedding
@@ -53,18 +53,17 @@ class EmbeddingNodeSet(NodeSet):
         # return self.query_cls(self).build_ast()._execute(False)
 
         results, _ = db.cypher_query(query, kwargs, resolve_objects=True)
-        print(kwargs['string'], "Results:",results)
         # The following is not as elegant as it could be but had to be copied from the
         # version prior to cypher_query with the resolve_objects capability.
         # It seems that certain calls are only supposed to be focusing to the first
         # result item returned (?)
         if results:
             if include_similarity and include_input_string:
-                return [[n[0], n[1], n[2]] for n in results]
+                return [[n[0], n[1], n[2], kwargs['string']] for n in results]
             elif include_similarity:
-                return [[n[0], n[1], n[2]] for n in results]
+                return [[n[0], n[1], n[2], kwargs['string']] for n in results]
             elif include_input_string:
-                return [[n[0], n[2]] for n in results]
+                return [[n[0], n[2], kwargs['string']] for n in results]
 
             else:
                 return [n[0] for n in results]

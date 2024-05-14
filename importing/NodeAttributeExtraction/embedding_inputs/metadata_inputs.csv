@@ -1,0 +1,53 @@
+location,Metadata,NodeLabelEmbedding,NodeLabel
+facility,Metadata,NodeLabelEmbedding,NodeLabel
+process location, Metadata,NodeLabelEmbedding,NodeLabel
+institute,Metadata,NodeLabelEmbedding,NodeLabel
+organization,Metadata,NodeLabelEmbedding,NodeLabel
+instrument,Metadata,NodeLabelEmbedding,NodeLabel
+Laboratory equipment,Metadata,NodeLabelEmbedding,NodeLabel
+research facility,Metadata,NodeLabelEmbedding,NodeLabel
+funding source,Metadata,NodeLabelEmbedding,NodeLabel
+lab location,Metadata,NodeLabelEmbedding,NodeLabel
+heater,Metadata,NodeLabelEmbedding,NodeLabel
+chamber,Metadata,NodeLabelEmbedding,NodeLabel
+oven,Metadata,NodeLabelEmbedding,NodeLabel
+incubator,Metadata,NodeLabelEmbedding,NodeLabel
+shaker,Metadata,NodeLabelEmbedding,NodeLabel
+centrifuge,Metadata,NodeLabelEmbedding,NodeLabel
+microscope,Metadata,NodeLabelEmbedding,NodeLabel
+spectrophotometer,Metadata,NodeLabelEmbedding,NodeLabel
+chromatograph,Metadata,NodeLabelEmbedding,NodeLabel
+electrophoresis,Metadata,NodeLabelEmbedding,NodeLabel
+laboratory equipment,Metadata,NodeLabelEmbedding,NodeLabel
+measurement device,Metadata,NodeLabelEmbedding,NodeLabel
+research center,Metadata,NodeLabelEmbedding,NodeLabel
+measurement instrument,Metadata,NodeLabelEmbedding,NodeLabel
+research project,Metadata,NodeLabelEmbedding,NodeLabel
+publication date,Metadata,NodeLabelEmbedding,NodeLabel
+citation count,Metadata,NodeLabelEmbedding,NodeLabel
+conference proceedings,Metadata,NodeLabelEmbedding,NodeLabel
+patent number,Metadata,NodeLabelEmbedding,NodeLabel
+data repository,Metadata,NodeLabelEmbedding,NodeLabel
+academic affiliation,Metadata,NodeLabelEmbedding,NodeLabel
+principal investigator,Metadata,NodeLabelEmbedding,NodeLabel
+co-researchers,Metadata,NodeLabelEmbedding,NodeLabel
+industry partnership,Metadata,NodeLabelEmbedding,NodeLabel
+research methodology,Metadata,NodeLabelEmbedding,NodeLabel
+experimental setup,Metadata,NodeLabelEmbedding,NodeLabel
+publication author,Metadata,NodeLabelEmbedding,NodeLabel
+review article,Metadata,NodeLabelEmbedding,NodeLabel
+conference sponsor,Metadata,NodeLabelEmbedding,NodeLabel
+scientific journal,Metadata,NodeLabelEmbedding,NodeLabel
+research instrument,Metadata,NodeLabelEmbedding,NodeLabel
+research assistant,Metadata,NodeLabelEmbedding,NodeLabel
+process location,Metadata,NodeLabelEmbedding,NodeLabel
+process date,Metadata,NodeLabelEmbedding,NodeLabel
+experiment date,Metadata,NodeLabelEmbedding,NodeLabel
+experiment location,Metadata,NodeLabelEmbedding,NodeLabel
+experiment setup,Metadata,NodeLabelEmbedding,NodeLabel
+lab date,Metadata,NodeLabelEmbedding,NodeLabel
+lab setup,Metadata,NodeLabelEmbedding,NodeLabel
+lab location,Metadata,NodeLabelEmbedding,NodeLabel
+lab equipment,Metadata,NodeLabelEmbedding,NodeLabel
+lab assistant,Metadata,NodeLabelEmbedding,NodeLabel
+

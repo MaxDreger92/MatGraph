@@ -1,0 +1,62 @@
+material name,Matter,NodeLabelEmbedding,NodeLabel
+material name abbreviation,Matter,NodeLabelEmbedding,NodeLabel
+material composition,Matter,NodeLabelEmbedding,NodeLabel
+component name,Matter,NodeLabelEmbedding,NodeLabel
+component id,Matter,NodeLabelEmbedding,NodeLabel
+component type,Matter,NodeLabelEmbedding,NodeLabel
+component composition,Matter,NodeLabelEmbedding,NodeLabel
+device name,Matter,NodeLabelEmbedding,NodeLabel
+device id,Matter,NodeLabelEmbedding,NodeLabel
+device type,Matter,NodeLabelEmbedding,NodeLabel
+device composition,Matter,NodeLabelEmbedding,NodeLabel
+material,Matter,NodeLabelEmbedding,NodeLabel
+component,Matter,NodeLabelEmbedding,NodeLabel
+device,Matter,NodeLabelEmbedding,NodeLabel
+material concentration,Matter,NodeLabelEmbedding,NodeLabel
+manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
+manufacturing process,Manufacturing,NodeLabelEmbedding,NodeLabel
+material manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
+component manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
+device manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
+material process,Manufacturing,NodeLabelEmbedding,NodeLabel
+component process,Manufacturing,NodeLabelEmbedding,NodeLabel
+device process,Manufacturing,NodeLabelEmbedding,NodeLabel
+material change,Manufacturing,NodeLabelEmbedding,NodeLabel
+component change,Manufacturing,NodeLabelEmbedding,NodeLabel
+device change,Manufacturing,NodeLabelEmbedding,NodeLabel
+material conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
+component conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
+device conversion,Manufacturing,NodeLabelEmbedding,NodeLabel
+measurement process,Measurement,NodeLabelEmbedding,NodeLabel
+device property,Property,NodeLabelEmbedding,NodeLabel
+material_property,Property,NodeLabelEmbedding,NodeLabel
+component_property,Property,NodeLabelEmbedding,NodeLabel
+condition parameter,Parameter,NodeLabelEmbedding,NodeLabel
+process parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material condition,Parameter,NodeLabelEmbedding,NodeLabel
+material manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material process parameter,Parameter,NodeLabelEmbedding,NodeLabel
+component manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material manufacturing condition,Parameter,NodeLabelEmbedding,NodeLabel
+material process condition,Parameter,NodeLabelEmbedding,NodeLabel
+component manufacturing condition,Parameter,NodeLabelEmbedding,NodeLabel
+device manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+component measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+device measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+process condition,Parameter,NodeLabelEmbedding,NodeLabel
+process material parameter,Parameter,NodeLabelEmbedding,NodeLabel
+fabrication condition,Parameter,NodeLabelEmbedding,NodeLabel
+process quantity,Parameter,NodeLabelEmbedding,NodeLabel
+manufacturing quantity,Parameter,NodeLabelEmbedding,NodeLabel
+measurement quantity,Parameter,NodeLabelEmbedding,NodeLabel
+manufacturing parameter,Parameter,NodeLabelEmbedding,NodeLabel
+measurement parameter,Parameter,NodeLabelEmbedding,NodeLabel
+material ratio,Matter,NodeLabelEmbedding,NodeLabel
+location,Metadata,NodeLabelEmbedding,NodeLabel
+facility,Metadata,NodeLabelEmbedding,NodeLabel
+institute,Metadata,NodeLabelEmbedding,NodeLabel
+organization,Metadata,NodeLabelEmbedding,NodeLabel
+instrument,Metadata,NodeLabelEmbedding,NodeLabel
+Metadata device,Metadata,NodeLabelEmbedding,NodeLabel
+Laboratory equipment,Metadata,NodeLabelEmbedding,NodeLabel

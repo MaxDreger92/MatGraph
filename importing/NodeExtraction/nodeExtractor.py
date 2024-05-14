@@ -67,7 +67,6 @@ class NodeAggregator:
     def aggregate(self):
         """Performs the initial extraction of relationships using GPT-4."""
         print(f"Aggregate {self.schema} nodes")
-        print({"header": self.header, "context": self.context, "first_row": self.first_row, "raw_data": {self.label.upper(): self.data}})
         query = self.create_query()
         print(query)
         llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))

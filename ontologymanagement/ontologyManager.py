@@ -1,23 +1,18 @@
 import ast
-import json
 from json import JSONDecodeError
-
-from langchain.chains.ernie_functions import create_structured_output_runnable
-from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from langchain_openai import ChatOpenAI
-from openai import OpenAI
 
 from django.conf import settings
 from dotenv import load_dotenv
+from langchain.chains.ernie_functions import create_structured_output_runnable
+from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain_openai import ChatOpenAI
 from owlready2 import *
 from owlready2 import get_ontology, Thing
 
 from graphutils.embeddings import request_embedding
+from graphutils.models import AlternativeLabel
 from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
 from matgraph.models.ontology import EMMOMatter, EMMOQuantity, EMMOProcess
-from graphutils.models import AlternativeLabel
-from ontologymanagement.examples import PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES, QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES, \
-    MATTER_ONTOLOGY_ASSISTANT_EXAMPLES
 from ontologymanagement.schema import OntologyClass
 from ontologymanagement.setupMessages import MATTER_ONTOLOGY_ASSISTANT_MESSAGES, QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES, \
     PROCESS_ONTOLOGY_ASSISTANT_MESSAGES
@@ -242,9 +237,9 @@ def main():
 
     ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")
-    ontology_manager.import_to_neo4j("quantities.owl")
+    # ontology_manager.import_to_neo4j("quantities.owl")
     # ontology_manager.update_ontology("matter.owl")
-    # ontology_manager.import_to_neo4j("matter.owl")
+    ontology_manager.import_to_neo4j("matter.owl")
     # ontology_manager.update_ontology("manufacturing.owl")
     # ontology_manager.import_to_neo4j("manufacturing.owl")
 

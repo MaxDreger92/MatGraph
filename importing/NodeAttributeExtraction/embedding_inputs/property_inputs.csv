@@ -1,0 +1,65 @@
+device property,Property,NodeLabelEmbedding,NodeLabel
+material_property,Property,NodeLabelEmbedding,NodeLabel
+component_property,Property,NodeLabelEmbedding,NodeLabel
+device durability,Property,NodeLabelEmbedding,NodeLabel
+material hardness,Property,NodeLabelEmbedding,NodeLabel
+component flexibility,Property,NodeLabelEmbedding,NodeLabel
+device efficiency,Property,NodeLabelEmbedding,NodeLabel
+material thermal stability,Property,NodeLabelEmbedding,NodeLabel
+component tensile strength,Property,NodeLabelEmbedding,NodeLabel
+device power consumption,Property,NodeLabelEmbedding,NodeLabel
+material electrical conductivity,Property,NodeLabelEmbedding,NodeLabel
+component abrasion resistance,Property,NodeLabelEmbedding,NodeLabel
+device operational lifespan,Property,NodeLabelEmbedding,NodeLabel
+component ratio,Property,NodeLabelEmbedding,NodeLabel
+intermediate ratio,Property,NodeLabelEmbedding,NodeLabel
+component concentration,Property,NodeLabelEmbedding,NodeLabel
+intermediate concentration,Property,NodeLabelEmbedding,NodeLabel
+surface ratio,Property,NodeLabelEmbedding,NodeLabel
+surface concentration,Property,NodeLabelEmbedding,NodeLabel
+material corrosion resistance,Property,NodeLabelEmbedding,NodeLabel
+device thermal efficiency,Property,NodeLabelEmbedding,NodeLabel
+material optical properties,Property,NodeLabelEmbedding,NodeLabel
+component waterproofing,Property,NodeLabelEmbedding,NodeLabel
+device acoustic performance,Property,NodeLabelEmbedding,NodeLabel
+material magnetic properties,Property,NodeLabelEmbedding,NodeLabel
+component elasticity,Property,NodeLabelEmbedding,NodeLabel
+device radiation resistance,Property,NodeLabelEmbedding,NodeLabel
+material biocompatibility,Property,NodeLabelEmbedding,NodeLabel
+component fatigue life,Property,NodeLabelEmbedding,NodeLabel
+device usability,Property,NodeLabelEmbedding,NodeLabel
+material permeability,Property,NodeLabelEmbedding,NodeLabel
+component thermal expansion,Property,NodeLabelEmbedding,NodeLabel
+device signal integrity,Property,NodeLabelEmbedding,NodeLabel
+material flammability,Property,NodeLabelEmbedding,NodeLabel
+component impact strength,Property,NodeLabelEmbedding,NodeLabel
+device processing speed,Property,NodeLabelEmbedding,NodeLabel
+material reflectivity,Property,NodeLabelEmbedding,NodeLabel
+component insulation properties,Property,NodeLabelEmbedding,NodeLabel
+device moisture sensitivity,Property,NodeLabelEmbedding,NodeLabel
+device error rate,Property,NodeLabelEmbedding,NodeLabel
+component chemical stability,Property,NodeLabelEmbedding,NodeLabel
+device energy storage capacity,Property,NodeLabelEmbedding,NodeLabel
+material dielectric strength,Property,NodeLabelEmbedding,NodeLabel
+component radiation absorption,Property,NodeLabelEmbedding,NodeLabel
+device bandwidth,Property,NodeLabelEmbedding,NodeLabel
+material piezoelectric effect,Property,NodeLabelEmbedding,NodeLabel
+device operating temperature range,Property,NodeLabelEmbedding,NodeLabel
+material photoconductivity,Property,NodeLabelEmbedding,NodeLabel
+component vapor pressure,Property,NodeLabelEmbedding,NodeLabel
+device scaling capabilities,Property,NodeLabelEmbedding,NodeLabel
+material electrical insulation,Property,NodeLabelEmbedding,NodeLabel
+material ratio,Property,NodeLabelEmbedding,NodeLabel
+material density,Property,NodeLabelEmbedding,NodeLabel
+material wt%,Property,NodeLabelEmbedding,NodeLabel
+material volume%,Property,NodeLabelEmbedding,NodeLabel
+material concentration,Property,NodeLabelEmbedding,NodeLabel
+chemical wt%,Property,NodeLabelEmbedding,NodeLabel
+chemical volume%,Property,NodeLabelEmbedding,NodeLabel
+chemical concentration,Property,NodeLabelEmbedding,NodeLabel
+chemical ratio,Property,NodeLabelEmbedding,NodeLabel
+polarization,Property,NodeLabelEmbedding,NodeLabel
+hot polarization,Property,NodeLabelEmbedding,NodeLabel
+noc polarization,Property,NodeLabelEmbedding,NodeLabel
+cell polarization,Property,NodeLabelEmbedding,NodeLabel
+Equivalent weight,Property,NodeLabelEmbedding,NodeLabel

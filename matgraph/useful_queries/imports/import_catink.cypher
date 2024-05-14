@@ -65,7 +65,7 @@ MERGE(crackdensity:Quantity:Property{uid: randomUUID(),
 })
 MERGE(ccl)-[:IS_MEASUREMENT_INPUT]->(sem)-[:HAS_MEASUREMENT_OUTPUT]
   ->(thickness)-[:IS_A]->(EMMO_thickness)
-MERGE(ccl)-[:HAS_PROPERTY{float_value: tofloat(row.`SEM thickness STD (µm)`), float_std: tofloat(row.`SEM thickness STD (µm)`)}]->(thickness)
+MERGE(ccl)-[:HAS_PROPERTY{float_value: tofloat(row.`SEM thickness standard deviation(µm)`), float_std: tofloat(row.`SEM thickness standard deviation(µm)`)}]->(thickness)
 
 MERGE(sem)-[:HAS_MEASUREMENT_OUTPUT]
   ->(porosity)-[:IS_A]->(EMMO_porosity)

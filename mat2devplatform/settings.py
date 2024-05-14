@@ -72,7 +72,6 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'dbcommunication',
     'django_neomodel',
     'django_cleanup.apps.CleanupConfig',
     'django_admin_multiple_choice_list_filter',

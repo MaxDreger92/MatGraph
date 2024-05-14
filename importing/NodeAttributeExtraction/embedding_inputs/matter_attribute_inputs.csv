@@ -1,0 +1,47 @@
+"Substance Class: Conductive Polymers",name,MatterAttributeEmbedding,MatterAttribute
+"Space Group": "P63/mmc",name,MatterAttributeEmbedding,MatterAttribute
+"Crystal System": "Hexagonal",name,MatterAttributeEmbedding,MatterAttribute
+"Crystal Family": "Oxides",name,MatterAttributeEmbedding,MatterAttribute
+"Composition": "Al2O3",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Formula": "SiO2",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Composition": "Fe2O3",name,MatterAttributeEmbedding,MatterAttribute
+"Substance Class: Oxide Ceramics",name,MatterAttributeEmbedding,MatterAttribute
+"Compound Type: Structural Steel",name,MatterAttributeEmbedding,MatterAttribute
+"Composite Category: Epoxy Resin",name,MatterAttributeEmbedding,MatterAttribute
+"Alloy Group: Amorphous Metals",name,MatterAttributeEmbedding,MatterAttribute
+"Active Material: Solar Absorbing",name,MatterAttributeEmbedding,MatterAttribute
+"Compound Family: High-Tc Superconductors",name,MatterAttributeEmbedding,MatterAttribute
+"Element Set: Rare Earth Metals",name,MatterAttributeEmbedding,MatterAttribute
+"Polymer Sort: Bioplastics",name,MatterAttributeEmbedding,MatterAttribute
+"Chemical Variant: Photocatalysts",name,MatterAttributeEmbedding,MatterAttribute
+"Material Makeup: Carbon Fiber",name,MatterAttributeEmbedding,MatterAttribute
+"Material Type: Electrolyte Solution",name,MatterAttributeEmbedding,MatterAttribute
+"Substance Kind: Ferromagnetic Material",name,MatterAttributeEmbedding,MatterAttribute
+"Particle Type: Colloidal Quantum Dots",name,MatterAttributeEmbedding,MatterAttribute
+"Material Form: Shape Memory Polymers",name,MatterAttributeEmbedding,MatterAttribute
+"ID Tag: CMP-101",identifier,MatterAttributeEmbedding,MatterAttribute
+"Code Label: OXD-102",identifier,MatterAttributeEmbedding,MatterAttribute
+"Spec Number: SST-103",identifier,MatterAttributeEmbedding,MatterAttribute
+"Product_id: EPR-104",identifier,MatterAttributeEmbedding,MatterAttribute
+"Device_Id: AMM-105",identifier,MatterAttributeEmbedding,MatterAttribute
+"Component_id: SAP-106",identifier,MatterAttributeEmbedding,MatterAttribute
+"Item_id: HTS-107",identifier,MatterAttributeEmbedding,MatterAttribute
+"Identification: AMM-105",identifier,MatterAttributeEmbedding,MatterAttribute
+"Tag Series: SAP-106",identifier,MatterAttributeEmbedding,MatterAttribute
+"Product id: HTS-107",identifier,MatterAttributeEmbedding,MatterAttribute
+"Item Number: RMT-108",identifier,MatterAttributeEmbedding,MatterAttribute
+"Lot ID: BPL-109",identifier,MatterAttributeEmbedding,MatterAttribute
+"Catalog No: PHC-110",identifier,MatterAttributeEmbedding,MatterAttribute
+"Production Lot: FBR-211",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Code: ELS-212",batch number,MatterAttributeEmbedding,MatterAttribute
+"Series Mark: FMM-213",batch number,MatterAttributeEmbedding,MatterAttribute
+"Lot Series: CQD-214",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Label: SMP-215",batch number,MatterAttributeEmbedding,MatterAttribute
+"Run ID: CMP-311",identifier,MatterAttributeEmbedding,MatterAttribute
+"Lot Code: OXD-312",batch number,MatterAttributeEmbedding,MatterAttribute
+"Production Series: SST-313",batch number,MatterAttributeEmbedding,MatterAttribute
+"Batch Number: EPR-314",batch number,MatterAttributeEmbedding,MatterAttribute
+"Lot Reference: AMM-315",batch number,MatterAttributeEmbedding,MatterAttribute
+"Membrane: memMat,"name,MatterAttributeEmbedding,MatterAttribute
+"Gas Diffusion Layer: GDL",name,MatterAttributeEmbedding,MatterAttribute
+"Electrode: eleMat",name,MatterAttributeEmbedding,MatterAttribute

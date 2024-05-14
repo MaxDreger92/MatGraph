@@ -38,6 +38,7 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
                 if (progress > index) {
                     return (
                         <div
+                            key={index}
                             onMouseEnter={() => setHoveredTableTab(index)}
                             onMouseLeave={() => setHoveredTableTab(null)}
                             onMouseUp={() => setCurrentTableFn(tab.tabId)}
