@@ -572,9 +572,15 @@ input::webkit-inner-spin-button {
     top: 50px;
 }
 
-/* .workflow-search {
-
-} */
+.workflow-search {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    padding: 0 10px 0 10px;
+}
 
 .wrap-input {
     position: relative;

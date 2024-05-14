@@ -50,13 +50,6 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
         <animated.div
             className="workflow-search"
             style={{
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                alignItems: 'center',
-                width: '100%',
-                height: 'auto',
-                padding: '0 10px 0 10px',
                 paddingBottom: showAdvanced ? 10 : 0,
                 borderBottom: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
             }}
@@ -83,73 +76,67 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
                 style={{
                     fontSize: 13,
                     height: 10,
-                    marginBottom: springProps.advancedMarginBottom,
-                    // color: advancedHovered ? (darkTheme ? '#ced4da' : '#c1c2c5') : (darkTheme ? '#' : '#000'),
+                    // marginBottom: springProps.advancedMarginBottom,
+                    marginBottom: 16,
                     textDecoration: showAdvanced || advancedHovered ? 'underline' : 'none',
                     cursor: 'pointer',
+                    // color: advancedHovered ? (darkTheme ? '#ced4da' : '#c1c2c5') : (darkTheme ? '#' : '#000'),
                 }}
             >
                 Advanced Search
             </animated.p>
             <animated.div
                 style={{
-                    // boxShadow: 'inset 0px 1px 3px rgba(0,0,0,0.3)',
+                    boxShadow: 'inset 0px 1px 3px rgba(0,0,0,0.3)',
                     // width: springProps.width,
-                    width: "100%",
+                    backgroundColor: darkTheme ? '#212226' : '#f8f9fa',
+                    width: '100%',
                     height: springProps.height,
-                    // backgroundColor: darkTheme ? '#212226' : '#f8f9fa',
                     display: 'flex',
                     flexDirection: 'column',
-                    // alignItems: 'center',
-                    // justifyContent: 'center',
-                    overflow: showAdvanced ? "visible" : "hidden",
+                    overflow: showAdvanced ? 'visible' : 'hidden',
                 }}
             >
-
                 {/* Output format row*/}
                 <div
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
-                        position: "relative",
+                        position: 'relative',
                         padding: 10,
                     }}
                 >
-                        <Select
-                            label="Output format:"
-                            defaultValue="csv"
-                            data={[
-                                { value: 'csv', label: 'CSV' },
-                                { value: 'json', label: 'JSON' },
-                            ]}
-                            onChange={(e) => searchForm.setFieldValue('format', e ?? '')}
-                            style={{
-                                width: 120,
-                            }}
-                        />
+                    <Select
+                        label="Output format:"
+                        defaultValue="csv"
+                        data={[
+                            { value: 'csv', label: 'CSV' },
+                            { value: 'json', label: 'JSON' },
+                        ]}
+                        onChange={(e) => searchForm.setFieldValue('format', e ?? '')}
+                        style={{
+                            width: 120,
+                        }}
+                    />
 
-                        
-                        <Checkbox
+                    <Checkbox
                         label="Zip"
-                        labelPosition='right'
-                            checked={searchForm.values.zip}
-                            onChange={(e) =>
-                                searchForm.setFieldValue('zip', e.currentTarget.checked)
-                            }
-                            style={{
-                                position: "relative",
-                                marginLeft: 30,
-                                paddingTop: 40,
-                            }}
-                            sx={{
-                                label: {
-                                    position: "relative",
-                                    top: -8,
-                                    left: -5,
-                                }
-                            }}
-                        />
-                        {/* <p style={{ height: 25, marginBottom: 10, fontSize: 15 }}>Zip:</p> */}
+                        labelPosition="right"
+                        checked={searchForm.values.zip}
+                        onChange={(e) => searchForm.setFieldValue('zip', e.currentTarget.checked)}
+                        style={{
+                            position: 'relative',
+                            marginLeft: 20,
+                            paddingTop: 40,
+                        }}
+                        sx={{
+                            label: {
+                                position: 'relative',
+                                top: -8,
+                                left: -5,
+                            },
+                        }}
+                    />
                 </div>
             </animated.div>
         </animated.div>
