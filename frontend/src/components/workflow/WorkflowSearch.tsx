@@ -3,7 +3,8 @@ import client from '../../client'
 import { saveBlobAsFile } from '../../common/workflowHelpers'
 import { useSpring, animated } from 'react-spring'
 import { useState } from 'react'
-import { Button } from '@mantine/core'
+import { Button, Checkbox, Flex, Select } from '@mantine/core'
+import { useForm } from '@mantine/form'
 
 interface WorkflowSearchProps {
     workflow: string | null
@@ -15,7 +16,20 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
     const [advancedHovered, setAdvancedHovered] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
 
-    async function workflowSearch() {
+    type SearchFormValues = typeof searchForm.values
+
+    const searchForm = useForm({
+        initialValues: {
+            format: 'csv',
+            zip: false,
+        },
+    })
+
+    const handleSubmit = (formValues: SearchFormValues) => {
+        workflowSearch(formValues)
+    }
+
+    async function workflowSearch(params: SearchFormValues) {
         try {
             const response = await client.workflowSearch(workflow)
             if (response) {
@@ -27,7 +41,7 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
     }
 
     const springProps = useSpring({
-        height: showAdvanced ? 150 : 0,
+        height: showAdvanced ? 100 : 0,
         width: showAdvanced ? '100%' : '0%',
         advancedMarginBottom: showAdvanced ? 12 : 20,
     })
@@ -48,7 +62,7 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
             }}
         >
             <Button
-                onClick={workflowSearch}
+                onClick={() => handleSubmit}
                 type="submit"
                 radius="sm"
                 style={{
@@ -71,20 +85,73 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
                     height: 10,
                     marginBottom: springProps.advancedMarginBottom,
                     // color: advancedHovered ? (darkTheme ? '#ced4da' : '#c1c2c5') : (darkTheme ? '#' : '#000'),
-                    textDecoration: showAdvanced || advancedHovered ? "underline" : "none",
-                    cursor: "pointer",
+                    textDecoration: showAdvanced || advancedHovered ? 'underline' : 'none',
+                    cursor: 'pointer',
                 }}
             >
                 Advanced Search
             </animated.p>
             <animated.div
                 style={{
-                    boxShadow: 'inset 0px 1px 3px rgba(0,0,0,0.3)',
-                    width: springProps.width,
+                    // boxShadow: 'inset 0px 1px 3px rgba(0,0,0,0.3)',
+                    // width: springProps.width,
+                    width: "100%",
                     height: springProps.height,
-                    backgroundColor: darkTheme ? '#212226' : '#f8f9fa',
+                    // backgroundColor: darkTheme ? '#212226' : '#f8f9fa',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // alignItems: 'center',
+                    // justifyContent: 'center',
+                    overflow: showAdvanced ? "visible" : "hidden",
                 }}
-            ></animated.div>
+            >
+
+                {/* Output format row*/}
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        position: "relative",
+                        padding: 10,
+                    }}
+                >
+                        <Select
+                            label="Output format:"
+                            defaultValue="csv"
+                            data={[
+                                { value: 'csv', label: 'CSV' },
+                                { value: 'json', label: 'JSON' },
+                            ]}
+                            onChange={(e) => searchForm.setFieldValue('format', e ?? '')}
+                            style={{
+                                width: 120,
+                            }}
+                        />
+
+                        
+                        <Checkbox
+                        label="Zip"
+                        labelPosition='right'
+                            checked={searchForm.values.zip}
+                            onChange={(e) =>
+                                searchForm.setFieldValue('zip', e.currentTarget.checked)
+                            }
+                            style={{
+                                position: "relative",
+                                marginLeft: 30,
+                                paddingTop: 40,
+                            }}
+                            sx={{
+                                label: {
+                                    position: "relative",
+                                    top: -8,
+                                    left: -5,
+                                }
+                            }}
+                        />
+                        {/* <p style={{ height: 25, marginBottom: 10, fontSize: 15 }}>Zip:</p> */}
+                </div>
+            </animated.div>
         </animated.div>
     )
 }
