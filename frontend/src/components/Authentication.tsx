@@ -204,6 +204,16 @@ export default function Authentication() {
                                 onChange={(event) =>
                                     form.setFieldValue('terms', event.currentTarget.checked)
                                 }
+                                style={{
+                                    position: "relative",
+                                }}
+                                sx={{
+                                    label: {
+                                        position: "relative",
+                                        top: -8,
+                                        left: -5,
+                                    }
+                                }}
                             />
                         )}
                     </Stack>
