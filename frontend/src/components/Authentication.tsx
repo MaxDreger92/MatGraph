@@ -176,7 +176,7 @@ export default function Authentication() {
                         <TextInput
                             required
                             label="Email"
-                            placeholder="hello@matGraph.AI"
+                            placeholder="hello@matGraph.xyz"
                             value={form.values.email}
                             onChange={(event) =>
                                 form.setFieldValue('email', event.currentTarget.value)
