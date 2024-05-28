@@ -166,6 +166,12 @@ a:link {
     border-radius: 50%;
 }
 
+.custom-link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    /* text-decoration: double; */
+}
+
 .header {
     position: fixed;
     width: 100vw;

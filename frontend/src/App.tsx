@@ -15,6 +15,7 @@ import Workflow from './components/workflow/Workflow'
 import Database from './components/Database'
 import Profile from './components/Profile'
 import Authentication from './components/Authentication'
+import Legal from './components/legal/Legal'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -44,7 +45,11 @@ export default function App() {
     }, [isError, error])
 
     useEffect(() => {
-        if (!currentUser && !isLoading && !['/', '/login'].includes(location.pathname)) {
+        if (
+            !currentUser &&
+            !isLoading &&
+            !['/', '/login', '/legal-information'].includes(location.pathname)
+        ) {
             navigate('/')
         }
     }, [location, navigate, currentUser, isLoading])
@@ -101,6 +106,7 @@ export default function App() {
                         <Route path="/database" element={<Database />} />
                         <Route path="/login" element={<Authentication />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/legal-information" element={<Legal />} />
                     </Routes>
                 </div>
             </UserContext.Provider>
