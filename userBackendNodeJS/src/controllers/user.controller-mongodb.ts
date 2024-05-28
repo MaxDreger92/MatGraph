@@ -15,19 +15,6 @@ const router = express.Router()
 router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
 
-let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        type: "OAuth2",
-        user: "matgraph.xyz@gmail.com",
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-    },
-})
-
 router.post("/api/users/login", async (req, res) => {
     try {
         const { email, password } = req.body
@@ -104,6 +91,20 @@ router.post("/api/users/register", async (req, res) => {
                 "verify-user"
             )
 
+            let transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: true,
+                auth: {
+                    type: "OAuth2",
+                    user: "matgraph.xyz@gmail.com",
+                    clientId: process.env.GOOGLE_CLIENT_ID,
+                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+                    accessToken: await UserService.getAccessToken(),
+                },
+            })
+
             // Prepare and send the email
             const mailOptions = {
                 from: "matgraph.xyz@gmail.com", // Sender address
@@ -161,7 +162,7 @@ router.get(
                     <span style="display: block; text-align: center; color: #c1c2c5; background-color: #1a1b1e; padding: 10px;">
                         User successfully verified
                     </span>
-                `);
+                `)
             }
         } catch (err) {
             return res.status(500).send("Internal Server Error!")
