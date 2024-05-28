@@ -600,3 +600,17 @@ input::webkit-inner-spin-button {
 .wrap-navbar {
     float: left;
 }
+
+/* For WebKit browsers (Safari, Chrome) */
+input:-webkit-autofill {
+    background-color: #f0e68c !important;
+    -webkit-box-shadow: 0 0 0px 1000px #f0e68c inset !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* For Mozilla browsers (Firefox) */
+input:-moz-autofill {
+    background-color: #f0e68c !important;
+    box-shadow: 0 0 0px 1000px #f0e68c inset !important;
+    color: #000000 !important;
+}
