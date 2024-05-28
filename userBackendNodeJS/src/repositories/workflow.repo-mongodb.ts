@@ -6,7 +6,7 @@ dotenv.config()
 
 const url = process.env.MONGODB_URI as string
 const client = new MongoClient(url)
-const dbName = "reactgraphdb"
+const dbName = "matgraphdb"
 const workflowCollectionName = "workflows"
 
 class WorkflowRepository {

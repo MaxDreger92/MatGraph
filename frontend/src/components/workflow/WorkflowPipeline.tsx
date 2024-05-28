@@ -133,12 +133,13 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
         </div>
         <Button
           type="submit"
-          radius="sm"
+          radius="xl"
           style={{
             alignSelf: "center",
             marginLeft: 15,
             marginBottom: 1,
             width: buttonWidth,
+            height: 40,
             padding: 0,
           }}
           onClick={requestExtractLabels}
@@ -159,12 +160,13 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       >
         <Button
           type="submit"
-          radius="sm"
+          radius="xl"
           style={{
             alignSelf: "center",
             marginLeft: 15,
             marginBottom: 1,
             width: buttonWidth,
+            height: 40,
             padding: 0,
           }}
           onClick={requestExtractAttributes}
@@ -185,12 +187,13 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       >
         <Button
           type="submit"
-          radius="sm"
+          radius="xl"
           style={{
             alignSelf: "center",
             marginLeft: 15,
             marginBottom: 1,
             width: buttonWidth,
+            height: 40,
             padding: 0,
           }}
           onClick={requestExtractNodes}
@@ -211,12 +214,13 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       >
         <Button
           type="submit"
-          radius="sm"
+          radius="xl"
           style={{
             alignSelf: "center",
             marginLeft: 15,
             marginBottom: 1,
             width: buttonWidth,
+            height: 40,
             padding: 0,
           }}
           onClick={requestExtractGraph}
@@ -237,12 +241,13 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       >
         <Button
           type="submit"
-          radius="sm"
+          radius="xl"
           style={{
             alignSelf: "center",
             marginLeft: 15,
             marginBottom: 1,
             width: buttonWidth,
+            height: 40,
             padding: 0,
           }}
           onClick={requestImportGraph}

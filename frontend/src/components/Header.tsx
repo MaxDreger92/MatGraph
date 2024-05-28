@@ -187,7 +187,7 @@ export default function Header(props: HeaderProps) {
                                 className="logo-sm"
                             />
                         </Link>
-                        {activeTab && (
+                        {/*activeTab && (
                             <div
                                 style={{
                                     marginTop: 5,
@@ -199,12 +199,35 @@ export default function Header(props: HeaderProps) {
                             >
                                 <u>Is the API active?</u>
                             </div>
+                        )*/}
+                        {location.pathname !== '/legal-information' && (
+                            <div
+                                style={{
+                                    marginTop: 5,
+                                    paddingLeft: 20,
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                }}
+                            >
+                                <Link to="/legal-information" className="custom-link">
+                                    Legal Information
+                                </Link>
+                            </div>
                         )}
                     </div>
 
                     {!user && location.pathname !== '/login' && (
-                        <Link to="/login" style={{ paddingTop: 4, paddingRight: 30, fontSize: 14 }}>
-                            <u>Login</u>
+                        <Link
+                            to="/login"
+                            style={{
+                                paddingTop: 4,
+                                paddingRight: 30,
+                                fontSize: '0.875rem',
+                                fontWeight: 500,
+                            }}
+                            className="custom-link"
+                        >
+                            Login
                         </Link>
                     )}
 

@@ -57,17 +57,17 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
             <Button
                 onClick={() => handleSubmit}
                 type="submit"
-                radius="sm"
+                radius="xl"
                 style={{
                     alignSelf: 'center',
                     marginBottom: 25,
-                    width: 170,
-                    height: 60,
+                    width: 160,
+                    height: 40,
                     marginTop: 25,
                     fontSize: 14,
                 }}
             >
-                {'Search Database'}
+                Search Database
             </Button>
             <animated.p
                 onClick={() => setShowAdvanced((prev) => !prev)}
