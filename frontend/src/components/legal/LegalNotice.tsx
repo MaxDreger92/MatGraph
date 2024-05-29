@@ -16,7 +16,7 @@ export default function LegalNotice(props: LegalNoticeProps) {
             <p style={{ fontSize: 15, transform: 'translate(0, -0px)' }}>
                 matGraph operates under the same legal framework and notices as{' '}
                 <a
-                    href="https://www.fz-juelich.de/en/privacy-policy"
+                    href="https://www.fz-juelich.de/en/legal-notice"
                     className="custom-link"
                     style={{ color: '#1971c2' }}
                 >
