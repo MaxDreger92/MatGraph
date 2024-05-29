@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
             }}
         >
             <h2>Privacy Policy</h2>
-            <span style={{ fontSize: 14, transform: 'translate(0, -50px)' }}>
+            <p style={{ fontSize: 15, transform: 'translate(0, -0px)' }}>
                 matGraph operates under the same legal framework and notices as{' '}
                 <a
                     href="https://www.fz-juelich.de/en/privacy-policy"
@@ -16,8 +16,9 @@ export default function PrivacyPolicy() {
                     Forschungszentrum Jülich GmbH
                 </a>
                 .
-            </span>
-            <br />
+                {' '}
+                (Effective 05.28.24)
+            </p>
             <br />
             <p>
                 We are very delighted that you have shown interest in our enterprise. Data
