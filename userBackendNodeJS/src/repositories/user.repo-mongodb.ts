@@ -28,7 +28,6 @@ class UserRepository {
     static async connect() {
         try {
             await client.connect()
-            console.log("Connected successfully to server")
             const db = client.db(dbName)
             return db.collection<IUser>(collectionName)
         } catch (err) {
