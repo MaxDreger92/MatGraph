@@ -27,7 +27,7 @@
     "express-fileupload": "^1.4.1",
     "form-data": "^4.0.0",
     "jsonwebtoken": "^9.0.0",
-    "mongodb": "^6.2.0",
+    "mongodb": "^6.6.2",
     "nodemailer": "^6.9.13",
     "sqlite3": "^5.1.6",
     "ts-node": "^10.9.1"
