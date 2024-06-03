@@ -2,15 +2,39 @@ import { MongoClient, ObjectId } from "mongodb"
 import { MDB_IUser as IUser } from "../types/user.type"
 
 const url = process.env.MONGODB_URI as string
-const client = new MongoClient(url)
+const tlsCertificateKeyFile = (process.env.TLS_CERTIFICATE_KEY_FILE as string).replace(
+    "~",
+    require("os").homedir()
+)
+const tlsCAFile = (process.env.TLS_CA_FILE as string).replace(
+    "~",
+    require("os").homedir()
+)
+
+console.log(tlsCertificateKeyFile)
+console.log(tlsCAFile)
+
+const options = {
+    tls: true,
+    tlsCertificateKeyFile: tlsCertificateKeyFile,
+    tlsCAFile: tlsCAFile,
+    tlsAllowInvalidCertificates: false
+}
+const client = new MongoClient(url, options)
 const dbName = "matgraphdb"
 const collectionName = "users"
 
 class UserRepository {
     static async connect() {
-        await client.connect()
-        const db = client.db(dbName)
-        return db.collection<IUser>(collectionName)
+        try {
+            await client.connect()
+            console.log("Connected successfully to server")
+            const db = client.db(dbName)
+            return db.collection<IUser>(collectionName)
+        } catch (err) {
+            console.error("Connection error:", err)
+            process.exit(1)
+        }
     }
 
     static async findByMail(email: string): Promise<IUser | null> {

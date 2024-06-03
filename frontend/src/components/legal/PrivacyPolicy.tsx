@@ -15,9 +15,7 @@ export default function PrivacyPolicy() {
                 >
                     Forschungszentrum Jülich GmbH
                 </a>
-                .
-                {' '}
-                (Effective 05.28.24)
+                . (Effective 05.28.24)
             </p>
             <br />
             <p>
@@ -209,10 +207,22 @@ export default function PrivacyPolicy() {
                 Deutschland
             </p>
             <p>
-                Website: <a href="https://www.fz-juelich.de/de" className="custom-link" style={{ color: '#1971c2' }}>www.fz-juelich.de</a>
+                Website:{' '}
+                <a
+                    href="https://www.fz-juelich.de/de"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
+                    www.fz-juelich.de
+                </a>
                 <br />
                 E-Mail:{' '}
-                <a href="mailto:info@fz-juelich.de" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="mailto:info@fz-juelich.de"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     info@fz-juelich.de
                 </a>
             </p>
@@ -234,10 +244,22 @@ export default function PrivacyPolicy() {
             </p>
             <p>Tel.: +49-2461-61-9005</p>
             <p>
-                Website: <a href="https://www.fz-juelich.de/de" className="custom-link" style={{ color: '#1971c2' }}>www.fz-juelich.de </a>
+                Website:{' '}
+                <a
+                    href="https://www.fz-juelich.de/de"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
+                    www.fz-juelich.de{' '}
+                </a>
                 <br />
                 E-Mail:{' '}
-                <a href="mailto:DSB@fz-juelich.de" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="mailto:DSB@fz-juelich.de"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     DSB@fz-juelich.de
                 </a>
             </p>
@@ -730,7 +752,12 @@ export default function PrivacyPolicy() {
             </p>
             <p>
                 Contact:{' '}
-                <a href="mailto:info@fz-juelich.de" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="mailto:info@fz-juelich.de"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     info@fz-juelich.de
                 </a>
             </p>
@@ -817,7 +844,12 @@ export default function PrivacyPolicy() {
                 subject is automatically prompted to download display of the corresponding Facebook
                 component from Facebook through the Facebook component. An overview of all the
                 Facebook Plug-ins may be accessed under{' '}
-                <a href="https://developers.facebook.com/docs/plugins/" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://developers.facebook.com/docs/plugins/"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://developers.facebook.com/docs/plugins/
                 </a>
                 . During the course of this technical procedure, Facebook is made aware of what
@@ -845,7 +877,12 @@ export default function PrivacyPolicy() {
             </p>
             <p>
                 The data protection guideline published by Facebook, which is available at{' '}
-                <a href="https://facebook.com/about/privacy/" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://facebook.com/about/privacy/"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://facebook.com/about/privacy/
                 </a>
                 , provides information about the collection, processing and use of personal data by
@@ -919,7 +956,12 @@ export default function PrivacyPolicy() {
                 subject is automatically prompted to the download of a display of the corresponding
                 LinkedIn component of LinkedIn. Further information about the LinkedIn plug-in may
                 be accessed under{' '}
-                <a href="https://developer.linkedin.com/plugins" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://developer.linkedin.com/plugins"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://developer.linkedin.com/plugins
                 </a>
                 . During the course of this technical procedure, LinkedIn gains knowledge of what
@@ -948,7 +990,8 @@ export default function PrivacyPolicy() {
                 <a
                     href="https://www.linkedin.com/psettings/guest-controls"
                     rel="noopener noreferrer"
-                    className="custom-link" style={{ color: '#1971c2' }}
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
                 >
                     https://www.linkedin.com/psettings/guest-controls
                 </a>{' '}
@@ -956,15 +999,30 @@ export default function PrivacyPolicy() {
                 as well as the ability to manage ad settings. LinkedIn also uses affiliates such as
                 Eire, Google Analytics, BlueKai, DoubleClick, Nielsen, Comscore, Eloqua, and Lotame.
                 The setting of such cookies may be denied under{' '}
-                <a href="https://www.linkedin.com/legal/cookie-policy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.linkedin.com/legal/cookie-policy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.linkedin.com/legal/cookie-policy
                 </a>{' '}
                 . The applicable privacy policy for LinkedIn is available under{' '}
-                <a href="https://www.linkedin.com/legal/privacy-policy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.linkedin.com/legal/privacy-policy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.linkedin.com/legal/privacy-policy
                 </a>
                 . The LinkedIn Cookie Policy is available under{' '}
-                <a href="https://www.linkedin.com/legal/cookie-policy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.linkedin.com/legal/cookie-policy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.linkedin.com/legal/cookie-policy
                 </a>{' '}
                 .
@@ -1040,7 +1098,12 @@ export default function PrivacyPolicy() {
             <p>
                 Further information and the applicable data protection provisions of Matomo may be
                 retrieved under{' '}
-                <a href="https://matomo.org/privacy/" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://matomo.org/privacy/"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://matomo.org/privacy/
                 </a>
                 .
@@ -1090,7 +1153,12 @@ export default function PrivacyPolicy() {
             </p>
             <p>
                 Further information on data protection with etracker can be found{' '}
-                <a href="https://www.etracker.com/en/data-privacy/" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.etracker.com/en/data-privacy/"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     here
                 </a>
                 .
@@ -1146,7 +1214,12 @@ export default function PrivacyPolicy() {
             </p>
             <p>
                 The applicable data protection provisions of X may be accessed under{' '}
-                <a href="https://twitter.com/en/privacy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://twitter.com/en/privacy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://X.com/privacy{' '}
                 </a>
             </p>
@@ -1175,7 +1248,12 @@ export default function PrivacyPolicy() {
                 subject is automatically prompted to download a display of the corresponding XING
                 component of XING. Further information about the XING plug-in the may be accessed
                 under{' '}
-                <a href="https://dev.xing.com/plugins" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://dev.xing.com/plugins"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://dev.xing.com/plugins
                 </a>
                 . During the course of this technical procedure, XING gains knowledge of what
@@ -1201,7 +1279,12 @@ export default function PrivacyPolicy() {
             </p>
             <p>
                 The data protection provisions published by XING, which is available under{' '}
-                <a href="https://www.xing.com/privacy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.xing.com/privacy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.xing.com/privacy
                 </a>
                 , provide information on the collection, processing and use of personal data by
@@ -1242,7 +1325,12 @@ export default function PrivacyPolicy() {
                 integrated, the Internet browser on the information technology system of the data
                 subject is automatically prompted to download a display of the corresponding YouTube
                 component. Further information about YouTube may be obtained under{' '}
-                <a href="https://www.youtube.com/yt/about/en/" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.youtube.com/yt/about/en/"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.youtube.com/yt/about/en/
                 </a>
                 . During the course of this technical procedure, YouTube and Google gain knowledge
@@ -1347,7 +1435,12 @@ export default function PrivacyPolicy() {
                 The operating company of ResearchGate is ResearchGate GmbH, Invalidenstraße 115,
                 10115 Berlin, Germany. For privacy matters the Data Privacy Officer of ResearchGate
                 GmbH,{' '}
-                <a href="mailto:privacy@researchgate.net" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="mailto:privacy@researchgate.net"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     privacy@researchgate.net
                 </a>
                 , is responsible.
@@ -1359,11 +1452,21 @@ export default function PrivacyPolicy() {
                 of the data subject is automatically prompted to the download of a display of the
                 corresponding ResearchGate component of ResearchGate. Further information about the
                 ResearchGate plug-in may be accessed under{' '}
-                <a href="https://researchgate.net" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://researchgate.net"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://researchgate.net
                 </a>
                 . During the course of this technical procedure,{' '}
-                <a href="https://researchgate.net" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://researchgate.net"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://researchgate.net
                 </a>{' '}
                 gains knowledge of what specific sub-page of our website was visited by the data
@@ -1398,7 +1501,12 @@ export default function PrivacyPolicy() {
                     https://www.researchgate.net/privacy-policy#cookies
                 </a>
                 . The applicable privacy policy for ResearchGate is available under unter{' '}
-                <a href="https://www.researchgate.net/privacy-policy" rel="noopener noreferrer" className="custom-link" style={{ color: '#1971c2' }}>
+                <a
+                    href="https://www.researchgate.net/privacy-policy"
+                    rel="noopener noreferrer"
+                    className="custom-link"
+                    style={{ color: '#1971c2' }}
+                >
                     https://www.researchgate.net/privacy-policy
                 </a>
                 . The ResearchGate Cookie Policy is available under{' '}
