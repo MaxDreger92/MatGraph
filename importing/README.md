@@ -1,5 +1,5 @@
 ## Importing
-The importing module is an API module, providing the data ingestion functionality, comprising the following endpoints:
+The importing module is an API module providing the data ingestion functionality, comprising the following endpoints:
 
 ### label-extract
 - Handle storage of user data file
