@@ -428,7 +428,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.get('data/fabrication-workflow', {
+            const response = await this.dataClient.get('match/fabrication-workflow', {
                 params: {
                     workflow,
                 },
@@ -460,7 +460,7 @@ class Client {
             formData.append('context', context);
 
             // Make the POST request with formData
-            const response = await this.dataClient.post('data/file-retrieve', formData, {
+            const response = await this.dataClient.post('import/label-extract', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     // Don't set 'Content-Type': 'multipart/form-data' manually
@@ -485,7 +485,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('data/label-retrieve', {
+            const response = await this.dataClient.post('import/attribute-extract', {
                 params: {
                     label_dict: dict,
                     context: context,
@@ -516,7 +516,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('data/attribute-retrieve', {
+            const response = await this.dataClient.post('import/node-extract', {
                 params: {
                     attribute_dict: dict,
                     context: context,
@@ -547,7 +547,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('data/node-retrieve', {
+            const response = await this.dataClient.post('import/graph-extract', {
                 params: {
                     node_json: nodeJson,
                     context: context,
@@ -583,7 +583,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('data/graph-retrieve', {
+            const response = await this.dataClient.post('import/graph-import', {
                 params: {
                     graph_json: graphJson,
                     context: context, // Use the corrected parameter name
