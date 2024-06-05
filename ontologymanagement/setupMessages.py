@@ -8,7 +8,8 @@ MATTER_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             1. Add 1-5 five alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. The descriptions needs to be a short scientific, concise sentence"""),
-                                      ("user","""Generate labels and description for the following class: {input}""")]
+                                      ("user","""Generate labels and description for the following class: {input}"""),
+                                      ("user","""Make sure you follow the correct format.""")]
 
 QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
 """You are a world-class algorithm for ontology management. You are given ontology classes and suggest alternative labels for them. 
@@ -19,7 +20,8 @@ QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             1. Add 1-5 five alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. You always give valuable alternative labels"""),
-                                        ("user","""Generate labels for the following class: {input}""")]
+                                        ("user","""Generate labels for the following class: {input}"""),
+                                        ("user","""Make sure you follow the correct format.""")]
 
 
 PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
@@ -31,7 +33,8 @@ PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             1. Add 1-5 five alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. You always give valuable alternative labels"""),
-                                       ("user","""Generate labels for the following class: {input}""")]
+                                       ("user","""Generate labels for the following class: {input}"""),
+                                       ("user","""Make sure you follow the correct format.""")]
 
 
 MATTER_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
@@ -43,7 +46,8 @@ Your Task is to identify a single ParentClass or SubClass of the given input amo
 Your output is that ChildClass or Parentclass or Nonetype if none of the given candidates are a suitable ChildClass or ParentClass
 Your output always follows the given format!
 """),
-                                       ("user","""Give the correct response for the following input: {input}""")]
+                                       ("user","""Give the correct response for the following input: {input}"""),
+                                       ("user","""Make sure you followed the correct format and you extract return the exact candidate name within the answer.""")]
 
 QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
                                           """
@@ -55,7 +59,8 @@ Your Task is to identify a single ParentClass or SubClass of the given input amo
 Your output is that ChildClass or Parentclass or Nonetype if none of the given candidates are a suitable ChildClass or ParentClass
 Your output always follows the given format!
 """),
-                                         ("user","""Give the correct response for the following input: {input}""")]
+                                         ("user","""Give the correct response for the following input: {input}"""),
+                                         ("user","""Make sure you followed the correct format and you extract return the exact candidate name within the answer.""")]
 
 
 PROCESS_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
@@ -67,7 +72,8 @@ Your Task is to identify a single ParentClass or SubClass of the given input amo
 Your output is that ChildClass or Parentclass or Nonetype if none of the given candidates are a suitable ChildClass or ParentClass
 Your output always follows the given format!
 """),
-                                        ("user","""Give the correct response for the following input: {input}""")]
+                                        ("user","""Give the correct response for the following input: {input}"""),
+                                        ("user","""Make sure you followed the correct format and you extract return the exact candidate name within the answer.""")]
 
 
 

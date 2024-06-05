@@ -4,6 +4,7 @@ from langchain.chains.structured_output import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 
+from graphutils.config import CHAT_GPT_MODEL
 from importing.RelationshipExtraction.examples import (
     MATTER_MANUFACTURING_EXAMPLES,
     HAS_PARAMETER_EXAMPLES,
@@ -83,7 +84,7 @@ Scientific Context: {self.context}
     def initial_extraction(self):
         """Performs the initial extraction of relationships using GPT-4."""
         query = self.create_query()
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = self.setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
 
@@ -91,6 +92,7 @@ Scientific Context: {self.context}
             example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
             few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=self.examples)
             prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
+            print(f"Example Prompt: {prompt}")
 
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
@@ -162,6 +164,7 @@ class HasPartManufacturingExtractor(RelationshipExtractor):
         self.label_one = ["manufacturing"]
         self.label_two = ["manufacturing"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
+
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""

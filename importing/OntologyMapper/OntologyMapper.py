@@ -7,6 +7,7 @@ from langchain.chains.ernie_functions import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 
+from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
 from graphutils.models import AlternativeLabel
 from importing.OntologyMapper.setupMessages import PARAMETER_SETUP_MESSAGE, MEASUREMENT_SETUP_MESSAGE, \
@@ -86,6 +87,7 @@ class OntologyMapper:
                 self._append_mapping(col_value, label)
 
     def _append_mapping(self, name_value, label):
+        print(name_value, label)
         if label == 'metadata':
             return
         ontology_generator = OntologyGenerator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
@@ -120,18 +122,17 @@ class OntologyGenerator:
     def get_or_create(self, input, label):
         ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input.replace("_", " "), limit=15,
                                                               include_similarity=True)
-        return ontology[0][0]
-        # if ontology[0][1] < 0.97:
-        #     output = self.create_synonym(input, ontology, label)
-        #     nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
-        #     if nodes[0][1] < 0.97:
-        #         ontology_node = ONTOLOGY_MAPPER[label](name=output)
-        #         self.save_ontology_node(ontology_node)
-        #         return ontology_node
-        #     else:
-        #         return nodes[0][0]
-        # else:
-        #     return ontology[0][0]
+        if ontology[0][1] < 0.97:
+            output = self.create_synonym(input, ontology, label)
+            nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
+            if nodes[0][1] < 0.97:
+                ontology_node = ONTOLOGY_MAPPER[label](name=output)
+                self.save_ontology_node(ontology_node)
+                return ontology_node
+            else:
+                return nodes[0][0]
+        else:
+            return ontology[0][0]
 
     def save_ontology_node(self, node):
         """
@@ -182,7 +183,7 @@ class OntologyGenerator:
             'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES
         }
         nodes = self.ontology_class.nodes.get_by_string(string=node.name, limit=8, include_similarity=False)
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name]
         prompt = ChatPromptTemplate.from_messages(setup_message)
         query = f"""Input: {node.name}\nCandidates: {", ".join([el.name for el in nodes if el.name != node.name])} \nContext: {self.context}"""
@@ -201,6 +202,8 @@ class OntologyGenerator:
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.child_name)].uid
             return node.get_subclasses([candidate_uid])
         else:
+            print(nodes)
+            print(chosen_candidate.parent_name)
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.parent_name)].uid
             return node.get_superclasses([candidate_uid])
 
@@ -213,7 +216,7 @@ class OntologyGenerator:
             'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
         }
 
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
         query = f"""Input: {self.name}, candidates: {', '.join([el[1] for el in candidates])}"""
         prompt = ChatPromptTemplate.from_messages(setup_message)
