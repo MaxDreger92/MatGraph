@@ -8,71 +8,91 @@ class Node(Serializable):
     attributes: dict = Field(default_factory=dict, description='node properties')
 
 
-class Attribute(BaseModel):
+class StringAttribute(BaseModel):
     """
     AttributeValue: specific value of the attribute can be extracted from the table column and inferred from context or the table header
     AttributeReference:  - If the attribute was inferred from "Context" or "Header", the index is either "guess" or "header".
             - If the attribute is extracted from the SampleRow the index is the ColumnIndex of the attribute.
     Rule : If the attribute value is an empty string, do not extract the attribute
     """
-    AttributeValue: float|str = Field('missing')
-    AttributeReference: int|str = Field('missing')
+    AttributeValue: str = Field()
+    AttributeReference: int|str = Field()
+    def to_dict(self):
+        return {
+            "AttributeValue": self.AttributeValue,
+            "AttributeReference": self.AttributeReference
+        }
 
-class Name(Attribute):
+class FloatAttribute(BaseModel):
+    """
+    AttributeValue: specific value of the attribute can be extracted from the table column and inferred from context or the table header
+    AttributeReference:  - If the attribute was inferred from "Context" or "Header", the index is either "guess" or "header".
+            - If the attribute is extracted from the SampleRow the index is the ColumnIndex of the attribute.
+    """
+    AttributeValue: float = Field()
+    AttributeReference: int|str = Field()
+    def to_dict(self):
+        return {
+            "AttributeValue": self.AttributeValue,
+            "AttributeReference": self.AttributeReference
+        }
+
+class Name(StringAttribute):
     """
     Node name
     """
     pass
 
-class Value(Attribute):
+class Value(FloatAttribute):
     """
     Value of a quantity
+    AttributeValue: floating point number extracted from the table column if none available set to 0.0
     """
     pass
 
-class Error(Attribute):
+class Error(FloatAttribute):
     """
     Error of a quantity
     """
     pass
 
-class Average(Attribute):
+class Average(FloatAttribute):
     """
     Average value of a quantity
     """
     pass
 
-class StandardDeviation(Attribute):
+class StandardDeviation(FloatAttribute):
     """
     Standard deviation of a quantity
     """
     pass
 
-class Identifier(Attribute):
+class Identifier(StringAttribute):
     """
     Identifier of the node
     """
     pass
 
-class Unit(Attribute):
+class Unit(StringAttribute):
     """
     Unit of a quantity
     """
     pass
 
-class BatchNumber(Attribute):
+class BatchNumber(StringAttribute):
     """
     Batch number of the matter
     """
     pass
 
-class Ratio(Attribute):
+class Ratio(FloatAttribute):
     """
     Ratio of the matter
     """
     pass
 
-class Concentration(Attribute):
+class Concentration(FloatAttribute):
     """
     Concentration of the matter
     """
@@ -83,14 +103,18 @@ class MatterAttributes(BaseModel):
     """
     Attributes of a specific matter node
     Required fields: name (the name can be a single string or a list of strings)
-    Optional fields: identifier, batch number, ratio, concentration
+    Optional fields: identifier, batch_number, ratio, concentration
 
     """
     identifier: Optional[Identifier] = None
     batch_number: Optional[BatchNumber] = None
-    ratio: Optional[Ratio] = None
-    concentration: Optional[Concentration] = None
-    name: List[Name] = Field(Name(AttributeValue='missing', AttributeReference='missing'), description="Extract from the column, header or context.")
+    name: List[Name] = Field(description="Extract from the column, header or context.")
+    def to_dict(self):
+        return {
+            "identifier": self.identifier.to_dict() if self.identifier else None,
+            "batch_number": self.batch_number.to_dict() if self.batch_number else None,
+            "name": [name.to_dict() for name in self.name]
+        }
 
 class QuantityAttributes(BaseModel):
     """
@@ -100,13 +124,21 @@ class QuantityAttributes(BaseModel):
     Optional fields: error, average, standard_deviation
     Each attribute can have multiple values. The value of a quantity can be a single value or a range.
     """
-    name: Name|List[Name] = Field(Name(AttributeValue='missing', AttributeReference='missing'), description='Required field.')
-    value: Value|List[Value]
+    name: List[Name] = Field(description='Required field.')
+    value: Value|List[Value] = Field(description='Required field. Can be a single value or a list of values if a spectrum or array is given in the data.')
     error: Optional[Error|List[Error]] = None
     average: Optional[Average|List[Average]] = None
     standard_deviation: Optional[StandardDeviation|List[StandardDeviation]] = None
-    unit: Unit = Field(Unit(AttributeValue='missing', AttributeReference='missing'), description='Required field. Extract or guess the unit. The unit is never an array.')
-
+    unit: Unit = Field(description='Required field. Extract or guess the unit. The unit is never an array.')
+    def to_dict(self):
+        return {
+            "name": [name.to_dict() for name in self.name],
+            "value": [v.to_dict() if hasattr(v, 'to_dict') else v for v in self.value] if isinstance(self.value, list) else self.value.to_dict(),
+            "error": self.error.to_dict() if self.error else None,
+            "average": self.average.to_dict() if self.average else None,
+            "standard_deviation": self.standard_deviation.to_dict() if self.standard_deviation else None,
+            "unit": self.unit.to_dict() if self.unit else None
+        }
 class ProcessAttributes(BaseModel):
     """
     Attributes of a process node
@@ -116,6 +148,11 @@ class ProcessAttributes(BaseModel):
     """
     identifier: Optional[Identifier] = None
     name: List[Name] = Field('missing',description='Required field.')
+    def to_dict(self):
+        return {
+            "identifier": self.identifier.to_dict() if self.identifier else None,
+            "name": [name.to_dict() for name in self.name]
+        }
 
 class MatterNode(Node):
     """
@@ -126,7 +163,10 @@ class MatterNode(Node):
         - Matter: Gas Diffusion Layer
     """
     attributes: MatterAttributes = Field(None)
-
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 class PropertyNode(Node):
     """
     Node representing a specific instance of a physical property
@@ -135,6 +175,10 @@ class PropertyNode(Node):
 
     """
     attributes: QuantityAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 
 class ParameterNode(Node):
     """
@@ -143,6 +187,10 @@ class ParameterNode(Node):
     values that inherently are arrays (e.g. a spectrum) which should be represented as a single node.
     """
     attributes: QuantityAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 
 class ManufacturingNode(Node):
     """
@@ -152,6 +200,10 @@ class ManufacturingNode(Node):
         - Manufacturing: Electro Spinning
     """
     attributes: ProcessAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 
 class MeasurementNode(Node):
     """
@@ -161,6 +213,10 @@ class MeasurementNode(Node):
         - Measurement: SEM
     """
     attributes: ProcessAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 
 class MetadataNode(Node):
     """
@@ -170,6 +226,10 @@ class MetadataNode(Node):
         - Metadata: Researcher
     """
     attributes: ProcessAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
 
 class MatterNodeList(BaseModel):
     """
@@ -178,6 +238,10 @@ class MatterNodeList(BaseModel):
     The final list of nodes need to represent the full content of the table which requires to infer the correct number of nodes and their attributes.
     """
     nodes: List[MatterNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 
 class PropertyNodeList(BaseModel):
@@ -187,30 +251,50 @@ class PropertyNodeList(BaseModel):
     values that inherently are arrays (e.g. a spectrum) which should be represented as a single node.
     """
     nodes: List[PropertyNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 class ParameterNodeList(BaseModel):
     """
     List of all parameter nodes extracted from the table.
     """
     nodes: List[ParameterNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 class ManufacturingNodeList(BaseModel):
     """
     List of all manufacturing nodes extracted from the table.
     """
     nodes: List[ManufacturingNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 class MeasurementNodeList(BaseModel):
     """
     List of all measurement nodes extracted from the table.
     """
     nodes: List[MeasurementNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 class MetadataNodeList(BaseModel):
     """
     List of all metadata nodes extracted from the table.
     """
     nodes: List[MetadataNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }
 
 
 

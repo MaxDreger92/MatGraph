@@ -262,7 +262,7 @@ class NodeLabelView(TemplateView):
 class NodeAttributeView(TemplateView):
     template_name = 'attribute_analysis.html'
     ATTRIBUTE_MAPPER = {
-    "Matter": ["name", "ratio", "concentration", "batch number", "identifier"],
+    "Matter": ["name", "ratio", "concentration", "batch_number", "identifier"],
     "Parameter": [ "value", "unit", "average", "std", "error"],
     "Measurement": ["name", "identifier"],
     "Manufacturing": ["name", "identifier"],

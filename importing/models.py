@@ -286,14 +286,16 @@ class Cache:
         if cached:
             if cached.get_validation_state(attribute_type):
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
+            return None
         else:
-            print("header:",header)
-            new_record = cls.objects.get_or_create(
-                header=str(header)[:200]
-                )
-            new_record.sample_column=column_value[:200]
-            new_record.save()
-            return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
+            # print("header:",header)
+            # new_record = cls.objects.get_or_create(
+            #     header=str(header)[:200]
+            #     )[0]
+            # new_record.sample_column=column_value[:200]
+            # new_record.save()
+            # return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
+            return None
 
 
     @classmethod
@@ -341,7 +343,7 @@ class ImporterCache(Cache, models.Model):
         ('median', 'Median'),
         ('concentration', 'Concentration'),
         ('ratio', 'Ratio'),
-        ('batch number', 'Batch'),
+        ('batch_number', 'Batch'),
         ('No attribute', 'No attribute'),
         (None, 'None'),
         ]

@@ -32,9 +32,9 @@ if __name__ == "__main__":
     # parameter_evaluation = ParameterEvaluator()
     # parameter_results = parameter_evaluation.run_evaluation()
     # #
-    # measurement_data_set = "Measurement_Extraction"
-    # measurement_evaluation = MeasurementEvaluator()
-    # measurement_results = measurement_evaluation.run_evaluation()
+    measurement_data_set = "Measurement_Extraction"
+    measurement_evaluation = MeasurementEvaluator()
+    measurement_results = measurement_evaluation.run_evaluation()
     #
     # metadata_data_set = "Metadata_Extraction"
     # metadata_evaluation = MetadataEvaluator()
@@ -52,13 +52,13 @@ if __name__ == "__main__":
     # has_manufacturing = HasManufacturingEvaluator()
     # has_manufacturing_results = has_manufacturing.run_evaluation()
 
-    has_measurement_data_set = "Has_Measurement_Extraction"
-    has_measurement = HasMeasurementEvaluator()
-    has_measurement_results = has_measurement.run_evaluation()
-
-    has_part_matter_data_set = "Has_Part_Matter_Extraction"
-    has_part_matter = HasPartMatterEvaluator()
-    has_part_matter_results = has_part_matter.run_evaluation()
+    # has_measurement_data_set = "Has_Measurement_Extraction"
+    # has_measurement = HasMeasurementEvaluator()
+    # has_measurement_results = has_measurement.run_evaluation()
+    #
+    # has_part_matter_data_set = "Has_Part_Matter_Extraction"
+    # has_part_matter = HasPartMatterEvaluator()
+    # has_part_matter_results = has_part_matter.run_evaluation()
 
     # has_metadata_data_set = "Has_Metadata_Extraction"
     # has_metadata = HasMetadataEvaluator()

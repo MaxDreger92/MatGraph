@@ -1,21 +1,17 @@
 import os
 
-from langchain.chains.conversation.base import ConversationChain
 from langchain.chains.ernie_functions import create_structured_output_runnable
-from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from graphutils.config import CHAT_GPT_MODEL
 from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipValidator import hasParameterValidator, hasPropertyValidator, \
     hasMeasurementValidator, hasManufacturingValidator, hasPartMatterValidator, hasPartManufacturingValidator
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships, HasManufacturingRelationships, \
     HasPropertyRelationships, HasParameterRelationships, HasPartMatterRelationships, HasPartManufacturingRelationships
-from importing.RelationshipExtraction.setupMessages import PROPERTY_MEASUREMENT_CORRECTION_MESSAGE, \
-    HAS_PROPERTY_CORRECTION_MESSAGE, HAS_PARAMETER_CORRECTION_MESSAGE, MATTER_MANUFACTURING_CORRECTION_MESSAGE, \
-    MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, MATTER_PROPERTY_MESSAGE, HAS_PARAMETER_MESSAGE, \
-    MATTER_MATTER_CORRECTION_MESSAGE, MEASUREMENT_MEASUREMENT_CORRECTION_MESSAGE, \
-    MANUFACTURING_MANUFACTURING_CORRECTION_MESSAGE
+from importing.RelationshipExtraction.setupMessages import MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, \
+    MATTER_PROPERTY_MESSAGE, HAS_PARAMETER_MESSAGE
 
 
 class relationshipCorrector:
@@ -40,33 +36,37 @@ class relationshipCorrector:
         self.nodes = nodes
         self._corrected_graph = graph
 
-
-
-    def request_corrections(self, prompts):
+    def request_corrections(self):
         """Extract the relationships using the initial prompt."""
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.environ.get("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.environ.get("OPENAI_API_KEY"))
         setup_message = self.setup_message
-        setup_message = [*setup_message, *[("ai", self.llm_output), ("human", "Plesae correct the following inconsistencies: {inconsistencies}")]]
+        setup_message = [*setup_message, *[("ai", self.llm_output), (
+        "human", "Please correct the following inconsistencies: {inconsistencies}")]]
         prompt = ChatPromptTemplate.from_messages(setup_message)
+        print("Prompt:")
+        print(self.prompts)
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-correction"})
         self._corrected_graph = chain.invoke({
-            "inconsistencies": (', ').join(prompts),
+            "inconsistencies": (', ').join(self.prompts),
             "input": self.query})
 
     def run(self):
         self.full_validate()
         self.generate_prompts()
-        if len(self.prompts) > 0:
-            self.request_corrections(self.prompts)
+        if len(self.prompts) != 0:
+            self.request_corrections()
         return self.corrected_graph
 
     def generate_prompts(self):
         self.prompts = []
+        print("generate_prompts")
         for key, value in self.validation_results.items():
             if value != True:
                 prompt = self.correction_functions[key](value)
+                print("prompt", prompt)
                 self.prompts.append(prompt)
+        print("generated_prompts", self.prompts)
 
     def full_validate(self):
         self._validation_results = self.validator.run()
@@ -88,7 +88,8 @@ class relationshipCorrector:
 
         # Constructing a detailed description of the nodes that violate the cardinality constraints
         nodes_description = '; '.join(
-            [f"Node '{node}' with related nodes [{','.join(edges)}]" for node, edges in wrong_nodes.items()]).replace("; ", "\n")
+            [f"Node '{node}' with related nodes [{','.join(edges)}]" for node, edges in wrong_nodes.items()]).replace(
+            "; ", "\n")
 
         # Assembling the full prompt
         prompt = (
@@ -125,12 +126,14 @@ class relationshipCorrector:
         # Extract details from the result
         rel1, rel2, problematic_nodes = cycle_check_result['rel1'], cycle_check_result['rel2'], cycle_check_result[
             'nodes']
-
-        # If there are problematic nodes found
         nodes_list_str = ', '.join(problematic_nodes)
+        # If there are problematic nodes found
         prompt = (
-            f"The following nodes have reciprocal relationships involving '{rel1}' and '{rel2}' that may lead to cycles: {nodes_list_str}. "
+            f"""The following nodes have relationships of the type {rel1} and {rel2} with one and the same node which is against the graph logic: 
+             - {nodes_list_str}
+            Form one coherent chain/sequence of nodes that represents the complete and correct fabrication workflow."""
         )
+        nodes_list_str = ', '.join(problematic_nodes)
         return prompt
 
     @property
@@ -157,10 +160,11 @@ class relationshipCorrector:
     def label_two(self):
         return self._label_two
 
-    def generate_prompts(self):
-        for key, value in self.validation_results.items():
-            if value != True:
-                self.prompts.append(self.correction_functions[key](value))
+    # def generate_prompts(self):
+    #     for key, value in self.validation_results.items():
+    #         if value != True:
+    #             self.prompts.append(self.correction_functions[key](value))
+
     @property
     def corrected_graph(self):
         return self._corrected_graph
@@ -177,6 +181,7 @@ class relationshipCorrector:
             )
         return str({'output': relationships}).replace('{', '{{').replace('}', '}}')
 
+
 class hasPartMatterCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
         super().__init__(nodes, graph, query, *args, **kwargs)
@@ -187,6 +192,7 @@ class hasPartMatterCorrector(relationshipCorrector):
         self.setup_message = MATTER_MATTER_CORRECTION_MESSAGE
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasPartMatterRelationships
+
 
 class hasPartManufacturingCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
@@ -199,6 +205,7 @@ class hasPartManufacturingCorrector(relationshipCorrector):
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasPartManufacturingRelationships
 
+
 class hasPartMeasurementCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
         super().__init__(nodes, graph, query, *args, **kwargs)
@@ -209,6 +216,7 @@ class hasPartMeasurementCorrector(relationshipCorrector):
         self.setup_message = MEASUREMENT_MEASUREMENT_CORRECTION_MESSAGE
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasPartManufacturingRelationships
+
 
 class hasPartMeasurementCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):

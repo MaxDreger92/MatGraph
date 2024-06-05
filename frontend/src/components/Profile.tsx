@@ -29,6 +29,7 @@ import { RiImageEditLine } from "react-icons/ri"
 import { useEffect, useRef, useState } from "react"
 import { useSpring, animated } from "react-spring"
 import user_img from "../img/user.png"
+import user_img_light from "../img/user_light.png"
 
 export default function Profile(props: PaperProps) {
   const queryClient = useQueryClient()
@@ -390,7 +391,7 @@ export default function Profile(props: PaperProps) {
               }}
             >
               <img
-                src={currentUser.imgurl ? currentUser.imgurl : user_img}
+                src={currentUser.imgurl ? currentUser.imgurl : darkTheme ? user_img : user_img_light}
                 alt="User"
                 className="profile-img-user"
                 style={{

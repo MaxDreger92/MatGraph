@@ -32,16 +32,16 @@
 "Item Number: RMT-108",identifier,MatterAttributeEmbedding,MatterAttribute
 "Lot ID: BPL-109",identifier,MatterAttributeEmbedding,MatterAttribute
 "Catalog No: PHC-110",identifier,MatterAttributeEmbedding,MatterAttribute
-"Production Lot: FBR-211",batch number,MatterAttributeEmbedding,MatterAttribute
-"Batch Code: ELS-212",batch number,MatterAttributeEmbedding,MatterAttribute
-"Series Mark: FMM-213",batch number,MatterAttributeEmbedding,MatterAttribute
-"Lot Series: CQD-214",batch number,MatterAttributeEmbedding,MatterAttribute
-"Batch Label: SMP-215",batch number,MatterAttributeEmbedding,MatterAttribute
+"Production Lot: FBR-211",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Batch Code: ELS-212",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Series Mark: FMM-213",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Lot Series: CQD-214",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Batch Label: SMP-215",batch_number,MatterAttributeEmbedding,MatterAttribute
 "Run ID: CMP-311",identifier,MatterAttributeEmbedding,MatterAttribute
-"Lot Code: OXD-312",batch number,MatterAttributeEmbedding,MatterAttribute
-"Production Series: SST-313",batch number,MatterAttributeEmbedding,MatterAttribute
-"Batch Number: EPR-314",batch number,MatterAttributeEmbedding,MatterAttribute
-"Lot Reference: AMM-315",batch number,MatterAttributeEmbedding,MatterAttribute
+"Lot Code: OXD-312",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Production Series: SST-313",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Batch Number: EPR-314",batch_number,MatterAttributeEmbedding,MatterAttribute
+"Lot Reference: AMM-315",batch_number,MatterAttributeEmbedding,MatterAttribute
 "Membrane: memMat,"name,MatterAttributeEmbedding,MatterAttribute
 "Gas Diffusion Layer: GDL",name,MatterAttributeEmbedding,MatterAttribute
 "Electrode: eleMat",name,MatterAttributeEmbedding,MatterAttribute

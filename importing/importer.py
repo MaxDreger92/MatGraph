@@ -346,7 +346,7 @@ class TableImporter(Importer):
 
     def build_query(self):
         # Construct the base part of the query for loading the CSV
-        base_query = f"CALL apoc.load.csv('{self.file_link}') YIELD lineNo, list AS row"
+        base_query = f"LOAD CSV FROM '{self.file_link}' as row WITH row, toString(timestamp()) AS uniqueId WITH row, uniqueId SKIP 1"
         query_parts = [base_query]
 
         # Function to construct attribute value strings
@@ -398,6 +398,7 @@ class TableImporter(Importer):
 
         # Combine all parts of the query
         full_query = '\n'.join(query_parts + relationship_queries + [add_ontology])
+        print(full_query)
 
         return full_query, {}
 

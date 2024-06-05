@@ -46,9 +46,9 @@ const ThemeProvider = () => {
 root.render(
   // <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <HashRouter>
+      <BrowserRouter>
         <ThemeProvider />
-      </HashRouter>
+      </BrowserRouter>
     </QueryClientProvider>
   // </React.StrictMode>
 )

@@ -79,7 +79,7 @@ class LabelExtractView(APIView):
 class AttributeExtractView(APIView):
 
     ATTRIBUTE_MAPPER = {
-        "Matter": ["name", "ratio", "concentration", "batch number", "identifier"],
+        "Matter": ["name", "ratio", "concentration", "batch_number", "identifier"],
         "Parameter": [ "value", "unit", "average", "std", "error"],
         "Measurement": ["name", "identifier"],
         "Manufacturing": ["name", "identifier"],

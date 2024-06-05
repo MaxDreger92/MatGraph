@@ -1,9 +1,10 @@
-from langchain.evaluation import JsonEditDistanceEvaluator
 from langchain_core.runnables import RunnableParallel, Runnable
 from langsmith import Client
 from langsmith.schemas import Run, Example
+from langchain.evaluation import load_evaluator
 
 from langsmith.evaluation import evaluate, run_evaluator
+
 
 
 def predict_nodes(chain) -> dict:
@@ -28,21 +29,39 @@ def predict_rels(chain) -> dict:
         return node_list
     return predict
 
+def canonicalize(data):
+    """
+    Recursively sort keys and canonicalize the JSON data.
+    """
+    if isinstance(data, dict):
+        # Sort the dictionary by key
+        return {k: canonicalize(v) for k, v in sorted(data.items())}
+    elif isinstance(data, list):
+        # Recursively apply canonicalization to each item in the list
+        return [canonicalize(item) for item in data]
+    else:
+        # Base case: return the data as is (numbers, strings, etc.)
+        return data
+
 @run_evaluator
 def evaluate_JSONs(run: Run, example: Example) -> dict:
     print("Evaluating JSONs")
     prediction = run.outputs.get("output")
-    required = example.outputs.get("output")
-    prediction = [{key: value for key, value in d.items() if key != 'id'} for d in prediction]
-    required = [{key: value for key, value in d.items() if key != 'id'} for d in required]
-    print(prediction)
-    print(required)
+    required = example.outputs.get("nodes")
+    prediction = [{key: value for key, value in d.items() if key != 'id' and key != 'label'} for d in prediction]
+    required = [{key: value for key, value in d.items() if key != 'id' and key != 'label'} for d in required]
+    canonicalized_prediction = str(canonicalize(prediction))
+    canonicalized_required = str(canonicalize(required))
 
-    evaluator = JsonEditDistanceEvaluator()
-    print("Prediction", prediction)
-    print("Required", required)
-    result = evaluator.evaluate_strings(prediction=str(prediction).replace("'",'"'), reference=str(required).replace("'",'"'))
-    return {"key":"evaluate_output", "score": result["score"]}
+    evaluator = load_evaluator(
+        "embedding_distance"
+    )
+    result = evaluator.evaluate_strings(prediction=canonicalized_prediction, reference=canonicalized_required)
+    print("Result", result)
+
+
+
+    return {"key":"evaluate_output", "score": result['score']}
 
 @run_evaluator
 def evaluate_rels(run, example):
