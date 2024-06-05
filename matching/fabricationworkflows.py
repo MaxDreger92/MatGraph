@@ -286,31 +286,3 @@ class FabricationWorkflowMatcher(Matcher):
 
     def build_extra_reports(self):
         pass
-
-
-def main():
-    pass
-
-# Django-related imports only when the script is run directly
-if __name__ == "__main__":
-    import django
-    from django.template.loader import render_to_string
-    from django.conf import settings
-
-    from dbcommunication.ai.searchEmbeddings import EmbeddingSearch
-    from matching.matcher import Matcher
-    from matgraph.models.ontology import EMMOMatter, EMMOProcess
-
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mat2devplatform.settings')
-
-    # Get the project root directory
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    # Change the current working directory to the project root directory
-    os.chdir(project_root)
-
-    load_dotenv()
-
-    # Setup Django
-    django.setup()
-    main()
