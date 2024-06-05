@@ -181,6 +181,7 @@ class NodeClassifier(TableDataTransformer):
             "1_label": cached[1],
         })
 
+
     def _update_with_chat(self, result, input_string, **kwargs):
         """
         Update the classification result with a chat result.

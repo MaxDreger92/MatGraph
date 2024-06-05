@@ -26,8 +26,7 @@ Input Data:
         [
           {"value": "CT-1001", "reference": 1}
         ]
-      ],
-      "ratio": []
+      ]
     }
   },
   {
@@ -36,11 +35,6 @@ Input Data:
       "name": [
           {"value": "Catalyst", "reference": "header"},
           {"value": "Pt", "reference": 2}
-      ],
-      "ratio": [
-        [
-          {"value": "50", "reference": 8}
-        ]
       ]
     }
   },
@@ -49,11 +43,6 @@ Input Data:
       "name": [
           {"value": "CarbonSupport", "reference": "header"},
           {"value": "C", "reference": 4}
-      ],
-      "ratio": [
-        [
-          {"value": "30", "reference": 9}
-        ]
       ]
     }
   },
@@ -62,11 +51,6 @@ Input Data:
       "name": [
           {"value": "Catalyst", "reference": "header"},
           {"value": "Pd", "reference": 5}
-      ],
-      "ratio": [
-        [
-          {"value": "20", "reference": 10}
-        ]
       ]
     }
   }
@@ -89,22 +73,22 @@ Sample Row:
     "attributes": {
       "name": [
         [
-          {"value": "pressure", "reference": "header"}
+          {"AttributeValue": "pressure", "AttributeReference": "header"}
         ]
       ],
       "value": [
         [
-          {"value": "1.2", "reference": 5}
+          {"AttributeValue": "1.2", "AttributeReference": 5}
         ]
       ],
       "error": [
         [
-          {"value": "0.1", "reference": 6}
+          {"AttributeValue": "0.1", "AttributeReference": 6}
         ]
       ],
       "unit": [
         [
-          {"value": "pA", "reference": "header"}
+          {"AttributeValue": "pA", "AttributeReference": "header"}
         ]
       ]
     }
@@ -113,17 +97,17 @@ Sample Row:
     "attributes": {
       "name": [
         [
-          {"value": "temperature", "reference": "header"}
+          {"AttributeValue": "temperature", "AttributeReference": "header"}
         ]
       ],
       "value": [
         [
-          {"value": "27", "reference": 7}
+          {"AttributeValue": "27", "AttributeReference": 7}
         ]
       ],
       "unit": [
         [
-          {"value": "C", "reference": "header"}
+          {"AttributeValue": "C", "AttributeReference": "header"}
         ]
       ]
     }
@@ -142,12 +126,12 @@ Sample Row: AS-2001, mixing, spray_coating""",
     "attributes": {
       "name": [
         [
-          {"value": "Mixing", "reference": 3}
+          {"AttributeValue": "Mixing", "AttributeReference": 3}
         ]
       ],
       "identifier": [
         [
-          {"value": "AS-2001", "reference": 2}
+          {"AttributeValue": "AS-2001", "AttributeReference": 2}
         ]
       ]
     }
@@ -156,7 +140,7 @@ Sample Row: AS-2001, mixing, spray_coating""",
     "attributes": {
       "name": [
         [
-          {"value": "Spray Coating", "reference": 8}
+          {"AttributeValue": "Spray Coating", "AttributeReference": 8}
         ]
       ]
     }

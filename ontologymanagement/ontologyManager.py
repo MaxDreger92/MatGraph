@@ -9,6 +9,7 @@ from langchain_openai import ChatOpenAI
 from owlready2 import *
 from owlready2 import get_ontology, Thing
 
+from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
 from graphutils.models import AlternativeLabel
 from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
@@ -67,11 +68,13 @@ class OntologyManager:
     def get_labels(self, class_name, setup_message, examples=None):
         """Performs the initial extraction of relationships using GPT-4."""
 
-        llm = ChatOpenAI(model_name="gpt-4-1106-preview", openai_api_key=os.getenv("OPENAI_API_KEY"))
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
 
         if examples:
+            print("Examples provided")
+            print(examples)
             example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
             few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
             prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])

@@ -63,3 +63,7 @@ hot polarization,Property,NodeLabelEmbedding,NodeLabel
 noc polarization,Property,NodeLabelEmbedding,NodeLabel
 cell polarization,Property,NodeLabelEmbedding,NodeLabel
 Equivalent weight,Property,NodeLabelEmbedding,NodeLabel
+Equivalent weight (EW),Property,NodeLabelEmbedding,NodeLabel
+Equivalent mass,Property,NodeLabelEmbedding,NodeLabel
+ionomer/catayst ratio,Property,NodeLabelEmbedding,NodeLabel
+i/c ratio,Property,NodeLabelEmbedding,NodeLabel

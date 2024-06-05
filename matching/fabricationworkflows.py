@@ -1,9 +1,57 @@
 import os
 
+import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 
+def create_table_structure1(data):
+    # Extract combinations and attributes
+    combinations = data[0][0]
+    attributes = data[0][1]
+    print(f"Number of combinations: {len(combinations)}")
 
+    # Dynamically generate column names based on the longest combination
+    max_len = max(map(len, combinations))
+    half_len = max_len // 2  # We assume max_len is always even for this to work
+
+    uid_columns = [f'UID_{i+1}' for i in range(half_len)]
+    name_columns = [f'name_{i+1}' for i in range(half_len)]
+
+    columns = uid_columns + name_columns
+    print(columns)
+    print(combinations[0])
+    # Convert combinations into a DataFrame
+    df_combinations = pd.DataFrame(combinations, columns=columns)
+    df_combinations = df_combinations.drop_duplicates(subset=columns)
+    print(df_combinations)
+    print(attributes)
+    for i in attributes:
+        print(len(i))
+
+    df_attributes_raw = pd.DataFrame(attributes[0], columns=['UID', 'Value', 'Attribute'])
+    df_attributes = df_attributes_raw
+
+
+
+    # Pivot the attributes dataframe
+    df_pivoted = df_attributes.pivot(index='UID', columns='Attribute', values='Value').reset_index()
+
+    # Iteratively merge with the combinations dataframe on each UID
+    for i, column in enumerate(columns):
+        merged = pd.merge(df_combinations, df_pivoted, how='left', left_on=column, right_on='UID', suffixes=('', f'_y{i+1}'))
+        # Drop the unnecessary UID column (which came from df_pivoted)
+        merged.drop('UID', axis=1, inplace=True)
+        df_combinations = merged
+
+    # Drop columns that have only NaNs
+    final_df = df_combinations.dropna(axis=1, how='all')
+
+    # Drop all columns that contain the string 'UID'
+    final_df = final_df[final_df.columns.drop(list(final_df.filter(regex='UID')))]
+
+    final_df.to_csv('output_filename.csv', index=False)
+
+    return final_df
 def create_table_structure(data):
     # Extract combinations and attributes
     combinations = data[0][0]
@@ -21,9 +69,7 @@ def create_table_structure(data):
     print(columns)
     print(combinations[0])
     # Convert combinations into a DataFrame
-
     df_combinations = pd.DataFrame(combinations, columns=columns)
-    print(df_combinations)
     df_combinations = df_combinations.drop_duplicates(subset=columns)
     print(df_combinations)
     # return(df_combinations)
@@ -48,11 +94,9 @@ def create_table_structure(data):
     # Drop all columns that contain the string 'UID'
     final_df = final_df[final_df.columns.drop(list(final_df.filter(regex='UID')))]
 
-
     final_df.to_csv('output_filename.csv', index=False)
 
     return final_df
-
 
 # TODO implement filtering for values!
 QUERY_BY_VALUE = """"""
@@ -101,9 +145,9 @@ class FabricationWorkflowMatcher(Matcher):
         self.query_list = [
             {
                 **node,
-                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOMatter' else
-                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOProcess' else
-                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 1)[0].uid if ONTOMAPPER[node['label']] == 'EMMOQuantity' else 'nope'
+                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOMatter' else
+                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOProcess' else
+                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOQuantity' else 'nope'
             }
             for node in workflow_list['nodes']
         ]
@@ -208,7 +252,7 @@ class FabricationWorkflowMatcher(Matcher):
         WITH nodes_{source}, nodes_{target}
         UNWIND nodes_{source} AS node_{source}
         UNWIND nodes_{target} AS node_{target}
-        MATCH {path} = (node_{source})-[:{RELAMAPPER[rel_type]}*..3]->(node_{target})
+        MATCH {path} = (node_{source})-[:{RELAMAPPER[rel_type]}*..8]->(node_{target})
         WITH collect(DISTINCT {path}) AS {path}
         RETURN {path}, [path IN {path} | [nodes(path)[0].uid, nodes(path)[-1].uid]] AS {uid_path}
         }}
