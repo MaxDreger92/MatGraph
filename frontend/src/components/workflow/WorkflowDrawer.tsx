@@ -63,6 +63,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
     const [context, setContext] = useState<string>('')
     const [csvTable, setCsvTable] = useState<TableRow[]>([])
     const [labelTable, setLabelTable] = useState<TableRow[]>([])
+    const [labelInfo, setLabelInfo] = useState<IDictionary | null>(null)
     const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
     const [currentTable, setCurrentTable] = useState<TableRow[]>([])
     const [currentTableId, setCurrentTableId] = useState('')
@@ -268,7 +269,11 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                     throw new Error('Error while extracting labels!')
                 }
 
-                const labelArray = dictToArray(data.label_dict)
+                const [labelDict, labelDictInfo] = splitDict(data.label_dict, 1)
+                if (Object.entries(labelDictInfo).length > 0) {
+                    setLabelInfo(labelDictInfo)
+                }
+                const labelArray = dictToArray(labelDict)
                 setLabelTable(labelArray)
                 setCurrentTableFn('labelTable', labelArray)
                 setFileLink(data.file_link)
@@ -289,10 +294,18 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 setAttributeTable(dictArray)
                 setCurrentTableFn('attributeTable', dictArray)
             } else {
-                const labelDict = arrayToDict(labelTable)
+                let labelDict = arrayToDict(labelTable)
 
                 if (!labelDict) {
                     throw new Error('Table containing labels not found!')
+                }
+
+                if (labelInfo) {
+                    labelDict = joinDict(labelDict, labelInfo)
+                }
+
+                if (!labelDict) {
+                    throw new Error('Error joining labels to final dictionary!')
                 }
 
                 const data = await client.requestExtractAttributes(
@@ -392,13 +405,78 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
             )
 
             if (!(data && data.success)) {
-                throw new Error('Error while extracting graph!')
+                throw new Error('Error while importing graph!')
             }
 
-            toast.success(data.success)
+            toast.success(data.message ?? 'Data ingestion successful')
         } catch (err: any) {
             toast.error(err.message)
         }
+    }
+
+    function splitDict(dict: IDictionary, rows: number): [IDictionary, IDictionary] {
+        const dict1: IDictionary = {};
+        const dict2: IDictionary = {};
+    
+        // Iterate through each header in the dictionary
+        Object.entries(dict).forEach(([header, properties]) => {
+            // Initialize the two new sub-dictionaries for this header
+            dict1[header] = {};
+            dict2[header] = {};
+    
+            // Convert properties object to array and split based on 'rows'
+            const propertyEntries = Object.entries(properties);
+            const firstPart = propertyEntries.slice(0, rows);
+            const secondPart = propertyEntries.slice(rows);
+    
+            // Populate the first dictionary with the first 'rows' properties
+            firstPart.forEach(([key, value]) => {
+                dict1[header][key] = value;
+            });
+    
+            // Populate the second dictionary with the remaining properties
+            secondPart.forEach(([key, value]) => {
+                dict2[header][key] = value;
+            });
+        });
+    
+        // Clean up empty headers if any property didn't have enough entries
+        Object.keys(dict1).forEach(header => {
+            if (Object.keys(dict1[header]).length === 0) {
+                delete dict1[header];
+            }
+        });
+        Object.keys(dict2).forEach(header => {
+            if (Object.keys(dict2[header]).length === 0) {
+                delete dict2[header];
+            }
+        });
+    
+        return [dict1, dict2];
+    }
+
+    function joinDict(dict1: IDictionary, dict2: IDictionary): IDictionary {
+        const combinedDict: IDictionary = {};
+    
+        // Get a union of all header keys from both dictionaries
+        const allHeaders = new Set([...Object.keys(dict1), ...Object.keys(dict2)]);
+    
+        // Iterate through each header found in either dictionary
+        allHeaders.forEach(header => {
+            combinedDict[header] = {};
+    
+            // Check if the header exists in dict1 and merge its properties
+            if (dict1[header]) {
+                Object.assign(combinedDict[header], dict1[header]);
+            }
+    
+            // Check if the header exists in dict2 and merge its properties
+            if (dict2[header]) {
+                Object.assign(combinedDict[header], dict2[header]);
+            }
+        });
+    
+        return combinedDict;
     }
 
     function dictToArray(dict: IDictionary): TableRow[] {
@@ -677,7 +755,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                                     <WorkflowTable
                                         setLabelTable={setLabelTable}
                                         setAttributeTable={setAttributeTable}
-                                        setTableRows={setCurrentTableFn}
+                                        setCurrentTableFn={setCurrentTableFn}
                                         tableRows={currentTable}
                                         progress={progress}
                                         currentTableId={currentTableId}

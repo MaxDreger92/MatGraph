@@ -1,7 +1,12 @@
 {
-  "name": "reactgraphai",
-  "version": "1.0.1",
-  "homepage": "http://localhost:3000",
+  "name": "matgraph",
+  "version": "1.0.0",
+  "description": "frontend to matgraph",
+  "homepage": "https://matgraph.xyz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaxDreger92/MatGraph.git"
+  },
   "private": true,
   "dependencies": {
     "@cloudinary/react": "^1.11.2",

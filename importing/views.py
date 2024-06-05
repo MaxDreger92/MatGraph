@@ -255,7 +255,7 @@ class GraphImportView(APIView):
 
         self.import_graph(file_link, graph, context)
         FullTableCache.update(self.request.session.get('first_line'), graph)
-        return response.Response({'message': 'Graph imported successfully'})
+        return response.Response({'success': True, 'message': 'Graph imported successfully'})
 
 
     def import_graph(self, file_link, graph, context):
