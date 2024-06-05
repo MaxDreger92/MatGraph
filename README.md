@@ -1,5 +1,5 @@
 # matGraph
-A graph database, that leverages LLM's, deep embeddings and a standard representational frameworks (ontology), speeding up and semantically enriching materials science workflows for data storage and retrieval.
+A graph database, that leverages LLM's, deep embeddings and a standard representational framework (ontology), speeding up and semantically enriching materials science workflows for data storage and retrieval.
 
 ## Usage
 Accessible as a web-app at https://matgraph.xyz.
