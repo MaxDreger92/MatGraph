@@ -8,12 +8,19 @@ import axios from "axios"
 import fileUpload from "express-fileupload"
 import FormData from "form-data"
 import nodemailer from "nodemailer"
+import fs from "fs"
 
 import { CLOUDINARY_CONFIG } from "../config"
 
 const router = express.Router()
 router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
+
+const PRODUCTION = false
+let dkimPrivateKey: string = ''
+if (PRODUCTION) {
+    dkimPrivateKey = fs.readFileSync(require("os").homedir() + '/.keys/dkim-private.key', 'utf8')
+}
 
 router.post("/api/users/login", async (req, res) => {
     try {
@@ -85,30 +92,39 @@ router.post("/api/users/register", async (req, res) => {
             email,
             hashedPassword
         )
-        if (user) {
+        if (user && PRODUCTION) {
             const token = await UserService.generateAccessToken(
                 "matgraph.xyz@gmail.com",
                 "verify-user"
             )
 
             let transporter = nodemailer.createTransport({
-                host: "smtp.gmail.com",
-                port: 465,
-                secure: true,
+                host: "mail.matgraph.xyz",
+                port: 587,
+                secure: false,
+                // auth: {
+                //     type: "OAuth2",
+                //     user: "matgraph.xyz@gmail.com",
+                //     clientId: process.env.GOOGLE_CLIENT_ID,
+                //     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                //     refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+                //     accessToken: await UserService.getAccessToken(),
+                // },
                 auth: {
-                    type: "OAuth2",
-                    user: "matgraph.xyz@gmail.com",
-                    clientId: process.env.GOOGLE_CLIENT_ID,
-                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-                    accessToken: await UserService.getAccessToken(),
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASSWD
                 },
+                dkim: {
+                    domainName: 'matgraph.xyz',
+                    keySelector: 'mail', // Use the selector you chose
+                    privateKey: dkimPrivateKey
+                }
             })
 
             // Prepare and send the email
             const mailOptions = {
-                from: "matgraph.xyz@gmail.com", // Sender address
-                to: "matgraph.xyz@gmail.com", // List of recipients
+                from: '"Matgraph Registration" <registration@matgraph.xyz>', // Sender address
+                to: "matgraph@muell.io", // List of recipients
                 subject: "New User Registration", // Subject line
                 html: `
                     <p>A new user has just registered: ${username}</p>
@@ -127,11 +143,11 @@ router.post("/api/users/register", async (req, res) => {
                     console.log("Email sent:", info.response)
                 }
             })
-
-            return res.status(201).json({
-                message: "User created successfully!",
-            })
         }
+
+        return res.status(201).json({
+            message: "User created successfully!",
+        })
     } catch (err) {
         return res.status(500).send("Internal Server Error!")
     }
