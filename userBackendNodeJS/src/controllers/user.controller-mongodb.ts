@@ -7,8 +7,7 @@ import { v2 as cloudinary } from "cloudinary"
 import axios from "axios"
 import fileUpload from "express-fileupload"
 import FormData from "form-data"
-import nodemailer, { Transporter } from "nodemailer"
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
+import nodemailer from "nodemailer"
 import fs from "fs"
 
 import { CLOUDINARY_CONFIG } from "../config"
@@ -99,28 +98,28 @@ router.post("/api/users/register", async (req, res) => {
                 "verify-user"
             )
 
-            const transportOptions: SMTPTransport.Options = {
-                host: "mail.matgraph.xyz",
+            const transporter = nodemailer.createTransport({
+                host: "smtp.sendgrid.net",
                 port: 587,
-                secure: false,
-                auth: undefined,
-                dkim: {
-                    domainName: 'matgraph.xyz',
-                    keySelector: 'mail', // Use the selector you chose
-                    privateKey: dkimPrivateKey
+                auth: {
+                    user: 'apikey',
+                    pass: process.env.SENDGRID_API_KEY
                 },
-                tls: {
-                    rejectUnauthorized: false
-                },
-                logger: true,
-                debug: true,
-            }
-
-            let transporter: Transporter = nodemailer.createTransport(transportOptions)
+                // dkim: {
+                //     domainName: 'matgraph.xyz',
+                //     keySelector: 'mail', // Use the selector you chose
+                //     privateKey: dkimPrivateKey
+                // },
+                // tls: {
+                //     rejectUnauthorized: false
+                // },
+                // logger: true,
+                // debug: true,
+            })
 
             // Prepare and send the email
             const mailOptions = {
-                from: 'registration@matgraph.xyz', // Sender address
+                from: '"matGraph Registration" <registration@matgraph.xyz>', // Sender address
                 to: "matgraph@muell.io", // List of recipients
                 subject: "New User Registration", // Subject line
                 html: `
