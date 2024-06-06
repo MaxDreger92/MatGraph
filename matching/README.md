@@ -114,3 +114,5 @@ Methods:
     - **Returns**: A list of result values and columns.
 
 <h4><span style="color:#3388cc">def </span><span style="color:#ffdd77">create_table_structure</span></h4>
+
+   - Purpose: 
