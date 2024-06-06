@@ -7,7 +7,8 @@ import { v2 as cloudinary } from "cloudinary"
 import axios from "axios"
 import fileUpload from "express-fileupload"
 import FormData from "form-data"
-import nodemailer from "nodemailer"
+import nodemailer, { Transporter } from "nodemailer"
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import fs from "fs"
 
 import { CLOUDINARY_CONFIG } from "../config"
@@ -98,18 +99,10 @@ router.post("/api/users/register", async (req, res) => {
                 "verify-user"
             )
 
-            let transporter = nodemailer.createTransport({
+            const transportOptions: SMTPTransport.Options = {
                 host: "mail.matgraph.xyz",
                 port: 587,
                 secure: false,
-                // auth: {
-                //     type: "OAuth2",
-                //     user: "matgraph.xyz@gmail.com",
-                //     clientId: process.env.GOOGLE_CLIENT_ID,
-                //     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                //     refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-                //     accessToken: await UserService.getAccessToken(),
-                // },
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASSWD
@@ -119,11 +112,13 @@ router.post("/api/users/register", async (req, res) => {
                     keySelector: 'mail', // Use the selector you chose
                     privateKey: dkimPrivateKey
                 }
-            })
+            }
+
+            let transporter: Transporter = nodemailer.createTransport(transportOptions)
 
             // Prepare and send the email
             const mailOptions = {
-                from: '"Matgraph Registration" <registration@matgraph.xyz>', // Sender address
+                from: 'registration@matgraph.xyz', // Sender address
                 to: "matgraph@muell.io", // List of recipients
                 subject: "New User Registration", // Subject line
                 html: `
