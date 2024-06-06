@@ -11,9 +11,6 @@ const tlsCAFile = (process.env.TLS_CA_FILE as string).replace(
     require("os").homedir()
 )
 
-console.log(tlsCertificateKeyFile)
-console.log(tlsCAFile)
-
 const options = {
     tls: true,
     tlsCertificateKeyFile: tlsCertificateKeyFile,
