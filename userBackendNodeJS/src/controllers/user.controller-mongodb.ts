@@ -100,7 +100,7 @@ router.post('/api/users/register', async (req, res) => {
             // Prepare and send the email
             const mailOptions = {
                 from: '"matGraph Registration" <registration@matgraph.xyz>', // Sender address
-                to: 'thiloschenkelberg@gmail.com', // List of recipients
+                to: 'registration@matgraph.xyz', // List of recipients
                 subject: 'New User Registration', // Subject line
                 html: `
                     <p>A new user has just registered: ${username}</p>
