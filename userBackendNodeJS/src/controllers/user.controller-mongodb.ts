@@ -103,15 +103,17 @@ router.post("/api/users/register", async (req, res) => {
                 host: "mail.matgraph.xyz",
                 port: 587,
                 secure: false,
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASSWD
-                },
+                auth: undefined,
                 dkim: {
                     domainName: 'matgraph.xyz',
                     keySelector: 'mail', // Use the selector you chose
                     privateKey: dkimPrivateKey
-                }
+                },
+                tls: {
+                    rejectUnauthorized: false
+                },
+                logger: true,
+                debug: true,
             }
 
             let transporter: Transporter = nodemailer.createTransport(transportOptions)
