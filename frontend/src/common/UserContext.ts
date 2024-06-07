@@ -20,6 +20,7 @@ const initialMDBUser: MDB_IUser = {
     roles: [''],
     institution: '',
     imgurl: '',
+    confirmed: false,
     verified: false,
 }
 
