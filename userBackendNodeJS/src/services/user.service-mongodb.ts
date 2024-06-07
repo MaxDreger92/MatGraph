@@ -97,7 +97,7 @@ class UserService {
                 usermail,
                 'user-confirmation'
             )
-            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/confirmation-mail.html'
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/confirmation-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
             const confirmationLink = `https://matgraph.xyz/api/users/confirm?token=${userToken}`
 
@@ -127,7 +127,7 @@ class UserService {
                 'admin@matgraph.xyz',
                 'admin-verification'
             )
-            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verification-mail.html'
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/verification-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
             const verificationLink = `https://matgraph.xyz/api/users/verify?token=${adminToken}&username=${username}`
 
@@ -155,7 +155,7 @@ class UserService {
 
     static async sendVerificationConfirmation(usermail: any) {
         try {
-            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verified-mail.html'
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/verified-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
     
             const mailOptions = {
@@ -203,9 +203,9 @@ class UserService {
         let pagePath = ''
         let html = ''
         if (confirmed) {
-            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/email-confirmed.html'
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/email-confirmed.html'
         } else {
-            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/confirmation-error.html'
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/confirmation-error.html'
         }
         html = fs.readFileSync(pagePath, 'utf8')
         return html
@@ -215,9 +215,9 @@ class UserService {
         let pagePath = ''
         let html = ''
         if (verified) {
-            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/user-verified.html'
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/user-verified.html'
         } else {
-            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verification-error.html'
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/html/verification-error.html'
         }
         html = fs.readFileSync(pagePath, 'utf8')
         return html
