@@ -2,6 +2,9 @@ import { Response, NextFunction } from "express"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 import axios from "axios"
+import nodemailer from 'nodemailer'
+import fs from 'fs'
+import path from 'path'
 
 import UserRepository from "../repositories/user.repo-mongodb"
 import WorkflowRepository from "../repositories/workflow.repo-mongodb"
@@ -28,6 +31,10 @@ class UserService {
         password: string
     ): Promise<ObjectId> {
         return UserRepository.create(username, email, password)
+    }
+
+    static confirmUser(username: string): Promise<boolean> {
+        return UserRepository.confirm(username)
     }
 
     static verifyUser(username: string): Promise<boolean> {
@@ -65,6 +72,157 @@ class UserService {
         return UserRepository.updateImgUrl(url, id)
     }
 
+    static saveWorkflow(userId: string, workflow: string): Promise<ObjectId> {
+        return WorkflowRepository.saveWorkflow(userId, workflow)
+    }
+
+    static deleteWorkflow(workflowId: string): Promise<boolean> {
+        return WorkflowRepository.deleteWorkflow(workflowId)
+    }
+
+    static async getWorkflowsByUserID(userId: string): Promise<IWorkflow[]> {
+        const workflows = await WorkflowRepository.getWorkflowsByUserID(userId)
+
+        const workflowsWithoutUserId = workflows.map((workflow: IWorkflow) => {
+            const { userId, ...restOfWorkflow } = workflow
+            return restOfWorkflow
+        })
+
+        return workflowsWithoutUserId
+    }
+
+    static async sendConfirmationMail(usermail: any) {
+        try {
+            const userToken = await UserService.generateAccessToken(
+                usermail,
+                'user-confirmation'
+            )
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/confirmation-mail.html'
+            let html = fs.readFileSync(htmlPath, 'utf8')
+            const confirmationLink = `https://matgraph.xyz/api/users/confirm?token=${userToken}`
+
+            html = html.replace('{{confirmation_link}}', confirmationLink)
+
+            const mailOptions = {
+                from: '"matGraph" <registration@matgraph.xyz>',
+                to: usermail,
+                subject: 'Confirm Your Email',
+                html: html,
+            }
+
+            const mailSuccess = await this.sendMail(mailOptions)
+
+            return mailSuccess
+        } catch (err: any) {
+            if (err.message) {
+                console.log("Error sending confirmation mail: ", err.message)
+            }
+            throw err
+        }
+    }
+
+    static async sendVerificationMail(username: any, usermail: any) {
+        try {
+            const adminToken = await UserService.generateAccessToken(
+                'admin@matgraph.xyz',
+                'admin-verification'
+            )
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verification-mail.html'
+            let html = fs.readFileSync(htmlPath, 'utf8')
+            const verificationLink = `https://matgraph.xyz/api/users/verify?token=${adminToken}&username=${username}`
+
+            html = html.replace('{{username}}', username)
+            html = html.replace('{{usermail}}', usermail)
+            html = html.replace('{{verification_link}}', verificationLink)
+    
+            const mailOptions = {
+                from: '"matGraph" <registration@matgraph.xyz>', // Sender address
+                to: 'registration@matgraph.xyz', // List of recipients
+                subject: 'New User Registration', // Subject line
+                html: html,
+            }
+
+            const mailSuccess = await this.sendMail(mailOptions)
+
+            return mailSuccess
+        } catch (err: any) {
+            if (err.message) {
+                console.log("Error sending verification mail: ", err.message)
+            }
+            throw err
+        }
+    }
+
+    static async sendVerificationConfirmation(usermail: any) {
+        try {
+            const htmlPath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verified-mail.html'
+            let html = fs.readFileSync(htmlPath, 'utf8')
+    
+            const mailOptions = {
+                from: '"matGraph" <registration@matgraph.xyz>', // Sender address
+                to: usermail, // List of recipients
+                subject: 'Verification complete!', // Subject line
+                html: html,
+            }
+
+            const mailSuccess = await this.sendMail(mailOptions)
+
+            return mailSuccess
+        } catch (err: any) {
+            if (err.message) {
+                console.log("Error sending verification mail: ", err.message)
+            }
+            throw err
+        }
+    }
+
+    static async sendMail(options: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.sendgrid.net',
+                port: 587,
+                auth: {
+                    user: 'apikey',
+                    pass: process.env.SENDGRID_API_KEY,
+                }
+            })
+    
+            transporter.sendMail(options, function (err, info) {
+                if (err) {
+                    console.log('Error sending mail:', err)
+                    resolve(false)
+                } else {
+                    console.log('Mail sent:', info.response)
+                    resolve(true)
+                }
+            })
+        })
+    }
+
+    static getConfirmedPage(confirmed: boolean) {
+        let pagePath = ''
+        let html = ''
+        if (confirmed) {
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/email-confirmed.html'
+        } else {
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/confirmation-error.html'
+        }
+        html = fs.readFileSync(pagePath, 'utf8')
+        return html
+    }
+
+    static getVerifiedPage(verified: boolean) {
+        let pagePath = ''
+        let html = ''
+        if (verified) {
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/user-verified.html'
+        } else {
+            pagePath = require("os").homedir() + '/Projects/MatGraph/userBackendNodeJS/src/static/verification-error.html'
+        }
+        html = fs.readFileSync(pagePath, 'utf8')
+        return html
+    }
+
     static async generateAccessToken(
         email: string,
         purpose: string = "default-purpose"
@@ -97,10 +255,11 @@ class UserService {
             token,
             process.env.TOKEN_SECRET as string,
             async (err: Error | null, payload: any) => {
-                if (err) return res.sendStatus(403)
-
+                if (err) {
+                    return res.sendStatus(403)
+                }
                 try {
-                    if (payload.purpose === "verify-user") {
+                    if (payload.purpose === "admin-verification") {
                         const admin = await UserRepository.findByID(
                             payload.userId
                         )
@@ -110,10 +269,19 @@ class UserService {
                             })
                         }
                         req.adminId = payload.userId
+                    } else if (payload.purpose === "user-confirmation") {
+                        const user = await UserRepository.findByID(
+                            payload.userId
+                        )
+                        if (!user) {
+                            return res.status(404).json({
+                                message: "User not found.",
+                            })
+                        }
+                        req.userId = payload.userId
                     } else {
                         req.userId = payload.userId
                     }
-
                     next()
                 } catch (error) {
                     return res
@@ -124,26 +292,7 @@ class UserService {
         )
     }
 
-    static saveWorkflow(userId: string, workflow: string): Promise<ObjectId> {
-        return WorkflowRepository.saveWorkflow(userId, workflow)
-    }
-
-    static deleteWorkflow(workflowId: string): Promise<boolean> {
-        return WorkflowRepository.deleteWorkflow(workflowId)
-    }
-
-    static async getWorkflowsByUserID(userId: string): Promise<IWorkflow[]> {
-        const workflows = await WorkflowRepository.getWorkflowsByUserID(userId)
-
-        const workflowsWithoutUserId = workflows.map((workflow: IWorkflow) => {
-            const { userId, ...restOfWorkflow } = workflow
-            return restOfWorkflow
-        })
-
-        return workflowsWithoutUserId
-    }
-
-    static async getAccessToken() {
+    static async getGoogleAccessToken() {
         try {
             const response = await axios.post(
                 "https://oauth2.googleapis.com/token",
