@@ -7,10 +7,9 @@ import { v2 as cloudinary } from 'cloudinary'
 import axios from 'axios'
 import fileUpload from 'express-fileupload'
 import FormData from 'form-data'
-import nodemailer from 'nodemailer'
-import fs from 'fs'
 
 import { CLOUDINARY_CONFIG } from '../config'
+import { MDB_IUser as IUser } from '../types/user.type'
 
 const router = express.Router()
 router.use(fileUpload())
@@ -82,43 +81,13 @@ router.post('/api/users/register', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10)
         const user = await UserService.createUser(username, email, hashedPassword)
-        if (user) {
-            const token = await UserService.generateAccessToken(
-                'matgraph.xyz@gmail.com',
-                'verify-user'
-            )
+        if (!user) {
+            throw Error
+        }
 
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.sendgrid.net',
-                port: 587,
-                auth: {
-                    user: 'apikey',
-                    pass: process.env.SENDGRID_API_KEY,
-                }
-            })
-
-            // Prepare and send the email
-            const mailOptions = {
-                from: '"matGraph Registration" <registration@matgraph.xyz>', // Sender address
-                to: 'registration@matgraph.xyz', // List of recipients
-                subject: 'New User Registration', // Subject line
-                html: `
-                    <p>A new user has just registered: ${username}</p>
-                    <p>
-                        <a href="https://matgraph.xyz/api/users/verify?token=${token}&username=${username}">
-                            Verify User
-                        </a>
-                    </p>
-                `,
-            }
-
-            transporter.sendMail(mailOptions, function (err, info) {
-                if (err) {
-                    console.log('Error sending email:', err)
-                } else {
-                    console.log('Email sent:', info.response)
-                }
-            })
+        const mailSuccess = await UserService.sendConfirmationMail(email)
+        if (!mailSuccess) {
+            throw Error
         }
 
         return res.status(201).json({
@@ -128,6 +97,47 @@ router.post('/api/users/register', async (req, res) => {
         return res.status(500).send('Internal Server Error!')
     }
 })
+
+router.get(
+    '/api/users/confirm',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            
+            const userId = req.userId
+            if (!userId) {
+                return res.status(404).json({
+                    message: 'User ID not found!'
+                })
+            }
+
+            const user = await UserService.findByID(userId)
+            if (!user) {
+                return res.status(404).json({
+                    message: "User could not be found!"
+                })
+            }
+
+            const username = user.username as string
+            const usermail = user.email
+
+            const confirmed = await UserService.confirmUser(username)
+            const htmlResponse = UserService.getConfirmedPage(confirmed)
+
+            if (confirmed) {
+                const mailSuccess = await UserService.sendVerificationMail(username, usermail)
+                if (!mailSuccess) {
+                   throw Error
+                }
+                return res.status(200).send(htmlResponse)
+            } else {
+                return res.status(500).send(htmlResponse)
+            }
+        } catch (err: any) {
+            return res.status(500).send('Internal Server Error!')
+        }
+    }
+)
 
 router.get(
     '/api/users/verify',
@@ -144,17 +154,29 @@ router.get(
             const username = req.query.username as string
             if (!username) {
                 return res.status(404).json({
-                    message: 'No user to verify!',
+                    message: 'Username could not be resolved!',
+                })
+            }
+            const user = await UserService.findByUsername(username)
+            if (!user) {
+                return res.status(404).json({
+                    message: 'User could not be found!',
                 })
             }
 
-            const verifySuccess = await UserService.verifyUser(username)
-            if (verifySuccess) {
-                return res.status(200).send(`
-                    <span style="display: block; text-align: center; color: #c1c2c5; background-color: #1a1b1e; padding: 10px;">
-                        User successfully verified
-                    </span>
-                `)
+            const usermail = user.email
+
+            const verified = await UserService.verifyUser(username)
+            const htmlResponse = UserService.getVerifiedPage(verified)
+
+            if (verified) {
+                const mailSuccess = await UserService.sendVerificationConfirmation(usermail)
+                if (!mailSuccess) {
+                   throw Error
+                }
+                return res.status(200).send(htmlResponse)
+            } else {
+                return res.status(500).send(htmlResponse)
             }
         } catch (err) {
             return res.status(500).send('Internal Server Error!')
