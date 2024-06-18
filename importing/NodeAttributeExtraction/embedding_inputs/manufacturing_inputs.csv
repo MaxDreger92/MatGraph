@@ -33,10 +33,10 @@ hydrogen storage system fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 photovoltaic module assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
 energy material coating,Manufacturing,NodeLabelEmbedding,NodeLabel
 piezoelectric material processing,Manufacturing,NodeLabelEmbedding,NodeLabel
-energy harvesting device fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 organic solar cells production,Manufacturing,NodeLabelEmbedding,NodeLabel
-photocatalytic material development,Manufacturing,NodeLabelEmbedding,NodeLabel
 perovskite solar cell manufacturing,Manufacturing,NodeLabelEmbedding,NodeLabel
 energy efficient material synthesis,Manufacturing,NodeLabelEmbedding,NodeLabel
 mea assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
+experimentid,Manufacturing,NodeLabelEmbedding,NodeLabel
+experiment type,Manufacturing,NodeLabelEmbedding,NodeLabel
 

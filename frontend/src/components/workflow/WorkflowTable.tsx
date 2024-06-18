@@ -32,6 +32,7 @@ const labelOptions = [
     { value: 'parameter', label: 'Parameter' },
     { value: 'property', label: 'Property' },
     { value: 'metadata', label: 'Metadata' },
+    { value: 'simulation', label: 'Simulation' },
 ]
 
 export default function WorkflowTable(props: WorkflowTableProps) {

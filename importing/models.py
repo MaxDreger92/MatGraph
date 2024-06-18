@@ -53,17 +53,13 @@ class ImportingReport(models.Model):
 
     def delete(self, force_insert=False, force_update=False, using=None,
              update_fields=None, save_to_file_server = True):
-        print("delete")
         url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
-        print("URL before request:", url)  # Add a print statement to log the URL
         payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
         headers = {'Accept': '*/*'}
         resp_data = requests.delete(url, headers=headers, data=payload)
-        print(resp_data.text)
         super().delete()
 
     def delete_selected(self, **kwargs):
-        print("delete")
         super().delete_selected
 
     def __str__(self):
@@ -288,13 +284,11 @@ class Cache:
                 return (cached.sample_column, cached.column_label, cached.header_attribute, cached.column_attribute)
             return None
         else:
-            # print("header:",header)
-            # new_record = cls.objects.get_or_create(
-            #     header=str(header)[:200]
-            #     )[0]
-            # new_record.sample_column=column_value[:200]
-            # new_record.save()
-            # return (new_record.sample_column, new_record.column_label, new_record.header_attribute, new_record.column_attribute)
+            new_record = cls.objects.get_or_create(
+                header=str(header)[:200]
+                )[0]
+            new_record.sample_column=column_value[:200]
+            new_record.save()
             return None
 
 
@@ -319,7 +313,8 @@ class Cache:
 
 
 
-class ImporterCache(Cache, models.Model):
+class ImporterCache(models.Model, Cache):
+    column_label = models.CharField(max_length=200, null = True, blank=True)  # List of labels
     LABEL_CHOICES = [
         ('Matter', 'Matter'),
         ('Property', 'Property'),

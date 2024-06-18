@@ -43,6 +43,18 @@ class Name(StringAttribute):
     """
     pass
 
+class metadata_type(StringAttribute):
+    """
+    Node type
+    """
+    pass
+
+class value(StringAttribute):
+    """
+    Node value
+    """
+    pass
+
 class Value(FloatAttribute):
     """
     Value of a quantity
@@ -129,7 +141,7 @@ class QuantityAttributes(BaseModel):
     error: Optional[Error|List[Error]] = None
     average: Optional[Average|List[Average]] = None
     standard_deviation: Optional[StandardDeviation|List[StandardDeviation]] = None
-    unit: Unit = Field(description='Required field. Extract or guess the unit. The unit is never an array.')
+    unit: Unit = Field(description='Required field. Extract or guess the unit. The unit is never an array. Unitless quantities have the unit ""')
     def to_dict(self):
         return {
             "name": [name.to_dict() for name in self.name],
@@ -152,6 +164,21 @@ class ProcessAttributes(BaseModel):
         return {
             "identifier": self.identifier.to_dict() if self.identifier else None,
             "name": [name.to_dict() for name in self.name]
+        }
+
+class MetadataAttributes(BaseModel):
+    """
+    Attributes of a metadata node
+    Required fields: Type (Type of the metadata, for example "Facility", "Institution", "Researcher", "Project", "Funding" etc.)
+    Optional fields: value (Value of the metadata, for example "University of Cambridge", "Max Planck Institute", "John Doe", "Project X", "Funding Agency Y" etc.)
+    Extract the name of the process from the table column. If the name is not given in the column infer it from the table header or the context.
+    """
+    metadata_type: metadata_type
+    value: value
+    def to_dict(self):
+        return {
+            "metadata_type": self.metadata_type.to_dict(),
+            "name": self.value.to_dict()
         }
 
 class MatterNode(Node):
@@ -218,6 +245,19 @@ class MeasurementNode(Node):
             "attributes": self.attributes.to_dict()
         }
 
+class SimulationNode(Node):
+    """
+    Node representing a specific instance of a simulation node
+    Example:
+        - Simulation: DFT
+        - Simulation: MD
+    """
+    attributes: ProcessAttributes = Field(None)
+    def to_dict(self):
+        return {
+            "attributes": self.attributes.to_dict()
+        }
+
 class MetadataNode(Node):
     """
     Node representing a specific instance of a metadata node
@@ -225,7 +265,7 @@ class MetadataNode(Node):
         - Metadata: Institution
         - Metadata: Researcher
     """
-    attributes: ProcessAttributes = Field(None)
+    attributes: MetadataAttributes = Field(None)
     def to_dict(self):
         return {
             "attributes": self.attributes.to_dict()
@@ -298,4 +338,12 @@ class MetadataNodeList(BaseModel):
 
 
 
-
+class SimulationNodeList(BaseModel):
+    """
+    List of all simulation nodes extracted from the table.
+    """
+    nodes: List[SimulationNode] = Field(None)
+    def to_dict(self):
+        return {
+            "nodes": [node.to_dict() for node in self.nodes]
+        }

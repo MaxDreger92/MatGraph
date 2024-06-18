@@ -8,10 +8,10 @@ from graphutils.config import CHAT_GPT_MODEL
 from importing.NodeExtraction.nodeValidator import MatterValidator, PropertyValidator, ParameterValidator, \
     ManufacturingValidator, MeasurementValidator, MetadataValidator, SimulationValidator
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ParameterNodeList, ManufacturingNodeList, \
-    MeasurementNodeList, MetadataNodeList
+    MeasurementNodeList, MetadataNodeList, SimulationNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
     PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE, \
-    METADATA_AGGREGATION_MESSAGE
+    METADATA_AGGREGATION_MESSAGE, SIMULATION_AGGREGATION_MESSAGE
 
 
 class NodeCorrector:
@@ -52,6 +52,9 @@ class NodeCorrector:
     def duplicates_prompt(self, nodes):
         return f"The following ColumnIndices have been assigned to attributes in more than on node: {', '.join(nodes)}\n"
 
+
+    from tenacity import retry, stop_after_attempt, wait_fixed
+    @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
     def request_corrections(self, prompts):
         """Extract the relationships using the initial prompt."""
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.environ.get("OPENAI_API_KEY"))
@@ -135,6 +138,12 @@ class MeasurementCorrector(NodeCorrector):
         self.setup_message = MEASUREMENT_AGGREGATION_MESSAGE
         self.schema = MeasurementNodeList
 
+class SimulationCorrector(NodeCorrector):
+    def __init__(self, input, nodes, query, *args, **kwargs):
+        super().__init__(input, nodes, query, *args, **kwargs)
+        self.validator = MeasurementValidator(input, nodes)
+        self.setup_message = SIMULATION_AGGREGATION_MESSAGE
+        self.schema = SimulationNodeList
 
 
 class MetadataCorrector(NodeCorrector):

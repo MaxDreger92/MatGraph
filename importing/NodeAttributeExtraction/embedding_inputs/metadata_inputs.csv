@@ -50,4 +50,18 @@ lab setup,Metadata,NodeLabelEmbedding,NodeLabel
 lab location,Metadata,NodeLabelEmbedding,NodeLabel
 lab equipment,Metadata,NodeLabelEmbedding,NodeLabel
 lab assistant,Metadata,NodeLabelEmbedding,NodeLabel
-
+Publication,Metadata,NodeLabelEmbedding,NodeLabel
+ORCID,Metadata,NodeLabelEmbedding,NodeLabel
+Published,Metadata,NodeLabelEmbedding,NodeLabel
+DOI,Metadata,NodeLabelEmbedding,NodeLabel
+Author,Metadata,NodeLabelEmbedding,NodeLabel
+Email,Metadata,NodeLabelEmbedding,NodeLabel
+File Size,Metadata,NodeLabelEmbedding,NodeLabel
+File Format,Metadata,NodeLabelEmbedding,NodeLabel
+File Name,Metadata,NodeLabelEmbedding,NodeLabel
+Mask,Metadata,NodeLabelEmbedding,NodeLabel
+Date,Metadata,NodeLabelEmbedding,NodeLabel
+Institution,Metadata,NodeLabelEmbedding,NodeLabel
+Journal,Metadata,NodeLabelEmbedding,NodeLabel
+Topic,Metadata,NodeLabelEmbedding,NodeLabel
+Volume,Metadata,NodeLabelEmbedding,NodeLabel

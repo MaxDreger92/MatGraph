@@ -4,13 +4,12 @@ from typing import List
 from openai import OpenAI
 
 client = OpenAI()
-from neomodel import db
 from tenacity import wait_random_exponential, retry, stop_after_attempt
 
 from graphutils.config import EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
 from django.conf import settings
 
-@retry(wait=wait_random_exponential(min=1, max=2), stop=stop_after_attempt(6))
+@retry(wait=wait_random_exponential(min=1, max=2), stop=stop_after_attempt(10))
 def request_embedding(text: str) -> List[float]:
     """
     Retrieve the embedding of the given text using OpenAI's API.
@@ -30,7 +29,6 @@ def request_embedding(text: str) -> List[float]:
     # Call the OpenAI Embedding API to create an embedding for the input text.
     # The API response contains the embedding data in a nested structure.
     embedding_response = client.embeddings.create(input=[text], model=EMBEDDING_MODEL, user = settings.OPENAI_API_KEY)
-
     # Extract the embedding data from the response and return it as a list of floating-point numbers.
     return embedding_response.data[0].embedding
 

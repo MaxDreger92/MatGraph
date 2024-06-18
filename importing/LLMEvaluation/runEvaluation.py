@@ -11,34 +11,39 @@ from importing.LLMEvaluation.RelationshipEvaluators import HasParameterEvaluator
     HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator
 
 from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, MatterEvaluator, PropertyEvaluator, \
-    ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator
+    ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator, ParameterEvaluator1, SimulationEvaluator
 
 # Example usage
 if __name__ == "__main__":
     # Assuming a function 'predict' and a 'data' structure already exist
-    # manufacturing_data_set = "Manufacturing_Extraction"
-    # manufacturing_evaluation = ManufacturingEvaluator()
-    # manufacturing_results = manufacturing_evaluation.run_evaluation()
-    #
+    manufacturing_data_set = "Manufacturing_Extraction"
+    manufacturing_evaluation = ManufacturingEvaluator()
+    manufacturing_results = manufacturing_evaluation.run_evaluation()
+    # #
     # matter_data_set = "Matter_Extraction"
     # matter_evaluation = MatterEvaluator()
     # matter_results = matter_evaluation.run_evaluation()
-    # #
+    # # # #
     # property_data_set = "Property_Extraction"
     # property_evaluation = PropertyEvaluator()
     # property_results = property_evaluation.run_evaluation()
-    #
+    # # #
     # parameter_data_set = "Parameter_Extraction"
     # parameter_evaluation = ParameterEvaluator()
     # parameter_results = parameter_evaluation.run_evaluation()
+
+    # # #
+    # measurement_data_set = "Measurement_Extraction"
+    # measurement_evaluation = MeasurementEvaluator()
+    # measurement_results = measurement_evaluation.run_evaluation()
     # #
-    measurement_data_set = "Measurement_Extraction"
-    measurement_evaluation = MeasurementEvaluator()
-    measurement_results = measurement_evaluation.run_evaluation()
-    #
     # metadata_data_set = "Metadata_Extraction"
     # metadata_evaluation = MetadataEvaluator()
     # metadata_results = metadata_evaluation.run_evaluation()
+    #
+    # simulation_data_set = "Simulation_Extraction"
+    # simulation_evaluation = SimulationEvaluator()
+    # simulation_results = simulation_evaluation.run_evaluation()
     #
     # has_parameter_data_set = "Has_Parameter_Extraction"
     # has_parameter_evaluation = HasParameterEvaluator()

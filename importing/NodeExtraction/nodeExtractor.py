@@ -12,13 +12,13 @@ from graphutils.general import TableDataTransformer
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.nodeCorrector import MatterCorrector, PropertyCorrector, ParameterCorrector, \
-    ManufacturingCorrector, MeasurementCorrector, MetadataCorrector
+    ManufacturingCorrector, MeasurementCorrector, MetadataCorrector, SimulationCorrector
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
     MeasurementNodeList, MetadataNodeList, ParameterNodeList, MatterNode, MatterAttributes, Identifier, Name, \
-    BatchNumber, Ratio
+    BatchNumber, Ratio, SimulationNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
     PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE, \
-    METADATA_AGGREGATION_MESSAGE
+    METADATA_AGGREGATION_MESSAGE, SIMULATION_AGGREGATION_MESSAGE
 from importing.models import NodeExtractionReport
 
 
@@ -68,6 +68,8 @@ class NodeAggregator:
     def validate(self):
         return self.intermediate
 
+    from tenacity import retry, stop_after_attempt, wait_fixed
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def aggregate(self):
         """Performs the initial extraction of relationships using GPT-4."""
         print(f"Aggregate {self.schema} nodes")
@@ -161,6 +163,19 @@ class MeasurementAggregator(NodeAggregator):
         self.schema = MeasurementNodeList
         self.examples = None
 
+class SimulationAggregator(NodeAggregator):
+    def __init__(self,
+                 data,
+                 context,
+                 first_row,
+                 header,
+                 setup_message=SIMULATION_AGGREGATION_MESSAGE,
+                 additional_context=""):
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
+        self.label = "simulation"
+        self.schema = SimulationNodeList
+        self.examples = None
+
 
 class MetadataAggregator(NodeAggregator):
     def __init__(self,
@@ -230,6 +245,13 @@ def aggregate_metadata(data):
 def aggregate_matters(data):
     return aggregate_nodes(data, "Matter", MatterAggregator)
 
+
+
+@chain
+def aggregate_simulations(data):
+    return aggregate_nodes(data, "Simulation", SimulationAggregator)
+
+
 def validate_nodes(data, corrector_type):
     if data:
         corrector = corrector_type(input=data['input'], nodes=data['output'], query=data['query'])
@@ -267,6 +289,10 @@ def validate_measurements(data):
 def validate_metadata(data):
     return validate_nodes(data, MetadataCorrector)
 
+@chain
+def validate_simulations(data):
+    return validate_nodes(data, SimulationCorrector)
+
 
 
 def process_attribute(value):
@@ -275,7 +301,7 @@ def process_attribute(value):
         return [
             {
                 'value': str(el.AttributeValue).encode('unicode_escape').decode('ascii'),
-                'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+                'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
             for el in value if hasattr(el, 'AttributeValue') and hasattr(el, 'AttributeReference')
         ]
@@ -283,7 +309,7 @@ def process_attribute(value):
         return [
             {
                 'value': str(value.AttributeValue).encode('unicode_escape').decode('ascii'),
-                'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+                'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
         ]
     else:

@@ -24,9 +24,6 @@ class AttributeClassifier(TableDataTransformer):
         self.attribute_type = 'column_attribute'
         super().__init__(ReportClass=LabelClassificationReport, **kwargs)
 
-    def set_labels(self, labels):
-        print("Setting labels")
-        print(labels)
 
     @property
     def iterable(self):
@@ -71,7 +68,6 @@ class AttributeClassifier(TableDataTransformer):
         """
         Update the classification result with a chat result.
         """
-        print("Chat result", result)
         self._results.append({
             **kwargs['element'],
             "cached": False,
@@ -125,18 +121,14 @@ class AttributeClassifier(TableDataTransformer):
             # and may include arrays like [1, 2.3, -4, 5.6]
             pattern = r"^\s*(\[\s*)?(-?\d+(\.\d+)?(e-?\d+)?\s*(,\s*-?\d+(\.\d+)?(e-?\d+)?\s*)*\]?\s*)+$"
             return bool(re.fullmatch(pattern, s))
-        # print(kwargs['element']['header'], results)
         if results[0][1] > 0.95:
             final_result = results[0][0]
-            # print(results[0][3], final_result.name)
             return final_result.name
         from collections import Counter
         # Extract names from the results
         names = [result[0].name for result in results if result]
         names.append(results[0][0].name)
-        # print(names)
         inputs = [result[2] for result in results if result]
-        print(results[0][3])
 
         table_header = kwargs['element']['header']
         cell_value = kwargs['element']['column_values'][0]
@@ -144,26 +136,21 @@ class AttributeClassifier(TableDataTransformer):
         cell_unit = (len(parser.parse(cell_value)) > 0)
         header_number = is_number(table_header)
         header_unit = (len(parser.parse(table_header)) > 0)
-        print(kwargs['element']['header'], cell_number, cell_unit, header_number, header_unit, names)
-        print(kwargs['element']['header'], inputs)
         if kwargs['element']['1_label'].lower() == 'property' or kwargs['element']['1_label'].lower() == 'parameter':
             names.append('value')
             names.append('value')
             if cell_number and not cell_unit:
-                print("Cell number and no unit")
                 for _ in range(3):
                     if 'name' in names:
                         names.remove('name')
                     if 'unit' in names:
                         names.remove('unit')
             elif cell_unit and not cell_number:
-                # print("Cell unit and no number")
                 for _ in range(3):
                     if 'name' in names:
                         names.remove('name')
                 names.extend(['unit', 'unit'])
             elif cell_number:
-                # print("Cell number")
                 if 'name' in names:
                     names.remove('name')
                 if 'unit' in names:
@@ -175,13 +162,14 @@ class AttributeClassifier(TableDataTransformer):
         else:
             if cell_number:
                  names.append('identifier')
-        # print(names)
         name_counts = Counter(names)
 
             # Count each name's occurrence
+        print(table_header)
+        print(inputs)
+        print(names)
         # Find the most common name and the number of times it appears
         most_common_name, most_common_count = name_counts.most_common(1)[0]
-        print(kwargs['element']['header'], most_common_name, most_common_count)
         return most_common_name
 
     def _update(self, result, input_string, **kwargs):

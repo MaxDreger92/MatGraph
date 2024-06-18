@@ -61,3 +61,5 @@ gas diffusion layer (GDL),Matter,NodeLabelEmbedding,NodeLabel
 Fuel Cell,Matter,NodeLabelEmbedding,NodeLabel
 Battery Cell,Matter,NodeLabelEmbedding,NodeLabel
 Fuel Cell Identifier,Matter,NodeLabelEmbedding,NodeLabel
+Precursor,Matter,NodeLabelEmbedding,NodeLabel
+Target,Matter,NodeLabelEmbedding,NodeLabel

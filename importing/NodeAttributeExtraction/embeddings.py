@@ -47,7 +47,6 @@ class EmbeddingGenerator:
             node_name = row['node_name']
             embedding_cls = row['embedding_cls']
             node_class = row['node_cls']
-            print(input_text, node_name, embedding_cls, node_class)
 
             try:
                 # Retrieve or create the embedding node
@@ -86,15 +85,13 @@ if __name__ == "__main__":
     from neomodel import config, MultipleNodesReturned
 
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
-    print(config.DATABASE_URL)
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
     # Sample CSV data
-    print(os.getcwd())
     directory = "./NodeAttributeExtraction/embedding_inputs/"
     #iterate over all csv files
     for file in os.listdir(directory):
-        if file.endswith("matter_inputs.csv"):
+        if file.endswith("simulation_inputs.csv"):
             print(file)
             generator = EmbeddingGenerator(directory+file)
             df = generator.parse_data()
