@@ -17,5 +17,6 @@ export interface MDB_IUser {
   roles?: Array<string> | undefined
   institution?: string | undefined
   imgurl?: string | undefined
+  confirmed: boolean
   verified: boolean
 }

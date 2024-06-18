@@ -11,9 +11,6 @@ const tlsCAFile = (process.env.TLS_CA_FILE as string).replace(
     require("os").homedir()
 )
 
-console.log(tlsCertificateKeyFile)
-console.log(tlsCAFile)
-
 const options = {
     tls: true,
     tlsCertificateKeyFile: tlsCertificateKeyFile,
@@ -73,10 +70,20 @@ class UserRepository {
             roles: [],
             institution: "",
             imgurl: "",
+            confirmed: false,
             verified: false,
         }
         const result = await collection.insertOne(newUser)
         return result.insertedId
+    }
+
+    static async confirm(username: string) {
+        const collection = await this.connect()
+        const result = await collection.updateOne(
+            { username: username },
+            { $set: { confirmed: true } }
+        )
+        return result.modifiedCount > 0
     }
 
     static async verify(username: string) {
