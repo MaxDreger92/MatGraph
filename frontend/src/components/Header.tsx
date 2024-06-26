@@ -180,13 +180,16 @@ export default function Header(props: HeaderProps) {
                             alignItems: 'center',
                         }}
                     >
-                        <Link to="/" onClick={() => setActiveTab('')}>
+                        <div onClick={() => getApiActiveStatus()}>
+                            Test
+                        </div>
+                        {/* <Link to="/" onClick={() => setActiveTab('')}>
                             <img
                                 src={darkTheme ? logo_sm : logo_sm_light}
                                 alt="mgai"
                                 className="logo-sm"
                             />
-                        </Link>
+                        </Link> */}
                         {/*activeTab && (
                             <div
                                 style={{
