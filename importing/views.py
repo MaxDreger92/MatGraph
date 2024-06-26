@@ -3,6 +3,7 @@ import json
 import math
 from io import StringIO
 
+from django.http import HttpResponseNotAllowed
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from neomodel import DateTimeProperty
@@ -73,6 +74,13 @@ class LabelExtractView(APIView):
             'file_link': file_record.link,
             'file_name': file_record.name
         })
+        
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() not in ['post']:
+            response = HttpResponseNotAllowed(['POST'])
+            response['Allow'] = 'POST'
+            return response
+        return super().dispatch(request, *args, **kwargs)
 
 
 
