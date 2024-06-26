@@ -148,8 +148,6 @@ class TableDataTransformer(ReportBuilder):
             bool: True if cached data is used.
         """
         column_value = kwargs['element']['column_values'][0]
-        if kwargs['element']['header'] == "Pt_load[mg/cm2]":
-            pass
         if cached := ImporterCache.fetch(kwargs['element']['header'], column_value, attribute_type= self.attribute_type ):
             self._update_with_cache(cached, **kwargs)
             return True

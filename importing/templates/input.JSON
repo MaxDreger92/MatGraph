@@ -1,0 +1,197 @@
+{
+  "header": [
+    "ExperimentID",
+    "Measurement-ID",
+    "UploadDate",
+    "MeasurementDate",
+    "Institution",
+    "FoundingBody",
+    "Country",
+    "Author",
+    "ORCID",
+    "Email",
+    "Volume",
+    "Issue",
+    "Pages",
+    "PublicationDate",
+    "Topic",
+    "Subcomponent",
+    "Format",
+    "FileSize",
+    "FileSizeUnit",
+    "FileName"
+  ],
+  "context": "Fuel Cell Performance",
+  "raw_data": {
+    "Measurement": [
+      {
+        "index": 0,
+        "header": "ExperimentID",
+        "attribute": "identifier",
+        "column_values": [
+          "123489043-34"
+        ]
+      },
+      {
+        "index": 1,
+        "header": "Measurement-ID",
+        "attribute": "identifier",
+        "column_values": [
+          "123-34631-123"
+        ]
+      }
+    ],
+    "Metadata": [
+      {
+        "index": 2,
+        "header": "UploadDate",
+        "attribute": "name",
+        "column_values": [
+          "2022-10-11 00:00:00"
+        ]
+      },
+      {
+        "index": 3,
+        "header": "MeasurementDate",
+        "attribute": "name",
+        "column_values": [
+          "2022-10-12 00:00:00"
+        ]
+      },
+      {
+        "index": 4,
+        "header": "Institution",
+        "attribute": "name",
+        "column_values": [
+          "FZJ IEK-14"
+        ]
+      },
+      {
+        "index": 5,
+        "header": "FoundingBody",
+        "attribute": "name",
+        "column_values": [
+          "HIP"
+        ]
+      },
+      {
+        "index": 6,
+        "header": "Country",
+        "attribute": "name",
+        "column_values": [
+          "Germany"
+        ]
+      },
+      {
+        "index": 7,
+        "header": "Author",
+        "attribute": "name",
+        "column_values": [
+          "Joachim Pasel"
+        ]
+      },
+      {
+        "index": 8,
+        "header": "ORCID",
+        "attribute": "name",
+        "column_values": [
+          "123-465-4789"
+        ]
+      },
+      {
+        "index": 9,
+        "header": "Email",
+        "attribute": "name",
+        "column_values": [
+          "andyhuebsch@gmail.mx"
+        ]
+      },
+      {
+        "index": 10,
+        "header": "Volume",
+        "attribute": "name",
+        "column_values": [
+          "1"
+        ]
+      },
+      {
+        "index": 11,
+        "header": "Issue",
+        "attribute": "name",
+        "column_values": [
+          "25"
+        ]
+      },
+      {
+        "index": 12,
+        "header": "Pages",
+        "attribute": "name",
+        "column_values": [
+          "456-654"
+        ]
+      },
+      {
+      "index": 13,
+      "header": "PublicationDate",
+      "attribute": "name",
+      "column_values": [
+      "2012-11-12 00:00:00"
+      ]
+},
+      {
+        "index": 16,
+        "header": "Format",
+        "attribute": "name",
+        "column_values": [
+          "tiff"
+        ]
+      },
+      {
+        "index": 17,
+        "header": "FileSize",
+        "attribute": "name",
+        "column_values": [
+          "1"
+        ]
+      },
+      {
+        "index": 18,
+        "header": "FileSizeUnit",
+        "attribute": "name",
+        "column_values": [
+          "MB"
+        ]
+      },
+      {
+        "index": 19,
+        "header": "FileName",
+        "attribute": "name",
+        "column_values": [
+          "Test.tif"
+        ]
+      }
+    ]
+  },
+  "first_line": [
+    "123489043-34",
+    "123-34631-123",
+    "2022-10-11 00:00:00",
+    "2022-10-12 00:00:00",
+    "FZJ IEK-14",
+    "HIP",
+    "Germany",
+    "Joachim Pasel",
+    "123-465-4789",
+    "andyhuebsch@gmail.mx",
+    "1",
+    "25",
+    "456-654",
+    "2012-11-12 00:00:00",
+    "Catalysis",
+    "Catalyst",
+    "tiff",
+    "1",
+    "MB",
+    "Test.tif"
+  ]
+}

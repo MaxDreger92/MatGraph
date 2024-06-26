@@ -49,6 +49,17 @@ material photoconductivity,Property,NodeLabelEmbedding,NodeLabel
 component vapor pressure,Property,NodeLabelEmbedding,NodeLabel
 device scaling capabilities,Property,NodeLabelEmbedding,NodeLabel
 material electrical insulation,Property,NodeLabelEmbedding,NodeLabel
+density,Property,NodeLabelEmbedding,NodeLabel
+specific heat,Property,NodeLabelEmbedding,NodeLabel
+electrical resistivity,Property,NodeLabelEmbedding,NodeLabel
+resistivity,Property,NodeLabelEmbedding,NodeLabel
+hardness,Property,NodeLabelEmbedding,NodeLabel
+flexibility,Property,NodeLabelEmbedding,NodeLabel
+thermal stability,Property,NodeLabelEmbedding,NodeLabel
+boiling point,Property,NodeLabelEmbedding,NodeLabel
+melting point,Property,NodeLabelEmbedding,NodeLabel
+tensile strength,Property,NodeLabelEmbedding,NodeLabel
+power consumption,Property,NodeLabelEmbedding,NodeLabel
 material ratio,Property,NodeLabelEmbedding,NodeLabel
 material density,Property,NodeLabelEmbedding,NodeLabel
 material wt%,Property,NodeLabelEmbedding,NodeLabel
@@ -67,3 +78,4 @@ Equivalent weight (EW),Property,NodeLabelEmbedding,NodeLabel
 Equivalent mass,Property,NodeLabelEmbedding,NodeLabel
 ionomer/catayst ratio,Property,NodeLabelEmbedding,NodeLabel
 i/c ratio,Property,NodeLabelEmbedding,NodeLabel
+

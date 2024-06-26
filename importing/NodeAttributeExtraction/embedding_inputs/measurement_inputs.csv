@@ -40,13 +40,11 @@ emission testing,Measurement,NodeLabelEmbedding,NodeLabel
 dissolution testing,Measurement,NodeLabelEmbedding,NodeLabel
 diffusion testing,Measurement,NodeLabelEmbedding,NodeLabel
 bulk density measurement,Measurement,NodeLabelEmbedding,NodeLabel
-microhardness testing,Measurement,NodeLabelEmbedding,NodeLabel
 film thickness measurement,Measurement,NodeLabelEmbedding,NodeLabel
 optical transmission measurement,Measurement,NodeLabelEmbedding,NodeLabel
 magnetic susceptibility testing,Measurement,NodeLabelEmbedding,NodeLabel
 electrochemical impedance spectroscopy,Measurement,NodeLabelEmbedding,NodeLabel
 dielectric constant measurement,Measurement,NodeLabelEmbedding,NodeLabel
-ferroelectric testing,Measurement,NodeLabelEmbedding,NodeLabel
 piezoelectric testing,Measurement,NodeLabelEmbedding,NodeLabel
 tribological testing,Measurement,NodeLabelEmbedding,NodeLabel
 fatigue life prediction,Measurement,NodeLabelEmbedding,NodeLabel
@@ -54,3 +52,5 @@ friction coefficient determination,Measurement,NodeLabelEmbedding,NodeLabel
 corrosion inhibition evaluation,Measurement,NodeLabelEmbedding,NodeLabel
 bioactivity testing,Measurement,NodeLabelEmbedding,NodeLabel
 thermal expansion measurement,Measurement,NodeLabelEmbedding,NodeLabel
+experimentid,Measurement,NodeLabelEmbedding,NodeLabel
+experiment type,Measurement,NodeLabelEmbedding,NodeLabel

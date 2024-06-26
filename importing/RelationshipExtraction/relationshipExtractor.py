@@ -3,6 +3,7 @@ import os
 from langchain.chains.structured_output import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from graphutils.config import CHAT_GPT_MODEL
 from importing.RelationshipExtraction.examples import (
@@ -16,14 +17,14 @@ from importing.RelationshipExtraction.schema import (
     HasMeasurementRelationships,
     HasParameterRelationships,
     HasPropertyRelationships, HasPartMatterRelationships, HasPartManufacturingRelationships,
-    HasPartMeasurementRelationships,
+    HasPartMeasurementRelationships, HasMetadataRelationships,
 )
 from importing.RelationshipExtraction.setupMessages import (
     MATTER_MANUFACTURING_MESSAGE,
     PROPERTY_MEASUREMENT_MESSAGE,
     HAS_PARAMETER_MESSAGE,
     MATTER_PROPERTY_MESSAGE, MATTER_MATTER_MESSAGE, MEASUREMENT_MEASUREMENT_MESSAGE,
-    MANUFACTURING_MANUFACTURING_MESSAGE,
+    MANUFACTURING_MANUFACTURING_MESSAGE, PROCESS_METADATA_MESSAGE,
 )
 
 
@@ -69,8 +70,40 @@ class RelationshipExtractor:
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
-        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
-        label_two_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_two_nodes]
+        label_one_nodes = [
+            {
+                "node_id": node['id'],
+                "table_position": [
+                    attr['index']
+                    for attribute_type in node['attributes'].values()
+                    for attr in (attribute_type if isinstance(attribute_type, list) else [attribute_type])
+                    if 'index' in attr and attr['index'] not in ['inferred', 'missing']
+                ],
+                "node_attributes": {
+                    key: [val['value'] for val in (value_list if isinstance(value_list, list) else [value_list])]
+                    for key, value_list in node["attributes"].items()
+                }
+
+        }
+            for node in self.label_one_nodes
+        ]
+        label_two_nodes = [
+            {
+                "node_id": node['id'],
+                "table_position": [
+                    attr['index']
+                    for attribute_type in node['attributes'].values()
+                    for attr in (attribute_type if isinstance(attribute_type, list) else [attribute_type])
+                    if 'index' in attr and attr['index'] not in ['inferred', 'missing']
+                ],
+                "node_attributes": {
+                    key: [val['value'] for val in (value_list if isinstance(value_list, list) else [value_list])]
+                    for key, value_list in node["attributes"].items()
+                }
+
+            }
+            for node in self.label_two_nodes
+        ]
         prompt = f"""
 Scientific Context: {self.context}
 {', '.join(self.label_one)} nodes: {label_one_nodes}
@@ -81,6 +114,7 @@ Scientific Context: {self.context}
         print(prompt)
         return prompt
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def initial_extraction(self):
         """Performs the initial extraction of relationships using GPT-4."""
         query = self.create_query()
@@ -238,3 +272,15 @@ class HasPropertyExtractor(RelationshipExtractor):
         self.label_two = ["property"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
         self.examples = MATTER_PROPERTY_EXAMPLES
+
+
+class HasMetadataExtractor(RelationshipExtractor):
+    """Extractor for Metadata relationships."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HasMetadataRelationships
+        self.setup_message = PROCESS_METADATA_MESSAGE
+        self.label_one = ["manufacturing", "measurement"]
+        self.label_two = ["metadata"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)

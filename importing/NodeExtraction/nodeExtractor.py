@@ -12,13 +12,13 @@ from graphutils.general import TableDataTransformer
 from importing.NodeExtraction.examples import MATTER_AGGREGATION_EXAMPLES, PARAMETER_AGGREGATION_EXAMPLES, \
     MANUFACTURING_AGGREGATION_EXAMPLES
 from importing.NodeExtraction.nodeCorrector import MatterCorrector, PropertyCorrector, ParameterCorrector, \
-    ManufacturingCorrector, MeasurementCorrector, MetadataCorrector
+    ManufacturingCorrector, MeasurementCorrector, MetadataCorrector, SimulationCorrector
 from importing.NodeExtraction.schema import MatterNodeList, PropertyNodeList, ManufacturingNodeList, \
     MeasurementNodeList, MetadataNodeList, ParameterNodeList, MatterNode, MatterAttributes, Identifier, Name, \
-    BatchNumber, Ratio
+    BatchNumber, Ratio, SimulationNodeList
 from importing.NodeExtraction.setupMessages import MATTER_AGGREGATION_MESSAGE, PROPERTY_AGGREGATION_MESSAGE, \
     PARAMETER_AGGREGATION_MESSAGE, MANUFACTURING_AGGREGATION_MESSAGE, MEASUREMENT_AGGREGATION_MESSAGE, \
-    METADATA_AGGREGATION_MESSAGE
+    METADATA_AGGREGATION_MESSAGE, SIMULATION_AGGREGATION_MESSAGE
 from importing.models import NodeExtractionReport
 
 
@@ -68,9 +68,10 @@ class NodeAggregator:
     def validate(self):
         return self.intermediate
 
+    from tenacity import retry, stop_after_attempt, wait_fixed
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def aggregate(self):
         """Performs the initial extraction of relationships using GPT-4."""
-        print(f"Aggregate {self.schema} nodes")
         query = self.create_query()
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = self.setup_message
@@ -84,8 +85,6 @@ class NodeAggregator:
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
-        print("Output", self.intermediate)
-        print(f"Aggregated {self.schema} nodes")
         return {"input": {"header": self.header, "row": self.row, "attributes": self.attributes, "indices": self.indices}, "output": self.intermediate, "query": query}
         # return {'input': {'header': ['FuelCell_Id', 'MEA', 'Catalys Ink', 'Catalyst', 'Ionomer', 'I/C', 'Transfer substrate', 'Membrane', 'Anode', 'GDL'], 'row': ['RN0721-28', 'MEA', 'CatInk', 'F50E-HT', 'AQ', '0.7', 'Gore HCCM', 'MX10.15', 'Gore anode', 'HW4 B2.2'], 'attributes': ['identifier', 'identifier', 'name', 'name', 'name', 'name', 'name', 'identifier', 'name', 'batch_number'], 'indices': ['0', '4', '5', '8', '9', '11', '13', '14', '15', '16']},
         # 'output': MatterNodeList(nodes=[MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='RN0721-28', AttributeReference=0), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Fuel Cell', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='MEA', AttributeReference=4), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='MEA Assembly', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='CatInk', AttributeReference=5)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='F50E-HT', AttributeReference=8)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='AQ', AttributeReference=9)])), MatterNode(attributes=MatterAttributes(batch_number=None, concentration=None, name=[Name(AttributeValue=0.7, AttributeReference=11)], identifier=Identifier(AttributeValue='RN0721-28', AttributeReference=0))), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Gore HCCM', AttributeReference=13)])), MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='MX10.15', AttributeReference=14), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Membrane', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Gore anode', AttributeReference=15)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=BatchNumber(AttributeValue='HW4 B2.2', AttributeReference=16), ratio=None, concentration=None, name=[Name(AttributeValue='GDL', AttributeReference='header')]))]),
@@ -161,6 +160,19 @@ class MeasurementAggregator(NodeAggregator):
         self.schema = MeasurementNodeList
         self.examples = None
 
+class SimulationAggregator(NodeAggregator):
+    def __init__(self,
+                 data,
+                 context,
+                 first_row,
+                 header,
+                 setup_message=SIMULATION_AGGREGATION_MESSAGE,
+                 additional_context=""):
+        super().__init__(data, context, first_row, header, setup_message, additional_context)
+        self.label = "simulation"
+        self.schema = SimulationNodeList
+        self.examples = None
+
 
 class MetadataAggregator(NodeAggregator):
     def __init__(self,
@@ -230,6 +242,13 @@ def aggregate_metadata(data):
 def aggregate_matters(data):
     return aggregate_nodes(data, "Matter", MatterAggregator)
 
+
+
+@chain
+def aggregate_simulations(data):
+    return aggregate_nodes(data, "Simulation", SimulationAggregator)
+
+
 def validate_nodes(data, corrector_type):
     if data:
         corrector = corrector_type(input=data['input'], nodes=data['output'], query=data['query'])
@@ -267,6 +286,10 @@ def validate_measurements(data):
 def validate_metadata(data):
     return validate_nodes(data, MetadataCorrector)
 
+@chain
+def validate_simulations(data):
+    return validate_nodes(data, SimulationCorrector)
+
 
 
 def process_attribute(value):
@@ -275,7 +298,7 @@ def process_attribute(value):
         return [
             {
                 'value': str(el.AttributeValue).encode('unicode_escape').decode('ascii'),
-                'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+                'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
             for el in value if hasattr(el, 'AttributeValue') and hasattr(el, 'AttributeReference')
         ]
@@ -283,7 +306,7 @@ def process_attribute(value):
         return [
             {
                 'value': str(value.AttributeValue).encode('unicode_escape').decode('ascii'),
-                'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred")
+                'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
         ]
     else:
@@ -315,7 +338,7 @@ def build_results(data):
 
             total_node_list.append(node)
             uid += 1
-
+    print(total_node_list)
     return total_node_list
 
 
