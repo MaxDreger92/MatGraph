@@ -28,6 +28,7 @@ def request_embedding(text: str) -> List[float]:
     text = str(text).replace("\n", " ").strip().replace("'", "")
     # Call the OpenAI Embedding API to create an embedding for the input text.
     # The API response contains the embedding data in a nested structure.
+    print(settings.OPENAI_API_KEY)
     embedding_response = client.embeddings.create(input=[text], model=EMBEDDING_MODEL, user = settings.OPENAI_API_KEY)
     # Extract the embedding data from the response and return it as a list of floating-point numbers.
     return embedding_response.data[0].embedding

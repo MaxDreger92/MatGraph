@@ -137,7 +137,7 @@ class QuantityAttributes(BaseModel):
     Each attribute can have multiple values. The value of a quantity can be a single value or a range.
     """
     name: List[Name] = Field(description='Required field.')
-    value: Value|List[Value] = Field(description='Required field. Can be a single value or a list of values if a spectrum or array is given in the data.')
+    value: Optional[Value|List[Value]] = Field(description='Required field. Can be a single value or a list of values if a spectrum or array is given in the data.')
     error: Optional[Error|List[Error]] = None
     average: Optional[Average|List[Average]] = None
     standard_deviation: Optional[StandardDeviation|List[StandardDeviation]] = None
@@ -145,10 +145,10 @@ class QuantityAttributes(BaseModel):
     def to_dict(self):
         return {
             "name": [name.to_dict() for name in self.name],
-            "value": [v.to_dict() if hasattr(v, 'to_dict') else v for v in self.value] if isinstance(self.value, list) else self.value.to_dict(),
+            "value": [v.to_dict() if hasattr(v, 'to_dict') else v for v in self.value] if isinstance(self.value, list) else self.value.to_dict() if self.value else None,
             "error": self.error.to_dict() if self.error else None,
             "average": self.average.to_dict() if self.average else None,
-            "standard_deviation": self.standard_deviation.to_dict() if self.standard_deviation else None,
+            "standard_deviation": [v.to_dict() if hasattr(v, 'to_dict') else v for v in self.standard_deviation] if isinstance(self.standard_deviation, list) else self.standard_deviation.to_dict() if self.standard_deviation else None,
             "unit": self.unit.to_dict() if self.unit else None
         }
 class ProcessAttributes(BaseModel):
@@ -174,7 +174,7 @@ class MetadataAttributes(BaseModel):
     Extract the name of the process from the table column. If the name is not given in the column infer it from the table header or the context.
     """
     metadata_type: metadata_type
-    value: value
+    value: Optional[value]
     def to_dict(self):
         return {
             "metadata_type": self.metadata_type.to_dict(),

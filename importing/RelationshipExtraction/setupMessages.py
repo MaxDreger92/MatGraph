@@ -1,30 +1,43 @@
 MATTER_MANUFACTURING_MESSAGE = [("system", """
-You assist on generating the relationships in knowledge graphs. You have a deep knowledge about fabrication workflows
-in the field of energy materials. Your only task is to generate relationships between matter and manufacturing nodes. 
-The input data has the following structure:
+You assist in generating relationships in knowledge graphs with a focus on fabrication workflows in energy materials. Your task is to generate relationships between matter and manufacturing nodes to form a coherent graph representing the complete workflow.
+
+Input Data Structure:
 - Scientific context
--List of matter or measurement nodes
--List of manufacturing nodes
--Table header
--First row of the table
+- List of matter or measurement nodes
+- List of manufacturing nodes
+- Table header
+- First row of the table
 
-HINTS:
--Connect the nodes that they form a sequence that correctly represents the fabrication workflow. The 
-graph should ideally connect all matter and manufacturing nodes to one coherent graph that represents the complete workflow.
-Use the scientific context, the full table and the two lists of nodes to generate relationships that represent the complete workflow
+Node Structure:
+- id
+- table_position
+- attributes
+    - value (attribute value)
 
+Guidelines:
+1. Connect nodes to form a sequence that accurately represents the fabrication workflow.
+2. Ensure all matter and manufacturing nodes are included in the graph.
+3. Follow these rules:
+    - Every node must have at least one edge connected to another node.
+    - Matter nodes cannot have both 'is_manufacturing_input' and 'has_manufacturing_output' edges with the same Manufacturing node.
+    - Matter nodes cannot have 'has_manufacturing_output' relationships with multiple Manufacturing nodes.
+4. Use table_position to identify nodes that may belong together in the workflow.
+5. Ensure the sequence of nodes makes scientific sense, leveraging your knowledge and understanding of fabrication workflows.
+
+Your goal is to create a graph that accurately represents the complete fabrication process from initial materials through intermediates to the final product. Consider the scientific context and the table structure to achieve optimal results.
+"""),
+                                ("human", "Extract the relationships of the following nodes: {input}"),
+                                ("human", """
+Ensure you follow these rules:
+1. Every node must have at least one edge connected to another node.
+2. Matter nodes cannot have both 'is_manufacturing_input' and 'has_manufacturing_output' edges with the same Manufacturing node.
+3. Matter nodes cannot have 'has_manufacturing_output' relationships with multiple Manufacturing nodes.
+4. The triples should form a node sequence that represents the complete fabrication workflow. Use table_position to identify related nodes.
+5. Make sure the sequence of nodes is scientifically sound, applying your knowledge and understanding of the workflow.
 """)
-,
-("human", """Extract the relationships of the following nodes: {input} """),
-("human", """Make sure to always follow the given format and try to form one fully connected graph!"""),
-("human",
-"""Make sure that you followed the rule-set:
-1. Every node needs to have at least one edge another node.
-2. Matter nodes cannot have an 'is_manufacturing_input' and 'has_manufacturing_output' edge with the same Manufacturing node.
-3. Matter nodes cannot have an 'is_manufacturing_output' relationship with two different Manufacturing nodes.
-4. The triples should form a node sequence that follows represents the complete fabrication workflow.
-""")
-]
+                                ]
+
+
 
 HAS_PARAMETER_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
@@ -39,9 +52,9 @@ The input data has the following structure:
 
 Each node has:
 - id
+- table_position
 - attributes
-- value (attribute value)
-- index (column index from which the attribute was extracted)
+    - value (attribute value)
 
 
 Rules you always follow:
@@ -52,14 +65,13 @@ Rules you always follow:
 """),
 ("human", """Extract all "has_parameter" relationships from the data: {input} """),
 ("human",
-"""Make sure to always follow the given format and that you create relationships that form correct triples!"""),
-("human",
 """Make sure that you followed the rule-set:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
 2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
-""")]
+"""),
+                         ("human", """Do the created relationships match the nodes and table structure? (Double check the index values of the nodes)!""")]
 
 MATTER_MATTER_MESSAGE = [("system",
 """You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
@@ -161,22 +173,21 @@ The input data has the following structure:
 - Scientific context
 -Table header
 -First row of the table
--List of matter nodes
--List of property nodes
+-List of manufacturing or measurement nodes
+-List of parameter nodes
 
 Each node has:
 - id
+- table_position
 - attributes
-- value (attribute value)
-- index (column index from which the attribute was extracted)
+    - value (attribute value)
 
 
 Rules you always follow:
 1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
 2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
-3. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
-4. The source node is always the matter node.
-5. The target node is always the property node.
+3. Usually properties of important parts a documented (e.g., products or important intermediate products).
+4. When you don't know how to correctly connect the nodes check their proximity in the table (consider the "table_position" keys of the attributes).
 """),
 ("human", """Extract all "has_property" relationships from the data: {input} """),
 ("human",
@@ -185,10 +196,8 @@ Rules you always follow:
 """Make sure that you followed the rule-set:
 1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
 2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
-3. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
-4. The source node is always the matter node.
-5. The target node is always the property node.
-""")
+3. Usually properties of important parts a documented (e.g., products or important intermediate products).
+4. When you don't know how to correctly connect the nodes check their proximity in the table (consider the "table_position" keys of the attributes).""")
 ]
 
 PROPERTY_MEASUREMENT_MESSAGE = [("system", """
@@ -204,8 +213,26 @@ Rules you always follow:
 ("human",
 """Make sure that you followed the rule-set:
 1. Every measurement node needs to have at least on edge another property node.
-2. Each property node can only share a 'has_measurement_output' with one measurement node.""")
+2. Each property node can only share a 'has_measurement_output' with one mess-embeeasurement node.""")
 ]
 
 
 
+PROCESS_METADATA_MESSAGE = [("system", """
+You are a world class knowledge-graph generating algorithm. You have a deep knowledge about fabrication workflows
+and materials in the field of materials science. Your only task is to generate relationships between measurement/manufacturing and metadata nodes.
+You use the context and the deep knowledge in materials science to generate the relationships that correctly represent the information hidden in the table.
+Rules you always follow:
+1. Every metadata node needs to have at least on edge another manufacturing or measurement node.
+2. Each metadata node can only share a 'has_metadata' with one measurement or process node.
+3. 
+"""),
+                                ("human", """Extract the relationships of the following nodes: {input} """),
+                                ("human", """Make sure to always follow the given format!"""),
+                                ("human",
+                                 """Make sure that you followed the rule-set:
+1. Every metadata node needs to have at least on edge another manufacturing or measurement node.
+2. Each metadata node can only share a 'has_metadata' with one measurement or process node.
+3. The souce node is always the manufacturing or measurement node.
+4. The target node is always the metadata node.""")
+                                ]

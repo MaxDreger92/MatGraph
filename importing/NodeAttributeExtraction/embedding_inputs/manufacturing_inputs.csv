@@ -39,4 +39,42 @@ energy efficient material synthesis,Manufacturing,NodeLabelEmbedding,NodeLabel
 mea assembly,Manufacturing,NodeLabelEmbedding,NodeLabel
 experimentid,Manufacturing,NodeLabelEmbedding,NodeLabel
 experiment type,Manufacturing,NodeLabelEmbedding,NodeLabel
+process title,Manufacturing,NodeLabelEmbedding,NodeLabel
+process name,Manufacturing,NodeLabelEmbedding,NodeLabel
+process description,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure name,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure description,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation name,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation description,Manufacturing,NodeLabelEmbedding,NodeLabel
+stage name,Manufacturing,NodeLabelEmbedding,NodeLabel
+stage description,Manufacturing,NodeLabelEmbedding,NodeLabel
+step name,Manufacturing,NodeLabelEmbedding,NodeLabel
+step description,Manufacturing,NodeLabelEmbedding,NodeLabel
+run name,Manufacturing,NodeLabelEmbedding,NodeLabel
+run description,Manufacturing,NodeLabelEmbedding,NodeLabel
+sequence name,Manufacturing,NodeLabelEmbedding,NodeLabel
+sequence description,Manufacturing,NodeLabelEmbedding,NodeLabel
+action step,Manufacturing,NodeLabelEmbedding,NodeLabel
+action description,Manufacturing,NodeLabelEmbedding,NodeLabel
+trial name,Manufacturing,NodeLabelEmbedding,NodeLabel
+trial description,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure type,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure name,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation type,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation name,Manufacturing,NodeLabelEmbedding,NodeLabel
+process identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+stage identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+step identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+run identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+run identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+sequence identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+action identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+trial identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+procedure identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+operation identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+
+
+
 

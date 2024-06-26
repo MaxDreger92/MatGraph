@@ -8,7 +8,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mat2devplatform.settings')
 django.setup()
 
 from importing.LLMEvaluation.RelationshipEvaluators import HasParameterEvaluator, HasPropertyEvaluator, \
-    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator
+    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator, HasMetadataEvaluator
 
 from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, MatterEvaluator, PropertyEvaluator, \
     ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator, ParameterEvaluator1, SimulationEvaluator
@@ -16,9 +16,9 @@ from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, Matte
 # Example usage
 if __name__ == "__main__":
     # Assuming a function 'predict' and a 'data' structure already exist
-    manufacturing_data_set = "Manufacturing_Extraction"
-    manufacturing_evaluation = ManufacturingEvaluator()
-    manufacturing_results = manufacturing_evaluation.run_evaluation()
+    # manufacturing_data_set = "Manufacturing_Extraction"
+    # manufacturing_evaluation = ManufacturingEvaluator()
+    # manufacturing_results = manufacturing_evaluation.run_evaluation()
     # #
     # matter_data_set = "Matter_Extraction"
     # matter_evaluation = MatterEvaluator()
@@ -65,9 +65,9 @@ if __name__ == "__main__":
     # has_part_matter = HasPartMatterEvaluator()
     # has_part_matter_results = has_part_matter.run_evaluation()
 
-    # has_metadata_data_set = "Has_Metadata_Extraction"
-    # has_metadata = HasMetadataEvaluator()
-    # has_metadata_results = has_metadata.run_evaluation()
+    has_metadata_data_set = "Has_Metadata_Extraction"
+    has_metadata = HasMetadataEvaluator()
+    has_metadata_results = has_metadata.run_evaluation()
 
 
 

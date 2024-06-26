@@ -59,6 +59,7 @@ class AttributeClassifier(TableDataTransformer):
         """
 
         column = element['column_values']
+        print(column)
         if len(column) == 0:
             return True
         return False
@@ -165,9 +166,6 @@ class AttributeClassifier(TableDataTransformer):
         name_counts = Counter(names)
 
             # Count each name's occurrence
-        print(table_header)
-        print(inputs)
-        print(names)
         # Find the most common name and the number of times it appears
         most_common_name, most_common_count = name_counts.most_common(1)[0]
         return most_common_name

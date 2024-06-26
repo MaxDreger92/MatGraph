@@ -7,12 +7,13 @@ from langchain_openai import ChatOpenAI
 from graphutils.config import CHAT_GPT_MODEL
 from importing.RelationshipExtraction.input_generator import prepare_lists
 from importing.RelationshipExtraction.relationshipValidator import hasParameterValidator, hasPropertyValidator, \
-    hasMeasurementValidator, hasManufacturingValidator, hasPartMatterValidator, hasPartManufacturingValidator
+    hasMeasurementValidator, hasManufacturingValidator, hasPartMatterValidator, hasPartManufacturingValidator, \
+    hasMetadataValidator
 from importing.RelationshipExtraction.schema import HasMeasurementRelationships, HasManufacturingRelationships, \
     HasPropertyRelationships, HasParameterRelationships, HasPartMatterRelationships, HasPartManufacturingRelationships
 from importing.RelationshipExtraction.setupMessages import MATTER_MANUFACTURING_MESSAGE, PROPERTY_MEASUREMENT_MESSAGE, \
     MATTER_PROPERTY_MESSAGE, HAS_PARAMETER_MESSAGE, MATTER_MATTER_MESSAGE, MEASUREMENT_MEASUREMENT_MESSAGE, \
-    MANUFACTURING_MANUFACTURING_MESSAGE
+    MANUFACTURING_MANUFACTURING_MESSAGE, PROCESS_METADATA_MESSAGE
 
 
 class relationshipCorrector:
@@ -46,8 +47,6 @@ class relationshipCorrector:
         setup_message = [*setup_message, *[("ai", self.llm_output), (
         "human", "Please correct the following inconsistencies: {inconsistencies}")]]
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        print("Prompt:")
-        print(self.prompts)
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-correction"})
         self._corrected_graph = chain.invoke({
@@ -277,5 +276,16 @@ class hasManufacturingCorrector(relationshipCorrector):
         self._label_two = ['matter']
         self.validator = hasManufacturingValidator(nodes, graph)
         self.setup_message = MATTER_MANUFACTURING_MESSAGE
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
+        self.schema = HasManufacturingRelationships
+
+class hasMetadataCorrector(relationshipCorrector):
+    def __init__(self, nodes, graph, query, *args, **kwargs):
+        super().__init__(nodes, graph, query, *args, **kwargs)
+        self._rel_type = 'has_manufacturing_nodes'
+        self._label_one = ['manufacturing', "measurement"]
+        self._label_two = ['metadata']
+        self.validator = hasMetadataValidator(nodes, graph)
+        self.setup_message = PROCESS_METADATA_MESSAGE
         self._label_one_nodes, self._label_two_nodes = prepare_lists(nodes, self.label_one, self.label_two)
         self.schema = HasManufacturingRelationships

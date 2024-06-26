@@ -4,10 +4,10 @@ import django
 
 from importing.RelationshipExtraction.relationshipCorrector import hasParameterCorrector, hasPropertyCorrector, \
     hasManufacturingCorrector, hasMeasurementCorrector, hasPartMatterCorrector, hasPartManufacturingCorrector, \
-    hasPartMeasurementCorrector
+    hasPartMeasurementCorrector, hasMetadataCorrector
 from importing.RelationshipExtraction.relationshipExtractor import HasParameterExtractor, HasManufacturingExtractor, \
     HasMeasurementExtractor, HasPropertyExtractor, HasPartMatterExtractor, HasPartManufacturingExtractor, \
-    HasPartMeasurementExtractor
+    HasPartMeasurementExtractor, HasMetadataExtractor
 
 django.setup()
 
@@ -27,7 +27,6 @@ def extract_relationships(input_json, context, header, first_line, extractor_typ
 
 @chain
 def extract_has_property(data):
-    print(data['input'])
     return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasPropertyExtractor)
 
 
@@ -56,10 +55,10 @@ def extract_has_part_measurement(data):
     return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasPartMeasurementExtractor)
 
 
-# @chain
-# def extract_has_metadata(data):
-#     print("extract has_metadata relationships")
-#     return extract_relationships(data['input'], data['context'], hasParameterCorrector)
+@chain
+def extract_has_metadata(data):
+    print("extract has_metadata relationships")
+    return extract_relationships(data['input'], data['context'], data['header'], data['first_line'], HasMetadataExtractor)
 
 
 
@@ -93,7 +92,7 @@ def validate_has_parameter(data):
 
 @chain
 def validate_has_metadata(data):
-    return validate_relationships(data, hasParameterCorrector)
+    return validate_relationships(data, hasMetadataCorrector)
 
 @chain
 def validate_has_part_matter(data):

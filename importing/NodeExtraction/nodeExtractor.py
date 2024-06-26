@@ -72,7 +72,6 @@ class NodeAggregator:
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def aggregate(self):
         """Performs the initial extraction of relationships using GPT-4."""
-        print(f"Aggregate {self.schema} nodes")
         query = self.create_query()
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = self.setup_message
@@ -86,8 +85,6 @@ class NodeAggregator:
         chain = create_structured_output_runnable(self.schema, llm, prompt).with_config(
             {"run_name": f"{self.schema}-extraction"})
         self.intermediate = chain.invoke({"input": query})
-        print("Output", self.intermediate)
-        print(f"Aggregated {self.schema} nodes")
         return {"input": {"header": self.header, "row": self.row, "attributes": self.attributes, "indices": self.indices}, "output": self.intermediate, "query": query}
         # return {'input': {'header': ['FuelCell_Id', 'MEA', 'Catalys Ink', 'Catalyst', 'Ionomer', 'I/C', 'Transfer substrate', 'Membrane', 'Anode', 'GDL'], 'row': ['RN0721-28', 'MEA', 'CatInk', 'F50E-HT', 'AQ', '0.7', 'Gore HCCM', 'MX10.15', 'Gore anode', 'HW4 B2.2'], 'attributes': ['identifier', 'identifier', 'name', 'name', 'name', 'name', 'name', 'identifier', 'name', 'batch_number'], 'indices': ['0', '4', '5', '8', '9', '11', '13', '14', '15', '16']},
         # 'output': MatterNodeList(nodes=[MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='RN0721-28', AttributeReference=0), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Fuel Cell', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='MEA', AttributeReference=4), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='MEA Assembly', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='CatInk', AttributeReference=5)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='F50E-HT', AttributeReference=8)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='AQ', AttributeReference=9)])), MatterNode(attributes=MatterAttributes(batch_number=None, concentration=None, name=[Name(AttributeValue=0.7, AttributeReference=11)], identifier=Identifier(AttributeValue='RN0721-28', AttributeReference=0))), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Gore HCCM', AttributeReference=13)])), MatterNode(attributes=MatterAttributes(identifier=Identifier(AttributeValue='MX10.15', AttributeReference=14), batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Membrane', AttributeReference='header')])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=None, ratio=None, concentration=None, name=[Name(AttributeValue='Gore anode', AttributeReference=15)])), MatterNode(attributes=MatterAttributes(identifier=None, batch_number=BatchNumber(AttributeValue='HW4 B2.2', AttributeReference=16), ratio=None, concentration=None, name=[Name(AttributeValue='GDL', AttributeReference='header')]))]),
@@ -341,7 +338,7 @@ def build_results(data):
 
             total_node_list.append(node)
             uid += 1
-
+    print(total_node_list)
     return total_node_list
 
 

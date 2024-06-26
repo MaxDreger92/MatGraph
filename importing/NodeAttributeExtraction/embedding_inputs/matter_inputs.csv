@@ -63,3 +63,19 @@ Battery Cell,Matter,NodeLabelEmbedding,NodeLabel
 Fuel Cell Identifier,Matter,NodeLabelEmbedding,NodeLabel
 Precursor,Matter,NodeLabelEmbedding,NodeLabel
 Target,Matter,NodeLabelEmbedding,NodeLabel
+Sample,Matter,NodeLabelEmbedding,NodeLabel\
+chemical #,Matter,NodeLabelEmbedding,NodeLabel
+chemical number,Matter,NodeLabelEmbedding,NodeLabel
+product number,Matter,NodeLabelEmbedding,NodeLabel
+Material Batch Number,Matter,NodeLabelEmbedding,NodeLabel
+Material Batch Number,Matter,NodeLabelEmbedding,NodeLabel
+Material specification,Matter,NodeLabelEmbedding,NodeLabel
+Sample Number,Matter,NodeLabelEmbedding,NodeLabel
+Sample,Matter,NodeLabelEmbedding,NodeLabel
+Sample ID,Matter,NodeLabelEmbedding,NodeLabel
+Sample Identifier,Matter,NodeLabelEmbedding,NodeLabel
+Product Number,Matter,NodeLabelEmbedding,NodeLabel
+Product Description,Matter,NodeLabelEmbedding,NodeLabel
+Educt Number,Matter,NodeLabelEmbedding,NodeLabel
+
+

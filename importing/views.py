@@ -1,5 +1,6 @@
 import csv
 import json
+import math
 from io import StringIO
 
 from django.utils.decorators import method_decorator
@@ -20,6 +21,23 @@ from matgraph.models.metadata import File
 @method_decorator(csrf_exempt, name='dispatch')
 class LabelExtractView(APIView):
 
+    def sanitize_data(self, data):
+        if isinstance(data, dict):
+            i = 0
+            sanitized_dict = {}
+            for k, v in data.items():
+                i += 1
+                if isinstance(k, float) and (math.isnan(k) or math.isinf(k)):
+                    k = f'column_{str(i)}'  # Use an appropriate placeholder
+                sanitized_dict[k] = self.sanitize_data(v)
+            return sanitized_dict
+        elif isinstance(data, list):
+            return [self.sanitize_data(i) for i in data]
+        elif isinstance(data, float):
+            if math.isinf(data) or math.isnan(data):
+                return None  # or some other appropriate value
+            return data
+        return data
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         print("labels")
@@ -39,20 +57,22 @@ class LabelExtractView(APIView):
         file_record = self.store_file(file_obj)
         if cached := FullTableCache.fetch(first_line):
             cached = str(cached).replace("'", "\"")
-            return response.Response({'graph_json': cached,
-                                      'file_link': file_record.link,
-                                      'file_name': file_record.name
-                                      })
+            sanitized_cached = self.sanitize_data(cached)
+            return response.Response({
+                'graph_json': sanitized_cached,
+                'file_link': file_record.link,
+                'file_name': file_record.name
+            })
 
         labels = self.extract_labels(file, context, file_record.link, file_record.name)
+        sanitized_labels = self.sanitize_data(labels)
+        print(sanitized_labels)
 
         return response.Response({
-            'label_dict': labels,
+            'label_dict': sanitized_labels,
             'file_link': file_record.link,
             'file_name': file_record.name
         })
-
-
 
 
 
@@ -65,7 +85,6 @@ class LabelExtractView(APIView):
         node_classifier.run()
         node_classifier.results
         node_labels = {element['header']: [[element['1_label']], element['column_values'][0]] for element in node_classifier.results}
-        print(node_labels)
         return node_labels
 
     def store_file(self, file_obj):

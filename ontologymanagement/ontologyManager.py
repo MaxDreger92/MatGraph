@@ -240,11 +240,11 @@ def main():
 
     ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")
-    # ontology_manager.import_to_neo4j("quantities.owl")
+    ontology_manager.import_to_neo4j("quantities.owl")
     # ontology_manager.update_ontology("matter.owl")
     ontology_manager.import_to_neo4j("matter.owl")
     # ontology_manager.update_ontology("manufacturing.owl")
-    # ontology_manager.import_to_neo4j("manufacturing.owl")
+    ontology_manager.import_to_neo4j("manufacturing.owl")
 
 
 
