@@ -9,11 +9,68 @@ import fileUpload from 'express-fileupload'
 import FormData from 'form-data'
 
 import { CLOUDINARY_CONFIG } from '../config'
-import { MDB_IUser as IUser } from '../types/user.type'
 
 const router = express.Router()
 router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
+
+router.post(
+    '/api/users/authpass',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const id = req.userId
+            if (!id) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const user = await UserService.findByID(id)
+            if (!user) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { password } = req.body
+
+            const isPasswordValid = await bcrypt.compare(password, user.password)
+            if (!isPasswordValid) {
+                return res.status(401).json({
+                    message: 'Invalid password!',
+                })
+            } else {
+                return res.status(200).json({
+                    message: 'Password authenticated!',
+                })
+            }
+        } catch (err) {
+            return res.status(500).send('Internal Server Error!')
+        }
+    }
+)
+
+router.post(
+    '/api/users/authtoken',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const id = req.userId
+            if (!id) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            return res.status(200).json({
+                message: 'Token authenticated!',
+            })
+        } catch (err: any) {
+            return res.status(500).send('Internal Server Error!')
+        }
+    }
+)
 
 router.post('/api/users/login', async (req, res) => {
     try {
@@ -103,7 +160,6 @@ router.get(
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
-            
             const userId = req.userId
             if (!userId) {
                 return res.status(404).json({
@@ -184,30 +240,6 @@ router.get(
     }
 )
 
-router.delete(
-    '/api/users/delete',
-    UserService.authenticateToken,
-    async (req: IGetUserAuthInfoRequest, res: Response) => {
-        try {
-            const id = req.userId
-            if (!id) {
-                return res.status(401).json({
-                    message: 'Unauthorized access!',
-                })
-            }
-
-            const deleteSuccess = await UserService.deleteUser(id)
-            if (deleteSuccess) {
-                return res.status(200).json({
-                    message: 'User deleted successfully!',
-                })
-            }
-        } catch (err) {
-            return res.status(500).send('Internal Server Error!')
-        }
-    }
-)
-
 router.get(
     '/api/users/current',
     UserService.authenticateToken,
@@ -231,6 +263,8 @@ router.get(
                 user: currentUser,
                 message: 'User found!',
             })
+
+            
         } catch (err) {
             return res.status(500).send('Internal Server Error!')
         }
@@ -435,64 +469,6 @@ router.patch(
 )
 
 router.post(
-    '/api/users/authpass',
-    UserService.authenticateToken,
-    async (req: IGetUserAuthInfoRequest, res: Response) => {
-        try {
-            const id = req.userId
-            if (!id) {
-                return res.status(401).json({
-                    message: 'Unauthorized access!',
-                })
-            }
-
-            const user = await UserService.findByID(id)
-            if (!user) {
-                return res.status(401).json({
-                    message: 'Unauthorized access!',
-                })
-            }
-
-            const { password } = req.body
-
-            const isPasswordValid = await bcrypt.compare(password, user.password)
-            if (!isPasswordValid) {
-                return res.status(401).json({
-                    message: 'Invalid password!',
-                })
-            } else {
-                return res.status(200).json({
-                    message: 'Password authenticated!',
-                })
-            }
-        } catch (err) {
-            return res.status(500).send('Internal Server Error!')
-        }
-    }
-)
-
-router.post(
-    '/api/users/authtoken',
-    UserService.authenticateToken,
-    async (req: IGetUserAuthInfoRequest, res: Response) => {
-        try {
-            const id = req.userId
-            if (!id) {
-                return res.status(401).json({
-                    message: 'Unauthorized access!',
-                })
-            }
-
-            return res.status(200).json({
-                message: 'Token authenticated!',
-            })
-        } catch (err: any) {
-            return res.status(500).send('Internal Server Error!')
-        }
-    }
-)
-
-router.post(
     '/api/users/update/img',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
@@ -558,12 +534,80 @@ router.post(
             })
         } catch (err: any) {
             if (err.response) {
-                console.error('error:', err.response.data)
                 return res.status(err.response.status).json({
                     message: err.message,
                 })
             }
             return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.delete(
+    '/api/users/delete',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const id = req.userId
+            if (!id) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const deleteSuccess = await UserService.deleteUser(id)
+            if (deleteSuccess) {
+                return res.status(200).json({
+                    message: 'User deleted successfully!',
+                })
+            }
+        } catch (err) {
+            return res.status(500).send('Internal Server Error!')
+        }
+    }
+)
+
+router.get(
+    '/api/users/list',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const id = req.userId
+            if (!id) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const user = await UserService.findByID(id)
+
+            if (!user) {
+                return res.status(404).json({
+                    message: 'User could not be found!'
+                })
+            }
+
+            if (!(user.username === 'admin' &&
+                user.email === 'admin@matgraph.xyz' &&
+                (user.roles ?? []).includes('admin')
+            )) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!'
+                })
+            }
+
+            const userList = await UserService.getUserList()
+
+            if (!userList) {
+                return res.status(500).send('Internal Server Error!')
+            }
+
+            return res.status(200).json({
+                userList: userList,
+                message: 'User list retrieved!'
+            })
+        } catch (err) {
+            return res.status(500).send('Internal Server Error!')
         }
     }
 )

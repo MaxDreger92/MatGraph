@@ -16,3 +16,6 @@ static/
 _pycache_/
 *.py[cod]
 *$py.class
+
+# Mac OSX
+.DS_Store

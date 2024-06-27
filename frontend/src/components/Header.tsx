@@ -294,6 +294,18 @@ export default function Header(props: HeaderProps) {
                                         </Menu.Item>
                                     </Link>
                                     <Menu.Divider />
+                                    {user.roles?.includes('admin') && (
+                                        <>
+                                            <Link to="/users" onClick={() => setActiveTab('')}>
+                                                <Menu.Item
+                                                    icon={<IconUser size="0.9rem" stroke={1.5} />}
+                                                >
+                                                    All Users
+                                                </Menu.Item>
+                                            </Link>
+                                            <Menu.Divider />
+                                        </>
+                                    )}
                                     <Menu.Item
                                         icon={
                                             darkTheme ? (

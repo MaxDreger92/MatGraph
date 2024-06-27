@@ -43,6 +43,7 @@ class Client {
         }
 
         this.getCurrentUser = this.getCurrentUser.bind(this)
+        this.getUserList = this.getUserList.bind(this)
     }
 
     async apiActiveStatus() {
@@ -60,6 +61,10 @@ class Client {
                     },
                 },
             )
+
+            if (!response) {
+                throw new Error()
+            }
 
             return response
         } catch (err: any) {
@@ -346,6 +351,32 @@ class Client {
         }
     }
 
+    async getUserList() {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get('users/list', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (!(response && response.data && response.data.userList)) {
+                throw new Error('User list not in server response!')
+            }
+
+            return response.data.userList
+        } catch (err: any) {
+            if (err.message) {
+                console.log(err.message)
+            }
+            throw new Error('Unexpected error while retrieving user list!')
+        }
+    }
+
     async saveWorkflow(workflow: string) {
         try {
             const token = getCookie('token')
@@ -443,7 +474,7 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error in workflow query.')
+            throw new Error('Unexpected error in workflow query!')
         }
     }
 

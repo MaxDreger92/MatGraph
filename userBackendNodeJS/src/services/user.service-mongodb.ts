@@ -72,6 +72,10 @@ class UserService {
         return UserRepository.updateImgUrl(url, id)
     }
 
+    static async getUserList(): Promise<Partial<IUser>[]> {
+        return await UserRepository.getUserList()
+    }    
+
     static saveWorkflow(userId: string, workflow: string): Promise<ObjectId> {
         return WorkflowRepository.saveWorkflow(userId, workflow)
     }

@@ -204,7 +204,7 @@ export default function WorkflowPartialTable(props: WorkflowTableProps) {
                 })}
             </div>
 
-            {/* Rows */}
+            {/* Content */}
             <div
                 style={{
                     position: 'relative',

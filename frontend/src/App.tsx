@@ -1,21 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Routes, Route } from 'react-router-dom'
 import { UserContext } from './common/UserContext'
-import { Toaster, toast } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import Header from './components/Header'
 import { MDB_IUser as IUser } from './types/user.type'
 
 import client from './client'
 import { getCookie } from './client'
 
-import Home from './components/home/Home'
-import Workflow from './components/workflow/Workflow'
-import Database from './components/Database'
-import Profile from './components/Profile'
-import Authentication from './components/Authentication'
-import Legal from './components/legal/Legal'
+import AppRoutes from './AppRoutes'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -99,15 +93,7 @@ export default function App() {
                 </div>
 
                 <div className="main" style={{ zIndex: 10 }}>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/upload" element={<Workflow uploadMode={true} />} />
-                        <Route path="/search" element={<Workflow uploadMode={false} />} />
-                        <Route path="/database" element={<Database />} />
-                        <Route path="/login" element={<Authentication />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/legal-information" element={<Legal />} />
-                    </Routes>
+                    <AppRoutes />
                 </div>
             </UserContext.Provider>
 
