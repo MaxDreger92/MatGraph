@@ -1,10 +1,10 @@
 # Ensure the environment variable is set (replace 'myproject.settings' with your Django project's settings)
 from langchain_core.runnables import RunnableParallel
 
-from importing.LLMEvaluation.evaluation import LLMEvaluator, evaluate_JSONs, predict_nodes
+from importing.LLMEvaluation.evaluation import LLMEvaluator, evaluate_JSONs, predict_nodes, evaluate_nodes
 from importing.NodeExtraction.nodeExtractor import aggregate_manufacturing, validate_manufacturings, aggregate_matters, \
     validate_matters, aggregate_parameters, validate_parameters, aggregate_measurement, validate_measurements, \
-    aggregate_properties, validate_properties
+    aggregate_properties, validate_properties, aggregate_metadata, validate_metadata, aggregate_simulations, validate_simulations
 from importing.NodeExtraction.nodeExtractor import build_results
 
 
@@ -12,7 +12,7 @@ class ManufacturingEvaluator(LLMEvaluator):
     def __init__(self,
                  data_set="Manufacturing_Extraction",
                  experiment_prefix="manufacturing_evaluation", metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(
                      manufacturingNodes=aggregate_manufacturing | validate_manufacturings) | build_results,
@@ -24,7 +24,7 @@ class PropertyEvaluator(LLMEvaluator):
     def __init__(self,
                  data_set="Property_Extraction",
                  experiment_prefix="property_evaluation", metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(manufacturingNodes=aggregate_properties | validate_properties) | build_results,
                  ):
@@ -35,18 +35,27 @@ class ParameterEvaluator(LLMEvaluator):
     def __init__(self,
                  data_set="Parameter_Extraction",
                  experiment_prefix="parameter_evaluation", metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(manufacturingNodes=aggregate_parameters | validate_parameters) | build_results,
                  ):
         super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))
 
+class ParameterEvaluator1(LLMEvaluator):
+    def __init__(self,
+                 data_set="Parameter_Extraction_1",
+                 experiment_prefix="parameter_evaluation", metadata='',
+                 evaluators=[evaluate_nodes],
+                 predict_function=predict_nodes,
+                 chain=RunnableParallel(manufacturingNodes=aggregate_parameters | validate_parameters) | build_results,
+                 ):
+        super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))
 
 class MeasurementEvaluator(LLMEvaluator):
     def __init__(self,
                  data_set="Measurement_Extraction",
                  experiment_prefix="measurement_evaluation", metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(
                      manufacturingNodes=aggregate_measurement | validate_measurements) | build_results,
@@ -59,7 +68,7 @@ class MatterEvaluator(LLMEvaluator):
                  data_set="Matter_Extraction",
                  experiment_prefix="matter_evaluation",
                  metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(matterNodes=aggregate_matters | validate_matters) | build_results,
                  ):
@@ -70,11 +79,20 @@ class MetadataEvaluator(LLMEvaluator):
     def __init__(self,
                  data_set="Metadata_Extraction",
                  experiment_prefix="metadata_evaluation", metadata='',
-                 evaluators=[evaluate_JSONs],
+                 evaluators=[evaluate_nodes],
                  predict_function=predict_nodes,
                  chain=RunnableParallel(
-                     manufacturingNodes=aggregate_manufacturing | validate_manufacturings) | build_results,
+                     manufacturingNodes=aggregate_metadata | validate_metadata) | build_results,
                  ):
         super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))
 
-
+class SimulationEvaluator(LLMEvaluator):
+    def __init__(self,
+                 data_set="Simulation_Extraction",
+                 experiment_prefix="simulation_evaluation", metadata='',
+                 evaluators=[evaluate_nodes],
+                 predict_function=predict_nodes,
+                 chain=RunnableParallel(
+                     simulationNodes=aggregate_simulations | validate_simulations) | build_results,
+                 ):
+        super().__init__(data_set, experiment_prefix, metadata, chain, evaluators, predict_function(chain))

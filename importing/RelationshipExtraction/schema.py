@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from langchain_core.pydantic_v1 import BaseModel, Field
 
@@ -32,6 +32,14 @@ class HasMeasurement(Edge):
     """
     type: str = Field(choices = ["has_measurement_output"])
 
+class HasMetadata(Edge):
+    """
+    Edge connecting measurement nodes to property nodes.
+    source: measurement/manufacturing node
+    target: property node
+    """
+    type: str = Field(choices = ["has_measurement_output"])
+
 class HasPartMatter(Edge):
     """
     Edge connecting matter to its component matter node (e.g., FuelCell, has_part, MEA)
@@ -57,14 +65,21 @@ class HasPartMeasurement(Edge):
     """
     type: str = Field(choices=["has_part"])
 
-class HasManufacturing(Edge):
+class IsManufacturingInput(Edge):
     """
     Edge connecting matter nodes to manufacturing steps.
-    types:
+    type:
      - is_manufacturing_input: connects the educt with a manufacturing step (source is matter node, target is manufacturing step)
-     - has_manufacturing_output: connects the manufacturing step with its product (source is manufacturing step, target is matter node)
     """
-    type: str = Field(None, choices=["is_manufacturing_input", "has_manufacturing_output"])
+    type: str = "is_manufacturing_input"
+
+class HasManufacturingOutput(Edge):
+    """
+    Edge connecting matter nodes to manufacturing steps.
+    type:
+     - has_manufacturing_output: connects a manufacturing step with its product (source: manufactruing node, target: matter node)
+    """
+    type: str = "has_manufacturing_output"
 
 class HasPropertyRelationships(BaseModel):
     relationships: List[HasProperty] = Field(None, description='List of has_property relationships')
@@ -81,7 +96,7 @@ class HasMeasurementRelationships(BaseModel):
     relationships: List[HasMeasurement] = Field(None, description='List of has_measurement relationships')
 
 class HasManufacturingRelationships(BaseModel):
-    relationships: List[HasManufacturing] = Field(None, description='List of has_manufacturing relationships')
+    relationships: List[Union[HasManufacturingOutput, IsManufacturingInput]] = Field(None, description='List of matter-manufacturing relationships')
 
 
 class HasPartMatterRelationships(BaseModel):
@@ -92,3 +107,6 @@ class HasPartMeasurementRelationships(BaseModel):
 
 class HasPartManufacturingRelationships(BaseModel):
     relationships: List[HasPartManufacturing]
+
+class HasMetadataRelationships(BaseModel):
+    relationships: List[HasMetadata]

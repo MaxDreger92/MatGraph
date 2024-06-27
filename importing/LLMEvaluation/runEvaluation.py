@@ -8,10 +8,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mat2devplatform.settings')
 django.setup()
 
 from importing.LLMEvaluation.RelationshipEvaluators import HasParameterEvaluator, HasPropertyEvaluator, \
-    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator
+    HasManufacturingEvaluator, HasMeasurementEvaluator, HasPartMatterEvaluator, HasMetadataEvaluator
 
 from importing.LLMEvaluation.NodeEvaluators import ManufacturingEvaluator, MatterEvaluator, PropertyEvaluator, \
-    ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator
+    ParameterEvaluator, MeasurementEvaluator, MetadataEvaluator, ParameterEvaluator1, SimulationEvaluator
 
 # Example usage
 if __name__ == "__main__":
@@ -19,26 +19,31 @@ if __name__ == "__main__":
     # manufacturing_data_set = "Manufacturing_Extraction"
     # manufacturing_evaluation = ManufacturingEvaluator()
     # manufacturing_results = manufacturing_evaluation.run_evaluation()
-    #
+    # #
     # matter_data_set = "Matter_Extraction"
     # matter_evaluation = MatterEvaluator()
     # matter_results = matter_evaluation.run_evaluation()
-    # #
+    # # # #
     # property_data_set = "Property_Extraction"
     # property_evaluation = PropertyEvaluator()
     # property_results = property_evaluation.run_evaluation()
-    #
+    # # #
     # parameter_data_set = "Parameter_Extraction"
     # parameter_evaluation = ParameterEvaluator()
     # parameter_results = parameter_evaluation.run_evaluation()
+
+    # # #
+    # measurement_data_set = "Measurement_Extraction"
+    # measurement_evaluation = MeasurementEvaluator()
+    # measurement_results = measurement_evaluation.run_evaluation()
     # #
-    measurement_data_set = "Measurement_Extraction"
-    measurement_evaluation = MeasurementEvaluator()
-    measurement_results = measurement_evaluation.run_evaluation()
-    #
     # metadata_data_set = "Metadata_Extraction"
     # metadata_evaluation = MetadataEvaluator()
     # metadata_results = metadata_evaluation.run_evaluation()
+    #
+    # simulation_data_set = "Simulation_Extraction"
+    # simulation_evaluation = SimulationEvaluator()
+    # simulation_results = simulation_evaluation.run_evaluation()
     #
     # has_parameter_data_set = "Has_Parameter_Extraction"
     # has_parameter_evaluation = HasParameterEvaluator()
@@ -60,9 +65,9 @@ if __name__ == "__main__":
     # has_part_matter = HasPartMatterEvaluator()
     # has_part_matter_results = has_part_matter.run_evaluation()
 
-    # has_metadata_data_set = "Has_Metadata_Extraction"
-    # has_metadata = HasMetadataEvaluator()
-    # has_metadata_results = has_metadata.run_evaluation()
+    has_metadata_data_set = "Has_Metadata_Extraction"
+    has_metadata = HasMetadataEvaluator()
+    has_metadata_results = has_metadata.run_evaluation()
 
 
 

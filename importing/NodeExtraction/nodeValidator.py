@@ -83,7 +83,7 @@ class NodeValidator:
                                 except ValueError:
                                     item_value_is_float = False
 
-                                if (str(attr_name) != str(expected_type) or
+                                if ((str(attr_name) != str(expected_type) and str(attr_name) not in ['batch number', 'batch_number']) or
                                         (str(item.AttributeValue) != str(expected_value) and
                                          not (expected_value == '' or item_value_is_float))):
                                     errors.append({"index": ref,

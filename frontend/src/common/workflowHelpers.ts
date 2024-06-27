@@ -11,12 +11,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { tryNumeric, splitStrBySemicolon } from './helpers'
 
 const labelAttributes = {
-    matter: ['name', 'identifier', 'batch_number', 'ratio', 'concentration'],
+    matter: ['name', 'identifier', 'batch number', 'ratio', 'concentration'],
     manufacturing: ['name', 'identifier'],
     measurement: ['name', 'identifier'],
-    parameter: ['name', 'value', 'unit', 'std', 'error'],
-    property: ['name', 'value', 'unit', 'std', 'error'],
-    metadata: ['name', 'identifier'],
+    parameter: ['name', 'value', 'unit', 'standard deviation', 'error'],
+    property: ['name', 'value', 'unit', 'standard deviation', 'error'],
+    metadata: ['metadata_type', 'value'],
 }
 
 export function getAttributesByLabel(label: Label): string[] {

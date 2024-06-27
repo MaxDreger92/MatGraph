@@ -16,7 +16,6 @@ class relationshipValidator:
 
         for rel in self.result.relationships:
             self.triples.append([str(rel.source), rel.type, str(rel.target)])
-            print(str(rel.source), rel.type, str(rel.target))
 
 
     def validate(self):
@@ -72,7 +71,7 @@ class relationshipValidator:
     def no_isolated_nodes_node_list(self, list_of_nodes, triple_position: 0 | 2):
         # Extract the last part of each triple
         elements = [triple[triple_position] for triple in self.triples]
-        isolated_property_nodes = [node for node in self.node_label_ids(list_of_nodes) if node not in elements]
+        isolated_property_nodes = [str(node) for node in self.node_label_ids(list_of_nodes) if node not in elements]
         # Check if all elements are present in the last_elements list
         return isolated_property_nodes if len(isolated_property_nodes) != 0 else True
 
@@ -268,4 +267,20 @@ class hasPartMeasurementValidator(relationshipValidator):
         """Run all validation functions and gather results."""
         self._validation_results = {
             self.triples_correct.__name__: self.triples_correct(self.rel_type)
+        }
+
+
+class hasMetadataValidator(relationshipValidator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rel_type = "has_metadata"
+        self.label_one, self.label_two = ["manufacturing", "measurement"], ["metadata"]
+        self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
+
+    def validate(self):
+        """Run all validation functions and gather results."""
+        self._validation_results = {
+            self.no_isolated_nodes_node_list.__name__: self.no_isolated_nodes_node_list(self.label_two_nodes, 2),
+            self.cardinality.__name__: self.cardinality(1, self.rel_type, 'target', '!='),
+            self.triples_correct.__name__: self.triples_correct(self.rel_type),
         }

@@ -270,6 +270,8 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 }
 
                 const [labelDict, labelDictInfo] = splitDict(data.label_dict, 1)
+                console.log(labelDict)
+                console.log(labelDictInfo)
                 if (Object.entries(labelDictInfo).length > 0) {
                     setLabelInfo(labelDictInfo)
                 }
@@ -295,6 +297,7 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
                 setCurrentTableFn('attributeTable', dictArray)
             } else {
                 let labelDict = arrayToDict(labelTable)
+                console.log(labelDict)
 
                 if (!labelDict) {
                     throw new Error('Table containing labels not found!')
@@ -302,7 +305,10 @@ export default function WorkflowDrawer(props: WorkflowDrawerProps) {
 
                 if (labelInfo) {
                     labelDict = joinDict(labelDict, labelInfo)
+                    console.log(labelInfo)
                 }
+            console.log(labelDict)
+
 
                 if (!labelDict) {
                     throw new Error('Error joining labels to final dictionary!')

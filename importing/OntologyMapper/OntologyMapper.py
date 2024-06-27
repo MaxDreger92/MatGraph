@@ -6,6 +6,7 @@ from io import StringIO
 from langchain.chains.ernie_functions import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
@@ -76,6 +77,7 @@ class OntologyMapper:
 
     def _process_node(self, node, name):
         label = node['label']
+        print(name, label, node)
         if name['index'] == 'inferred' or name['value'] not in self.names:
             self._append_mapping(name['value'], label)
         elif label != 'metadata':
@@ -202,11 +204,9 @@ class OntologyGenerator:
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.child_name)].uid
             return node.get_subclasses([candidate_uid])
         else:
-            print(nodes)
-            print(chosen_candidate.parent_name)
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.parent_name)].uid
             return node.get_superclasses([candidate_uid])
-
+    @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
     def find_connection(self, candidates):
         ONTOLOGY_CONNECTOR = {
             'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,

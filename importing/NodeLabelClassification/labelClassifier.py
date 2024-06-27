@@ -61,7 +61,6 @@ class NodeClassifier(TableDataTransformer):
         results = results[0:6]
         if results[0][1] > 0.95:
             final_result = results[0][0]
-            print(results[0][3], final_result.name)
             return final_result.name
         from collections import Counter
 
@@ -77,29 +76,14 @@ class NodeClassifier(TableDataTransformer):
         # Check specifically if both numbers and units are found
 
         if number_present:
-            print(results[0][3], "Number or unit are found.")
             names =[*names, "Property", "Parameter"]
         if unit_present:
-            print(results[0][3], "Unit is found.")
             names = [*names, "Property", "Parameter"]
             # Count each name's occurrence
         name_counts = Counter(names)
         # Find the most common name and the number of times it appears
         most_common_name, most_common_count = name_counts.most_common(1)[0]
 
-
-
-
-
-
-
-
-        # Calculate the ratio of the most common name to the total number of names
-        total_names = len(names)
-        ratio = most_common_count / total_names
-        print(results[0][3], most_common_name, ratio)
-        print(inputs)
-        print(names)
         return most_common_name
 
     def create_data(self):
