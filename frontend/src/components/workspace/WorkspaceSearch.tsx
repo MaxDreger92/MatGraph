@@ -1,17 +1,17 @@
 import toast from 'react-hot-toast'
 import client from '../../client'
-import { saveBlobAsFile } from '../../common/workflowHelpers'
+import { saveBlobAsFile } from '../../common/workspaceHelpers'
 import { useSpring, animated } from 'react-spring'
 import { useState } from 'react'
 import { Button, Checkbox, Flex, Select } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
-interface WorkflowSearchProps {
+interface WorkspaceSearchProps {
     workflow: string | null
     darkTheme: boolean
 }
 
-export default function WorkflowSearch(props: WorkflowSearchProps) {
+export default function WorkspaceSearch(props: WorkspaceSearchProps) {
     const { workflow, darkTheme } = props
     const [advancedHovered, setAdvancedHovered] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
@@ -48,14 +48,14 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
 
     return (
         <animated.div
-            className="workflow-search"
+            className="workspace-search"
             style={{
                 paddingBottom: showAdvanced ? 10 : 0,
                 borderBottom: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
             }}
         >
             <Button
-                onClick={() => handleSubmit}
+                onClick={() => handleSubmit(searchForm.values)}
                 type="submit"
                 radius="xl"
                 style={{

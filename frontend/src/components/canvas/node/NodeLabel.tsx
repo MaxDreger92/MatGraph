@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { INode, ValOpPair } from '../../../types/canvas.types'
-import { isAttrDefined } from '../../../common/workflowHelpers'
+import { isAttrDefined } from '../../../common/workspaceHelpers'
 import { splitStrBySemicolon } from '../../../common/helpers'
 import { getRenderLabel } from '../../../common/nodeHelpers'
 

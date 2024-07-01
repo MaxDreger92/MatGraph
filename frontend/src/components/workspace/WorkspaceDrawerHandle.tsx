@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-interface WorkflowDrawerHandleProps {
+interface WorkspaceDrawerHandleProps {
     handleActive: React.MutableRefObject<boolean>
     tableViewHeight: number
     setTableViewHeight: React.Dispatch<React.SetStateAction<number>>
     setTableView: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
+export default function WorkspaceDrawerHandle(props: WorkspaceDrawerHandleProps) {
     const { handleActive, tableViewHeight, setTableViewHeight, setTableView } = props
 
     const [screenSize, setScreenSize] = useState(window.innerHeight)

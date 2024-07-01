@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { IDictionary } from './types/workflow.types'
+import { IDictionary } from './types/workspace.types'
+import { IUpload } from './types/workspace.types'
 
 const LOCAL = true
 
@@ -45,7 +46,10 @@ class Client {
         this.getCurrentUser = this.getCurrentUser.bind(this)
     }
 
-    async apiActiveStatus() {
+    // ################################## API 
+    // ##################################
+    // ##################################
+    apiActiveStatus = async () => {
         try{
             const token = getCookie('token')
             if (!token) {
@@ -71,6 +75,9 @@ class Client {
         }
     }
 
+    // ################################## User
+    // ##################################
+    // ##################################
     async login(email: string, password: string) {
         try {
             const response = await this.userClient.post('users/login', {
@@ -346,6 +353,131 @@ class Client {
         }
     }
 
+    // ################################## Uploads
+    // ##################################
+    // ##################################
+    async getUploadList() {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get('users/uploads/list', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while retrieving the upload list!')
+        }
+    }
+
+    async getUploadData(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get(`users/uploads/${uploadId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (!response || !response.data)
+
+            return response.data
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while retrieving upload data!')
+        }
+    }
+
+    async createUpload(csvTable: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.post(`users/uploads/create`, {
+                csvTable,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while saving the upload process!')
+        }
+    }
+
+    async updateUpload(uploadId: string, updates: Partial<IUpload>) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.patch(`users/uploads/${uploadId}`, {
+                updates, 
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
+        }
+    }
+
+    async deleteUpload(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.delete(`users/uploads/${uploadId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
+        }
+    }
+
+    // ################################## Workflows
+    // ##################################
+    // ##################################
     async saveWorkflow(workflow: string) {
         try {
             const token = getCookie('token')
@@ -421,6 +553,9 @@ class Client {
         }
     }
 
+    // ################################## Django API
+    // ##################################
+    // ##################################
     async workflowSearch(workflow: string | null) {
         try {
             const token = getCookie('token')
@@ -459,19 +594,17 @@ class Client {
             formData.append('file', file);
             formData.append('context', context);
 
-            // Make the POST request with formData
             const response = await this.dataClient.post('import/label-extract', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    // Don't set 'Content-Type': 'multipart/form-data' manually
                 },
             });
 
-            if (!response || !response.data) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
         } catch (err) {
             throw new Error('Unexpected error while extracting labels!')
         }
@@ -498,11 +631,11 @@ class Client {
                 },
             })
 
-            if (!response || !response.data) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
         } catch (err: any) {
             throw new Error('Unexpected error while extracting atributes!')
         }
@@ -529,11 +662,11 @@ class Client {
                 },
             })
 
-            if (!response || !response.data) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
         } catch (err: any) {
             throw new Error('Unexpected error while extracting nodes!')
         }
@@ -560,11 +693,11 @@ class Client {
                 },
             })
 
-            if (!response || !response.data) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
         } catch (err: any) {
             throw new Error('Unexpected error while extracting graph!')
         }
@@ -596,11 +729,11 @@ class Client {
                 },
             })
 
-            if (!response || !response.data.success) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
         } catch (err: any) {
             throw new Error('Unexpected error while importing graph!')
         }

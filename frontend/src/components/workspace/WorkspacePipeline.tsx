@@ -1,9 +1,9 @@
 import { Button } from "@mantine/core"
-import WorkflowPipelineArrow from "./WorkflowPipelineArrow"
+import WorkspacePipelineArrow from "./WorkspacePipelineArrow"
 import { useEffect, useRef, useState } from "react"
 import { RxCross2 } from "react-icons/rx";
 
-interface WorkflowPipelineProps {
+interface WorkspacePipelineProps {
   handlePipelineReset: () => void
   handleContextChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   loadNodes: () => void
@@ -16,7 +16,7 @@ interface WorkflowPipelineProps {
   darkTheme: boolean
 }
 
-export default function WorkflowPipeline(props: WorkflowPipelineProps) {
+export default function WorkspacePipeline(props: WorkspacePipelineProps) {
   const {
     handlePipelineReset,
     handleContextChange,
@@ -28,7 +28,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
     progress,
     darkTheme,
   } = props
-  const workflowPipelineRef = useRef<HTMLDivElement>(null)
+  const workspacePipelineRef = useRef<HTMLDivElement>(null)
   const [pipelineRect, setPipelineRect] = useState<DOMRect | null>(null)
   const [spaceBetween, setSpaceBetween] = useState(0)
   const [buttonWidth, setButtonWidth] = useState(155)
@@ -36,12 +36,12 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
-      if (workflowPipelineRef.current) {
-        setPipelineRect(workflowPipelineRef.current.getBoundingClientRect())
+      if (workspacePipelineRef.current) {
+        setPipelineRect(workspacePipelineRef.current.getBoundingClientRect())
       }
     })
 
-    const currentCanvas = workflowPipelineRef.current
+    const currentCanvas = workspacePipelineRef.current
     if (currentCanvas) {
       resizeObserver.observe(currentCanvas)
     }
@@ -51,7 +51,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
         resizeObserver.unobserve(currentCanvas)
       }
     }
-  }, [workflowPipelineRef])
+  }, [workspacePipelineRef])
 
   // calculate space between
   useEffect(() => {
@@ -74,8 +74,8 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
 
   return (
     <div
-      ref={workflowPipelineRef}
-      className="workflow-pipeline"
+      ref={workspacePipelineRef}
+      className="workspace-pipeline"
       style={{
         width: "100%",
         height: 80,
@@ -150,7 +150,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       </div>
 
       {/* Arrow */}
-      <WorkflowPipelineArrow length={spaceBetween}/>
+      <WorkspacePipelineArrow length={spaceBetween}/>
 
       {/* Step 2 - View extracted labels -> Request attribute extraction  */}
       <div
@@ -177,7 +177,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       </div>
 
       {/* Arrow */}
-      <WorkflowPipelineArrow length={spaceBetween}/>
+      <WorkspacePipelineArrow length={spaceBetween}/>
 
       {/* Step 3 - View extracted attributes -> Request node extraction */}
       <div
@@ -204,7 +204,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       </div>
 
       {/* Arrow */}
-      <WorkflowPipelineArrow length={spaceBetween}/>
+      <WorkspacePipelineArrow length={spaceBetween}/>
 
       {/* Step 4 - View extracted nodes (in canvas) -> Request graph extraction */}
       <div
@@ -231,7 +231,7 @@ export default function WorkflowPipeline(props: WorkflowPipelineProps) {
       </div>
 
       {/* Arrow */}
-      <WorkflowPipelineArrow length={spaceBetween}/>
+      <WorkspacePipelineArrow length={spaceBetween}/>
 
       {/* Step 5 - View extracted graph (in canvas) -> Request import of graph to database */}
       <div

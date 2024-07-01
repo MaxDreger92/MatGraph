@@ -1,55 +1,46 @@
-// useEffect(() => {
-//   const splitView = localStorage.getItem("viewSplitView")
-//   const splitViewWidth = localStorage.getItem("viewSplitViewWidth")
-
-//   if (!splitView || !splitViewWidth) return
-
-//   setSplitView(JSON.parse(splitView))
-//   setSplitViewWidth(JSON.parse(splitViewWidth))
-// }, [])
-
-// useEffect(() => {
-//   localStorage.setItem("viewSplitView", JSON.stringify(splitView))
-//   localStorage.setItem("viewSplitViewWidth", JSON.stringify(splitViewWidth))
-// }, [splitView, splitViewWidth])
-
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { useMantineColorScheme } from '@mantine/core'
+import { useQuery } from 'react-query'
 
 import Canvas from '../canvas/Canvas'
-import WorkflowButtons from './WorkflowButtons'
-import WorkflowJson from './WorkflowJson'
-import WorkflowHistory from './WorkflowHistory'
-import WorkflowDrawer from './WorkflowDrawer'
+import WorkspaceButtons from './WorkspaceButtons'
+import WorkspaceJson from './WorkspaceJson'
+import WorkspaceHistory from './WorkspaceHistory'
+import WorkspaceDrawer from './WorkspaceDrawer'
 import { IRelationship, INode, IndexDictionary } from '../../types/canvas.types'
-import { convertToJSONFormat, getNodeIndices } from '../../common/workflowHelpers'
+import { convertToJSONFormat, getNodeIndices } from '../../common/workspaceHelpers'
 import toast from 'react-hot-toast'
-import client from '../../client'
-import { IWorkflow } from '../../types/workflow.types'
-import WorkflowContext from './context/WorkflowContext'
+import { IWorkflow, IUpload } from '../../types/workspace.types'
+import { UploadListItem } from '../../types/workspace.types'
+import WorkspaceContext from '../../context/WorkspaceContext'
 import _ from 'lodash'
-import { UserContext } from '../../common/UserContext'
-import WorkflowDrawerHandle from './WorkflowDrawerHandle'
-import WorkflowSearch from './WorkflowSearch'
+import { UserContext } from '../../context/UserContext'
+import WorkspaceDrawerHandle from './WorkspaceDrawerHandle'
+import WorkspaceSearch from './WorkspaceSearch'
+import {
+    deleteWorkflowFromHistory,
+    fetchUploadList,
+    fetchWorkflows,
+    saveWorkflowToHistory,
+} from '../../common/clientHelpers'
+import client from '../../client'
 
-const undoSteps = 200
+const UNDO_STEPS = 200
 
-interface WorkflowProps {
+interface WorkspaceProps {
     uploadMode: boolean
 }
 
-export default function Workflow(props: WorkflowProps) {
+export default function Workspace(props: WorkspaceProps) {
     const user = useContext(UserContext)
     const { uploadMode } = props
+
     const [nodes, setNodes] = useState<INode[]>([])
     const [relationships, setRelationships] = useState<IRelationship[]>([])
     const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
     const [nodeEditing, setNodeEditing] = useState(false)
-    let setWorkflowRef: React.MutableRefObject<
-        _.DebouncedFunc<(nodes: INode[], relationships: IRelationship[]) => void> | undefined
-    > = React.useRef()
     const nodesFn = {
         nodes,
         setNodes,
@@ -62,8 +53,38 @@ export default function Workflow(props: WorkflowProps) {
         setNodeEditing,
     }
 
+    const [uploadList, setUploadList] = useState<UploadListItem[] | undefined>([])
+    const [upload, setUpload] = useState<IUpload>()
+    const [uploadProcessing, setUploadProcessing] = useState(false)
+    const { data: uploadData, error: uploadError, isLoading: uploadLoading } = useQuery(
+        ['upload', upload?._id],
+        () => client.getUploadData(upload?._id as string),
+        {
+            enabled: uploadProcessing,
+            refetchInterval: 1000,
+            onSuccess: (data) => {
+                if (data.upload.processing === false) {
+                    setUploadProcessing(false)
+                    setUpload(data.upload)
+                }
+            },
+        }
+    )
+    const { data: uploadListData, error: uploadListError, isLoading: uploadListLoading } = useQuery(
+        'uploadList', () => client.getUploadList(), {
+            enabled: uploadProcessing,
+            refetchInterval: 2000,
+            onSuccess: (data) => {
+                if ()
+            }
+        }
+    )
+
     const [workflow, setWorkflow] = useState<string | null>(null)
-    const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>()
+    const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>([])
+    let setWorkflowRef: React.MutableRefObject<
+        _.DebouncedFunc<(nodes: INode[], relationships: IRelationship[]) => void> | undefined
+    > = React.useRef()
 
     const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
     const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
@@ -81,8 +102,8 @@ export default function Workflow(props: WorkflowProps) {
     }>({ nodes: [], relationships: [] })
 
     const [canvasRect, setCanvasRect] = useState<DOMRect>(new DOMRect())
-    const workflowWindowRef = useRef<HTMLDivElement>(null)
-    const [workflowWindowRect, setWorkflowWindowRect] = useState<DOMRect | null>(null)
+    const workspaceWindowRef = useRef<HTMLDivElement>(null)
+    const [workspaceWindowRect, setWorkspaceWindowRect] = useState<DOMRect | null>(null)
 
     const [jsonView, setJsonView] = useState(false)
     const [jsonViewWidth, setJsonViewWidth] = useState(0)
@@ -93,6 +114,21 @@ export default function Workflow(props: WorkflowProps) {
     const drawerHandleActiveRef = useRef(false)
 
     const [progress, setProgress] = useState<number>(0)
+
+    // UPLOAD STUFF ########################################################
+    const handleFetchUploadList = async () => {
+        const uploadList = await fetchUploadList()
+        if (!uploadList) {
+            return
+        }
+        setUploadList(uploadList)
+    }
+
+    useEffect(() => {
+        if (!user || !uploadMode) return
+
+        handleFetchUploadList()
+    }, [user, uploadMode])
 
     // WORKFLOW STUFF ########################################################
 
@@ -115,9 +151,18 @@ export default function Workflow(props: WorkflowProps) {
 
     // fetch workflows
     useEffect(() => {
-        if (!user) return
-        fetchWorkflows()
-    }, [user])
+        if (!user || uploadMode) return
+
+        const handleFetchWorkflows = async () => {
+            const workflows = await fetchWorkflows()
+            if (!workflows) {
+                return
+            }
+            setWorkflows(workflows)
+        }
+
+        handleFetchWorkflows()
+    }, [user, uploadMode])
 
     async function saveWorkflow() {
         const workflow = convertToJSONFormat(nodes, relationships, true)
@@ -141,77 +186,39 @@ export default function Workflow(props: WorkflowProps) {
         }
     }
 
-    async function deleteWorkflowFromHistory(workflowId: string) {
-        try {
-            const response = await client.deleteWorkflow(workflowId)
-
-            if (response) {
-                toast.success(response.data.message)
-            }
-        } catch (err: any) {
-            toast.error(err.message)
-        }
-    }
-
-    async function saveWorkflowToHistory(workflow: string) {
-        try {
-            const response = await client.saveWorkflow(workflow)
-
-            if (response) {
-                toast.success(response.data.message)
-            }
-        } catch (err: any) {
-            toast.error(err.message)
-        }
-    }
-
-    async function fetchWorkflows() {
-        try {
-            const response = await client.getWorkflows()
-
-            if (!response || !response.data.workflows || !response.data.message) {
-                toast.error('Error while retrieving workflows!')
-            }
-
-            setWorkflows(response.data.workflows)
-        } catch (err: any) {
-            toast.error(err.message)
-        }
-    }
-
     // WINDOW STUFF ########################################################
 
     useEffect(() => {
-        if (workflowWindowRect) {
-            const width = workflowWindowRect.width - jsonViewWidth - historyViewWidth
-            const height = workflowWindowRect.height - (tableView ? tableViewHeight : 0)
+        if (workspaceWindowRect) {
+            const width = workspaceWindowRect.width - jsonViewWidth - historyViewWidth
+            const height = workspaceWindowRect.height - (tableView ? tableViewHeight : 0)
 
-            setCanvasRect(new DOMRect(historyViewWidth, workflowWindowRect.top, width, height))
+            setCanvasRect(new DOMRect(historyViewWidth, workspaceWindowRect.top, width, height))
 
             // setCanvasWidth(width)
             // setCanvasHeight(height)
         }
-    }, [workflowWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight, tableView])
+    }, [workspaceWindowRect, jsonViewWidth, historyViewWidth, tableViewHeight, tableView])
 
-    // Resize Observer for workflow window
+    // Resize Observer for workspace window
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
-            if (workflowWindowRef.current) {
-                setWorkflowWindowRect(workflowWindowRef.current.getBoundingClientRect())
+            if (workspaceWindowRef.current) {
+                setWorkspaceWindowRect(workspaceWindowRef.current.getBoundingClientRect())
             }
         })
 
-        const currentWorkflow = workflowWindowRef.current
-        if (currentWorkflow) {
-            resizeObserver.observe(currentWorkflow)
+        const currentWorkspace = workspaceWindowRef.current
+        if (currentWorkspace) {
+            resizeObserver.observe(currentWorkspace)
         }
 
         return () => {
-            if (currentWorkflow) {
-                resizeObserver.unobserve(currentWorkflow)
+            if (currentWorkspace) {
+                resizeObserver.unobserve(currentWorkspace)
             }
         }
-    }, [workflowWindowRef])
+    }, [workspaceWindowRef])
 
     const handleSplitView = (view: String) => {
         switch (view) {
@@ -381,16 +388,16 @@ export default function Workflow(props: WorkflowProps) {
     // History ########################################
     const updateHistory = useCallback(() => {
         setHistory((prev) => ({
-            nodes: [...prev.nodes, nodes].slice(-undoSteps),
-            relationships: [...prev.relationships, relationships].slice(-undoSteps),
+            nodes: [...prev.nodes, nodes].slice(-UNDO_STEPS),
+            relationships: [...prev.relationships, relationships].slice(-UNDO_STEPS),
         }))
         setFuture({ nodes: [], relationships: [] })
     }, [nodes, relationships])
 
     const updateHistoryWithCaution = useCallback(() => {
         setHistory((prev) => ({
-            nodes: [...prev.nodes, nodes].slice(-undoSteps),
-            relationships: [...prev.relationships, relationships].slice(-undoSteps),
+            nodes: [...prev.nodes, nodes].slice(-UNDO_STEPS),
+            relationships: [...prev.relationships, relationships].slice(-UNDO_STEPS),
         }))
     }, [nodes, relationships])
 
@@ -415,8 +422,8 @@ export default function Workflow(props: WorkflowProps) {
     const undo = useCallback(() => {
         if (history.nodes.length) {
             setFuture((prev) => ({
-                nodes: [nodes, ...prev.nodes].slice(-undoSteps),
-                relationships: [relationships, ...prev.relationships].slice(-undoSteps),
+                nodes: [nodes, ...prev.nodes].slice(-UNDO_STEPS),
+                relationships: [relationships, ...prev.relationships].slice(-UNDO_STEPS),
             }))
             setNodes(
                 history.nodes[history.nodes.length - 1].map((node) => ({
@@ -435,8 +442,8 @@ export default function Workflow(props: WorkflowProps) {
     const redo = useCallback(() => {
         if (future.nodes.length) {
             setHistory((prev) => ({
-                nodes: [...prev.nodes, nodes].slice(-undoSteps),
-                relationships: [...prev.relationships, relationships].slice(-undoSteps),
+                nodes: [...prev.nodes, nodes].slice(-UNDO_STEPS),
+                relationships: [...prev.relationships, relationships].slice(-UNDO_STEPS),
             }))
             setNodes(future.nodes[0].map((node) => ({ ...node, isEditing: false })))
             setRelationships(future.relationships[0])
@@ -472,10 +479,10 @@ export default function Workflow(props: WorkflowProps) {
     }
 
     return (
-        <WorkflowContext.Provider value={value}>
-            <div className="workflow" ref={workflowWindowRef}>
+        <WorkspaceContext.Provider value={value}>
+            <div className="workspace" ref={workspaceWindowRef}>
                 <div
-                    className="workflow-canvas"
+                    className="workspace-canvas"
                     style={{
                         overflow: 'hidden',
                         position: 'absolute',
@@ -503,7 +510,7 @@ export default function Workflow(props: WorkflowProps) {
                 />
 
                 <animated.div
-                    className="workflow-history"
+                    className="workspace-history"
                     style={{
                         height: springProps.canvasHeight,
                         width: springProps.historyViewWidth,
@@ -516,7 +523,7 @@ export default function Workflow(props: WorkflowProps) {
                         zIndex: 1,
                     }}
                     children={
-                        <WorkflowHistory
+                        <WorkspaceHistory
                             uploadMode={uploadMode}
                             workflows={workflows}
                             deleteWorkflow={deleteWorkflow}
@@ -529,7 +536,7 @@ export default function Workflow(props: WorkflowProps) {
                 />
 
                 <animated.div
-                    className="workflow-drawer-right"
+                    className="workspace-drawer-right"
                     style={{
                         height: springProps.canvasHeight,
                         width: springProps.jsonViewWidth,
@@ -544,16 +551,16 @@ export default function Workflow(props: WorkflowProps) {
                     children={
                         <>
                             {!uploadMode && (
-                                <WorkflowSearch workflow={workflow} darkTheme={darkTheme} />
+                                <WorkspaceSearch workflow={workflow} darkTheme={darkTheme} />
                             )}
-                            <WorkflowJson workflow={workflow} darkTheme={darkTheme} />
+                            <WorkspaceJson workflow={workflow} darkTheme={darkTheme} />
                         </>
                     }
                 />
 
                 {uploadMode && (
                     <animated.div
-                        className="workflow-drawer-bottom"
+                        className="workspace-drawer-bottom"
                         style={{
                             height: drawerHandleActiveRef.current
                                 ? tableViewHeight
@@ -575,7 +582,7 @@ export default function Workflow(props: WorkflowProps) {
                                     height: '100%',
                                 }}
                             >
-                                <WorkflowDrawer
+                                <WorkspaceDrawer
                                     tableView={tableView}
                                     tableViewHeight={tableViewHeight}
                                     progress={progress}
@@ -583,14 +590,16 @@ export default function Workflow(props: WorkflowProps) {
                                     setNodes={setNodes}
                                     setRelationships={setRelationships}
                                     setNeedLayout={setNeedLayout}
+                                    upload={upload}
+                                    setUpload={setUpload}
+                                    setUploadProcessing={setUploadProcessing}
                                     workflow={workflow}
-                                    workflows={workflows}
                                     selectedNodes={selectedNodes}
                                     rebuildIndexDictionary={rebuildIndexDictionary}
                                     darkTheme={darkTheme}
                                 />
                                 {tableView && (
-                                    <WorkflowDrawerHandle
+                                    <WorkspaceDrawerHandle
                                         handleActive={drawerHandleActiveRef}
                                         tableViewHeight={tableViewHeight}
                                         setTableViewHeight={setTableViewHeight}
@@ -601,8 +610,8 @@ export default function Workflow(props: WorkflowProps) {
                         }
                     />
                 )}
-                <div className="workflow-btn-wrap" style={{ zIndex: 1 }}>
-                    <WorkflowButtons
+                <div className="workspace-btn-wrap" style={{ zIndex: 1 }}>
+                    <WorkspaceButtons
                         uploadMode={uploadMode}
                         jsonView={jsonView}
                         jsonViewWidth={jsonViewWidth}
@@ -615,6 +624,6 @@ export default function Workflow(props: WorkflowProps) {
                     />
                 </div>
             </div>
-        </WorkflowContext.Provider>
+        </WorkspaceContext.Provider>
     )
 }

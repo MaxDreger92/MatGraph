@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useMantineColorScheme } from "@mantine/core"
 
 import { IRelationship, Position } from "../../../types/canvas.types"
-import RelationshipContext from "./RelationshipContext"
+import RelationshipContext from "./RelationshipContextMenu"
 
 interface RelationshipProps {
   relationship: IRelationship

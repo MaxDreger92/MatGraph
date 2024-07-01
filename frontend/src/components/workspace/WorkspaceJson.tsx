@@ -2,15 +2,15 @@ import SearchIcon from "@mui/icons-material/Search"
 import { GiSpiralLollipop } from "react-icons/gi";
 
 import client from "../../client"
-import { saveBlobAsFile } from "../../common/workflowHelpers"
+import { saveBlobAsFile } from "../../common/workspaceHelpers"
 import toast from "react-hot-toast"
 
-interface WorkflowJsonProps {
+interface WorkspaceJsonProps {
   workflow: string | null
   darkTheme: boolean
 }
 
-export default function WorkflowJson(props: WorkflowJsonProps) {
+export default function WorkspaceJson(props: WorkspaceJsonProps) {
   const {
     workflow,
     darkTheme,
@@ -21,7 +21,7 @@ export default function WorkflowJson(props: WorkflowJsonProps) {
   return (
     <>
       <div
-        className="workflow-json"
+        className="workspace-json"
         style={{
           position: "relative",
           width: "100%",

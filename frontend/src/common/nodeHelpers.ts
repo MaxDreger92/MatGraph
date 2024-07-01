@@ -1,6 +1,6 @@
 import { INode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
 import { ensureArray, splitStrBySemicolon } from "./helpers"
-import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
+import { isAttrDefined, relationshipToRelType } from "./workspaceHelpers"
 
 /**
  * Determine if a relationship between two nodes is allowed.

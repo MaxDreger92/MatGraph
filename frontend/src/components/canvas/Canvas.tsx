@@ -8,7 +8,7 @@ import _ from 'lodash'
 import { toast } from 'react-hot-toast'
 import { useMantineColorScheme } from '@mantine/core'
 
-import ContextCanvas from './CanvasContext'
+import ContextCanvas from './CanvasContextMenu'
 import Node from './node/Node'
 import Relationship, { TempRelationship } from './relationship/Relationship'
 import {
@@ -26,7 +26,7 @@ import {
     isRelationshipLegitimate,
 } from '../../common/nodeHelpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
-import WorkflowContext from '../workflow/context/WorkflowContext'
+import WorkspaceContext from '../../context/WorkspaceContext'
 
 const DETECTION_RADIUS = 31
 
@@ -116,7 +116,7 @@ export default function Canvas(props: CanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    const { forceEndEditing, uploadMode } = useContext(WorkflowContext)
+    const { forceEndEditing, uploadMode } = useContext(WorkspaceContext)
 
     // ########################################################################## Mousemove listener
     useEffect(() => {

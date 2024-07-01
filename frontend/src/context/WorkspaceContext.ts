@@ -1,6 +1,6 @@
 import React, { createContext } from "react";
 
-interface IWorkflowContext {
+interface IWorkspaceContext {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
@@ -9,7 +9,7 @@ interface IWorkflowContext {
     tableViewHeight: number
 }
 
-const defaultContextValue: IWorkflowContext = {
+const defaultContextValue: IWorkspaceContext = {
     setHighlightedColumnIndex: () => {},
     selectedColumnIndex: null,
     setSelectedColumnIndex: () => {},
@@ -18,6 +18,6 @@ const defaultContextValue: IWorkflowContext = {
     tableViewHeight: 0,
 }
 
-const WorkflowContext = createContext<IWorkflowContext>(defaultContextValue)
+const WorkspaceContext = createContext<IWorkspaceContext>(defaultContextValue)
 
-export default WorkflowContext
+export default WorkspaceContext

@@ -511,7 +511,7 @@ input::webkit-inner-spin-button {
     justify-content: right;
 }
 
-.workflow {
+.workspace {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -519,34 +519,34 @@ input::webkit-inner-spin-button {
     height: 100%;
 }
 
-.workflow input[type='text'] {
+.workspace input[type='text'] {
     outline: none;
     border-radius: 3px;
     padding: 5px;
     width: 100%;
 }
 
-.workflow .node-input input[type='text'] {
+.workspace .node-input input[type='text'] {
     outline: none;
     border-radius: 3px;
     padding: 5px;
     height: 40px;
 }
 
-.workflow-btn {
+.workspace-btn {
     position: absolute;
     width: 35px;
     height: 35px;
 }
 
-.workflow-btn-wrap {
+.workspace-btn-wrap {
     pointer-events: none;
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
-.workflow-drawer-bottom {
+.workspace-drawer-bottom {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -554,7 +554,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-drawer-right {
+.workspace-drawer-right {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -562,7 +562,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-history {
+.workspace-history {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -570,7 +570,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-json textarea {
+.workspace-json textarea {
     background-color: inherit;
     position: relative;
     outline: none;
@@ -578,7 +578,7 @@ input::webkit-inner-spin-button {
     top: 50px;
 }
 
-.workflow-search {
+.workspace-search {
     display: flex;
     flex-direction: column;
     position: relative;

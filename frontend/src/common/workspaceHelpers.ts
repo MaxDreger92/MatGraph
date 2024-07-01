@@ -2,13 +2,13 @@ import {
     INode,
     IRelationship,
     ValOpPair,
-    Operator,
     NodeAttribute,
     NodeValOpAttribute,
 } from '../types/canvas.types'
-import { IGraphData, Attribute, ParsableAttribute, Label } from '../types/workflow.types'
+import { IGraphData, ParsableAttribute, Label, TableRow, IDictionary } from '../types/workspace.types'
 import { v4 as uuidv4 } from 'uuid'
-import { tryNumeric, splitStrBySemicolon } from './helpers'
+import { tryNumeric, splitStrBySemicolon, ensureArray } from './helpers'
+import Papa from 'papaparse'
 
 const labelAttributes = {
     matter: ['name', 'identifier', 'batch number', 'ratio', 'concentration'],
@@ -19,7 +19,7 @@ const labelAttributes = {
     metadata: ['metadata_type', 'value'],
 }
 
-export function getAttributesByLabel(label: Label): string[] {
+export const getAttributesByLabel = (label: Label): string[] => {
     return labelAttributes[label]
 }
 
@@ -35,16 +35,10 @@ export const relationshipToRelType: Record<string, string> = {
     'measurement-metadata': 'HAS_METADATA',
     'matter-matter': 'HAS_PART',
     'manufacturing-manufacturing': 'HAS_PART',
-    'measurement-measurement': 'HAS_PART'
-    }
+    'measurement-measurement': 'HAS_PART',
+}
 
-/**
- * Map a node type from the application's internal format to the desired output format.
- *
- * @param type Node type from the application
- * @returns Corresponding node type for the JSON structure
- */
-function mapNodeType(type: string): string {
+const mapNodeType = (type: string): string => {
     switch (type) {
         case 'matter':
             return 'EMMOMatter'
@@ -63,7 +57,7 @@ function mapNodeType(type: string): string {
     }
 }
 
-export function mapNodeTypeNumerical(type: string): number {
+export const mapNodeTypeNumerical = (type: string): number => {
     switch (type) {
         case 'matter':
             return 0
@@ -82,7 +76,7 @@ export function mapNodeTypeNumerical(type: string): number {
     }
 }
 
-export function mapNodeTypeString(type: number): string {
+export const mapNodeTypeString = (type: number): string => {
     switch (type) {
         case 0:
             return 'matter'
@@ -101,18 +95,11 @@ export function mapNodeTypeString(type: number): string {
     }
 }
 
-/**
- * Determines the relationship type based on the start and end node types.
- *
- * @param startType Starting node's type
- * @param endType Ending node's type
- * @returns Corresponding relationship type for the relationship
- */
-function determineRelationshipType(startType: string, endType: string): string {
+const determineRelationshipType = (startType: string, endType: string): string => {
     return relationshipToRelType[`${startType}-${endType}`] || 'UNKNOWN_RELATIONSHIP'
 }
 
-export function isValidOperator(operator: string): boolean {
+export const isValidOperator = (operator: string): boolean => {
     return (
         operator === '<' ||
         operator === '<=' ||
@@ -123,7 +110,7 @@ export function isValidOperator(operator: string): boolean {
     )
 }
 
-export function isAttrDefined(attribute?: string | ValOpPair): boolean {
+export const isAttrDefined = (attribute?: string | ValOpPair): boolean => {
     if (typeof attribute === 'string') {
         return attribute !== ''
     } else if (typeof attribute === 'object' && 'value' in attribute) {
@@ -137,11 +124,11 @@ export function isAttrDefined(attribute?: string | ValOpPair): boolean {
     return false
 }
 
-function parseAttrOut(
+const parseAttrOut = (
     attributeValue: string | ValOpPair,
     attributeIndex?: string,
     withIndices?: boolean
-): ParsableAttribute {
+): ParsableAttribute => {
     if (typeof attributeValue === 'string') {
         if (withIndices && attributeIndex && attributeIndex !== '') {
             return parseIdxValAttrOut(attributeValue, attributeIndex)
@@ -162,7 +149,7 @@ function parseAttrOut(
 }
 
 // Value = string, no index
-function parseValAttrOut(value: string): ParsableAttribute {
+const parseValAttrOut = (value: string): ParsableAttribute => {
     const parsedValue = splitStrBySemicolon(value)
 
     if (Array.isArray(parsedValue)) {
@@ -175,7 +162,7 @@ function parseValAttrOut(value: string): ParsableAttribute {
 }
 
 // Value = string, with index
-function parseIdxValAttrOut(value: string, index: string): ParsableAttribute {
+const parseIdxValAttrOut = (value: string, index: string): ParsableAttribute => {
     const parsedValue = splitStrBySemicolon(value)
     const parsedIndex = splitStrBySemicolon(index)
 
@@ -201,7 +188,7 @@ function parseIdxValAttrOut(value: string, index: string): ParsableAttribute {
 }
 
 // Value = value(string) + operator(string), no index
-function parseValOpAttrOut(value: string, operator: string): ParsableAttribute {
+const parseValOpAttrOut = (value: string, operator: string): ParsableAttribute => {
     const parsedValue = splitStrBySemicolon(value)
 
     if (Array.isArray(parsedValue)) {
@@ -215,7 +202,11 @@ function parseValOpAttrOut(value: string, operator: string): ParsableAttribute {
 }
 
 // Value = value(string) + operator(string), with index
-function parseIdxValOpAttrOut(value: string, operator: string, index: string): ParsableAttribute {
+const parseIdxValOpAttrOut = (
+    value: string,
+    operator: string,
+    index: string
+): ParsableAttribute => {
     const parsedValue = splitStrBySemicolon(value)
     const parsedIndex = splitStrBySemicolon(index)
 
@@ -241,10 +232,10 @@ function parseIdxValOpAttrOut(value: string, operator: string, index: string): P
     }
 }
 
-function parseAttr(
+const parseAttr = (
     attribute: ParsableAttribute | undefined,
     isValOp: boolean
-): NodeAttribute | NodeValOpAttribute {
+): NodeAttribute | NodeValOpAttribute => {
     if (attribute === undefined) {
         if (isValOp) {
             return { valOp: { value: '', operator: '' } } as NodeValOpAttribute
@@ -281,38 +272,20 @@ function parseAttr(
         if (isValOp) {
             return {
                 valOp: { value: attribute.value ?? '', operator: attribute.operator ?? '=' },
-                index: (attribute.index ??  '').toString(),
+                index: (attribute.index ?? '').toString(),
             }
         } else {
-            return { value: attribute.value ?? '', index: (attribute.index ??  '').toString() }
+            return { value: attribute.value ?? '', index: (attribute.index ?? '').toString() }
         }
     }
 }
 
-export function convertToJSONFormat(
+export const convertToJSONFormat = (
     nodes: INode[],
     relationships: IRelationship[],
     preventMapTypes?: boolean
-): string {
-    // Convert relationships into a map for easier lookup
-    const relationshipMap = relationships.reduce((acc, relationship) => {
-        // Capture relationships where the node is the start point
-        if (!acc[relationship.start.id]) {
-            acc[relationship.start.id] = []
-        }
-        acc[relationship.start.id].push(relationship)
-
-        // Capture relationships where the node is the end point
-        if (!acc[relationship.end.id]) {
-            acc[relationship.end.id] = []
-        }
-        acc[relationship.end.id].push(relationship)
-
-        return acc
-    }, {} as Record<string, IRelationship[]>)
-
+): string => {
     const processedNodes = nodes.map((node) => {
-        // Group all attributes under an attributes object
         const attributes: { [key: string]: ParsableAttribute } = {}
         if (isAttrDefined(node.name.value)) {
             attributes.name = parseAttrOut(node.name.value, node.name.index, node.withIndices)
@@ -325,7 +298,11 @@ export function convertToJSONFormat(
             attributes.value = { value: 'MISSING_VALUE_OR_OPERATOR' }
         }
         if (isAttrDefined(node.batch_num.value))
-            attributes.batch_num = parseAttrOut(node.batch_num.value, node.batch_num.index, node.withIndices)
+            attributes.batch_num = parseAttrOut(
+                node.batch_num.value,
+                node.batch_num.index,
+                node.withIndices
+            )
         if (isAttrDefined(node.unit.value))
             attributes.unit = parseAttrOut(node.unit.value, node.unit.index, node.withIndices)
         if (isAttrDefined(node.ratio.valOp))
@@ -333,16 +310,20 @@ export function convertToJSONFormat(
         if (isAttrDefined(node.concentration.valOp))
             attributes.concentration = parseAttrOut(
                 node.concentration.valOp,
-                node.concentration.index, node.withIndices
+                node.concentration.index,
+                node.withIndices
             )
         if (isAttrDefined(node.std.valOp))
             attributes.std = parseAttrOut(node.std.valOp, node.std.index, node.withIndices)
         if (isAttrDefined(node.error.valOp))
             attributes.error = parseAttrOut(node.error.valOp, node.error.index, node.withIndices)
         if (isAttrDefined(node.identifier.value))
-            attributes.identifier = parseAttrOut(node.identifier.value, node.identifier.index, node.withIndices)
+            attributes.identifier = parseAttrOut(
+                node.identifier.value,
+                node.identifier.index,
+                node.withIndices
+            )
 
-        // Return the node object with id, type, attributes, and relationships
         return {
             id: node.id,
             name: attributes.name,
@@ -352,7 +333,7 @@ export function convertToJSONFormat(
     })
 
     const processedRelationships = relationships.map((relationship) => ({
-        rel_type: determineRelationshipType(relationship.start.type, relationship.end.type), // Assume this function is defined elsewhere
+        rel_type: determineRelationshipType(relationship.start.type, relationship.end.type),
         connection: [relationship.start.id, relationship.end.id],
     }))
 
@@ -364,7 +345,7 @@ export function convertToJSONFormat(
     return JSON.stringify(finalStructure, null, 2)
 }
 
-export function convertFromJsonFormat(workflow: string, uploadMode: boolean) {
+export const convertFromJsonFormat = (workflow: string, uploadMode: boolean) => {
     const data: IGraphData = JSON.parse(workflow)
     const nodes: INode[] = []
     const relationships: IRelationship[] = []
@@ -441,31 +422,227 @@ export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpA
     return indices
 }
 
-export function saveToFile(data: string, type: 'json' | 'csv', filename: string) {
-    // Convert the data to a JSON string
-    //const jsonString = JSON.stringify(data, null, 2);  // 2 spaces for indentation
+export const splitDict = (dict: IDictionary, rows: number): [IDictionary, IDictionary] => {
+    const dict1: IDictionary = {};
+    const dict2: IDictionary = {};
 
-    // Create a blob with the JSON string
+    Object.entries(dict).forEach(([header, properties]) => {
+        dict1[header] = {};
+        dict2[header] = {};
+
+        const propertyEntries = Object.entries(properties);
+        const firstPart = propertyEntries.slice(0, rows);
+        const secondPart = propertyEntries.slice(rows);
+
+        firstPart.forEach(([key, value]) => {
+            dict1[header][key] = value;
+        });
+
+        secondPart.forEach(([key, value]) => {
+            dict2[header][key] = value;
+        });
+    });
+
+    Object.keys(dict1).forEach(header => {
+        if (Object.keys(dict1[header]).length === 0) {
+            delete dict1[header];
+        }
+    });
+    Object.keys(dict2).forEach(header => {
+        if (Object.keys(dict2[header]).length === 0) {
+            delete dict2[header];
+        }
+    });
+
+    return [dict1, dict2];
+}
+
+export const joinDict = (dict1: IDictionary, dict2: IDictionary): IDictionary => {
+    const combinedDict: IDictionary = {};
+
+    const allHeaders = new Set([...Object.keys(dict1), ...Object.keys(dict2)]);
+
+    allHeaders.forEach(header => {
+        combinedDict[header] = {};
+
+        if (dict1[header]) {
+            Object.assign(combinedDict[header], dict1[header]);
+        }
+
+        if (dict2[header]) {
+            Object.assign(combinedDict[header], dict2[header]);
+        }
+    });
+
+    return combinedDict;
+}
+
+export const dictToArray = (dict: IDictionary): TableRow[] => {
+    const combinedRows: { [property: string]: TableRow } = {}
+
+    Object.entries(dict).forEach(([header, properties]) => {
+        Object.entries(properties).forEach(([property, value]) => {
+            if (!combinedRows[property]) {
+                combinedRows[property] = {}
+            }
+            combinedRows[property][header] = value
+        })
+    })
+
+    return Object.values(combinedRows)
+}
+
+export const arrayToDict = (tableRows: TableRow[]): IDictionary => {
+    const dict: IDictionary = {}
+
+    const headers = Object.keys(tableRows[0])
+
+    headers.forEach((header) => {
+        dict[header] = {}
+    })
+
+    tableRows.forEach((row, rowIndex) => {
+        Object.entries(row).forEach(([header, value]) => {
+            const stringValue = String(value)
+
+            let key = 'Default_Key'
+
+            if (rowIndex === 0) {
+                key = 'Label'
+            } else if (rowIndex === 1) {
+                key = 'Attribute'
+            } else {
+                key = `Row${rowIndex + 1}`
+            }
+
+
+            dict[header][key] = stringValue
+        })
+    })
+
+    return dict
+}
+
+export const getAdditionalTables = (selectedNodes: INode[]): number[][] => {
+    const newAdditionalTables = selectedNodes.reduce<number[][]>((acc, node) => {
+        let indices: number[] = []
+    
+        const addIndices = (attr: NodeAttribute | NodeValOpAttribute) => {
+            if (!attr.index) return
+            const strIndices = ensureArray(splitStrBySemicolon(attr.index)) as string[]
+            strIndices.forEach((str) => {
+                const typed = tryNumeric(str)
+                if (typeof typed === 'number') {
+                    indices.push(typed)
+                }
+            })
+        }
+    
+        const numericalNodeType = mapNodeTypeNumerical(node.type)
+        indices.push(numericalNodeType)
+    
+        addIndices(node.name)
+        addIndices(node.value)
+        addIndices(node.batch_num)
+        addIndices(node.ratio)
+        addIndices(node.concentration)
+        addIndices(node.unit)
+        addIndices(node.std)
+        addIndices(node.error)
+        addIndices(node.identifier)
+    
+        if (indices.length > 1) {
+            acc.push(indices)
+        }
+        return acc
+    }, [])
+
+    return newAdditionalTables
+}
+
+export const filterCsvTable = (csvTable: TableRow[], additionalTables: number[][]): TableRow[][] => {
+    const filteredTables: TableRow[][] = []
+
+    additionalTables.forEach((additionalTable: number[]) => {
+        const filteredTable: TableRow[] = []
+        const rowIndexMap: Map<string, number> = new Map()
+        const columnsToInclude = additionalTable.slice(1)
+
+        columnsToInclude.forEach((columnIndex: number) => {
+            const columnName = Object.keys(csvTable[0])[columnIndex]
+            csvTable.forEach((row: TableRow) => {
+                const rowKey = JSON.stringify(row)
+                if (!rowIndexMap.has(rowKey)) {
+                    filteredTable.push({})
+                    rowIndexMap.set(rowKey, filteredTable.length - 1)
+                }
+                const rowIndex = rowIndexMap.get(rowKey)!
+                filteredTable[rowIndex][columnName] = row[columnName]
+            })
+        })
+        filteredTables.push(filteredTable)
+    })
+
+    return filteredTables
+}
+
+export const getTableFromFile = (file: File): Promise<TableRow[]> => {
+    return new Promise((resolve, reject) => {
+        Papa.parse(file, {
+            header: true,
+            dynamicTyping: true,
+            complete: (result) => {
+                try {
+                    const safeData = result.data as { [key: string]: unknown }[]
+                    const typedData = safeData.map((row) => {
+                        const typedRow: TableRow = {}
+                        Object.entries(row).forEach(([key, value]) => {
+                            if (
+                                typeof value === 'string' ||
+                                typeof value === 'number' ||
+                                typeof value === 'boolean'
+                            ) {
+                                typedRow[key] = value
+                            } else {
+                                if (value !== null) {
+                                    typedRow[key] = String(value)
+                                } else {
+                                    typedRow[key] = ''
+                                }
+                            }
+                        })
+                        return typedRow
+                    })
+                    resolve(typedData)
+                } catch (error) {
+                    reject(error)
+                }
+            },
+            skipEmptyLines: true,
+            error: (error) => {
+                reject(error)
+            },
+        })
+    })
+}
+
+export const saveToFile = (data: string, type: 'json' | 'csv', filename: string) => {
     const blob = new Blob([data], { type: `application/${type}` })
 
-    // Create a URL for the blobn
     const url = URL.createObjectURL(blob)
 
-    // Create an anchor element and set its href to the blob's URL
     const a = document.createElement('a')
     a.href = url
     a.download = filename
 
-    // Simulate a click on the anchor element
     document.body.appendChild(a)
     a.click()
 
-    // Clean up by removing the anchor element and revoking the blob URL
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
 }
 
-export function saveBlobAsFile(blob: Blob, filename: string) {
+export const saveBlobAsFile = (blob: Blob, filename: string) => {
     if (!(blob instanceof Blob)) {
         console.error('Provided data is not a Blob')
         return
@@ -478,7 +655,7 @@ export function saveBlobAsFile(blob: Blob, filename: string) {
     window.URL.revokeObjectURL(url)
 }
 
-export function fileToDataUri(file: File): Promise<string> {
+export const fileToDataUri = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = (event) => {

@@ -1,12 +1,12 @@
 import { useState } from "react"
-import { IWorkflow } from "../../types/workflow.types"
+import { IWorkflow } from "../../types/workspace.types"
 import { IRelationship, INode } from "../../types/canvas.types"
-import { convertFromJsonFormat } from "../../common/workflowHelpers"
+import { convertFromJsonFormat } from "../../common/workspaceHelpers"
 import { RiDeleteBin2Line } from "react-icons/ri"
 
 // import jsonData from '../../alt/testGraph.json'
 
-interface WorkflowHistoryProps {
+interface WorkspaceHistoryProps {
   uploadMode: boolean
   workflows: IWorkflow[] | undefined
   deleteWorkflow: (workflowId: string) => void
@@ -16,7 +16,7 @@ interface WorkflowHistoryProps {
   darkTheme: boolean
 }
 
-export default function WorkflowHistory(props: WorkflowHistoryProps) {
+export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
   const {
     uploadMode,
     workflows,
@@ -40,7 +40,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
     setNeedLayout(true)
   }
 
-  const handleDeleteWorkflow = (e: React.MouseEvent, index: number) => {
+  const handleDeleteItem = (e: React.MouseEvent, index: number) => {
     e.stopPropagation()
     if (!workflows) return
     deleteWorkflow(workflows[index]._id)
@@ -48,7 +48,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
 
   return (
     <div
-      className="workflow-list"
+      className="workspace-list"
       style={{
         paddingTop: 15,
         paddingLeft: 10,
@@ -97,7 +97,7 @@ export default function WorkflowHistory(props: WorkflowHistoryProps) {
                 }}
                 onMouseEnter={() => setTrashHovered(true)}
                 onMouseLeave={() => setTrashHovered(false)}
-                onClick={(e) => handleDeleteWorkflow(e, index)}
+                onClick={(e) => handleDeleteItem(e, index)}
               />
             )}
             <span

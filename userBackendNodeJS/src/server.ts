@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 dotenv.config({ override: true })
 
 import express from "express"
-import userRouter from "./controllers/user.controller-mongodb"
+import userRouter from "./controllers/controller"
 import cors from "cors"
 
 const app = express()

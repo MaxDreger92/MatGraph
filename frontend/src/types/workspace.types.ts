@@ -1,9 +1,27 @@
-import { Operator, Position } from './canvas.types'
-
 export interface IWorkflow {
     _id: string
     workflow: string
     timestamp: Date
+}
+
+export interface IUpload {
+    _id: string
+    progress: number
+    fileLink?: string
+    fileName?: string
+    context?: string
+    csvTable: string // TableRow[]
+    labelDict?: string // IDictionary
+    attributeDict?: string // IDictionary
+    workflow?: string
+    timestamp: Date
+    processing: boolean
+}
+
+export type UploadListItem = {
+    _id: string
+    timestamp: Date
+    processing: boolean
 }
 
 export interface ITempNode {
