@@ -6,7 +6,7 @@ import { TableRow } from '../../types/workspace.types'
 import { Label } from '../../types/workspace.types'
 import { Select } from '@mantine/core'
 import { getAttributesByLabel, mapNodeTypeString } from '../../common/workspaceHelpers'
-import { INode } from '../../types/canvas.types'
+import { TNode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
 
 interface WorkspacePartialTableProps {

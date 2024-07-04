@@ -1,18 +1,17 @@
 import { ObjectId } from "mongodb";
 
-export interface IWorkflow {
+export type Workflow = {
     _id?: ObjectId
     userId?: ObjectId
     workflow: string
     timestamp: Date
 }
 
-export interface IUpload {
+export type Upload = {
     _id?: ObjectId
     userId?: ObjectId
     progress?: number
-    fileLink?: string
-    fileName?: string
+    fileId?: string
     context?: string
     csvTable?: string // TableRow[]
     labelDict?: string // IDictionary

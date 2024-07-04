@@ -689,9 +689,9 @@ router.get(
                 })
             }
 
-            const uploadList = await UserService.getUploadsByUserID(userId)
+            const uploads = await UserService.getUploadsByUserID(userId)
 
-            if (uploadList.length === 0) {
+            if (uploads.length === 0) {
                 return res.status(200).json({
                     message: 'No upload processes found!'
                 })
@@ -699,7 +699,7 @@ router.get(
 
             return res.status(200).json({
                 message: 'Upload list retrieved successfully!',
-                uploadList: uploadList,
+                uploads: uploads,
             })
         } catch (err: any) {
             if (err.response) {
@@ -751,9 +751,9 @@ router.post(
                 })
             }
 
-            const csvTable = req.body
+            const { csvTable, fileId } = req.body
 
-            const upload = await UserService.createUpload(userId, csvTable)
+            const upload = await UserService.createUpload(userId, csvTable, fileId)
             if (!upload) {
                 return res.status(400).json({
                     message: 'Upload process could not be saved!',

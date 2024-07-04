@@ -1,13 +1,16 @@
 import csv
 import json
 import math
+import requests
 from io import StringIO
+from celery import shared_task
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from neomodel import DateTimeProperty
 from rest_framework import response, status
 from rest_framework.views import APIView
+from django.http import JsonResponse
 
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
 from importing.NodeExtraction.nodeExtractor import NodeExtractor
@@ -17,6 +20,67 @@ from importing.importer import TableImporter
 from importing.models import FullTableCache
 from matgraph.models.metadata import File
 
+def update_upload_endpoint(upload_id):
+    return f'http://localhost:8080/api/users/uploads/{upload_id}'
+
+@method_decorator(csrf_exempt, name='dispatch')
+class FileImportView(APIView):
+    def options(self, request, *args, **kwargs):    
+        response = JsonResponse({'detail': 'CORS preflight request successful'})
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+        response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+    
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        # print('test') 
+                
+        if 'file' not in request.FILES:
+            return response.Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if 'csvTable' not in request.POST:
+            return response.Response({'error': 'No CSV Table provided'}, status=status.HTTP_400_BAD_REQUEST)
+        csv_table = request.POST['csvTable']
+
+        file_obj = request.FILES['file']
+        if not file_obj.name.endswith('.csv'):
+            return response.Response({'error': 'Invalid file type'}, status=status.HTTP_400_BAD_REQUEST)
+        file_record = self.store_file(file_obj)
+        file_id = file_record.uid
+
+        data = {
+            'csvTable': csv_table,
+            'fileId': file_id
+        }
+        user_token = request.user_token
+        url = 'http://localhost:8080/api/users/uploads/create'
+        headers = {
+            'Authorization': f'Bearer {user_token}',
+            'Content-Type': 'application/json'
+    }
+        
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f'error: {e}')
+            return response.Response({'error': 'Failed to create upload'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        return JsonResponse({
+            'upload': response,
+        })
+    
+    def store_file(self, file_obj):
+        """Store the uploaded file and return the file record."""
+        file_name = file_obj.name
+        file_record = File(name=file_name, date_added=DateTimeProperty(default_now=True))
+        file_record.file = file_obj
+        file_record.save()
+        return file_record
+        
+        
+        
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LabelExtractView(APIView):
@@ -38,20 +102,17 @@ class LabelExtractView(APIView):
                 return None  # or some other appropriate value
             return data
         return data
+    
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         print("labels")
-        if 'file' not in request.FILES:
-            return response.Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-        file_obj = request.FILES['file']
-        file = StringIO(file_obj.read().decode('utf-8'))
 
         context = request.POST['context']  # Assuming context is JSON string in POST data
         # Basic validation (can be more specific based on requirements)
-        if not file_obj.name.endswith('.csv'):
-            return response.Response({'error': 'Invalid file type'}, status=status.HTTP_400_BAD_REQUEST)
 
+        file_id = request.POST['file_id']
+        file_record = File.nodes.get(uid=file_id)
+        file_obj = file_record.file
         file_obj.seek(0)
         first_line = str(file_obj.readline().decode('utf-8')).strip().lower()
         file_record = self.store_file(file_obj)
@@ -60,40 +121,53 @@ class LabelExtractView(APIView):
             sanitized_cached = self.sanitize_data(cached)
             return response.Response({
                 'graph_json': sanitized_cached,
-                'file_link': file_record.link,
-                'file_name': file_record.name
+                'file_id': file_id,
             })
 
-        labels = self.extract_labels(file, context, file_record.link, file_record.name)
-        sanitized_labels = self.sanitize_data(labels)
-        print(sanitized_labels)
+        # try:
+        #     upload_id = request.POST['uploadId']
+        #     self.extract_labels.delay(upload_id, context, file_record.uid, request.user_token)
+        #     processing = True
+        # except Exception as e:
+        #     processing = False
+        
 
-        return response.Response({
-            'label_dict': sanitized_labels,
-            'file_link': file_record.link,
-            'file_name': file_record.name
-        })
-
-
-
-    def extract_labels(self, file_obj, context, file_link, file_name):
-        """Extract labels from the uploaded file."""
-        node_classifier = NodeClassifier(data = file_obj,
+        # return JsonResponse({
+        #     'processing': processing,
+        # })
+    
+    @shared_task
+    def extract_labels(self, upload_id, context, file_id, user_token):
+        file_record = File.nodes.get(uid=file_id)
+        file_obj = file_record.file
+        file = StringIO(file_obj.read().decode('utf-8'))
+        
+        node_classifier = NodeClassifier(data = file,
                                          context = context,
-                                         file_link = file_link,
-                                         file_name = file_name)
+                                         file_link = file_record.link,
+                                         file_name = file_record.name)
         node_classifier.run()
         node_classifier.results
-        node_labels = {element['header']: [[element['1_label']], element['column_values'][0]] for element in node_classifier.results}
-        return node_labels
+        labels = {element['header']: [[element['1_label']], element['column_values'][0]] for element in node_classifier.results}
+        sanitized_labels = self.sanitize_data(labels)
 
-    def store_file(self, file_obj):
-        """Store the uploaded file and return the file record."""
-        file_name = file_obj.name
-        file_record = File(name=file_name, date_added=DateTimeProperty(default_now=True))
-        file_record.file = file_obj
-        file_record.save()
-        return file_record
+        updates = {
+            'labelDict': sanitized_labels,
+            'progress': 2
+        }
+        endpoint = f'http://localhost:8080/api/users/uploads/{upload_id}'
+        headers = {
+            'Authorization': f'Bearer {user_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        try:
+            response = requests.patch(endpoint, headers=headers, json=updates)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f'Error: {e}')
+
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -113,8 +187,11 @@ class AttributeExtractView(APIView):
         data = json.loads(request.body)
         labels = data['params']['label_dict']
         context = data['params']['context']
+        file_id = data['params']['file_id']
+        file_record = File.nodes.get(uid=file_id)
         file_name = data['params']['file_name']
         file_link = data['params']['file_link']
+        upload_id = data['params']['uploadId']
 
         if not labels or not context:
             return response.Response({'error': 'Missing labels or context'}, status=status.HTTP_400_BAD_REQUEST)

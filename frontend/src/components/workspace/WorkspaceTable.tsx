@@ -5,9 +5,9 @@ import { TableRow } from '../../types/workspace.types'
 import { Label } from '../../types/workspace.types'
 import { Select } from '@mantine/core'
 import { getAttributesByLabel, mapNodeTypeString } from '../../common/workspaceHelpers'
-import { INode } from '../../types/canvas.types'
+import { TNode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
-import WorkspaceContext from '../../context/WorkspaceContext'
+import { WorkspaceTableContext } from '../../context/WorkspaceContext'
 
 interface WorkspaceTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
@@ -70,7 +70,7 @@ export default function WorkspaceTable(props: WorkspaceTableProps) {
     const [dragging, setDragging] = useState(false)
 
     const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex } =
-        useContext(WorkspaceContext)
+        useContext(WorkspaceTableContext)
 
     useEffect(() => {
         if (progress === 2) {

@@ -1,11 +1,11 @@
 import {
-    INode,
-    IRelationship,
+    TNode,
+    TRelationship,
     ValOpPair,
     NodeAttribute,
     NodeValOpAttribute,
 } from '../types/canvas.types'
-import { IGraphData, ParsableAttribute, Label, TableRow, IDictionary } from '../types/workspace.types'
+import { GraphData, ParsableAttribute, Label, TableRow, Dictionary } from '../types/workspace.types'
 import { v4 as uuidv4 } from 'uuid'
 import { tryNumeric, splitStrBySemicolon, ensureArray } from './helpers'
 import Papa from 'papaparse'
@@ -281,8 +281,8 @@ const parseAttr = (
 }
 
 export const convertToJSONFormat = (
-    nodes: INode[],
-    relationships: IRelationship[],
+    nodes: TNode[],
+    relationships: TRelationship[],
     preventMapTypes?: boolean
 ): string => {
     const processedNodes = nodes.map((node) => {
@@ -346,9 +346,9 @@ export const convertToJSONFormat = (
 }
 
 export const convertFromJsonFormat = (workflow: string, uploadMode: boolean) => {
-    const data: IGraphData = JSON.parse(workflow)
-    const nodes: INode[] = []
-    const relationships: IRelationship[] = []
+    const data: GraphData = JSON.parse(workflow)
+    const nodes: TNode[] = []
+    const relationships: TRelationship[] = []
 
     data.nodes.forEach((item) => {
         nodes.push({
@@ -389,7 +389,7 @@ export const convertFromJsonFormat = (workflow: string, uploadMode: boolean) => 
     }
 }
 
-export const getNodeIndices = (node: INode): number[] => {
+export const getNodeIndices = (node: TNode): number[] => {
     let indices: number[] = []
 
     indices.push(...getNumericAttributeIndices(node.name))
@@ -422,9 +422,9 @@ export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpA
     return indices
 }
 
-export const splitDict = (dict: IDictionary, rows: number): [IDictionary, IDictionary] => {
-    const dict1: IDictionary = {};
-    const dict2: IDictionary = {};
+export const splitDict = (dict: Dictionary, rows: number): [Dictionary, Dictionary] => {
+    const dict1: Dictionary = {};
+    const dict2: Dictionary = {};
 
     Object.entries(dict).forEach(([header, properties]) => {
         dict1[header] = {};
@@ -457,8 +457,8 @@ export const splitDict = (dict: IDictionary, rows: number): [IDictionary, IDicti
     return [dict1, dict2];
 }
 
-export const joinDict = (dict1: IDictionary, dict2: IDictionary): IDictionary => {
-    const combinedDict: IDictionary = {};
+export const joinDict = (dict1: Dictionary, dict2: Dictionary): Dictionary => {
+    const combinedDict: Dictionary = {};
 
     const allHeaders = new Set([...Object.keys(dict1), ...Object.keys(dict2)]);
 
@@ -477,7 +477,7 @@ export const joinDict = (dict1: IDictionary, dict2: IDictionary): IDictionary =>
     return combinedDict;
 }
 
-export const dictToArray = (dict: IDictionary): TableRow[] => {
+export const dictToArray = (dict: Dictionary): TableRow[] => {
     const combinedRows: { [property: string]: TableRow } = {}
 
     Object.entries(dict).forEach(([header, properties]) => {
@@ -492,8 +492,8 @@ export const dictToArray = (dict: IDictionary): TableRow[] => {
     return Object.values(combinedRows)
 }
 
-export const arrayToDict = (tableRows: TableRow[]): IDictionary => {
-    const dict: IDictionary = {}
+export const arrayToDict = (tableRows: TableRow[]): Dictionary => {
+    const dict: Dictionary = {}
 
     const headers = Object.keys(tableRows[0])
 
@@ -523,7 +523,7 @@ export const arrayToDict = (tableRows: TableRow[]): IDictionary => {
     return dict
 }
 
-export const getAdditionalTables = (selectedNodes: INode[]): number[][] => {
+export const getAdditionalTables = (selectedNodes: TNode[]): number[][] => {
     const newAdditionalTables = selectedNodes.reduce<number[][]>((acc, node) => {
         let indices: number[] = []
     

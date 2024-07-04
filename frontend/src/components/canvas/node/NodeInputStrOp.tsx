@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import CloseIcon from '@mui/icons-material/Close'
 import PlusIcon from '@mui/icons-material/Add'
 import MinusIcon from '@mui/icons-material/Remove'
-import WorkspaceContext from '../../../context/WorkspaceContext'
+import { WorkspaceTableContext } from '../../../context/WorkspaceContext'
 import { splitStrBySemicolon } from '../../../common/helpers'
 
 interface NodeInputStrOpProps {
@@ -42,7 +42,7 @@ export default function NodeInputStrOp(props: NodeInputStrOpProps) {
     const [indexButtonHovered, setIndexButtonHovered] = useState(false)
     const [indexChoiceHovered, setIndexChoiceHovered] = useState<number>(0)
     const [awaitingIndex, setAwaitingIndex] = useState(false)
-    const { selectedColumnIndex, uploadMode } = useContext(WorkspaceContext)
+    const { selectedColumnIndex, uploadMode } = useContext(WorkspaceTableContext)
     const [indexMissing, setIndexMissing] = useState(false)
     const [numValues, setNumValues] = useState(0)
     const [numIndices, setNumIndices] = useState(0)

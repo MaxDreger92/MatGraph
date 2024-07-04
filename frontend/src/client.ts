@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { IDictionary } from './types/workspace.types'
-import { IUpload } from './types/workspace.types'
+import { Dictionary } from './types/workspace.types'
+import { Upload } from './types/workspace.types'
 
 const LOCAL = true
 
@@ -356,7 +356,7 @@ class Client {
     // ################################## Uploads
     // ##################################
     // ##################################
-    async getUploadList() {
+    async getUploads() {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -369,7 +369,7 @@ class Client {
                 },
             })
 
-            return response
+            return response.data
         } catch (err: any) {
             if (err.response?.data?.message) {
                 err.message = err.response.data.message
@@ -379,7 +379,7 @@ class Client {
         }
     }
 
-    async getUploadData(uploadId: string) {
+    async getUpload(uploadId: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -411,10 +411,10 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.post(`users/uploads/create`, {
-                csvTable,
+            const response = await this.userClient.post('users/uploads/create', { csvTable }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
             })
 
@@ -428,7 +428,7 @@ class Client {
         }
     }
 
-    async updateUpload(uploadId: string, updates: Partial<IUpload>) {
+    async updateUpload(uploadId: string, updates: Partial<Upload>) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -582,19 +582,48 @@ class Client {
         }
     }
 
-    // (file,context) => label_dict, file_link, file_name
-    async requestExtractLabels(file: File, context: string) {
+    async requestFileUpload(file: File, csvTable: string) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            let formData = new FormData();
-            formData.append('file', file);
-            formData.append('context', context);
+            let formData = new FormData()
+            formData.append('file', file)
+            formData.append('csvTable', csvTable)
 
-            const response = await this.dataClient.post('import/label-extract', formData, {
+            const response = await this.dataClient.post('import/file', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if (!response) {
+                throw new Error()
+            }
+
+            return response
+        } catch (err: any) {
+            throw new Error('Unexpected error while uploading file!')
+        }
+    }
+
+    // (file,context) => label_dict, file_link, file_name
+    async requestExtractLabels(uploadId: string, context: string, fileId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post('import/label-extract', {
+                params: {
+                    uploadId: uploadId,
+                    context: context,
+                    fileId: fileId,
+                },
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -611,7 +640,7 @@ class Client {
     }
 
     // (label_dict, context, file_link, file_name) => attribute_dict
-    async requestExtractAttributes(dict: IDictionary, context: string, link: string, name: string) {
+    async requestExtractAttributes(uploadId: string, context: string, link: string, name: string, dict: Dictionary) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -620,10 +649,11 @@ class Client {
 
             const response = await this.dataClient.post('import/attribute-extract', {
                 params: {
-                    label_dict: dict,
+                    uploadId: uploadId,
                     context: context,
                     file_link: link,
                     file_name: name,
+                    label_dict: dict,
                 },
             }, {
                 headers: {
@@ -642,7 +672,7 @@ class Client {
     }
 
     // (attribute_dict, context, file_link, file_name) => node_json
-    async requestExtractNodes(dict: IDictionary, context: string, link: string, name: string) {
+    async requestExtractNodes(uploadId: string, context: string, link: string, name: string, dict: Dictionary) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -651,10 +681,11 @@ class Client {
 
             const response = await this.dataClient.post('import/node-extract', {
                 params: {
-                    attribute_dict: dict,
+                    uploadId: uploadId,
                     context: context,
                     file_link: link,
                     file_name: name,
+                    attribute_dict: dict
                 },
             }, {
                 headers: {
@@ -673,7 +704,7 @@ class Client {
     }
 
     // (node_json, context, file_link, file_name) => graph_json
-    async requestExtractGraph(nodeJson: string, context: string, link: string, name: string) {
+    async requestExtractGraph(uploadId: string, context: string, link: string, name: string, nodeJson: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -682,10 +713,11 @@ class Client {
 
             const response = await this.dataClient.post('import/graph-extract', {
                 params: {
-                    node_json: nodeJson,
+                    uploadId: uploadId,
                     context: context,
                     file_link: link,
                     file_name: name,
+                    node_json: nodeJson
                 },
             }, {
                 headers: {
@@ -705,10 +737,11 @@ class Client {
 
     // (graph_json, context, file_link, file_name) => success
     async requestImportGraph(
-        graphJson: string,
-        context: string, // Change 'context' parameter name
-        fileLink: string, // Change 'fileLink' parameter name
-        fileName: string // Change 'fileName' parameter name
+        uploadId: string,
+        context: string,
+        fileLink: string,
+        fileName: string,
+        graphJson: string
     ) {
         try {
             const token = getCookie('token')
@@ -718,10 +751,11 @@ class Client {
 
             const response = await this.dataClient.post('import/graph-import', {
                 params: {
-                    graph_json: graphJson,
-                    context: context, // Use the corrected parameter name
-                    file_link: fileLink, // Use the corrected parameter name
-                    file_name: fileName, // Use the corrected parameter name
+                    uploadId: uploadId,
+                    context: context,
+                    file_link: fileLink,
+                    file_name: fileName, 
+                    graph_json: graphJson
                 },
             }, {
                 headers: {

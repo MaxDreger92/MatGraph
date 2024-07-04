@@ -10,14 +10,14 @@ import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove';
 
 import { hoverColors } from "../../../types/colors"
-import { INode } from "../../../types/canvas.types"
+import { TNode } from "../../../types/canvas.types"
 
 interface NodeContextProps {
   onSelect: (action: string) => void
   isOpen: boolean
   nodeSize: number
   isEditing: boolean
-  type: INode["type"]
+  type: TNode["type"]
   darkTheme: boolean
 }
 
@@ -83,7 +83,7 @@ export default function NodeContext(props: NodeContextProps) {
 
 
 
-  const getRadius = (type: INode["type"]) => {
+  const getRadius = (type: TNode["type"]) => {
     switch (type) {
       case "matter":
       case "property":

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { IWorkflow, IUpload } from '../types/workspace.types'
+import { Workflow, Upload } from '../types/workspace.types'
 import { connectToDatabase } from '../mongodb';
 
 const workflowCollection = 'workflows'
@@ -8,12 +8,12 @@ const uploadCollection = 'uploads'
 class WorkspaceRepository {
     static getWorkflowCollection = async () => {
         const db = await connectToDatabase();
-        return db.collection<IWorkflow>(workflowCollection);
+        return db.collection<Workflow>(workflowCollection);
     }
 
     static getUploadCollection = async () => {
         const db = await connectToDatabase();
-        return db.collection<IUpload>(uploadCollection);
+        return db.collection<Upload>(uploadCollection);
     }
 
     // ################################## Workflows
@@ -21,7 +21,7 @@ class WorkspaceRepository {
     // ##################################
     static saveWorkflow = async (userId: string, workflow: string): Promise<ObjectId> => {
         const collection = await this.getWorkflowCollection();
-        const newWorkflow: IWorkflow = {
+        const newWorkflow: Workflow = {
             userId: new ObjectId(userId),
             workflow: workflow,
             timestamp: new Date(),
@@ -38,7 +38,7 @@ class WorkspaceRepository {
         return result.deletedCount > 0;
     }
 
-    static getWorkflowsByUserID = async (userId: string): Promise<IWorkflow[]> => {
+    static getWorkflowsByUserID = async (userId: string): Promise<Workflow[]> => {
         const collection = await this.getWorkflowCollection();
         return await collection.find({ userId: new ObjectId(userId) }).toArray();
     }
@@ -46,12 +46,12 @@ class WorkspaceRepository {
     // ################################## Uploads
     // ##################################
     // ##################################
-    static getUploadsByUserID = async (userId: string): Promise<IUpload[]> => {
+    static getUploadsByUserID = async (userId: string): Promise<Upload[]> => {
         const collection = await this.getUploadCollection();
         return await collection.find({ userId: new ObjectId(userId) }).toArray();
     }
 
-    static getUploadByID = async (userId: string, uploadId: string): Promise<IUpload | null> => {
+    static getUploadByID = async (userId: string, uploadId: string): Promise<Upload | null> => {
         const collection = await this.getUploadCollection();
         return await collection.findOne({
             _id: new ObjectId(uploadId),
@@ -59,12 +59,13 @@ class WorkspaceRepository {
         });
     }
 
-    static createUpload = async (userId: string, csvTable: string): Promise<IUpload> => {
+    static createUpload = async (userId: string, csvTable: string, fileId: string): Promise<Upload> => {
         const collection = await this.getUploadCollection();
-        const newUpload: IUpload = {
+        const newUpload: Upload = {
             userId: new ObjectId(userId),
             progress: 1,
             csvTable: csvTable,
+            fileId: fileId,
             timestamp: new Date(),
             processing: false,
         };
@@ -79,7 +80,7 @@ class WorkspaceRepository {
     static updateUploadFields = async (
         userId: string,
         uploadId: string,
-        updates: Partial<IUpload>
+        updates: Partial<Upload>
     ): Promise<boolean> => {
         const collection = await this.getUploadCollection();
         const result = await collection.updateOne(

@@ -13,18 +13,18 @@ import { RiSave3Line } from "react-icons/ri";
 import { MdRestartAlt as ResetIcon2 } from "react-icons/md"
 import { PiDotsSixVertical as HandleIcon } from "react-icons/pi"
 
-import { ICanvasButton, Position } from "../../types/canvas.types"
+import { TCanvasButton, Position } from "../../types/canvas.types"
 import { clamp } from "../../common/helpers"
 import { Tooltip } from 'react-tooltip'
 
 interface CanvasButtonGroupProps {
   canvasRect: DOMRect | null
-  onSelect: (buttonType: ICanvasButton["type"]) => void
+  onSelect: (buttonType: TCanvasButton["type"]) => void
 }
 
 interface CanvasButtonProps {
-  onSelect: (buttonType: ICanvasButton["type"]) => void
-  buttonType: ICanvasButton["type"]
+  onSelect: (buttonType: TCanvasButton["type"]) => void
+  buttonType: TCanvasButton["type"]
   children: React.ReactNode
   vertical: boolean
   tooltipText: string
@@ -35,9 +35,9 @@ interface CanvasButtonProps {
 function CanvasButton(props: CanvasButtonProps) {
   const { onSelect, buttonType, children, vertical, tooltipText, darkTheme, iconStyle } = props
   const [buttonHovered, setButtonHovered] = useState<
-    ICanvasButton["type"] | null
+    TCanvasButton["type"] | null
   >(null)
-  const [buttonDown, setButtonDown] = useState<ICanvasButton["type"] | null>(
+  const [buttonDown, setButtonDown] = useState<TCanvasButton["type"] | null>(
     null
   )
 
@@ -352,7 +352,7 @@ export default function CanvasButtonGroup(props: CanvasButtonGroupProps) {
   )
 }
 
-const BUTTON_TYPES: { type: ICanvasButton["type"]; icon: JSX.Element; tooltip: string }[] = [
+const BUTTON_TYPES: { type: TCanvasButton["type"]; icon: JSX.Element; tooltip: string }[] = [
   { type: "undo", icon: <UndoIcon className="canvas-btn-icon" />, tooltip: "Undo" },
   { type: "reset", icon: <ResetIcon2 className="canvas-btn-icon" />, tooltip: "Reset Canvas" },
   { type: "redo", icon: <RedoIcon className="canvas-btn-icon" />, tooltip: "Redo" },

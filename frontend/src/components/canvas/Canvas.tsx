@@ -13,11 +13,11 @@ import Node from './node/Node'
 import Relationship, { TempRelationship } from './relationship/Relationship'
 import {
     Rect,
-    INode,
-    IRelationship,
+    TNode,
+    TRelationship,
     Position,
     Vector2D,
-    ICanvasButton,
+    TCanvasButton,
 } from '../../types/canvas.types'
 import { graphLayouts } from '../../types/canvas.graphLayouts'
 import {
@@ -26,25 +26,25 @@ import {
     isRelationshipLegitimate,
 } from '../../common/nodeHelpers'
 import CanvasButtonGroup from './CanvasButtonGroup'
-import WorkspaceContext from '../../context/WorkspaceContext'
+import { WorkspaceTableContext } from '../../context/WorkspaceContext'
 
 const DETECTION_RADIUS = 31
 
 interface CanvasProps {
     nodesFn: {
-        nodes: INode[]
-        relationships: IRelationship[]
-        setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-        setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
-        selectedNodes: INode[]
-        setSelectedNodes: React.Dispatch<React.SetStateAction<INode[]>>
+        nodes: TNode[]
+        relationships: TRelationship[]
+        setNodes: React.Dispatch<React.SetStateAction<TNode[]>>
+        setRelationships: React.Dispatch<React.SetStateAction<TRelationship[]>>
+        selectedNodes: TNode[]
+        setSelectedNodes: React.Dispatch<React.SetStateAction<TNode[]>>
         highlightedNodeIds: Set<string> | null
         nodeEditing: boolean
         setNodeEditing: React.Dispatch<React.SetStateAction<boolean>>
     }
     indexFn: {
         rebuildIndexDictionary: () => void
-        updateIndexDictionary: (node: INode) => void
+        updateIndexDictionary: (node: TNode) => void
     }
     saveWorkflow: () => void
     historyFn: {
@@ -103,11 +103,11 @@ export default function Canvas(props: CanvasProps) {
     // Nodes
     const [interestingNodeIds, setInterestingNodeIds] = useState<Set<string>>(new Set())
     const [movingNodeIds, setMovingNodeIds] = useState<Set<string> | null>(null)
-    const [connectingNode, setConnectingNode] = useState<INode | null>(null)
+    const [connectingNode, setConnectingNode] = useState<TNode | null>(null)
 
     // Relationships
     const [selectedRelationshipID, setSelectedRelationshipID] = useState<
-        IRelationship['id'] | null
+        TRelationship['id'] | null
     >(null)
 
     // Refs
@@ -116,7 +116,7 @@ export default function Canvas(props: CanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null)
     const layoutingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    const { forceEndEditing, uploadMode } = useContext(WorkspaceContext)
+    const { forceEndEditing, uploadMode } = useContext(WorkspaceTableContext)
 
     // ########################################################################## Mousemove listener
     useEffect(() => {
@@ -173,7 +173,7 @@ export default function Canvas(props: CanvasProps) {
     // AddNode from canvas context menu
     // if created from connector, automatically
     // add relationship between nodes
-    const addNode = (type: INode['type'], position: Position) => {
+    const addNode = (type: TNode['type'], position: Position) => {
         const id = uuidv4().replaceAll('-', '')
         const layer = 0
         const size = 100
@@ -211,7 +211,7 @@ export default function Canvas(props: CanvasProps) {
     // checks for already existing relationships
     // checks for legitimate relationships
     const addRelationship = useCallback(
-        (start: INode, end: INode) => {
+        (start: TNode, end: TNode) => {
             if (start.id === end.id) return
             const relationshipExists = relationships.some(
                 (relationship) =>
@@ -250,7 +250,7 @@ export default function Canvas(props: CanvasProps) {
     )
 
     const selectNodesBySelectionRect = useCallback(
-        (node?: INode) => {
+        (node?: TNode) => {
             if (!selectionRectRef.current) return
 
             const newSelectionRect = selectionRectRef.current
@@ -282,7 +282,7 @@ export default function Canvas(props: CanvasProps) {
     // Sets node isEditing field
     // so input field will show
     const initNodeUpdate = useCallback(
-        (nodeID: INode['id'], undoHistory?: boolean) => {
+        (nodeID: TNode['id'], undoHistory?: boolean) => {
             cleanupDrag()
             if (nodeEditing || ctrlPressed) return
             if (undoHistory) updateHistoryRevert()
@@ -298,7 +298,7 @@ export default function Canvas(props: CanvasProps) {
 
     // Update node attributes
     const handleNodeUpdate = useCallback(
-        (node: INode, endEditing?: boolean) => {
+        (node: TNode, endEditing?: boolean) => {
             setNodes((prevNodes) =>
                 prevNodes.map((n) => {
                     if (n.id === node.id) {
@@ -351,7 +351,7 @@ export default function Canvas(props: CanvasProps) {
     // mainly prevents unwanted actions
     // like moving nodes that are not involved
     const initNodeMove = useCallback(
-        (nodeId: INode['id']) => {
+        (nodeId: TNode['id']) => {
             updateHistoryWithCaution()
             setConnectingNode(null)
             setNavOpen(false)
@@ -446,7 +446,7 @@ export default function Canvas(props: CanvasProps) {
     // adds relationship if connecting from other node
     // selects node (will also open node context)
     const handleNodeClick = useCallback(
-        (node: INode) => {
+        (node: TNode) => {
             cleanupDrag()
             if (selectionRectRef.current) {
                 // if selection rect is set, do not perform regular
@@ -511,7 +511,7 @@ export default function Canvas(props: CanvasProps) {
     // initialize node relationship
     // -> mouse needs to be released on another node
     //    to create a relationship
-    const handleNodeConnect = useCallback((node: INode) => {
+    const handleNodeConnect = useCallback((node: TNode) => {
         setNavOpen(false)
         setClickPosition(null)
         setSelectedNodes([])
@@ -522,7 +522,7 @@ export default function Canvas(props: CanvasProps) {
 
     // Delete node
     const handleNodeDelete = useCallback(
-        (nodeID: INode['id']) => {
+        (nodeID: TNode['id']) => {
             updateHistory()
             setNodes((prevNodes) => prevNodes.filter((n) => n.id !== nodeID))
             setRelationships((prevRelationships) =>
@@ -544,7 +544,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     const handleNodeAction = useCallback(
-        (node: INode, action: string, conditional?: any) => {
+        (node: TNode, action: string, conditional?: any) => {
             switch (action) {
                 case 'click':
                     handleNodeClick(node)
@@ -583,7 +583,7 @@ export default function Canvas(props: CanvasProps) {
     // ######################################################################## Relationship actions
     // selects a relationship
     // (will also open relationship context menu)
-    const handleRelationshipClick = (relationshipID: IRelationship['id']) => {
+    const handleRelationshipClick = (relationshipID: TRelationship['id']) => {
         setSelectedRelationshipID(relationshipID)
         setSelectedNodes([])
         if (navOpen) {
@@ -593,7 +593,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // deletes relationship
-    const handleRelationshipDelete = (relationshipID: IRelationship['id']) => {
+    const handleRelationshipDelete = (relationshipID: TRelationship['id']) => {
         updateHistory()
         setRelationships((prevRelationships) =>
             prevRelationships.filter((relationship) => relationship.id !== relationshipID)
@@ -601,7 +601,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // reverses relationship direction if possible
-    const handleRelationshipReverse = (relationshipID: IRelationship['id']) => {
+    const handleRelationshipReverse = (relationshipID: TRelationship['id']) => {
         setRelationships((prevRelationships) =>
             prevRelationships.map((c) => {
                 if (c.id === relationshipID) {
@@ -620,7 +620,7 @@ export default function Canvas(props: CanvasProps) {
     }
 
     // relationship action switch
-    const handleRelationshipAction = (relationshipID: IRelationship['id'], action: string) => {
+    const handleRelationshipAction = (relationshipID: TRelationship['id'], action: string) => {
         switch (action) {
             case 'click':
                 handleRelationshipClick(relationshipID)
@@ -1005,7 +1005,7 @@ export default function Canvas(props: CanvasProps) {
         setConnectingNode(null)
     }
 
-    const handleContextSelect = (type?: INode['type']) => {
+    const handleContextSelect = (type?: TNode['type']) => {
         if (type && clickPosition) {
             addNode(type, clickPosition)
         }
@@ -1013,7 +1013,7 @@ export default function Canvas(props: CanvasProps) {
         setClickPosition(null)
     }
 
-    const handleButtonSelect = (buttonType: ICanvasButton['type']) => {
+    const handleButtonSelect = (buttonType: TCanvasButton['type']) => {
         switch (buttonType) {
             case 'undo':
                 undo()

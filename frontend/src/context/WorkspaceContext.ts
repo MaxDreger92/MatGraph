@@ -1,6 +1,7 @@
 import React, { createContext } from "react";
+import { TNode, TRelationship } from "../types/canvas.types";
 
-interface IWorkspaceContext {
+interface IWorkspaceTableContext {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
@@ -9,7 +10,7 @@ interface IWorkspaceContext {
     tableViewHeight: number
 }
 
-const defaultContextValue: IWorkspaceContext = {
+const defaultTableContextValue: IWorkspaceTableContext = {
     setHighlightedColumnIndex: () => {},
     selectedColumnIndex: null,
     setSelectedColumnIndex: () => {},
@@ -18,6 +19,17 @@ const defaultContextValue: IWorkspaceContext = {
     tableViewHeight: 0,
 }
 
-const WorkspaceContext = createContext<IWorkspaceContext>(defaultContextValue)
+interface IWorkspaceWorkflowContext {
+    setNodes: React.Dispatch<React.SetStateAction<TNode[]>>
+    setRelationships: React.Dispatch<React.SetStateAction<TRelationship[]>>
+    setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export default WorkspaceContext
+const defaultWorkflowContextValue: IWorkspaceWorkflowContext = {
+    setNodes: () => {},
+    setRelationships: () => {},
+    setNeedLayout: () => {},
+}
+
+export const WorkspaceTableContext = createContext<IWorkspaceTableContext>(defaultTableContextValue)
+export const WorkspaceWorkflowContext = createContext<IWorkspaceWorkflowContext>(defaultWorkflowContextValue)

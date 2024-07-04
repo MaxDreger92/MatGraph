@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { TableRow } from "../../types/workspace.types"
-import WorkspaceContext from "../../context/WorkspaceContext"
+import { WorkspaceTableContext } from "../../context/WorkspaceContext"
 import { useMantineColorScheme } from "@mantine/core"
 
 interface WorkspaceTableTabsProps {
@@ -17,7 +17,7 @@ export default function WorkspaceTableTabs(props: WorkspaceTableTabsProps) {
     } = props
     const [hoveredTableTab, setHoveredTableTab] = useState<number | null>(null)
 
-    const { tableViewHeight } = useContext(WorkspaceContext)
+    const { tableViewHeight } = useContext(WorkspaceTableContext)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'

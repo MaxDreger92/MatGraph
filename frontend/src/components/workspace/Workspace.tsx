@@ -8,23 +8,20 @@ import WorkspaceButtons from './WorkspaceButtons'
 import WorkspaceJson from './WorkspaceJson'
 import WorkspaceHistory from './WorkspaceHistory'
 import WorkspaceDrawer from './WorkspaceDrawer'
-import { IRelationship, INode, IndexDictionary } from '../../types/canvas.types'
+import { TRelationship, TNode, IndexDictionary } from '../../types/canvas.types'
 import { convertToJSONFormat, getNodeIndices } from '../../common/workspaceHelpers'
 import toast from 'react-hot-toast'
-import { IWorkflow, IUpload } from '../../types/workspace.types'
-import { UploadListItem } from '../../types/workspace.types'
-import WorkspaceContext from '../../context/WorkspaceContext'
+import { WorkspaceTableContext, WorkspaceWorkflowContext } from '../../context/WorkspaceContext'
 import _ from 'lodash'
 import { UserContext } from '../../context/UserContext'
 import WorkspaceDrawerHandle from './WorkspaceDrawerHandle'
 import WorkspaceSearch from './WorkspaceSearch'
 import {
-    deleteWorkflowFromHistory,
-    fetchUploadList,
+    fetchUploads,
     fetchWorkflows,
     saveWorkflowToHistory,
 } from '../../common/clientHelpers'
-import client from '../../client'
+import { Upload } from '../../types/workspace.types'
 
 const UNDO_STEPS = 200
 
@@ -36,9 +33,9 @@ export default function Workspace(props: WorkspaceProps) {
     const user = useContext(UserContext)
     const { uploadMode } = props
 
-    const [nodes, setNodes] = useState<INode[]>([])
-    const [relationships, setRelationships] = useState<IRelationship[]>([])
-    const [selectedNodes, setSelectedNodes] = useState<INode[]>([])
+    const [nodes, setNodes] = useState<TNode[]>([])
+    const [relationships, setRelationships] = useState<TRelationship[]>([])
+    const [selectedNodes, setSelectedNodes] = useState<TNode[]>([])
     const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string> | null>(null)
     const [nodeEditing, setNodeEditing] = useState(false)
     const nodesFn = {
@@ -53,38 +50,13 @@ export default function Workspace(props: WorkspaceProps) {
         setNodeEditing,
     }
 
-    const [uploadList, setUploadList] = useState<UploadListItem[] | undefined>([])
-    const [upload, setUpload] = useState<IUpload>()
-    const [uploadProcessing, setUploadProcessing] = useState(false)
-    const { data: uploadData, error: uploadError, isLoading: uploadLoading } = useQuery(
-        ['upload', upload?._id],
-        () => client.getUploadData(upload?._id as string),
-        {
-            enabled: uploadProcessing,
-            refetchInterval: 1000,
-            onSuccess: (data) => {
-                if (data.upload.processing === false) {
-                    setUploadProcessing(false)
-                    setUpload(data.upload)
-                }
-            },
-        }
-    )
-    const { data: uploadListData, error: uploadListError, isLoading: uploadListLoading } = useQuery(
-        'uploadList', () => client.getUploadList(), {
-            enabled: uploadProcessing,
-            refetchInterval: 2000,
-            onSuccess: (data) => {
-                if ()
-            }
-        }
-    )
-
     const [workflow, setWorkflow] = useState<string | null>(null)
-    const [workflows, setWorkflows] = useState<IWorkflow[] | undefined>([])
     let setWorkflowRef: React.MutableRefObject<
-        _.DebouncedFunc<(nodes: INode[], relationships: IRelationship[]) => void> | undefined
+        _.DebouncedFunc<(nodes: TNode[], relationships: TRelationship[]) => void> | undefined
     > = React.useRef()
+
+    const [upload, setUpload] = useState<Upload>()
+    const [uploadProcessing, setUploadProcessing] = useState(false)
 
     const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
     const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
@@ -93,12 +65,12 @@ export default function Workspace(props: WorkspaceProps) {
     const [needLayout, setNeedLayout] = useState(false)
 
     const [history, setHistory] = useState<{
-        nodes: INode[][]
-        relationships: IRelationship[][]
+        nodes: TNode[][]
+        relationships: TRelationship[][]
     }>({ nodes: [], relationships: [] })
     const [future, setFuture] = useState<{
-        nodes: INode[][]
-        relationships: IRelationship[][]
+        nodes: TNode[][]
+        relationships: TRelationship[][]
     }>({ nodes: [], relationships: [] })
 
     const [canvasRect, setCanvasRect] = useState<DOMRect>(new DOMRect())
@@ -116,26 +88,21 @@ export default function Workspace(props: WorkspaceProps) {
     const [progress, setProgress] = useState<number>(0)
 
     // UPLOAD STUFF ########################################################
-    const handleFetchUploadList = async () => {
-        const uploadList = await fetchUploadList()
-        if (!uploadList) {
-            return
-        }
-        setUploadList(uploadList)
-    }
 
     useEffect(() => {
-        if (!user || !uploadMode) return
+        if (!uploadMode) {
+            setUpload(undefined)
+            setProgress(0)
+        }
+    }, [uploadMode])
 
-        handleFetchUploadList()
-    }, [user, uploadMode])
 
     // WORKFLOW STUFF ########################################################
 
     // set current workflow (and show in json viewer)
     if (!setWorkflowRef.current) {
         setWorkflowRef.current = _.throttle(
-            (nodes: INode[], relationships: IRelationship[]) => {
+            (nodes: TNode[], relationships: TRelationship[]) => {
                 setWorkflow(convertToJSONFormat(nodes, relationships, true))
             },
             1000,
@@ -149,36 +116,11 @@ export default function Workspace(props: WorkspaceProps) {
         }
     }, [nodes, relationships])
 
-    // fetch workflows
-    useEffect(() => {
-        if (!user || uploadMode) return
-
-        const handleFetchWorkflows = async () => {
-            const workflows = await fetchWorkflows()
-            if (!workflows) {
-                return
-            }
-            setWorkflows(workflows)
-        }
-
-        handleFetchWorkflows()
-    }, [user, uploadMode])
-
     async function saveWorkflow() {
         const workflow = convertToJSONFormat(nodes, relationships, true)
 
         try {
             await saveWorkflowToHistory(workflow)
-
-            fetchWorkflows()
-        } catch (err: any) {
-            toast.error(err.message)
-        }
-    }
-
-    async function deleteWorkflow(workflowId: string) {
-        try {
-            await deleteWorkflowFromHistory(workflowId)
 
             fetchWorkflows()
         } catch (err: any) {
@@ -315,7 +257,7 @@ export default function Workspace(props: WorkspaceProps) {
 
     // Rebuilds singular Node Entry in Index Dictionary
     const updateIndexDictionary = useCallback(
-        (node: INode) => {
+        (node: TNode) => {
             setIndexDictionary((prevIndexDictionary) => {
                 let updatedIndexDictionary = { ...prevIndexDictionary }
 
@@ -356,7 +298,7 @@ export default function Workspace(props: WorkspaceProps) {
         if (!selectedColumnIndex) return
 
         if (indexDictionary.hasOwnProperty(selectedColumnIndex)) {
-            let nodesWithIndex: INode[] = []
+            let nodesWithIndex: TNode[] = []
             indexDictionary[selectedColumnIndex].forEach((nodeId) => {
                 const nodeWithIndex = nodes.find((node) => node.id === nodeId)
                 if (nodeWithIndex) nodesWithIndex.push(nodeWithIndex)
@@ -468,8 +410,8 @@ export default function Workspace(props: WorkspaceProps) {
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
-    // Worklow Provider values
-    const value = {
+    // TableContext value
+    const tableContextValue = {
         setHighlightedColumnIndex,
         selectedColumnIndex,
         setSelectedColumnIndex,
@@ -478,37 +420,47 @@ export default function Workspace(props: WorkspaceProps) {
         tableViewHeight,
     }
 
-    return (
-        <WorkspaceContext.Provider value={value}>
-            <div className="workspace" ref={workspaceWindowRef}>
-                <div
-                    className="workspace-canvas"
-                    style={{
-                        overflow: 'hidden',
-                        position: 'absolute',
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: 0,
-                    }}
-                    children={
-                        <Canvas
-                            nodesFn={nodesFn}
-                            indexFn={indexFn}
-                            saveWorkflow={saveWorkflow}
-                            historyFn={historyFn}
-                            needLayout={needLayout}
-                            setNeedLayout={setNeedLayout}
-                            style={{
-                                position: 'relative',
-                                width: '100%',
-                                height: '100%',
-                            }}
-                            canvasRect={canvasRect}
-                        />
-                    }
-                />
+    // WorkflowContext value
+    const workflowContextValue = {
+        setNodes,
+        setRelationships,
+        setNeedLayout,
+    }
 
+    return (
+        
+            <div className="workspace" ref={workspaceWindowRef}>
+                <WorkspaceTableContext.Provider value={tableContextValue}>
+                    <div
+                        className="workspace-canvas"
+                        style={{
+                            overflow: 'hidden',
+                            position: 'absolute',
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 0,
+                        }}
+                        children={
+                            <Canvas
+                                nodesFn={nodesFn}
+                                indexFn={indexFn}
+                                saveWorkflow={saveWorkflow}
+                                historyFn={historyFn}
+                                needLayout={needLayout}
+                                setNeedLayout={setNeedLayout}
+                                style={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                                canvasRect={canvasRect}
+                            />
+                        }
+                    />
+                </WorkspaceTableContext.Provider>
+
+                <WorkspaceWorkflowContext.Provider value={workflowContextValue}>
                 <animated.div
                     className="workspace-history"
                     style={{
@@ -525,15 +477,17 @@ export default function Workspace(props: WorkspaceProps) {
                     children={
                         <WorkspaceHistory
                             uploadMode={uploadMode}
-                            workflows={workflows}
-                            deleteWorkflow={deleteWorkflow}
                             setNodes={setNodes}
                             setRelationships={setRelationships}
                             setNeedLayout={setNeedLayout}
+                            upload={upload}
+                            setUpload={setUpload}
+                            uploadProcessing={uploadProcessing}
                             darkTheme={darkTheme}
                         />
                     }
                 />
+                </WorkspaceWorkflowContext.Provider>
 
                 <animated.div
                     className="workspace-drawer-right"
@@ -582,22 +536,25 @@ export default function Workspace(props: WorkspaceProps) {
                                     height: '100%',
                                 }}
                             >
-                                <WorkspaceDrawer
-                                    tableView={tableView}
-                                    tableViewHeight={tableViewHeight}
-                                    progress={progress}
-                                    setProgress={setProgress}
-                                    setNodes={setNodes}
-                                    setRelationships={setRelationships}
-                                    setNeedLayout={setNeedLayout}
-                                    upload={upload}
-                                    setUpload={setUpload}
-                                    setUploadProcessing={setUploadProcessing}
-                                    workflow={workflow}
-                                    selectedNodes={selectedNodes}
-                                    rebuildIndexDictionary={rebuildIndexDictionary}
-                                    darkTheme={darkTheme}
-                                />
+                                <WorkspaceTableContext.Provider value={tableContextValue}>
+                                    <WorkspaceDrawer
+                                        tableView={tableView}
+                                        tableViewHeight={tableViewHeight}
+                                        progress={progress}
+                                        setProgress={setProgress}
+                                        setNodes={setNodes}
+                                        setRelationships={setRelationships}
+                                        setNeedLayout={setNeedLayout}
+                                        workflow={workflow}
+                                        upload={upload}
+                                        uploadProcessing={uploadProcessing}
+                                        setUploadProcessing={setUploadProcessing}
+                                        setUpload={setUpload}
+                                        selectedNodes={selectedNodes}
+                                        rebuildIndexDictionary={rebuildIndexDictionary}
+                                        darkTheme={darkTheme}
+                                    />
+                                </WorkspaceTableContext.Provider>
                                 {tableView && (
                                     <WorkspaceDrawerHandle
                                         handleActive={drawerHandleActiveRef}
@@ -624,6 +581,6 @@ export default function Workspace(props: WorkspaceProps) {
                     />
                 </div>
             </div>
-        </WorkspaceContext.Provider>
+        
     )
 }

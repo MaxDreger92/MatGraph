@@ -1,40 +1,40 @@
 import client from '../client'
 import toast from 'react-hot-toast'
-import { UploadListItem, IWorkflow, IUpload, IDictionary } from '../types/workspace.types'
+import { UploadListItem, Workflow, Upload, Dictionary } from '../types/workspace.types'
 
 // ################################## Uploads
 // ##################################
 // ##################################
-export const fetchUpload = async (uploadId: string): Promise<IUpload | void> => {
+export const fetchUpload = async (uploadId: string): Promise<Upload | void> => {
     try {
-        const response = await client.getUploadData(uploadId)
-        if (!response || !response.data.upload) {
+        const data = await client.getUpload(uploadId)
+        if (!data || !data.upload) {
             toast.error('Error while retrieving upload process!')
             return
         }
 
-        return response.data.upload as IUpload
+        return data.upload as Upload
     } catch (err: any) {
         toast.error(err.message)
     }
 }
 
-export const fetchUploadList = async (): Promise<UploadListItem[] | void> => {
+export const fetchUploads = async (): Promise<Upload[] | void> => {
     try {
-        const response = await client.getUploadList()
+        const data = await client.getUploads()
 
-        if (!response || !response.data.message) {
+        if (!data || !data.message) {
             toast.error('Error while retrieving upload processes!')
             return
         }
 
-        return response.data.uploadList as UploadListItem[]
+        return data.uploads as Upload[]
     } catch (err: any) {
         toast.error(err.message)
     }
 }
 
-export const createUpload = async (csvTable: string): Promise<IUpload | void> => {
+export const createUpload = async (csvTable: string): Promise<Upload | void> => {
     try {
         const response = await client.createUpload(csvTable)
 
@@ -43,7 +43,7 @@ export const createUpload = async (csvTable: string): Promise<IUpload | void> =>
             return
         }
 
-        return response.data.upload as IUpload
+        return response.data.upload as Upload
     } catch (err: any) {
         toast.error(err.message)
     }
@@ -51,7 +51,7 @@ export const createUpload = async (csvTable: string): Promise<IUpload | void> =>
 
 export const updateUpload = async (
     uploadId: string,
-    updates: Partial<IUpload>
+    updates: Partial<Upload>
 ): Promise<boolean | void> => {
     try {
         const response = await client.updateUpload(uploadId, updates)
@@ -94,7 +94,7 @@ export const deleteWorkflowFromHistory = async (workflowId: string): Promise<voi
     }
 }
 
-export const fetchWorkflows = async (): Promise<IWorkflow[] | void> => {
+export const fetchWorkflows = async (): Promise<Workflow[] | void> => {
     try {
         const response = await client.getWorkflows()
 
@@ -103,7 +103,7 @@ export const fetchWorkflows = async (): Promise<IWorkflow[] | void> => {
             return
         }
 
-        return response.data.workflows as IWorkflow[]
+        return response.data.workflows as Workflow[]
     } catch (err: any) {
         toast.error(err.message)
     }
@@ -113,12 +113,30 @@ export const fetchWorkflows = async (): Promise<IWorkflow[] | void> => {
 // ##################################
 // ##################################
 
-export const requestExtractLabels = async (
+export const requestFileUpload = async (
     file: File,
-    context: string
+    csvTable: string
+): Promise<Upload | void> => {
+    try {   
+        const response = await client.requestFileUpload(file, csvTable)
+        if (!response || !response.data.upload) {
+            toast.error('File could not be uploaded!')
+            return
+        }
+
+        return response.data.upload as Upload
+    } catch (err: any) {
+        toast.error(err.message)
+    }
+}
+
+export const requestExtractLabels = async (
+    uploadId: string,
+    context: string,
+    fileId: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestExtractLabels(file, context)
+        const response = await client.requestExtractLabels(uploadId, context, fileId)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started!')
             return
@@ -131,17 +149,19 @@ export const requestExtractLabels = async (
 }
 
 export const requestExtractAttributes = async (
+    uploadId: string,
     context: string,
     fileLink: string,
     fileName: string,
-    labelDict: IDictionary
+    labelDict: Dictionary
 ): Promise<boolean | void> => {
     try {
         const response = await client.requestExtractAttributes(
-            labelDict,
+            uploadId,
             context,
             fileLink,
-            fileName
+            fileName,
+            labelDict
         )
         if (!response || !response.data.processing) {
             toast.error('Process could not be started!')
@@ -155,17 +175,19 @@ export const requestExtractAttributes = async (
 }
 
 export const requestExtractNodes = async (
+    uploadId: string,
     context: string,
     fileLink: string,
     fileName: string,
-    attributeDict: IDictionary
+    attributeDict: Dictionary
 ): Promise<boolean | void> => {
     try {
         const response = await client.requestExtractNodes(
-            attributeDict,
+            uploadId,
             context,
             fileLink,
-            fileName
+            fileName,
+            attributeDict
         )
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
@@ -179,13 +201,14 @@ export const requestExtractNodes = async (
 }
 
 export const requestExtractGraph = async (
+    uploadId: string,
     context: string,
     fileLink: string,
     fileName: string,
     workflow: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestExtractGraph(workflow, context, fileLink, fileName)
+        const response = await client.requestExtractGraph(uploadId, context, fileLink, fileName, workflow)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
             return
@@ -198,13 +221,14 @@ export const requestExtractGraph = async (
 }
 
 export const requestImportGraph = async (
+    uploadId: string,
     context: string,
     fileLink: string,
     fileName: string,
     workflow: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestImportGraph(workflow, context, fileLink, fileName)
+        const response = await client.requestImportGraph(uploadId, context, fileLink, fileName, workflow)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
             return

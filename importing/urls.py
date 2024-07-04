@@ -1,8 +1,9 @@
 from django.urls import path
 
-from importing.views import LabelExtractView, AttributeExtractView, NodeExtractView, GraphExtractView, GraphImportView
+from importing.views import FileImportView, LabelExtractView, AttributeExtractView, NodeExtractView, GraphExtractView, GraphImportView
 
 urlpatterns = [
+    path('api/import/file', FileImportView.as_view(), name='file-import'),
     path('api/import/label-extract', LabelExtractView.as_view(), name='label-extract'),
     path('api/import/attribute-extract', AttributeExtractView.as_view(), name='attribute-extract'),
     path('api/import/node-extract', NodeExtractView.as_view(), name='node-extract'),

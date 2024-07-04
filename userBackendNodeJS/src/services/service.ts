@@ -8,7 +8,7 @@ import fs from 'fs'
 import UserRepository from '../repositories/user.repo'
 import WorkspaceRepository from '../repositories/workspace.repo'
 import { MDB_IUser as IUser } from '../types/user.type'
-import { IWorkflow, IUpload } from '../types/workspace.types'
+import { Workflow, Upload } from '../types/workspace.types'
 import { IGetUserAuthInfoRequest } from '../types/req'
 
 class UserService {
@@ -78,10 +78,10 @@ class UserService {
         return WorkspaceRepository.deleteWorkflow(workflowId)
     }
 
-    static getWorkflowsByUserID = async (userId: string): Promise<IWorkflow[]> => {
+    static getWorkflowsByUserID = async (userId: string): Promise<Workflow[]> => {
         const workflows = await WorkspaceRepository.getWorkflowsByUserID(userId)
 
-        const workflowsWithoutUserId = workflows.map((workflow: IWorkflow) => {
+        const workflowsWithoutUserId = workflows.map((workflow: Workflow) => {
             const { userId, ...restOfWorkflow } = workflow
             return restOfWorkflow
         })
@@ -92,18 +92,18 @@ class UserService {
     // ################################## Uploads
     // ##################################
     // ##################################
-    static getUploadsByUserID = async (userId: string): Promise<Partial<IUpload>[]> => {
+    static getUploadsByUserID = async (userId: string): Promise<Partial<Upload>[]> => {
         const uploads = await WorkspaceRepository.getUploadsByUserID(userId)
 
-        const uploadList = uploads.map((upload: IUpload) => {
-            const { _id, timestamp, processing } = upload
-            return { _id, timestamp, processing }
+        const uploadList = uploads.map((upload: Upload) => {
+            const { userId, ...restOfUpload } = upload
+            return restOfUpload
         })
 
         return uploadList
     }
 
-    static getUploadByID = async (userId: string, uploadId: string): Promise<IUpload | null> => {
+    static getUploadByID = async (userId: string, uploadId: string): Promise<Upload | null> => {
         const upload = await WorkspaceRepository.getUploadByID(userId, uploadId)
         if (!upload) {
             return null
@@ -113,14 +113,14 @@ class UserService {
         return restOfUpload
     }
 
-    static createUpload = (userId: string, csvTable: string): Promise<IUpload> => {
-        return WorkspaceRepository.createUpload(userId, csvTable)
+    static createUpload = (userId: string, csvTable: string, fileId: string): Promise<Upload> => {
+        return WorkspaceRepository.createUpload(userId, csvTable, fileId)
     }
 
     static updateUploadFields = (
         userId: string,
         uploadId: string,
-        updates: Partial<IUpload>
+        updates: Partial<Upload>
     ): Promise<boolean> => {
         return WorkspaceRepository.updateUploadFields(userId, uploadId, updates)
     }

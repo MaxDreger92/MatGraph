@@ -1,14 +1,14 @@
-export interface IWorkflow {
+export type Workflow = {
     _id: string
-    workflow: string
+    data: string
     timestamp: Date
 }
 
-export interface IUpload {
+export type Upload = {
     _id: string
+    name?: string
     progress: number
-    fileLink?: string
-    fileName?: string
+    fileId?: string
     context?: string
     csvTable: string // TableRow[]
     labelDict?: string // IDictionary
@@ -24,7 +24,7 @@ export type UploadListItem = {
     processing: boolean
 }
 
-export interface ITempNode {
+export type TempNode = {
     id: string
     attributes: { [key: string]: any }
     label: Label
@@ -34,19 +34,19 @@ export interface ITempNode {
     }>
 }
 
-export interface IGraphData {
-    nodes: IGraphNode[]
-    relationships: IRelationship[]
+export type GraphData = {
+    nodes: GraphNode[]
+    relationships: Relationship[]
 }
 
-export interface IGraphNode {
+export type GraphNode = {
     id: string
     label: Label
     name: any
     attributes: { [key: string]: ParsableAttribute }
 }
 
-export interface IRelationship {
+export type Relationship = {
     rel_type: string
     connection: [string, string]
 }
@@ -59,7 +59,7 @@ export type Attribute = {
     index?: number | string | number[] | string[]
 }
 
-export interface IDictionary {
+export type Dictionary = {
     [key: string]: { [key: string]: string }
 }
 

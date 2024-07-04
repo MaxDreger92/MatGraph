@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { SetStateAction, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import client from '../../client'
 import 'react-virtualized/styles.css'
 import WorkspaceTableDropzone from './WorkspaceTableDropzone'
 import WorkspacePipeline from './WorkspacePipeline'
-import { TableRow, IDictionary, IUpload } from '../../types/workspace.types'
-import { IRelationship, INode } from '../../types/canvas.types'
+import { TableRow, Dictionary, Upload } from '../../types/workspace.types'
+import { TRelationship, TNode } from '../../types/canvas.types'
 import {
     arrayToDict,
     convertFromJsonFormat,
@@ -26,19 +26,21 @@ import {
     requestExtractGraph,
     requestExtractLabels,
     requestExtractNodes,
+    requestFileUpload,
     requestImportGraph,
     updateUpload,
 } from '../../common/clientHelpers'
+import { useQuery } from 'react-query'
 // import testNodes from '../../alt/testNodesN.json'
 
 const USE_MOCK_DATA = false
 
-const exampleLabelDict: IDictionary = {
+const exampleLabelDict: Dictionary = {
     Header1: { Label: 'matter' },
     Header2: { Label: 'manufacturing' },
     Header3: { Label: 'measurement' },
 }
-const exampleAttrDict: IDictionary = {
+const exampleAttrDict: Dictionary = {
     Header1: { Label: 'matter', Attribute: 'name' },
     Header2: { Label: 'manufacturing', Attribute: 'identifier' },
     Header3: { Label: 'measurement', Attribute: 'name' },
@@ -49,14 +51,15 @@ interface WorkspaceDrawerProps {
     tableViewHeight: number
     progress: number
     setProgress: React.Dispatch<React.SetStateAction<number>>
-    setNodes: React.Dispatch<React.SetStateAction<INode[]>>
-    setRelationships: React.Dispatch<React.SetStateAction<IRelationship[]>>
+    setNodes: React.Dispatch<React.SetStateAction<TNode[]>>
+    setRelationships: React.Dispatch<React.SetStateAction<TRelationship[]>>
     setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
-    upload: IUpload | undefined
-    setUpload: React.Dispatch<React.SetStateAction<IUpload | undefined>>
-    setUploadProcessing: React.Dispatch<React.SetStateAction<boolean>>
     workflow: string | null
-    selectedNodes: INode[]
+    upload: Upload | undefined
+    setUpload: React.Dispatch<React.SetStateAction<Upload | undefined>>
+    uploadProcessing: boolean
+    setUploadProcessing: React.Dispatch<SetStateAction<boolean>>
+    selectedNodes: TNode[]
     rebuildIndexDictionary: () => void
     darkTheme: boolean
 }
@@ -70,35 +73,50 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         setNodes,
         setRelationships,
         setNeedLayout,
+        workflow,
         upload,
         setUpload,
+        uploadProcessing,
         setUploadProcessing,
-        workflow,
         selectedNodes,
         rebuildIndexDictionary,
         darkTheme,
     } = props
 
     const [file, setFile] = useState<File | undefined>()
-    const [fileLink, setFileLink] = useState<string>('Link')
-    const [fileName, setFileName] = useState<string>('Name')
+    const [fileId, setFileId] = useState<string>('')
     const [context, setContext] = useState<string>('')
     const [csvTable, setCsvTable] = useState<TableRow[]>([])
     const [labelTable, setLabelTable] = useState<TableRow[]>([])
-    const [labelInfo, setLabelInfo] = useState<IDictionary | null>(null)
+    const [labelInfo, setLabelInfo] = useState<Dictionary | null>(null)
     const [attributeTable, setAttributeTable] = useState<TableRow[]>([])
     const [currentTable, setCurrentTable] = useState<TableRow[]>([])
     const [currentTableId, setCurrentTableId] = useState('')
     const [additionalTables, setAdditionalTables] = useState<number[][]>([])
     const [columnLength, setColumnLength] = useState(0)
 
+
+    const { data: uploadData, error: uploadError, isLoading: uploadLoading } = useQuery(
+        ['upload', upload?._id],
+        () => client.getUpload(upload?._id as string),
+        {
+            enabled: uploadProcessing,
+            refetchInterval: 1000,
+            onSuccess: (data) => {
+                if (data.upload.processing === false) {
+                    setUploadProcessing(false)
+                    setUpload(data.upload)
+                }
+            },
+        }
+    )
+
     useEffect(() => {
         if (!upload || upload.processing) return
 
         const {
             progress,
-            fileLink,
-            fileName,
+            fileId,
             context,
             csvTable,
             labelDict,
@@ -107,10 +125,10 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         } = upload
 
         setProgress(progress)
-        setFileLink(fileLink ?? '')
-        setFileName(fileName ?? '')
+        setFileId(fileId ?? '')
         setContext(context ?? '')
         setCsvTable(csvTable ? JSON.parse(csvTable) : [])
+
 
         let labelTable: TableRow[] = []
         let attributeTable: TableRow[] = []
@@ -178,7 +196,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         }
 
         if (!USE_MOCK_DATA) {
-            if (upload && upload._id) {
+            if (upload && upload._id)  {
                 const updates = {
                     progress: 1,
                     fileLink: '',
@@ -199,7 +217,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 if (!updatedUpload) return
                 setUpload(updatedUpload)
             } else {
-                const newUpload = await createUpload(JSON.stringify(csvTable))
+                const newUpload = await requestFileUpload(file, JSON.stringify(csvTable))
                 if (!newUpload) {
                     handlePipelineReset()
                     return
@@ -264,12 +282,12 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 handleSetCurrentTable('labelTable', dictArray)
                 setProgress(2)
             } else {
-                if (!upload || !upload._id) {
+                if (!upload || !upload._id || !upload.fileId) {
                     toast.error('Upload process not found!')
                     return
                 }
 
-                const uploadProcessing = await requestExtractLabels(file as File, context)
+                const uploadProcessing = await requestExtractLabels(upload._id, context, upload.fileId)
                 setUploadProcessing(!!uploadProcessing)
             }
         } catch (err: any) {
@@ -297,9 +315,10 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 }
 
                 const uploadProcessing = await requestExtractAttributes(
+                    upload._id, 
                     context,
-                    fileLink,
-                    fileName,
+                    'fileLink',
+                    'fileName',
                     labelDict
                 )
                 setUploadProcessing(!!uploadProcessing)
@@ -321,9 +340,10 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 const attributeDict = arrayToDict(attributeTable)
 
                 const uploadProcessing = await requestExtractNodes(
+                    upload._id, 
                     context,
-                    fileLink,
-                    fileName,
+                    'fileLink',
+                    'fileName',
                     attributeDict
                 )
                 setUploadProcessing(!!uploadProcessing)
@@ -347,9 +367,10 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
             }
 
             const uploadProcessing = await requestExtractGraph(
+                upload._id, 
                 context,
-                fileLink,
-                fileName,
+                'fileLink',
+                'fileName',
                 workflow
             )
             setUploadProcessing(!!uploadProcessing)
@@ -370,7 +391,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 return
             }
 
-            const uploadProcessing = await requestImportGraph(context, fileLink, fileName, workflow)
+            const uploadProcessing = await requestImportGraph(upload._id, context, 'fileLink', 'fileName', workflow)
             setUploadProcessing(!!uploadProcessing)
         } catch (err: any) {
             toast.error(err.message)
