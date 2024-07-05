@@ -103,7 +103,8 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
             enabled: uploadProcessing,
             refetchInterval: 1000,
             onSuccess: (data) => {
-                if (data.upload.processing === false) {
+                console.log('drawer polling')
+                if (data && data.upload && data.upload.processing === false) {
                     setUploadProcessing(false)
                     setUpload(data.upload)
                 }
@@ -112,6 +113,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     )
 
     useEffect(() => {
+        
         if (!upload || upload.processing) return
 
         const {
@@ -196,34 +198,12 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         }
 
         if (!USE_MOCK_DATA) {
-            if (upload && upload._id)  {
-                const updates = {
-                    progress: 1,
-                    fileLink: '',
-                    fileName: '',
-                    context: '',
-                    csvTable: JSON.stringify(csvTable),
-                    labelDict: '',
-                    attributeDict: '',
-                    workflow: '',
-                    processing: false,
-                }
-                const updateSuccess = await updateUpload(upload._id, updates)
-                if (!updateSuccess) {
-                    handlePipelineReset()
-                    return
-                }
-                const updatedUpload = await fetchUpload(upload._id)
-                if (!updatedUpload) return
-                setUpload(updatedUpload)
-            } else {
-                const newUpload = await requestFileUpload(file, JSON.stringify(csvTable))
-                if (!newUpload) {
-                    handlePipelineReset()
-                    return
-                }
-                setUpload(newUpload)
+            const newUpload = await requestFileUpload(file, JSON.stringify(csvTable))
+            if (!newUpload) {
+                handlePipelineReset()
+                return
             }
+            setUpload(newUpload)
         } else {
             setCsvTable(csvTable)
             handleSetCurrentTable('csvTable', csvTable)
@@ -254,6 +234,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     const handlePipelineReset = async () => {
+        setUpload(undefined)
         setCsvTable([])
         setLabelTable([])
         setAttributeTable([])
@@ -288,6 +269,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 }
 
                 const uploadProcessing = await requestExtractLabels(upload._id, context, upload.fileId)
+                if (!uploadProcessing) return
                 setUploadProcessing(!!uploadProcessing)
             }
         } catch (err: any) {

@@ -106,14 +106,15 @@ NEOMODEL_ENCRYPTED_CONNECTION = True
 NEOMODEL_MAX_POOL_SIZE = 50
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -179,9 +180,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # or any other broker like 'pyamqp://guest@localhost//'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Same backend as broker for simplicity
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

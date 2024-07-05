@@ -19,7 +19,7 @@ import WorkspaceSearch from './WorkspaceSearch'
 import {
     fetchUploads,
     fetchWorkflows,
-    saveWorkflowToHistory,
+    saveWorkflow,
 } from '../../common/clientHelpers'
 import { Upload } from '../../types/workspace.types'
 
@@ -116,11 +116,11 @@ export default function Workspace(props: WorkspaceProps) {
         }
     }, [nodes, relationships])
 
-    async function saveWorkflow() {
+    async function saveWorkflowLocal() {
         const workflow = convertToJSONFormat(nodes, relationships, true)
 
         try {
-            await saveWorkflowToHistory(workflow)
+            await saveWorkflow(workflow)
 
             fetchWorkflows()
         } catch (err: any) {
@@ -445,7 +445,7 @@ export default function Workspace(props: WorkspaceProps) {
                             <Canvas
                                 nodesFn={nodesFn}
                                 indexFn={indexFn}
-                                saveWorkflow={saveWorkflow}
+                                saveWorkflow={saveWorkflowLocal}
                                 historyFn={historyFn}
                                 needLayout={needLayout}
                                 setNeedLayout={setNeedLayout}

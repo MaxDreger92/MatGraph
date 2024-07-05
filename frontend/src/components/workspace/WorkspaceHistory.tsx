@@ -5,7 +5,8 @@ import { convertFromJsonFormat } from '../../common/workspaceHelpers'
 import { RiDeleteBin2Line } from 'react-icons/ri'
 import { UserContext } from '../../context/UserContext'
 import {
-    deleteWorkflowFromHistory,
+    deleteUpload,
+    deleteWorkflow,
     fetchUploads,
     fetchWorkflows,
 } from '../../common/clientHelpers'
@@ -40,12 +41,13 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
     useEffect(() => {
         setHistoryItems([])
         if (uploadMode && uploads) {
+            console.log('uploadLength: ', uploads.length)
             setHistoryItems(uploads)
         } else if (workflows) {
             setHistoryItems(workflows)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [uploads, workflows])
+    }, [uploads, workflows, uploadMode])
 
     // ###################################################################### Fetch History Items
     const {
@@ -56,6 +58,7 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         enabled: uploadProcessing,
         refetchInterval: 2000,
         onSuccess: (data) => {
+            console.log('history polling')
             if (data.uploadList) {
                 setUploads(data.uploadList)
             }
@@ -65,45 +68,53 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
     useEffect(() => {
         if (!user || !uploadMode) return
 
-        const handleFetchUploads = async () => {
-            const uploads = await fetchUploads()
-            if (!uploads) {
-                return
-            }
-            setUploads(uploads)
-        }
-
         handleFetchUploads()
-    }, [user, uploadMode])
+    }, [user, uploadMode, upload])
+
+    const handleFetchUploads = async () => {
+        const uploads = await fetchUploads()
+        if (!uploads) {
+            return
+        }
+        setUploads(uploads)
+    }
 
     useEffect(() => {
         if (!user || uploadMode) return
 
-        const handleFetchWorkflows = async () => {
-            const workflows = await fetchWorkflows()
-            if (!workflows) {
-                return
-            }
-            setWorkflows(workflows)
-        }
-
         handleFetchWorkflows()
     }, [user, uploadMode])
 
-    // ###################################################################### Delete Items
-    const handleDeleteItem = (e: React.MouseEvent, index: number) => {
-        e.stopPropagation()
-        if (!workflows) return
-        deleteWorkflow(workflows[index]._id)
+    const handleFetchWorkflows = async () => {
+        const workflows = await fetchWorkflows()
+        if (!workflows) {
+            return
+        }
+        setWorkflows(workflows)
     }
 
-    async function deleteWorkflow(workflowId: string) {
-        try {
-            await deleteWorkflowFromHistory(workflowId)
+    // ###################################################################### Delete Items
+    const handleDeleteItem = async (e: React.MouseEvent, index: number) => {
+        if (!uploadMode) {
+            if (!workflows) return
 
-            fetchWorkflows()
-        } catch (err: any) {
-            toast.error(err.message)
+            try {
+                await deleteWorkflow(workflows[index]._id)
+    
+                handleFetchWorkflows()
+            } catch (err: any) {
+                // toast.error(err.message) // Do some error handling
+            }
+        } else {
+            if (!uploads) return
+
+            try {
+                await deleteUpload(uploads[index]._id)
+    
+                handleFetchUploads()
+            } catch (err: any) {
+                // toast.error(err.message) // Do some error handling
+            }
         }
     }
 
@@ -118,6 +129,7 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
             if (!uploads) return
             const selectedUpload = uploads.find(upload => upload._id === id)
             if (!selectedUpload || !selectedUpload._id) return
+            setUpload(undefined)
             setUpload(selectedUpload)
         }
     }
@@ -179,7 +191,10 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
                                 }}
                                 onMouseEnter={() => setTrashHovered(true)}
                                 onMouseLeave={() => setTrashHovered(false)}
-                                onClick={(e) => handleDeleteItem(e, index)}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteItem(e, index)
+                                }}
                             />
                         )}
                         <span

@@ -28,6 +28,7 @@ export const fetchUploads = async (): Promise<Upload[] | void> => {
             return
         }
 
+        if (!data.uploads) return []
         return data.uploads as Upload[]
     } catch (err: any) {
         toast.error(err.message)
@@ -67,10 +68,28 @@ export const updateUpload = async (
     }
 }
 
+export const deleteUpload = async (
+    uploadId: string,
+): Promise<boolean | void> => {
+    try {
+        const response = await client.deleteUpload(uploadId)
+
+        if (!response || !response.data.deleteSuccess) {
+            console.log(response.data.deleteSuccess)
+            toast.error('Upload process could not be deleted')
+            return
+        }
+
+        return response.data.deleteSuccess
+    } catch (err: any) {
+        toast.error(err.message)
+    }
+}
+
 // ################################## Workflows
 // ##################################
 // ##################################
-export const saveWorkflowToHistory = async (workflow: string): Promise<void> => {
+export const saveWorkflow = async (workflow: string): Promise<void> => {
     try {
         const response = await client.saveWorkflow(workflow)
 
@@ -82,7 +101,7 @@ export const saveWorkflowToHistory = async (workflow: string): Promise<void> => 
     }
 }
 
-export const deleteWorkflowFromHistory = async (workflowId: string): Promise<void> => {
+export const deleteWorkflow = async (workflowId: string): Promise<void> => {
     try {
         const response = await client.deleteWorkflow(workflowId)
 

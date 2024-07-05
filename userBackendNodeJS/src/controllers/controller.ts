@@ -830,11 +830,13 @@ router.delete(
             const deleteSuccess = await UserService.deleteUpload(userId, uploadId)
             if (!deleteSuccess) {
                 return res.status(400).json({
+                    deleteSuccess: false,
                     message: 'Upload process could not be deleted!',
                 })
             }
 
             return res.status(200).json({
+                deleteSuccess: true,
                 message: 'Upload process deleted successfully!',
             })
         } catch (err: any) {
