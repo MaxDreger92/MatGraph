@@ -139,7 +139,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mat2devplatform.wsgi.application'
+ASGI_APPLICATION = 'mat2devplatform.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -178,14 +178,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # or any other broker like 'pyamqp://guest@localhost//'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Same backend as broker for simplicity
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/

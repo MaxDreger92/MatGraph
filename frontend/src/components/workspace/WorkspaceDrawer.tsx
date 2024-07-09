@@ -114,7 +114,11 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
 
     useEffect(() => {
         
-        if (!upload || upload.processing) return
+        if (!upload || uploadProcessing) return
+        if (upload.processing) {
+            setUploadProcessing(true)
+            return
+        }
 
         const {
             progress,
@@ -136,7 +140,8 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         let attributeTable: TableRow[] = []
 
         if (labelDict) {
-            const [labelDictCore, labelDictInfo] = splitDict(JSON.parse(labelDict), 1)
+            const parsedDict = JSON.parse(labelDict)
+            const [labelDictCore, labelDictInfo] = splitDict(parsedDict, 1)
             if (Object.entries(labelDictInfo).length > 0) {
                 setLabelInfo(labelDictInfo)
             }
@@ -171,7 +176,8 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
 
         if (!workflow) return
 
-        const { nodes, relationships } = convertFromJsonFormat(workflow, true)
+        const parsedWorkflow = JSON.parse(workflow)
+        const { nodes, relationships } = convertFromJsonFormat(parsedWorkflow, true)
 
         setNodes(nodes)
         setRelationships(relationships)
@@ -234,18 +240,21 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     const handlePipelineReset = async () => {
+        setProgress(0)
         setUpload(undefined)
+        setUploadProcessing(false)
         setCsvTable([])
         setLabelTable([])
         setAttributeTable([])
         handleSetCurrentTable('', [])
-        setProgress(0)
+        setNodes([])
+        setRelationships([])
     }
 
     // (file,context) => label_dict, file_link, file_name
     const extractLabels = async () => {
         if (!USE_MOCK_DATA) {
-            if (!file) {
+            if (!fileId) {
                 toast.error('File not found!')
                 return
             }
@@ -299,8 +308,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 const uploadProcessing = await requestExtractAttributes(
                     upload._id, 
                     context,
-                    'fileLink',
-                    'fileName',
+                    fileId,
                     labelDict
                 )
                 setUploadProcessing(!!uploadProcessing)
@@ -324,8 +332,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 const uploadProcessing = await requestExtractNodes(
                     upload._id, 
                     context,
-                    'fileLink',
-                    'fileName',
+                    fileId,
                     attributeDict
                 )
                 setUploadProcessing(!!uploadProcessing)
@@ -351,8 +358,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
             const uploadProcessing = await requestExtractGraph(
                 upload._id, 
                 context,
-                'fileLink',
-                'fileName',
+                fileId,
                 workflow
             )
             setUploadProcessing(!!uploadProcessing)

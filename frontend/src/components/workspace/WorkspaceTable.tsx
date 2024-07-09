@@ -87,7 +87,7 @@ export default function WorkspaceTable(props: WorkspaceTableProps) {
     useEffect(() => {
         // 52 + 45 * tableRows
         if (outerTableHeight) {
-            const rowHeight = 52 + 45 * tableRows.length
+            const rowHeight = 69 + 45 * tableRows.length
             const divHeight = outerTableHeight - 90
             setInnerTableHeight(Math.min(rowHeight, divHeight))
             return
@@ -170,11 +170,14 @@ export default function WorkspaceTable(props: WorkspaceTableProps) {
         row: number,
         columnId: string
     ): void => {
+        console.log('select: ', row, ', ', columnId, ', ', cellData)
         if (tableActive === 1 && row === 0) {
+            console.log('select: ', row, ', ', columnId, ', ', cellData)
             if (
                 typeof cellData === 'string' &&
                 labelOptions.some((option) => option.value === (cellData.toLowerCase() as Label))
             ) {
+                console.log('select: ', row, ', ', columnId, ', ', cellData)
                 setSelectData(labelOptions)
                 setSelected({ row: row, column: columnId })
             }

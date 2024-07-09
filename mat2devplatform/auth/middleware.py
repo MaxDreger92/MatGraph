@@ -12,8 +12,6 @@ class TokenAuthenticationMiddleware:
     def __call__(self, request):
         api_path = '/api/'
         
-        print('test')
-        
         if request.path.startswith(api_path):
             token = request.META.get('HTTP_AUTHORIZATION', '')
             if token:

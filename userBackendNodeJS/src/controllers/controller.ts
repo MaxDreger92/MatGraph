@@ -726,6 +726,10 @@ router.get(
 
             const upload = await UserService.getUploadByID(userId, uploadId)
 
+            if (upload) {
+                console.log(upload.processing)
+            }
+
             return res.status(200).json({
                 message: 'Upload retrieved successfully!',
                 upload: upload,

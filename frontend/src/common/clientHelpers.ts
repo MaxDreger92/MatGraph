@@ -170,16 +170,14 @@ export const requestExtractLabels = async (
 export const requestExtractAttributes = async (
     uploadId: string,
     context: string,
-    fileLink: string,
-    fileName: string,
+    fileId: string,
     labelDict: Dictionary
 ): Promise<boolean | void> => {
     try {
         const response = await client.requestExtractAttributes(
             uploadId,
             context,
-            fileLink,
-            fileName,
+            fileId,
             labelDict
         )
         if (!response || !response.data.processing) {
@@ -196,16 +194,14 @@ export const requestExtractAttributes = async (
 export const requestExtractNodes = async (
     uploadId: string,
     context: string,
-    fileLink: string,
-    fileName: string,
+    fileId: string,
     attributeDict: Dictionary
 ): Promise<boolean | void> => {
     try {
         const response = await client.requestExtractNodes(
             uploadId,
             context,
-            fileLink,
-            fileName,
+            fileId,
             attributeDict
         )
         if (!response || !response.data.processing) {
@@ -222,12 +218,11 @@ export const requestExtractNodes = async (
 export const requestExtractGraph = async (
     uploadId: string,
     context: string,
-    fileLink: string,
-    fileName: string,
+    fileId: string,
     workflow: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestExtractGraph(uploadId, context, fileLink, fileName, workflow)
+        const response = await client.requestExtractGraph(uploadId, context, fileId, workflow)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
             return

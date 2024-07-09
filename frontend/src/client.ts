@@ -392,8 +392,6 @@ class Client {
                 },
             })
 
-            if (!response || !response.data)
-
             return response.data
         } catch (err: any) {
             if (err.response?.data?.message) {
@@ -640,7 +638,7 @@ class Client {
     }
 
     // (label_dict, context, file_link, file_name) => attribute_dict
-    async requestExtractAttributes(uploadId: string, context: string, link: string, name: string, dict: Dictionary) {
+    async requestExtractAttributes(uploadId: string, context: string, fileId: string, dict: Dictionary) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -651,9 +649,8 @@ class Client {
                 params: {
                     uploadId: uploadId,
                     context: context,
-                    file_link: link,
-                    file_name: name,
-                    label_dict: dict,
+                    fileId: fileId,
+                    labelDict: dict,
                 },
             }, {
                 headers: {
@@ -672,7 +669,7 @@ class Client {
     }
 
     // (attribute_dict, context, file_link, file_name) => node_json
-    async requestExtractNodes(uploadId: string, context: string, link: string, name: string, dict: Dictionary) {
+    async requestExtractNodes(uploadId: string, context: string, fileId: string, dict: Dictionary) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -683,9 +680,8 @@ class Client {
                 params: {
                     uploadId: uploadId,
                     context: context,
-                    file_link: link,
-                    file_name: name,
-                    attribute_dict: dict
+                    fileId: fileId,
+                    attributeDict: dict
                 },
             }, {
                 headers: {
@@ -704,7 +700,7 @@ class Client {
     }
 
     // (node_json, context, file_link, file_name) => graph_json
-    async requestExtractGraph(uploadId: string, context: string, link: string, name: string, nodeJson: string) {
+    async requestExtractGraph(uploadId: string, context: string, fileId: string, workflow: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -715,9 +711,8 @@ class Client {
                 params: {
                     uploadId: uploadId,
                     context: context,
-                    file_link: link,
-                    file_name: name,
-                    node_json: nodeJson
+                    fileId: fileId,
+                    workflow: workflow,
                 },
             }, {
                 headers: {

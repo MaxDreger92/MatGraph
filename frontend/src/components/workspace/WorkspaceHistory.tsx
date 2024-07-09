@@ -58,10 +58,10 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         enabled: uploadProcessing,
         refetchInterval: 2000,
         onSuccess: (data) => {
-            console.log('history polling')
-            if (data.uploadList) {
-                setUploads(data.uploadList)
-            }
+            // console.log('history polling')
+            // if (data.uploadList) {
+            //     setUploads(data.uploadList)
+            // }
         },
     })
 
@@ -145,9 +145,10 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         <div
             className="workspace-history-list"
             style={{
-                paddingTop: 15,
+            paddingTop: 15,
                 paddingLeft: 10,
                 paddingRight: 10,
+                overflow: 'auto'
             }}
         >
             {historyItems &&
