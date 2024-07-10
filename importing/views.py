@@ -6,7 +6,6 @@ from io import StringIO
 import asyncio
 import httpx
 from concurrent.futures import ThreadPoolExecutor
-import logging
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -24,13 +23,10 @@ from importing.RelationshipExtraction.completeRelExtractor import (
 )
 from importing.importer import TableImporter
 from importing.models import FullTableCache
+from importing.utils.user_db_requests import user_db_request
 from matgraph.models.metadata import File
 
 executor = ThreadPoolExecutor()
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -59,30 +55,13 @@ class FileImportView(APIView):
         file_record = await self.store_file(file_obj)
         file_id = file_record.uid
 
-        data = {"csvTable": csv_table, "fileId": file_id}
-        url = "http://localhost:8080/api/users/uploads/create"
-        headers = {
-            "Authorization": f"Bearer {user_token}",
-            "Content-Type": "application/json",
-        }
-
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
-                create_response = await client.post(url, headers=headers, json=data)
-                create_response.raise_for_status()
-            except httpx.RequestError as e:
-                print(f"error: {e}")
-                return response.Response(
-                    {"error": "Failed to create upload process!"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-        create_response_data = create_response.json()
+        request_data = {"csvTable": csv_table, "fileId": file_id}
+        response_data = await user_db_request(request_data, None, user_token, "post")
 
         return JsonResponse(
             {
-                "upload": create_response_data.get("upload"),
-                "message": create_response_data.get(
+                "upload": response_data.get("upload"),
+                "message": response_data.get(
                     "message", "Upload process saved successfully!"
                 ),
             }
@@ -95,9 +74,7 @@ class FileImportView(APIView):
             name=file_name, date_added=DateTimeProperty(default_now=True)
         )
         file_record.file = file_obj
-        await sync_to_async(
-            file_record.save
-        )()  # Ensure the save method supports async if you use an async ORM
+        await sync_to_async(file_record.save)()
         return file_record
 
 
@@ -116,43 +93,14 @@ class LabelExtractView(APIView):
         context = params["context"]
         file_id = params["fileId"]
 
-        # file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        # file_obj_bytes = await sync_to_async(file_record.get_file)()
-        # file_obj_str = file_obj_bytes.decode('utf-8')
-        # file_obj = StringIO(file_obj_str)
-        # file_obj.seek(0)
-        # first_line = str(file_obj.readline().strip().lower())
+        cached = await self.try_cache(upload_id, user_token, file_id)
+        if cached:
+            return JsonResponse({"cached": True})
 
-        # cached = await sync_to_async(FullTableCache.fetch)(first_line)
-        # if cached:
-        #     cached = str(cached).replace("'", "\"")
-        #     sanitized_cached = self.sanitize_data(cached)
-        #     return response.Response({
-        #         'graph_json': sanitized_cached,
-        #         'file_id': file_id,
-        #     })
-
-        url = f"http://localhost:8080/api/users/uploads/{upload_id}"
-        headers = {
-            "Authorization": f"Bearer {user_token}",
-            "Content-Type": "application/json",
-        }
         updates = {"processing": True, "context": context}
-
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
-                update_response = await client.patch(url, headers=headers, json=updates)
-                update_response.raise_for_status()
-            except httpx.RequestError as e:
-                logger.error(f"HTTP error during update: {e}")
-                return response.Response(
-                    {"error": "Failed to set upload to processing"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            response_data = update_response.json()
-            if response_data.get("updateSuccess") is False:
-                return JsonResponse({"processing": False})
+        response_data = await user_db_request(updates, upload_id, user_token)
+        if response_data.get("updateSuccess") is False:
+            return JsonResponse({"processing": False})
 
         loop = asyncio.get_event_loop()
         loop.run_in_executor(
@@ -160,6 +108,29 @@ class LabelExtractView(APIView):
         )
 
         return JsonResponse({"processing": True})
+    
+    async def try_cache(self, upload_id, user_token, file_id):
+        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+        file_obj_bytes = await sync_to_async(file_record.get_file)()
+        file_obj_str = file_obj_bytes.decode("utf-8")
+        file_obj = StringIO(file_obj_str)
+        file_obj.seek(0)
+        first_line = str(file_obj.readline().strip().lower())
+
+        cached = await sync_to_async(FullTableCache.fetch)(first_line)
+        if cached:
+            cached = str(cached).replace("'", '"')
+            sanitized_cached = self.sanitize_data(cached)
+            sanitized_cached_str = json.dumps(sanitized_cached)
+            
+            updates = {
+                "processing": False,
+                "graph": sanitized_cached_str,
+                "progress": 6,
+            }
+            await user_db_request(updates, upload_id, user_token)
+            return True
+        return False
 
     def extract_labels(self, upload_id, context, file_id, user_token):
         asyncio.run(self.async_extract_labels(upload_id, context, file_id, user_token))
@@ -190,20 +161,7 @@ class LabelExtractView(APIView):
                 "progress": 2,
                 "processing": False,
             }
-            endpoint = f"http://localhost:8080/api/users/uploads/{upload_id}"
-            headers = {
-                "Authorization": f"Bearer {user_token}",
-                "Content-Type": "application/json",
-            }
-
-            async with httpx.AsyncClient() as client:
-                try:
-                    response = await client.patch(
-                        endpoint, headers=headers, json=updates
-                    )
-                    response.raise_for_status()
-                except httpx.RequestError as e:
-                    print(f"Error during HTTP PATCH request: {e}")
+            await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during label extraction: {e}", exc_info=True)
             raise
@@ -250,27 +208,11 @@ class AttributeExtractView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        url = f"http://localhost:8080/api/users/uploads/{upload_id}"
-        headers = {
-            "Authorization": f"Bearer {user_token}",
-            "Content-Type": "application/json",
-        }
         updates = {"processing": True, "context": context, "labelDict": labels_str}
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
-                update_response = await client.patch(url, headers=headers, json=updates)
-                update_response.raise_for_status()
-            except httpx.RequestError as e:
-                logger.error(f"HTTP error during update: {e}")
-                return response.Response(
-                    {"error": "Failed to set upload to processing"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            response_data = update_response.json()
-            if response_data.get("updateSuccess") is False:
-                return JsonResponse({"processing": False})
+        response_data = await user_db_request(updates, upload_id, user_token)
+        if response_data.get("updateSuccess") is False:
+            return JsonResponse({"processing": False})
 
         label_input = self.prepare_data(labels)
 
@@ -284,7 +226,7 @@ class AttributeExtractView(APIView):
             user_token,
             label_input,
         )
-        
+
         return JsonResponse({"processing": True})
 
     def extract_attributes(self, upload_id, context, file_id, user_token, label_input):
@@ -314,26 +256,13 @@ class AttributeExtractView(APIView):
                 for element in attribute_classifier.results
             }
             attributes_str = json.dumps(attributes)
-            
+
             updates = {
                 "attributeDict": attributes_str,
                 "progress": 3,
                 "processing": False,
             }
-            endpoint = f"http://localhost:8080/api/users/uploads/{upload_id}"
-            headers = {
-                "Authorization": f"Bearer {user_token}",
-                "Content-Type": "application/json",
-            }
-            
-            async with httpx.AsyncClient() as client:
-                try:
-                    response = await client.patch(
-                        endpoint, headers=headers, json=updates
-                    )
-                    response.raise_for_status()
-                except httpx.RequestError as e:
-                    print(f"Error during HTTP PATCH request: {e}")
+            await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during attribute extraction: {e}", exc_info=True)
 
@@ -357,7 +286,7 @@ class AttributeExtractView(APIView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class NodeExtractView(APIView):
-    
+
     def post(self, request):
         return async_to_sync(self.handle_post)(request)
 
@@ -365,7 +294,7 @@ class NodeExtractView(APIView):
         user_token = request.user_token
         data = json.loads(request.body)
         params = data["params"]
-        
+
         upload_id = params["uploadId"]
         context = params["context"]
         file_id = params["fileId"]
@@ -377,31 +306,18 @@ class NodeExtractView(APIView):
                 {"error:" "Missing params"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-            
-        url = f"http://localhost:8080/api/users/uploads/{upload_id}"
-        headers = {
-            "Authorization": f"Bearer {user_token}",
-            "Content-Type": "application/json",
+
+        updates = {
+            "processing": True,
+            "context": context,
+            "attributeDict": attributes_str,
         }
-        updates = {"processing": True, "context": context, "attributeDict": attributes_str}
-
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
-                update_response = await client.patch(url, headers=headers, json=updates)
-                update_response.raise_for_status()
-            except httpx.RequestError as e:
-                logger.error(f"HTTP error during update: {e}")
-                return response.Response(
-                    {"error": "Failed to set upload to processing"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            response_data = update_response.json()
-            if response_data.get("updateSuccess") is False:
-                return JsonResponse({"processing": False})
+        response_data = await user_db_request(updates, upload_id, user_token)
+        if response_data.get("updateSuccess") is False:
+            return JsonResponse({"processing": False})
 
         attribute_input = await self.prepare_data(file_id, attributes)
-        
+
         loop = asyncio.get_event_loop()
         loop.run_in_executor(
             executor,
@@ -412,7 +328,7 @@ class NodeExtractView(APIView):
             user_token,
             attribute_input,
         )
-        
+
         return JsonResponse({"processing": True})
 
     def extract_nodes(self, upload_id, context, file_id, user_token, attribute_input):
@@ -421,12 +337,14 @@ class NodeExtractView(APIView):
                 upload_id, context, file_id, user_token, attribute_input
             )
         )
-    
-    async def async_extract_nodes(self, upload_id, context, file_id, user_token, attribute_input):
+
+    async def async_extract_nodes(
+        self, upload_id, context, file_id, user_token, attribute_input
+    ):
         file_record = await sync_to_async(File.nodes.get)(uid=file_id)
         file_link = file_record.link
         file_name = file_record.name
-        
+
         try:
             node_extractor = NodeExtractor(
                 context=context,
@@ -435,30 +353,17 @@ class NodeExtractView(APIView):
                 data=attribute_input,
             )
             await sync_to_async(node_extractor.run)()
-            nodes = str(node_extractor.results).replace("'", '"')
-            nodes_str = json.dumps(nodes)
-            
+            graph = str(node_extractor.results).replace("'", '"')
+            graph_str = json.dumps(graph)
+
             updates = {
-                "workflow": nodes_str,
+                "graph": graph_str,
                 "progress": 4,
                 "processing": False,
             }
-            endpoint = f"http://localhost:8080/api/users/uploads/{upload_id}"
-            headers = {
-                "Authorization": f"Bearer {user_token}",
-                "Content-Type": "application/json",
-            }
-            
-            async with httpx.AsyncClient() as client:
-                try:
-                    response = await client.patch(
-                        endpoint, headers=headers, json=updates
-                    )
-                    response.raise_for_status()
-                except httpx.RequestError as e:
-                    print(f"Error during HTTP PATCH request: {e}")
+            await user_db_request(updates, upload_id, user_token)
         except Exception as e:
-            print(f"Error during attribute extraction: {e}", exc_info=True)
+            print(f"Error during node extraction: {e}", exc_info=True)
 
     async def prepare_data(self, file_id, attributes):
         file_record = await sync_to_async(File.nodes.get)(uid=file_id)
@@ -466,8 +371,8 @@ class NodeExtractView(APIView):
         file_obj_str = file_obj_bytes.decode("utf-8")
         file_obj = StringIO(file_obj_str)
         csv_reader = csv.reader(file_obj)
-        first_row = next(csv_reader)
 
+        first_row = next(csv_reader)
         column_values = [[] for _ in range(len(first_row))]
 
         for row in csv_reader:
@@ -495,76 +400,152 @@ class NodeExtractView(APIView):
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphExtractView(APIView):
 
-    @method_decorator(csrf_exempt)
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        return async_to_sync(self.handle_post)(request)
+
+    async def handle_post(self, request):
+        user_token = request.user_token
         data = json.loads(request.body)
-        node_json = data["params"]["node_json"]
-        context = data["params"]["context"]
-        file_link = data["params"]["file_link"]
-        file_name = data["params"]["file_name"]
+        params = data["params"]
 
-        required_fields = ["node_json", "context", "file_link", "file_name"]
-        if not all(field in data["params"] for field in required_fields):
+        upload_id = params["uploadId"]
+        context = params["context"]
+        file_id = params["fileId"]
+        graph = params["graph"]
+        graph_str = json.dumps(graph)
+
+        if not upload_id or not context or not file_id or not graph:
             return response.Response(
-                {"error": "Missing required data"}, status=status.HTTP_400_BAD_REQUEST
+                {"error:" "Missing params"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        header, first_row = self.prepare_data(file_link)
-        graph = self.extract_relationships(node_json, context, header, first_row)
-        graph = (
-            str(graph)
-            .replace("'", '"')
-            .replace("has_manufacturing_output", "is_manufacturing_output")
+
+        updates = {"processing": True, "context": context, "graph": graph_str}
+        response_data = await user_db_request(updates, upload_id, user_token)
+        if response_data.get("updateSuccess") is False:
+            return JsonResponse({"processing": False})
+
+        header, first_row = await self.prepare_data(file_id)
+
+        loop = asyncio.get_event_loop()
+        loop.run_in_executor(
+            executor,
+            self.extract_relationships,
+            upload_id,
+            context,
+            user_token,
+            graph,
+            header,
+            first_row,
         )
-        return response.Response({"graph_json": graph})
 
-    def prepare_data(self, file_link):
-        file = File.nodes.get(link=file_link)
-        file_obj_bytes = file.get_file()
+        return JsonResponse({"processing": True})
 
-        # Decode the bytes object to a string
+    def extract_relationships(
+        self, upload_id, context, user_token, graph, header, first_row
+    ):
+        asyncio.run(
+            self.async_extract_relationships(
+                upload_id, context, user_token, graph, header, first_row
+            )
+        )
+
+    async def async_extract_relationships(
+        self, upload_id, context, user_token, graph, header, first_row
+    ):
+        try:
+            relationships_extractor = fullRelationshipsExtractor(
+                graph, context, header, first_row
+            )
+            await sync_to_async(relationships_extractor.run)()
+            graph = relationships_extractor.results
+            graph = (
+                str(graph)
+                .replace("'", '"')
+                .replace("has_manufacturing_output", "is_manufacturing_output")
+            )
+            graph_str = json.dumps(graph)
+
+            updates = {
+                "graph": graph_str,
+                "progress": 5,
+                "processing": False,
+            }
+            await user_db_request(updates, upload_id, user_token)
+        except Exception as e:
+            print(f"Error during relationship extraction: {e}", exc_info=True)
+
+    async def prepare_data(self, file_id):
+        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+        file_obj_bytes = await sync_to_async(file_record.get_file)()
         file_obj_str = file_obj_bytes.decode("utf-8")
-
-        # Use StringIO on the decoded string
         file_obj = StringIO(file_obj_str)
         csv_reader = csv.reader(file_obj)
+
         header = next(csv_reader)
         first_row = next(csv_reader)
 
         return header, first_row
 
-    def extract_relationships(self, nodes, context, header, first_row):
-        relationships_extractor = fullRelationshipsExtractor(
-            nodes, context, header, first_row
-        )
-        relationships_extractor.run()
-        relationships = relationships_extractor.results
-        return relationships
-
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphImportView(APIView):
 
-    @method_decorator(csrf_exempt)
-    def post(self, request, *args, **kwargs):
-        print("GraphImporter")
+    def post(self, request):
+        return async_to_sync(self.handle_post)(request)
+
+    async def handle_post(self, request):
+        user_token = request.user_token
         data = json.loads(request.body)
-        graph = json.loads(data["params"]["graph_json"])
-        file_link = data["params"]["file_link"]
-        file_name = data["params"]["file_name"]
-        context = data["params"]["context"]
+        params = data["params"]
 
-        required_fields = ["graph_json", "file_link"]
-        if not all(field in data["params"] for field in required_fields):
+        upload_id = params["uploadId"]
+        context = params["context"]
+        file_id = params["fileId"]
+        graph = params["graph"]
+        graph_str = json.dumps(graph)
+
+        if not upload_id or not context or not file_id or not graph:
             return response.Response(
-                {"error": "Missing required data"}, status=status.HTTP_400_BAD_REQUEST
+                {"error:" "Missing params"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+            
+        updates = {"processing": True, "context": context, "graph": graph_str}
+        response_data = await user_db_request(updates, upload_id, user_token)
+        if response_data.get("updateSuccess") is False:
+            return JsonResponse({"processing": False})
 
-        self.import_graph(file_link, graph, context)
-        FullTableCache.update(self.request.session.get("first_line"), graph)
-        return response.Response(
-            {"success": True, "message": "Graph imported successfully"}
+        loop = asyncio.get_event_loop()
+        loop.run_in_executor(
+            executor,
+            self.import_graph,
+            upload_id,
+            context,
+            file_id,
+            user_token,
+            graph,
         )
 
-    def import_graph(self, file_link, graph, context):
-        importer = TableImporter(graph, file_link, context)
-        importer.run()
+        return JsonResponse({"processing": True})
+
+    def import_graph(self, upload_id, context, file_id, user_token, graph):
+        asyncio.run(
+            self.async_import_graph(upload_id, context, file_id, user_token, graph)
+        )
+
+    async def async_import_graph(self, upload_id, context, file_id, user_token, graph):
+        try:
+            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+            file_link = file_record.link
+            importer = TableImporter(graph, file_link, context)
+            importer.run()
+            FullTableCache.update(self.request.session.get("first_line"), graph)
+
+            updates = {
+                "progress": 6,
+                "processing": False,
+            }
+            await user_db_request(updates, upload_id, user_token)
+        except Exception as e:
+            print(f"Error during graph import: {e}", exc_info=True)

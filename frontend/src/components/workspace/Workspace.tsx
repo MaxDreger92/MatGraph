@@ -11,15 +11,15 @@ import WorkspaceDrawer from './WorkspaceDrawer'
 import { TRelationship, TNode, IndexDictionary } from '../../types/canvas.types'
 import { convertToJSONFormat, getNodeIndices } from '../../common/workspaceHelpers'
 import toast from 'react-hot-toast'
-import { WorkspaceTableContext, WorkspaceWorkflowContext } from '../../context/WorkspaceContext'
+import { WorkspaceTableContext } from '../../context/WorkspaceContext'
 import _ from 'lodash'
 import { UserContext } from '../../context/UserContext'
 import WorkspaceDrawerHandle from './WorkspaceDrawerHandle'
 import WorkspaceSearch from './WorkspaceSearch'
 import {
     fetchUploads,
-    fetchWorkflows,
-    saveWorkflow,
+    fetchGraphs,
+    saveGraph,
 } from '../../common/clientHelpers'
 import { Upload } from '../../types/workspace.types'
 
@@ -50,8 +50,9 @@ export default function Workspace(props: WorkspaceProps) {
         setNodeEditing,
     }
 
-    const [workflow, setWorkflow] = useState<string | null>(null)
-    let setWorkflowRef: React.MutableRefObject<
+    const [graph, setGraph] = useState<string | null>(null)
+    const [graphProcessing, setGraphProcessing] = useState(false)
+    let setGraphRef: React.MutableRefObject<
         _.DebouncedFunc<(nodes: TNode[], relationships: TRelationship[]) => void> | undefined
     > = React.useRef()
 
@@ -87,8 +88,6 @@ export default function Workspace(props: WorkspaceProps) {
 
     const [progress, setProgress] = useState<number>(0)
 
-    // UPLOAD STUFF ########################################################
-
     useEffect(() => {
         if (!uploadMode) {
             setUpload(undefined)
@@ -97,13 +96,13 @@ export default function Workspace(props: WorkspaceProps) {
     }, [uploadMode])
 
 
-    // WORKFLOW STUFF ########################################################
+    // GRAPH STUFF ########################################################
 
-    // set current workflow (and show in json viewer)
-    if (!setWorkflowRef.current) {
-        setWorkflowRef.current = _.throttle(
+    // set current graph (and show in json viewer)
+    if (!setGraphRef.current) {
+        setGraphRef.current = _.throttle(
             (nodes: TNode[], relationships: TRelationship[]) => {
-                setWorkflow(convertToJSONFormat(nodes, relationships, true))
+                setGraph(convertToJSONFormat(nodes, relationships, true))
             },
             1000,
             { trailing: true }
@@ -111,18 +110,19 @@ export default function Workspace(props: WorkspaceProps) {
     }
 
     useEffect(() => {
-        if (setWorkflowRef.current) {
-            setWorkflowRef.current(nodes, relationships)
+        if (setGraphRef.current) {
+            setGraphRef.current(nodes, relationships)
         }
     }, [nodes, relationships])
 
-    async function saveWorkflowLocal() {
-        const workflow = convertToJSONFormat(nodes, relationships, true)
+    async function setGraphLocal() {
+        setGraph('')
+        const graph = convertToJSONFormat(nodes, relationships, true)
 
         try {
-            await saveWorkflow(workflow)
-
-            fetchWorkflows()
+            await saveGraph(graph)
+            
+            setGraph(graph)
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -420,8 +420,8 @@ export default function Workspace(props: WorkspaceProps) {
         tableViewHeight,
     }
 
-    // WorkflowContext value
-    const workflowContextValue = {
+    // GraphContext value
+    const graphContextValue = {
         setNodes,
         setRelationships,
         setNeedLayout,
@@ -445,7 +445,7 @@ export default function Workspace(props: WorkspaceProps) {
                             <Canvas
                                 nodesFn={nodesFn}
                                 indexFn={indexFn}
-                                saveWorkflow={saveWorkflowLocal}
+                                saveGraph={setGraphLocal}
                                 historyFn={historyFn}
                                 needLayout={needLayout}
                                 setNeedLayout={setNeedLayout}
@@ -460,7 +460,6 @@ export default function Workspace(props: WorkspaceProps) {
                     />
                 </WorkspaceTableContext.Provider>
 
-                <WorkspaceWorkflowContext.Provider value={workflowContextValue}>
                 <animated.div
                     className="workspace-history"
                     style={{
@@ -477,6 +476,7 @@ export default function Workspace(props: WorkspaceProps) {
                     children={
                         <WorkspaceHistory
                             uploadMode={uploadMode}
+                            graph={graph}
                             setNodes={setNodes}
                             setRelationships={setRelationships}
                             setNeedLayout={setNeedLayout}
@@ -487,7 +487,6 @@ export default function Workspace(props: WorkspaceProps) {
                         />
                     }
                 />
-                </WorkspaceWorkflowContext.Provider>
 
                 <animated.div
                     className="workspace-drawer-right"
@@ -505,9 +504,9 @@ export default function Workspace(props: WorkspaceProps) {
                     children={
                         <>
                             {!uploadMode && (
-                                <WorkspaceSearch workflow={workflow} darkTheme={darkTheme} />
+                                <WorkspaceSearch graph={graph} darkTheme={darkTheme} />
                             )}
-                            <WorkspaceJson workflow={workflow} darkTheme={darkTheme} />
+                            <WorkspaceJson graph={graph} darkTheme={darkTheme} />
                         </>
                     }
                 />
@@ -545,7 +544,7 @@ export default function Workspace(props: WorkspaceProps) {
                                         setNodes={setNodes}
                                         setRelationships={setRelationships}
                                         setNeedLayout={setNeedLayout}
-                                        workflow={workflow}
+                                        graph={graph}
                                         upload={upload}
                                         uploadProcessing={uploadProcessing}
                                         setUploadProcessing={setUploadProcessing}

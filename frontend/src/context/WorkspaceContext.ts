@@ -19,17 +19,4 @@ const defaultTableContextValue: IWorkspaceTableContext = {
     tableViewHeight: 0,
 }
 
-interface IWorkspaceWorkflowContext {
-    setNodes: React.Dispatch<React.SetStateAction<TNode[]>>
-    setRelationships: React.Dispatch<React.SetStateAction<TRelationship[]>>
-    setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const defaultWorkflowContextValue: IWorkspaceWorkflowContext = {
-    setNodes: () => {},
-    setRelationships: () => {},
-    setNeedLayout: () => {},
-}
-
 export const WorkspaceTableContext = createContext<IWorkspaceTableContext>(defaultTableContextValue)
-export const WorkspaceWorkflowContext = createContext<IWorkspaceWorkflowContext>(defaultWorkflowContextValue)

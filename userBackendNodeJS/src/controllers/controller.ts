@@ -569,11 +569,11 @@ router.post(
     }
 )
 
-// ################################## Workflows
+// ################################## Graphs
 // ##################################
 // ##################################
 router.post(
-    '/api/users/workflows/',
+    '/api/users/graphs/',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -584,17 +584,21 @@ router.post(
                 })
             }
 
-            const { workflow } = req.body
+            const { graph } = req.body
 
-            const saveSuccess = await UserService.saveWorkflow(userId, workflow)
+            if (graph) {
+                console.log('graph is da')
+            }
+
+            const saveSuccess = await UserService.saveGraph(userId, graph)
             if (!saveSuccess) {
                 return res.status(400).json({
-                    message: 'Workflow could not be saved!',
+                    message: 'Graph could not be saved!',
                 })
             }
 
             return res.status(201).json({
-                message: 'Workflow saved successfully!',
+                message: 'Graph saved successfully!',
             })
         } catch (err: any) {
             if (err.response) {
@@ -609,7 +613,7 @@ router.post(
 )
 
 router.delete(
-    '/api/users/workflows/:workflowId',
+    '/api/users/graphs/:graphId',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -620,17 +624,17 @@ router.delete(
                 })
             }
 
-            const { workflowId } = req.params
+            const { graphId } = req.params
 
-            const deleteSuccess = await UserService.deleteWorkflow(workflowId)
+            const deleteSuccess = await UserService.deleteGraph(graphId)
             if (!deleteSuccess) {
                 return res.status(400).json({
-                    message: 'Workflow could not be deleted!',
+                    message: 'Graph could not be deleted!',
                 })
             }
 
             return res.status(200).json({
-                message: 'Workflow deleted successfully!',
+                message: 'Graph deleted successfully!',
             })
         } catch (err: any) {
             if (err.response) {
@@ -645,7 +649,7 @@ router.delete(
 )
 
 router.get(
-    '/api/users/workflows',
+    '/api/users/graphs',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -656,11 +660,11 @@ router.get(
                 })
             }
 
-            const workflows = await UserService.getWorkflowsByUserID(userId)
+            const graphs = await UserService.getGraphsByUserID(userId)
 
             return res.status(200).json({
-                message: 'Workflows retrieved successfully!',
-                workflows: workflows,
+                message: 'Graphs retrieved successfully!',
+                graphs: graphs,
             })
         } catch (err: any) {
             if (err.response) {

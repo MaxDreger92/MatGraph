@@ -20,15 +20,12 @@ import WorkspaceTable from './WorkspaceTable'
 import WorkspacePartialTable from './WorkspacePartialTable'
 import WorkspaceTableTabs from './WorkspaceTableTabs'
 import {
-    createUpload,
-    fetchUpload,
     requestExtractAttributes,
     requestExtractGraph,
     requestExtractLabels,
     requestExtractNodes,
     requestFileUpload,
     requestImportGraph,
-    updateUpload,
 } from '../../common/clientHelpers'
 import { useQuery } from 'react-query'
 // import testNodes from '../../alt/testNodesN.json'
@@ -54,7 +51,7 @@ interface WorkspaceDrawerProps {
     setNodes: React.Dispatch<React.SetStateAction<TNode[]>>
     setRelationships: React.Dispatch<React.SetStateAction<TRelationship[]>>
     setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
-    workflow: string | null
+    graph: string | null
     upload: Upload | undefined
     setUpload: React.Dispatch<React.SetStateAction<Upload | undefined>>
     uploadProcessing: boolean
@@ -73,7 +70,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         setNodes,
         setRelationships,
         setNeedLayout,
-        workflow,
+        graph,
         upload,
         setUpload,
         uploadProcessing,
@@ -127,7 +124,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
             csvTable,
             labelDict,
             attributeDict,
-            workflow,
+            graph,
         } = upload
 
         setProgress(progress)
@@ -167,17 +164,21 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 handleSetCurrentTable('attributeTable', attributeTable)
                 break
             case 6:
-                toast.success('Workflow was successfully imported!')
+                toast.success('Graph was successfully imported!')
             // FALLS THROUGH to default
             default:
                 handleSetCurrentTable('csvTable', JSON.parse(csvTable ?? ''))
                 break
         }
 
-        if (!workflow) return
+        if (!graph) {
+            setNodes([])
+            setRelationships([])
+            return
+        }
 
-        const parsedWorkflow = JSON.parse(workflow)
-        const { nodes, relationships } = convertFromJsonFormat(parsedWorkflow, true)
+        const parsedGraph = JSON.parse(graph)
+        const { nodes, relationships } = convertFromJsonFormat(parsedGraph, true)
 
         setNodes(nodes)
         setRelationships(relationships)
@@ -350,8 +351,8 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 toast.error('Upload process not found!')
                 return
             }
-            if (!workflow) {
-                toast.error('Workflow JSON not found!')
+            if (!graph) {
+                toast.error('Graph JSON not found!')
                 return
             }
 
@@ -359,7 +360,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 upload._id, 
                 context,
                 fileId,
-                workflow
+                graph
             )
             setUploadProcessing(!!uploadProcessing)
         } catch (err: any) {
@@ -374,12 +375,12 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 toast.error('Upload process not found!')
                 return
             }
-            if (!workflow) {
-                toast.error('Workflow JSON not found!')
+            if (!graph) {
+                toast.error('Graph JSON not found!')
                 return
             }
 
-            const uploadProcessing = await requestImportGraph(upload._id, context, 'fileLink', 'fileName', workflow)
+            const uploadProcessing = await requestImportGraph(upload._id, context, fileId, graph)
             setUploadProcessing(!!uploadProcessing)
         } catch (err: any) {
             toast.error(err.message)

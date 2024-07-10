@@ -8,7 +8,7 @@ import fs from 'fs'
 import UserRepository from '../repositories/user.repo'
 import WorkspaceRepository from '../repositories/workspace.repo'
 import { MDB_IUser as IUser } from '../types/user.type'
-import { Workflow, Upload } from '../types/workspace.types'
+import { Graph, Upload } from '../types/workspace.types'
 import { IGetUserAuthInfoRequest } from '../types/req'
 
 class UserService {
@@ -67,26 +67,26 @@ class UserService {
         return UserRepository.updateImgUrl(url, id)
     }
 
-    // ################################## Workflows
+    // ################################## Graphs
     // ##################################
     // ##################################
-    static saveWorkflow = (userId: string, workflow: string): Promise<ObjectId> => {
-        return WorkspaceRepository.saveWorkflow(userId, workflow)
+    static saveGraph = (userId: string, graph: string): Promise<ObjectId> => {
+        return WorkspaceRepository.saveGraph(userId, graph)
     }
 
-    static deleteWorkflow = (workflowId: string): Promise<boolean> => {
-        return WorkspaceRepository.deleteWorkflow(workflowId)
+    static deleteGraph = (graphId: string): Promise<boolean> => {
+        return WorkspaceRepository.deleteGraph(graphId)
     }
 
-    static getWorkflowsByUserID = async (userId: string): Promise<Workflow[]> => {
-        const workflows = await WorkspaceRepository.getWorkflowsByUserID(userId)
+    static getGraphsByUserID = async (userId: string): Promise<Graph[]> => {
+        const graphs = await WorkspaceRepository.getGraphsByUserID(userId)
 
-        const workflowsWithoutUserId = workflows.map((workflow: Workflow) => {
-            const { userId, ...restOfWorkflow } = workflow
-            return restOfWorkflow
+        const graphsWithoutUserId = graphs.map((graph: Graph) => {
+            const { userId, ...restOfGraph } = graph
+            return restOfGraph
         })
 
-        return workflowsWithoutUserId
+        return graphsWithoutUserId
     }
 
     // ################################## Uploads

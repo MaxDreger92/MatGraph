@@ -345,8 +345,8 @@ export const convertToJSONFormat = (
     return JSON.stringify(finalStructure, null, 2)
 }
 
-export const convertFromJsonFormat = (workflow: string, uploadMode: boolean) => {
-    const data: GraphData = JSON.parse(workflow)
+export const convertFromJsonFormat = (graph: string, uploadMode: boolean) => {
+    const data: GraphData = JSON.parse(graph)
     const nodes: TNode[] = []
     const relationships: TRelationship[] = []
 

@@ -46,7 +46,7 @@ interface CanvasProps {
         rebuildIndexDictionary: () => void
         updateIndexDictionary: (node: TNode) => void
     }
-    saveWorkflow: () => void
+    saveGraph: () => void
     historyFn: {
         updateHistory: () => void
         updateHistoryWithCaution: () => void
@@ -63,7 +63,7 @@ interface CanvasProps {
 }
 
 export default function Canvas(props: CanvasProps) {
-    const { saveWorkflow, needLayout, setNeedLayout, style, canvasRect } = props
+    const { saveGraph, needLayout, setNeedLayout, style, canvasRect } = props
 
     const {
         nodes,
@@ -1028,8 +1028,8 @@ export default function Canvas(props: CanvasProps) {
                 updateHistory()
                 handleLayoutNodes()
                 break
-            case 'saveWorkflow':
-                saveWorkflow()
+            case 'saveGraph':
+                saveGraph()
                 break
         }
     }

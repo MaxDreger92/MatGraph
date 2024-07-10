@@ -1,4 +1,4 @@
-export type Workflow = {
+export type Graph = {
     _id: string
     data: string
     timestamp: Date
@@ -13,7 +13,7 @@ export type Upload = {
     csvTable: string // TableRow[]
     labelDict?: string // IDictionary
     attributeDict?: string // IDictionary
-    workflow?: string
+    graph?: string
     timestamp: Date
     processing: boolean
 }

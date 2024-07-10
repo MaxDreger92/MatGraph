@@ -1,6 +1,6 @@
 import client from '../client'
 import toast from 'react-hot-toast'
-import { UploadListItem, Workflow, Upload, Dictionary } from '../types/workspace.types'
+import { UploadListItem, Graph, Upload, Dictionary } from '../types/workspace.types'
 
 // ################################## Uploads
 // ##################################
@@ -86,12 +86,12 @@ export const deleteUpload = async (
     }
 }
 
-// ################################## Workflows
+// ################################## Graphs
 // ##################################
 // ##################################
-export const saveWorkflow = async (workflow: string): Promise<void> => {
+export const saveGraph = async (graph: string): Promise<void> => {
     try {
-        const response = await client.saveWorkflow(workflow)
+        const response = await client.saveGraph(graph)
 
         if (response) {
             toast.success(response.data.message)
@@ -101,9 +101,9 @@ export const saveWorkflow = async (workflow: string): Promise<void> => {
     }
 }
 
-export const deleteWorkflow = async (workflowId: string): Promise<void> => {
+export const deleteGraph = async (graphId: string): Promise<void> => {
     try {
-        const response = await client.deleteWorkflow(workflowId)
+        const response = await client.deleteGraph(graphId)
 
         if (response) {
             toast.success(response.data.message)
@@ -113,16 +113,16 @@ export const deleteWorkflow = async (workflowId: string): Promise<void> => {
     }
 }
 
-export const fetchWorkflows = async (): Promise<Workflow[] | void> => {
+export const fetchGraphs = async (): Promise<Graph[] | void> => {
     try {
-        const response = await client.getWorkflows()
+        const response = await client.getGraphs()
 
-        if (!response || !response.data.workflows || !response.data.message) {
-            toast.error('Error while retrieving workflows!')
+        if (!response || !response.data.graphs || !response.data.message) {
+            toast.error('Error while retrieving graphs!')
             return
         }
 
-        return response.data.workflows as Workflow[]
+        return response.data.graphs as Graph[]
     } catch (err: any) {
         toast.error(err.message)
     }
@@ -219,10 +219,10 @@ export const requestExtractGraph = async (
     uploadId: string,
     context: string,
     fileId: string,
-    workflow: string
+    graph: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestExtractGraph(uploadId, context, fileId, workflow)
+        const response = await client.requestExtractGraph(uploadId, context, fileId, graph)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
             return
@@ -237,12 +237,11 @@ export const requestExtractGraph = async (
 export const requestImportGraph = async (
     uploadId: string,
     context: string,
-    fileLink: string,
-    fileName: string,
-    workflow: string
+    fileId: string,
+    graph: string
 ): Promise<boolean | void> => {
     try {
-        const response = await client.requestImportGraph(uploadId, context, fileLink, fileName, workflow)
+        const response = await client.requestImportGraph(uploadId, context, fileId, graph)
         if (!response || !response.data.processing) {
             toast.error('Process could not be started')
             return

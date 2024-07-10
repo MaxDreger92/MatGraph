@@ -56,7 +56,7 @@ export type IDRelationship = {
 }
 
 export type TCanvasButton = {
-    type: 'undo' | 'redo' | 'reset' | 'layout' | 'saveWorkflow'
+    type: 'undo' | 'redo' | 'reset' | 'layout' | 'saveGraph'
 }
 
 export type NodeAttribute = {

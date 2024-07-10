@@ -1,14 +1,14 @@
 import { ObjectId } from 'mongodb'
-import { Workflow, Upload } from '../types/workspace.types'
+import { Graph, Upload } from '../types/workspace.types'
 import { connectToDatabase } from '../mongodb';
 
-const workflowCollection = 'workflows'
+const graphCollection = 'graphs'
 const uploadCollection = 'uploads'
 
 class WorkspaceRepository {
-    static getWorkflowCollection = async () => {
+    static getGraphCollection = async () => {
         const db = await connectToDatabase();
-        return db.collection<Workflow>(workflowCollection);
+        return db.collection<Graph>(graphCollection);
     }
 
     static getUploadCollection = async () => {
@@ -16,30 +16,30 @@ class WorkspaceRepository {
         return db.collection<Upload>(uploadCollection);
     }
 
-    // ################################## Workflows
+    // ################################## Graphs
     // ##################################
     // ##################################
-    static saveWorkflow = async (userId: string, workflow: string): Promise<ObjectId> => {
-        const collection = await this.getWorkflowCollection();
-        const newWorkflow: Workflow = {
+    static saveGraph = async (userId: string, graph: string): Promise<ObjectId> => {
+        const collection = await this.getGraphCollection();
+        const newGraph: Graph = {
             userId: new ObjectId(userId),
-            workflow: workflow,
+            graph: graph,
             timestamp: new Date(),
         };
 
-        const result = await collection.insertOne(newWorkflow);
+        const result = await collection.insertOne(newGraph);
         return result.insertedId;
     }
 
-    static deleteWorkflow = async (workflowId: string): Promise<boolean> => {
-        const collection = await this.getWorkflowCollection();
-        const result = await collection.deleteOne({ _id: new ObjectId(workflowId) });
+    static deleteGraph = async (graphId: string): Promise<boolean> => {
+        const collection = await this.getGraphCollection();
+        const result = await collection.deleteOne({ _id: new ObjectId(graphId) });
 
         return result.deletedCount > 0;
     }
 
-    static getWorkflowsByUserID = async (userId: string): Promise<Workflow[]> => {
-        const collection = await this.getWorkflowCollection();
+    static getGraphsByUserID = async (userId: string): Promise<Graph[]> => {
+        const collection = await this.getGraphCollection();
         return await collection.find({ userId: new ObjectId(userId) }).toArray();
     }
 

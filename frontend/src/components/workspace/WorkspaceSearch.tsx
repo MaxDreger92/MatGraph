@@ -7,12 +7,12 @@ import { Button, Checkbox, Flex, Select } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
 interface WorkspaceSearchProps {
-    workflow: string | null
+    graph: string | null
     darkTheme: boolean
 }
 
 export default function WorkspaceSearch(props: WorkspaceSearchProps) {
-    const { workflow, darkTheme } = props
+    const { graph, darkTheme } = props
     const [advancedHovered, setAdvancedHovered] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
 
@@ -26,14 +26,14 @@ export default function WorkspaceSearch(props: WorkspaceSearchProps) {
     })
 
     const handleSubmit = (formValues: SearchFormValues) => {
-        workflowSearch(formValues)
+        graphSearch(formValues)
     }
 
-    async function workflowSearch(params: SearchFormValues) {
+    async function graphSearch(params: SearchFormValues) {
         try {
-            const response = await client.workflowSearch(workflow)
+            const response = await client.graphSearch(graph)
             if (response) {
-                saveBlobAsFile(response.data, 'workflows.csv')
+                saveBlobAsFile(response.data, 'graphs.csv')
             }
         } catch (err: any) {
             toast.error(err.message)

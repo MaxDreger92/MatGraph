@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
 
-export type Workflow = {
+export type Graph = {
     _id?: ObjectId
     userId?: ObjectId
-    workflow: string
+    graph: string
     timestamp: Date
 }
 
@@ -16,7 +16,7 @@ export type Upload = {
     csvTable?: string // TableRow[]
     labelDict?: string // IDictionary
     attributeDict?: string // IDictionary
-    workflow?: string
+    graph?: string
     timestamp: Date
     processing: boolean
 }

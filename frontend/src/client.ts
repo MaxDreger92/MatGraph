@@ -473,10 +473,10 @@ class Client {
         }
     }
 
-    // ################################## Workflows
+    // ################################## Graphs
     // ##################################
     // ##################################
-    async saveWorkflow(workflow: string) {
+    async saveGraph(graph: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -484,9 +484,9 @@ class Client {
             }
 
             const response = await this.userClient.post(
-                'users/workflows',
+                'users/graphs',
                 {
-                    workflow,
+                    graph: graph,
                 },
                 {
                     headers: {
@@ -501,18 +501,18 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while saving workflow!')
+            throw new Error('Unexpected error while saving graph!')
         }
     }
 
-    async deleteWorkflow(workflowId: string) {
+    async deleteGraph(graphId: string) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.delete(`users/workflows/${workflowId}`, {
+            const response = await this.userClient.delete(`users/graphs/${graphId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -524,18 +524,18 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while deleting workflow!')
+            throw new Error('Unexpected error while deleting graph!')
         }
     }
 
-    async getWorkflows() {
+    async getGraphs() {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.get(`users/workflows`, {
+            const response = await this.userClient.get(`users/graphs`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -547,14 +547,14 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while retrieving workflows!')
+            throw new Error('Unexpected error while retrieving graphs!')
         }
     }
 
     // ################################## Django API
     // ##################################
     // ##################################
-    async workflowSearch(workflow: string | null) {
+    async graphSearch(graph: string | null) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -563,7 +563,7 @@ class Client {
 
             const response = await this.dataClient.get('match/fabrication-workflow', {
                 params: {
-                    workflow,
+                    graph: graph,
                 },
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -576,7 +576,7 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error in workflow query.')
+            throw new Error('Unexpected error while matching graph to workflows!')
         }
     }
 
@@ -700,7 +700,7 @@ class Client {
     }
 
     // (node_json, context, file_link, file_name) => graph_json
-    async requestExtractGraph(uploadId: string, context: string, fileId: string, workflow: string) {
+    async requestExtractGraph(uploadId: string, context: string, fileId: string, graph: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -712,7 +712,7 @@ class Client {
                     uploadId: uploadId,
                     context: context,
                     fileId: fileId,
-                    workflow: workflow,
+                    graph: graph,
                 },
             }, {
                 headers: {
@@ -734,9 +734,8 @@ class Client {
     async requestImportGraph(
         uploadId: string,
         context: string,
-        fileLink: string,
-        fileName: string,
-        graphJson: string
+        fileId: string,
+        graph: string
     ) {
         try {
             const token = getCookie('token')
@@ -748,9 +747,8 @@ class Client {
                 params: {
                     uploadId: uploadId,
                     context: context,
-                    file_link: fileLink,
-                    file_name: fileName, 
-                    graph_json: graphJson
+                    fileId: fileId,
+                    graph: graph
                 },
             }, {
                 headers: {

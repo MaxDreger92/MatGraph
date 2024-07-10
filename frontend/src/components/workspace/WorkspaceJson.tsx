@@ -6,13 +6,13 @@ import { saveBlobAsFile } from "../../common/workspaceHelpers"
 import toast from "react-hot-toast"
 
 interface WorkspaceJsonProps {
-  workflow: string | null
+  graph: string | null
   darkTheme: boolean
 }
 
 export default function WorkspaceJson(props: WorkspaceJsonProps) {
   const {
-    workflow,
+    graph,
     darkTheme,
   } = props
 
@@ -31,7 +31,7 @@ export default function WorkspaceJson(props: WorkspaceJsonProps) {
       >
         <textarea
           readOnly
-          value={workflow ? workflow : "asd"}
+          value={graph ? graph : ""}
           style={{
             position:"relative",
             top: 0,

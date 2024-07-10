@@ -1,14 +1,14 @@
 import { SetStateAction, useContext, useEffect, useState } from 'react'
-import { Upload, Workflow, UploadListItem } from '../../types/workspace.types'
+import { Upload, Graph, UploadListItem } from '../../types/workspace.types'
 import { TRelationship, TNode } from '../../types/canvas.types'
 import { convertFromJsonFormat } from '../../common/workspaceHelpers'
 import { RiDeleteBin2Line } from 'react-icons/ri'
 import { UserContext } from '../../context/UserContext'
 import {
     deleteUpload,
-    deleteWorkflow,
+    deleteGraph,
     fetchUploads,
-    fetchWorkflows,
+    fetchGraphs,
 } from '../../common/clientHelpers'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
@@ -16,6 +16,7 @@ import client from '../../client'
 
 interface WorkspaceHistoryProps {
     uploadMode: boolean
+    graph: string | null
     setNodes: React.Dispatch<SetStateAction<TNode[]>>
     setRelationships: React.Dispatch<SetStateAction<TRelationship[]>>
     setNeedLayout: React.Dispatch<React.SetStateAction<boolean>>
@@ -26,16 +27,16 @@ interface WorkspaceHistoryProps {
 }
 
 export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
-    const { uploadMode, setNodes, setRelationships, setNeedLayout, upload, setUpload, uploadProcessing, darkTheme } =
+    const { uploadMode, graph, setNodes, setRelationships, setNeedLayout, upload, setUpload, uploadProcessing, darkTheme } =
         props
 
     const user = useContext(UserContext)
     const [hovered, setHovered] = useState<number | undefined>()
     const [trashHovered, setTrashHovered] = useState(false)
 
-    const [workflows, setWorkflows] = useState<Workflow[] | undefined>([])
+    const [graphs, setGraphs] = useState<Graph[] | undefined>([])
     const [uploads, setUploads] = useState<Upload[] | undefined>([])
-    const [historyItems, setHistoryItems] = useState<Workflow[] | Upload[]>([])
+    const [historyItems, setHistoryItems] = useState<Graph[] | Upload[]>([])
 
     // ###################################################################### Set Current History List
     useEffect(() => {
@@ -43,27 +44,27 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         if (uploadMode && uploads) {
             console.log('uploadLength: ', uploads.length)
             setHistoryItems(uploads)
-        } else if (workflows) {
-            setHistoryItems(workflows)
+        } else if (graphs) {
+            setHistoryItems(graphs)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [uploads, workflows, uploadMode])
+    }, [uploads, graphs, uploadMode])
 
     // ###################################################################### Fetch History Items
-    const {
-        data: uploadListData,
-        error: uploadListError,
-        isLoading: uploadListLoading,
-    } = useQuery('uploadList', () => client.getUploads(), {
-        enabled: uploadProcessing,
-        refetchInterval: 2000,
-        onSuccess: (data) => {
-            // console.log('history polling')
-            // if (data.uploadList) {
-            //     setUploads(data.uploadList)
-            // }
-        },
-    })
+    // const {
+    //     data: uploadListData,
+    //     error: uploadListError,
+    //     isLoading: uploadListLoading,
+    // } = useQuery('uploadList', () => client.getUploads(), {
+    //     enabled: uploadProcessing,
+    //     refetchInterval: 2000,
+    //     onSuccess: (data) => {
+    //         // console.log('history polling')
+    //         // if (data.uploadList) {
+    //         //     setUploads(data.uploadList)
+    //         // }
+    //     },
+    // })
 
     useEffect(() => {
         if (!user || !uploadMode) return
@@ -82,26 +83,26 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
     useEffect(() => {
         if (!user || uploadMode) return
 
-        handleFetchWorkflows()
-    }, [user, uploadMode])
+        handleFetchGraphs()
+    }, [user, uploadMode, graph])
 
-    const handleFetchWorkflows = async () => {
-        const workflows = await fetchWorkflows()
-        if (!workflows) {
+    const handleFetchGraphs = async () => {
+        const graphs = await fetchGraphs()
+        if (!graphs) {
             return
         }
-        setWorkflows(workflows)
+        setGraphs(graphs)
     }
 
     // ###################################################################### Delete Items
     const handleDeleteItem = async (e: React.MouseEvent, index: number) => {
         if (!uploadMode) {
-            if (!workflows) return
+            if (!graphs) return
 
             try {
-                await deleteWorkflow(workflows[index]._id)
+                await deleteGraph(graphs[index]._id)
     
-                handleFetchWorkflows()
+                handleFetchGraphs()
             } catch (err: any) {
                 // toast.error(err.message) // Do some error handling
             }
@@ -121,10 +122,10 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
     // ###################################################################### Select Item
     const handleSelectItem = (id: string) => {
         if (!uploadMode) {
-            if (!workflows) return
-            const selectedWorkflow = workflows.find(workflow => workflow._id === id)
-            if (!selectedWorkflow) return
-            setNodesAndRelationships(selectedWorkflow.data)
+            if (!graphs) return
+            const selectedGraph = graphs.find(graph => graph._id === id)
+            if (!selectedGraph) return
+            setNodesAndRelationships(selectedGraph.data)
         } else {
             if (!uploads) return
             const selectedUpload = uploads.find(upload => upload._id === id)
@@ -134,8 +135,8 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         }
     }
 
-    const setNodesAndRelationships = (workflow: string) => {
-        const { nodes, relationships } = convertFromJsonFormat(workflow, false)
+    const setNodesAndRelationships = (graph: string) => {
+        const { nodes, relationships } = convertFromJsonFormat(graph, false)
         setNodes(nodes)
         setRelationships(relationships)
         setNeedLayout(true)

@@ -357,6 +357,6 @@ const BUTTON_TYPES: { type: TCanvasButton["type"]; icon: JSX.Element; tooltip: s
   { type: "reset", icon: <ResetIcon2 className="canvas-btn-icon" />, tooltip: "Reset Canvas" },
   { type: "redo", icon: <RedoIcon className="canvas-btn-icon" />, tooltip: "Redo" },
   { type: "layout", icon: <GraphIcon2 className="canvas-btn-icon"/>, tooltip: "Layout Nodes" },
-  { type: "saveWorkflow", icon: <VscSave className="canvas-btn-icon" style={{width:25, height:25}} />, tooltip: "Save Workflow" },
+  { type: "saveGraph", icon: <VscSave className="canvas-btn-icon" style={{width:25, height:25}} />, tooltip: "Save Graph" },
 ];
 
