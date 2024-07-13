@@ -1,0 +1,6 @@
+{
+  "robotIP": "192.168.1.10",
+  "headers": {
+    "opentrons-version": "3"
+  }
+}

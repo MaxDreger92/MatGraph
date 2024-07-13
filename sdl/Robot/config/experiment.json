@@ -1,0 +1,49 @@
+{
+  "runNumber": "001",
+  "wells": {
+    "autodialCell": "B1",
+    "vialRack": "A1"
+  },
+  "PEIS": {
+    "vs_initial": -0.1,
+    "initial_voltage_step": 0.01,
+    "duration_step": 1,
+    "record_every_dT": 0.1,
+    "record_every_dI": 0.01,
+    "final_frequency": 1,
+    "initial_frequency": 100000,
+    "amplitude_voltage": 0.02,
+    "frequency_number": 50,
+    "average_n_times": 4,
+    "correction": false,
+    "wait_for_steady": 0.1
+  },
+  "OCV": {
+    "rest_time_T": 30,
+    "record_every_dT": 0.1,
+    "record_every_dE": 0.01
+  },
+  "CA": {
+    "voltage": 0.6,
+    "duration": 60,
+    "vs_initial": 0,
+    "record_every_dT": 0.1,
+    "record_every_dI": 0.01,
+    "n_cycles": 3
+  },
+  "CPP": {
+    "record_every_dEr": 0.001,
+    "rest_time_T": 300,
+    "record_every_dTr": 1,
+    "vs_initial_scan": [0.1, 0.2, 0.3],
+    "voltage_scan": [0.1, 0.2, 0.3],
+    "scan_rate": [0.01, 0.02, 0.03],
+    "I_pitting": 1e-6,
+    "t_b": 0.5,
+    "record_every_dE": 0.01,
+    "average_over_dE": 0.001,
+    "begin_measuring_I": 0.01,
+    "end_measuring_I": 0.1,
+    "record_every_dT": 0.1
+  }
+}

@@ -6,9 +6,11 @@ from django.shortcuts import render
 
 @csrf_exempt  # This decorator allows for POST requests from all origins, not recommended in production environment.
 def workflow_matcher_view(request):
+    print("miau")
     return render(request, 'index.html')
 
 def workflow_matcher(request):
+    print("miau")
 
     if request.method == 'GET':
         # Retrieve the 'jsonData' from the GET query parameters instead of request body

@@ -131,7 +131,7 @@ class FabricationWorkflowMatcher(Matcher):
             str: The Cypher query for the node.
         """
         node_id, label = node['id'], node['label']
-        return f"(onto_{node_id}: {ONTOMAPPER[label]} {{uid: '{node['uid']}'}})"
+        return f"(onto_{node_id}: {ONTOMAPPER[label]} {{uid: '{node['uid']}'}})" if label != 'metadata' else ""
 
     def build_tree_query(self, node_id, label):
         """
@@ -149,7 +149,7 @@ class FabricationWorkflowMatcher(Matcher):
         OPTIONAL MATCH (onto_{node_id})<-[:EMMO__IS_A*..]-(tree_onto_{node_id}:{ONTOMAPPER[label]})
         RETURN collect(DISTINCT tree_onto_{node_id}) + collect(DISTINCT onto_{node_id}) AS combined_{node_id}
         }}
-        """
+        """ if label != 'metadata' else ""
 
     def build_find_nodes_query(self, node_id, label, attributes):
         """
@@ -249,20 +249,24 @@ class FabricationWorkflowMatcher(Matcher):
         path_condition = " AND ".join(path_conditions)
         unwind_statements = [f"UNWIND range(0, size({uid_path})-1) AS idx{i}" for i, uid_path in enumerate(uid_paths)]
 
-        path_connector = f"""CALL {{
-            WITH {', '.join(uid_paths)}
-            {' '.join(unwind_statements)}
-            WITH *
-            WHERE {path_condition}
-            RETURN collect(DISTINCT [{', '.join(idx_list)}]) AS idxs
-        }}
+        def build_path_connector(uid_paths, unwind_statements, path_condition, idx_list):
+            base_query = f"""CALL {{
+                WITH {', '.join(uid_paths)}
+                {' '.join(unwind_statements)}
+                WITH *
+            """
+            if path_condition:
+                base_query += f"""
+                WHERE {path_condition}
+                """
+            base_query += f"""
+                RETURN collect(DISTINCT [{', '.join(idx_list)}]) AS idxs
+            }}
+            """
+            return base_query
 
-        CALL {{
-            WITH idxs, {', '.join(paths)}
-            UNWIND idxs AS idx
-            RETURN apoc.coll.toSet(apoc.coll.flatten([{', '.join(return_statements)}])) AS pathNodes
-        }}
-        """
+
+        path_connector = build_path_connector(uid_paths, unwind_statements, path_condition, idx_list)
         return path_connector
 
     def build_path_queries_and_conditions(self):
