@@ -5,11 +5,16 @@ import { UploadListItem, Graph, Upload, Dictionary } from '../types/workspace.ty
 // ################################## Uploads
 // ##################################
 // ##################################
-export const fetchUpload = async (uploadId: string): Promise<Upload | void> => {
+export const fetchUpload = async (uploadId: string, setUpload?: any): Promise<Upload | void> => {
     try {
         const data = await client.getUpload(uploadId)
         if (!data || !data.upload) {
             toast.error('Error while retrieving upload process!')
+            return
+        }
+
+        if (setUpload) {
+            setUpload(data.upload)
             return
         }
 
@@ -75,7 +80,6 @@ export const deleteUpload = async (
         const response = await client.deleteUpload(uploadId)
 
         if (!response || !response.data.deleteSuccess) {
-            console.log(response.data.deleteSuccess)
             toast.error('Upload process could not be deleted')
             return
         }
@@ -92,6 +96,18 @@ export const deleteUpload = async (
 export const saveGraph = async (graph: string): Promise<void> => {
     try {
         const response = await client.saveGraph(graph)
+
+        if (response) {
+            toast.success(response.data.message)
+        }
+    } catch (err: any) {
+        toast.error(err.message)
+    }
+}
+
+export const updateGraph = async (graphId: string, updates: Partial<Graph>): Promise<void> => {
+    try {
+        const response = await client.updateGraph(graphId, updates)
 
         if (response) {
             toast.success(response.data.message)
@@ -250,5 +266,20 @@ export const requestImportGraph = async (
         return response.data.processing as boolean
     } catch (err: any) {
         toast.error(err.message)
+    }
+}
+
+export const cancelTask = async (
+    uploadId: string,
+): Promise<boolean | void> => {
+    try {
+        const response = await client.cancelTask(uploadId)
+        if (!response || !response.data.cancelled) {
+            toast.error('Task could not be cancelled! \n Upload process might be corrupted')
+        } else {
+            toast.success('Task successfully cancelled!')
+        }
+    } catch (err: any) {
+        toast.error('Task could not be cancelled! \n Upload process might be corrupted')
     }
 }

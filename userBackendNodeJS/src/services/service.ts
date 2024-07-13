@@ -74,8 +74,12 @@ class UserService {
         return WorkspaceRepository.saveGraph(userId, graph)
     }
 
-    static deleteGraph = (graphId: string): Promise<boolean> => {
-        return WorkspaceRepository.deleteGraph(graphId)
+    static updateGraph = (userId: string, graphId: string, updates: Partial<Graph>) => {
+        return WorkspaceRepository.updateGraph(userId, graphId, updates)
+    }
+
+    static deleteGraph = (userId: string, graphId: string): Promise<boolean> => {
+        return WorkspaceRepository.deleteGraph(userId, graphId)
     }
 
     static getGraphsByUserID = async (userId: string): Promise<Graph[]> => {
@@ -103,7 +107,7 @@ class UserService {
         return uploadList
     }
 
-    static getUploadByID = async (userId: string, uploadId: string): Promise<Upload | null> => {
+    static getUploadByID = async (userId: string, uploadId: string): Promise<Partial<Upload | null>> => {
         const upload = await WorkspaceRepository.getUploadByID(userId, uploadId)
         if (!upload) {
             return null
@@ -113,8 +117,8 @@ class UserService {
         return restOfUpload
     }
 
-    static createUpload = (userId: string, csvTable: string, fileId: string): Promise<Upload> => {
-        return WorkspaceRepository.createUpload(userId, csvTable, fileId)
+    static createUpload = (userId: string, csvTable: string, fileId: string, fileName: string): Promise<Upload> => {
+        return WorkspaceRepository.createUpload(userId, csvTable, fileId, fileName)
     }
 
     static updateUploadFields = (

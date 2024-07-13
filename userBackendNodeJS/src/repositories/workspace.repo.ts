@@ -31,9 +31,22 @@ class WorkspaceRepository {
         return result.insertedId;
     }
 
-    static deleteGraph = async (graphId: string): Promise<boolean> => {
+    static updateGraph = async (
+        userId: string,
+        graphId: string,
+        updates: Partial<Graph>
+    ): Promise<boolean> => {
+        const collection = await this.getGraphCollection()
+        const result = await collection.updateOne(
+            { _id: new ObjectId(graphId), userId: new ObjectId(userId) },
+            { $set: {...updates, timestamp: new Date()} }
+        )
+        return result.modifiedCount > 0
+    }
+
+    static deleteGraph = async (userId: string, graphId: string): Promise<boolean> => {
         const collection = await this.getGraphCollection();
-        const result = await collection.deleteOne({ _id: new ObjectId(graphId) });
+        const result = await collection.deleteOne({ _id: new ObjectId(graphId), userId: new ObjectId(userId) });
 
         return result.deletedCount > 0;
     }
@@ -59,13 +72,14 @@ class WorkspaceRepository {
         });
     }
 
-    static createUpload = async (userId: string, csvTable: string, fileId: string): Promise<Upload> => {
+    static createUpload = async (userId: string, csvTable: string, fileId: string, fileName="no_name.csv"): Promise<Upload> => {
         const collection = await this.getUploadCollection();
         const newUpload: Upload = {
             userId: new ObjectId(userId),
             progress: 1,
             csvTable: csvTable,
             fileId: fileId,
+            fileName: fileName,
             timestamp: new Date(),
             processing: false,
         };

@@ -586,10 +586,6 @@ router.post(
 
             const { graph } = req.body
 
-            if (graph) {
-                console.log('graph is da')
-            }
-
             const saveSuccess = await UserService.saveGraph(userId, graph)
             if (!saveSuccess) {
                 return res.status(400).json({
@@ -599,6 +595,44 @@ router.post(
 
             return res.status(201).json({
                 message: 'Graph saved successfully!',
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
+                return res.status(err.response.status).json({
+                    message: err.message,
+                })
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.patch(
+    '/api/users/graphs/:graphId',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { graphId } = req.params
+            const updates = req.body
+
+            const updateSuccess = await UserService.updateGraph(userId, graphId, updates)
+            if (!updateSuccess) {
+                return res.status(400).json({
+                    message: 'Graph could not be updated!',
+                })
+            }
+
+            return res.status(200).json({
+                updateSuccess: true,
+                message: 'Graph updated successfully!',
             })
         } catch (err: any) {
             if (err.response) {
@@ -626,7 +660,7 @@ router.delete(
 
             const { graphId } = req.params
 
-            const deleteSuccess = await UserService.deleteGraph(graphId)
+            const deleteSuccess = await UserService.deleteGraph(userId, graphId)
             if (!deleteSuccess) {
                 return res.status(400).json({
                     message: 'Graph could not be deleted!',
@@ -730,10 +764,6 @@ router.get(
 
             const upload = await UserService.getUploadByID(userId, uploadId)
 
-            if (upload) {
-                console.log(upload.processing)
-            }
-
             return res.status(200).json({
                 message: 'Upload retrieved successfully!',
                 upload: upload,
@@ -759,9 +789,9 @@ router.post(
                 })
             }
 
-            const { csvTable, fileId } = req.body
+            const { csvTable, fileId, fileName } = req.body
 
-            const upload = await UserService.createUpload(userId, csvTable, fileId)
+            const upload = await UserService.createUpload(userId, csvTable, fileId, fileName)
             if (!upload) {
                 return res.status(400).json({
                     message: 'Upload process could not be saved!',

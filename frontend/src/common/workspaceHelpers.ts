@@ -5,7 +5,7 @@ import {
     NodeAttribute,
     NodeValOpAttribute,
 } from '../types/canvas.types'
-import { GraphData, ParsableAttribute, Label, TableRow, Dictionary } from '../types/workspace.types'
+import { GraphData, ParsableAttribute, Label, TableRow, Dictionary, Upload } from '../types/workspace.types'
 import { v4 as uuidv4 } from 'uuid'
 import { tryNumeric, splitStrBySemicolon, ensureArray } from './helpers'
 import Papa from 'papaparse'
@@ -422,34 +422,47 @@ export const getNumericAttributeIndices = (attribute: NodeAttribute | NodeValOpA
     return indices
 }
 
+export const buildRevertUpdates = (newProgress: number, graph: string): Partial<Upload> => {
+    let updates: Partial<Upload> = {
+        'progress': newProgress
+    }
+    if (newProgress < 5) {
+        const {nodes, relationships} = convertFromJsonFormat(graph, true)
+        const nodesJson = convertToJSONFormat(nodes, [], true)
+        updates['graph'] = nodesJson
+    }
+    if (newProgress < 4) {
+        updates['graph'] = null
+    }
+    if (newProgress < 3) {
+        updates['attributeDict'] = null
+    }
+    if (newProgress < 2) {
+        updates['labelDict'] = null
+    }
+    if (newProgress < 1) {
+        updates['context'] = null
+    }
+    
+    return updates
+}
+
 export const splitDict = (dict: Dictionary, rows: number): [Dictionary, Dictionary] => {
     const dict1: Dictionary = {};
     const dict2: Dictionary = {};
 
     Object.entries(dict).forEach(([header, properties]) => {
-        dict1[header] = {};
-        dict2[header] = {};
-
-        const propertyEntries = Object.entries(properties);
-        const firstPart = propertyEntries.slice(0, rows);
-        const secondPart = propertyEntries.slice(rows);
-
-        firstPart.forEach(([key, value]) => {
-            dict1[header][key] = value;
-        });
-
-        secondPart.forEach(([key, value]) => {
-            dict2[header][key] = value;
-        });
+        dict1[header] = properties.slice(0, rows);
+        dict2[header] = properties.slice(rows);
     });
 
     Object.keys(dict1).forEach(header => {
-        if (Object.keys(dict1[header]).length === 0) {
+        if (dict1[header].length === 0) {
             delete dict1[header];
         }
     });
     Object.keys(dict2).forEach(header => {
-        if (Object.keys(dict2[header]).length === 0) {
+        if (dict2[header].length === 0) {
             delete dict2[header];
         }
     });
@@ -460,22 +473,13 @@ export const splitDict = (dict: Dictionary, rows: number): [Dictionary, Dictiona
 export const joinDict = (dict1: Dictionary, dict2: Dictionary): Dictionary => {
     const combinedDict: Dictionary = {};
 
-    const allHeaders = new Set([...Object.keys(dict1), ...Object.keys(dict2)]);
-
-    allHeaders.forEach(header => {
-        combinedDict[header] = {};
-
-        if (dict1[header]) {
-            Object.assign(combinedDict[header], dict1[header]);
-        }
-
-        if (dict2[header]) {
-            Object.assign(combinedDict[header], dict2[header]);
-        }
+    Object.keys(dict1).forEach(header => {
+        combinedDict[header] = [...dict1[header], ...dict2[header]];
     });
 
     return combinedDict;
 }
+
 
 export const dictToArray = (dict: Dictionary): TableRow[] => {
     const combinedRows: { [property: string]: TableRow } = {}
@@ -493,35 +497,27 @@ export const dictToArray = (dict: Dictionary): TableRow[] => {
 }
 
 export const arrayToDict = (tableRows: TableRow[]): Dictionary => {
-    const dict: Dictionary = {}
+    const dict: Dictionary = {};
 
-    const headers = Object.keys(tableRows[0])
+    if (tableRows.length === 0) {
+        return dict;
+    }
 
-    headers.forEach((header) => {
-        dict[header] = {}
-    })
+    const headers = Object.keys(tableRows[0]);
+
+    headers.forEach(header => {
+        dict[header] = new Array(tableRows.length).fill('');
+    });
 
     tableRows.forEach((row, rowIndex) => {
         Object.entries(row).forEach(([header, value]) => {
-            const stringValue = String(value)
+            const stringValue = String(value);
+            dict[header][rowIndex] = stringValue;
+        });
+    });
 
-            let key = 'Default_Key'
-
-            if (rowIndex === 0) {
-                key = 'Label'
-            } else if (rowIndex === 1) {
-                key = 'Attribute'
-            } else {
-                key = `Row${rowIndex + 1}`
-            }
-
-
-            dict[header][key] = stringValue
-        })
-    })
-
-    return dict
-}
+    return dict;
+};
 
 export const getAdditionalTables = (selectedNodes: TNode[]): number[][] => {
     const newAdditionalTables = selectedNodes.reduce<number[][]>((acc, node) => {

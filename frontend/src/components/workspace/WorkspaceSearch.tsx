@@ -8,11 +8,12 @@ import { useForm } from '@mantine/form'
 
 interface WorkspaceSearchProps {
     graph: string | null
+    jsonView: boolean
     darkTheme: boolean
 }
 
 export default function WorkspaceSearch(props: WorkspaceSearchProps) {
-    const { graph, darkTheme } = props
+    const { graph, jsonView, darkTheme } = props
     const [advancedHovered, setAdvancedHovered] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
 
@@ -52,6 +53,7 @@ export default function WorkspaceSearch(props: WorkspaceSearchProps) {
             style={{
                 paddingBottom: showAdvanced ? 10 : 0,
                 borderBottom: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
+                display: jsonView ? 'block' : 'none',
             }}
         >
             <Button

@@ -182,6 +182,13 @@ a:link {
     max-width: 100%;
 }
 
+.history-item-fadeout {
+    width: 264px;
+    display: inline-block;
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 85%);
+    mask-image: linear-gradient(to right, black 0%, black 80%, transparent 85%);
+}
+
 .input {
     border: none;
     font-family: Poppins-Medium;
@@ -249,6 +256,26 @@ a:link {
     width: 25vw;
     height: auto;
     transform: translate(5px, 0);
+}
+
+.logo-sm-spinner {
+    position: absolute;
+    width: 25px;
+    height: auto;
+    right: 4%;
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.logo-spin-anim {
+    animation: logo-spin 2s linear infinite;
 }
 
 .main {

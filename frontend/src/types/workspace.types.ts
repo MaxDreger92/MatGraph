@@ -1,6 +1,7 @@
 export type Graph = {
     _id: string
-    data: string
+    name?: string
+    graph: string
     timestamp: Date
 }
 
@@ -8,12 +9,13 @@ export type Upload = {
     _id: string
     name?: string
     progress: number
-    fileId?: string
-    context?: string
+    fileId: string
+    fileName: string
+    context?: string | null
     csvTable: string // TableRow[]
-    labelDict?: string // IDictionary
-    attributeDict?: string // IDictionary
-    graph?: string
+    labelDict?: string | null // IDictionary
+    attributeDict?: string | null // IDictionary
+    graph?: string | null
     timestamp: Date
     processing: boolean
 }
@@ -60,7 +62,7 @@ export type Attribute = {
 }
 
 export type Dictionary = {
-    [key: string]: { [key: string]: string }
+    [key: string]: any[]
 }
 
 export type TableRow = {

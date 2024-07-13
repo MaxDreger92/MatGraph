@@ -927,7 +927,7 @@ export default function Canvas(props: CanvasProps) {
         }
     }
 
-    const canvasZoom = _.throttle(
+    const canvasZoom = 
         useCallback(
             (delta: number, mousePos: Position) => {
                 setIsLayouting(true)
@@ -968,9 +968,7 @@ export default function Canvas(props: CanvasProps) {
                 }, 300)
             },
             [nodes, setNodes]
-        ),
-        1000
-    )
+        )
 
     useEffect(() => {
         const handleCanvasWheel = (e: WheelEvent) => {

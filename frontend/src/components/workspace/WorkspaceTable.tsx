@@ -170,14 +170,11 @@ export default function WorkspaceTable(props: WorkspaceTableProps) {
         row: number,
         columnId: string
     ): void => {
-        console.log('select: ', row, ', ', columnId, ', ', cellData)
         if (tableActive === 1 && row === 0) {
-            console.log('select: ', row, ', ', columnId, ', ', cellData)
             if (
                 typeof cellData === 'string' &&
                 labelOptions.some((option) => option.value === (cellData.toLowerCase() as Label))
             ) {
-                console.log('select: ', row, ', ', columnId, ', ', cellData)
                 setSelectData(labelOptions)
                 setSelected({ row: row, column: columnId })
             }

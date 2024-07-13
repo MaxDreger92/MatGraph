@@ -16,12 +16,9 @@ import _ from 'lodash'
 import { UserContext } from '../../context/UserContext'
 import WorkspaceDrawerHandle from './WorkspaceDrawerHandle'
 import WorkspaceSearch from './WorkspaceSearch'
-import {
-    fetchUploads,
-    fetchGraphs,
-    saveGraph,
-} from '../../common/clientHelpers'
+import { fetchUploads, fetchGraphs, saveGraph, fetchUpload } from '../../common/clientHelpers'
 import { Upload } from '../../types/workspace.types'
+import { getLocalStorageItem, setLocalStorageItem } from '../../common/localStorageHelpers'
 
 const UNDO_STEPS = 200
 
@@ -57,7 +54,7 @@ export default function Workspace(props: WorkspaceProps) {
     > = React.useRef()
 
     const [upload, setUpload] = useState<Upload>()
-    const [uploadProcessing, setUploadProcessing] = useState(false)
+    const [uploadProcessing, setUploadProcessing] = useState<Set<string>>(new Set())
 
     const [highlightedColumnIndex, setHighlightedColumnIndex] = useState<number | null>(null)
     const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null)
@@ -95,7 +92,6 @@ export default function Workspace(props: WorkspaceProps) {
         }
     }, [uploadMode])
 
-
     // GRAPH STUFF ########################################################
 
     // set current graph (and show in json viewer)
@@ -121,7 +117,7 @@ export default function Workspace(props: WorkspaceProps) {
 
         try {
             await saveGraph(graph)
-            
+
             setGraph(graph)
         } catch (err: any) {
             toast.error(err.message)
@@ -182,6 +178,7 @@ export default function Workspace(props: WorkspaceProps) {
                 break
             case 'table':
                 if (!tableView && tableViewHeight === 0) {
+                    setLocalStorageItem('uploadTableViewHeight', 400)
                     setTableViewHeight(400)
                 }
                 setTableView(!tableView)
@@ -193,7 +190,45 @@ export default function Workspace(props: WorkspaceProps) {
     }
 
     useEffect(() => {
-        if (!uploadMode) {
+        if (uploadMode) {
+            setLocalStorageItem('uploadJsonViewWidth', jsonViewWidth)
+            setLocalStorageItem('uploadJsonView', jsonView)
+        } else {
+            setLocalStorageItem('searchJsonViewWidth', jsonViewWidth)
+            setLocalStorageItem('searchJsonView', jsonView)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [jsonViewWidth, jsonView])
+    useEffect(() => {
+        if (uploadMode) {
+            setLocalStorageItem('uploadHistoryViewWidth', historyViewWidth)
+            setLocalStorageItem('uploadHistoryView', historyView)
+        } else {
+            setLocalStorageItem('searchHistoryViewWidth', historyViewWidth)
+            setLocalStorageItem('searchHistoryView', historyView)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [historyViewWidth, historyView])
+    useEffect(() => {
+        if (uploadMode) {
+            setLocalStorageItem('uploadTableView', tableView)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tableView])
+
+    useEffect(() => {
+        if (uploadMode) {
+            setJsonViewWidth(getLocalStorageItem('uploadJsonViewWidth') ?? 0)
+            setJsonView(getLocalStorageItem('uploadJsonView') ?? false)
+            setHistoryViewWidth(getLocalStorageItem('uploadHistoryViewWidth') ?? 0)
+            setHistoryView(getLocalStorageItem('uploadHistoryView') ?? false)
+            setTableViewHeight(getLocalStorageItem('uploadTableViewHeight') ?? 0)
+            setTableView(getLocalStorageItem('uploadTableView') ?? false)
+        } else {
+            setJsonViewWidth(getLocalStorageItem('searchJsonViewWidth') ?? 0)
+            setJsonView(getLocalStorageItem('searchJsonView') ?? false)
+            setHistoryViewWidth(getLocalStorageItem('searchHistoryViewWidth') ?? 0)
+            setHistoryView(getLocalStorageItem('searchHistoryView') ?? false)
             setTableViewHeight(0)
             setTableView(false)
         }
@@ -216,24 +251,16 @@ export default function Workspace(props: WorkspaceProps) {
 
     // Save and retrieve nodes and relationships to / from local storage
     useEffect(() => {
-        let savedNodes: any = null
-        let savedRelationships: any = null
+        setNodes([])
+        setRelationships([])
         if (uploadMode) {
-            localStorage.setItem('search-nodes', JSON.stringify(nodes))
-            localStorage.setItem('search-relationships', JSON.stringify(relationships))
-            savedNodes = localStorage.getItem('upload-nodes')
-            savedRelationships = localStorage.getItem('upload-relationships')
+            const uploadId = localStorage.getItem('uploadId')
+            if (!uploadId) return
+
+            fetchUpload(uploadId, setUpload)
         } else {
-            localStorage.setItem('upload-nodes', JSON.stringify(nodes))
-            localStorage.setItem('upload-relationships', JSON.stringify(relationships))
-            savedNodes = localStorage.getItem('search-nodes')
-            savedRelationships = localStorage.getItem('search-relationships')
+            // handle set search
         }
-        if (savedNodes) {
-            setNodes(JSON.parse(savedNodes))
-            if (savedRelationships) setRelationships(JSON.parse(savedRelationships))
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uploadMode])
 
     // Rebuilds entire Index Dictionary
@@ -428,20 +455,20 @@ export default function Workspace(props: WorkspaceProps) {
     }
 
     return (
-        
-            <div className="workspace" ref={workspaceWindowRef}>
-                <WorkspaceTableContext.Provider value={tableContextValue}>
-                    <div
-                        className="workspace-canvas"
-                        style={{
-                            overflow: 'hidden',
-                            position: 'absolute',
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            zIndex: 0,
-                        }}
-                        children={
+        <div className="workspace" ref={workspaceWindowRef}>
+            <WorkspaceTableContext.Provider value={tableContextValue}>
+                <div
+                    className="workspace-canvas"
+                    style={{
+                        overflow: 'hidden',
+                        position: 'absolute',
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 0,
+                    }}
+                    children={
+                        <>
                             <Canvas
                                 nodesFn={nodesFn}
                                 indexFn={indexFn}
@@ -456,130 +483,150 @@ export default function Workspace(props: WorkspaceProps) {
                                 }}
                                 canvasRect={canvasRect}
                             />
-                        }
-                    />
-                </WorkspaceTableContext.Provider>
-
-                <animated.div
-                    className="workspace-history"
-                    style={{
-                        height: springProps.canvasHeight,
-                        width: springProps.historyViewWidth,
-                        borderRight: historyView
-                            ? darkTheme
-                                ? '1px solid #333'
-                                : '1px solid #ced4da'
-                            : 'none',
-                        backgroundColor: darkTheme ? '#25262b' : '#fff',
-                        zIndex: 1,
-                    }}
-                    children={
-                        <WorkspaceHistory
-                            uploadMode={uploadMode}
-                            graph={graph}
-                            setNodes={setNodes}
-                            setRelationships={setRelationships}
-                            setNeedLayout={setNeedLayout}
-                            upload={upload}
-                            setUpload={setUpload}
-                            uploadProcessing={uploadProcessing}
-                            darkTheme={darkTheme}
-                        />
-                    }
-                />
-
-                <animated.div
-                    className="workspace-drawer-right"
-                    style={{
-                        height: springProps.canvasHeight,
-                        width: springProps.jsonViewWidth,
-                        borderLeft: jsonView
-                            ? darkTheme
-                                ? '1px solid #333'
-                                : '1px solid #ced4da'
-                            : 'none',
-                        backgroundColor: darkTheme ? '#25262b' : '#fff',
-                        zIndex: 1,
-                    }}
-                    children={
-                        <>
-                            {!uploadMode && (
-                                <WorkspaceSearch graph={graph} darkTheme={darkTheme} />
-                            )}
-                            <WorkspaceJson graph={graph} darkTheme={darkTheme} />
+                            <div
+                                className='hodenball'
+                                style={{
+                                    display: uploadProcessing.has(upload?._id ?? '') ? 'block' : 'none',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    // display: 'block',
+                                    width: '100%',
+                                    height: '100%',
+                                    backgroundColor: '#1a1b1e',
+                                    opacity: 0.5,
+                                }}
+                            ></div>
                         </>
                     }
                 />
+            </WorkspaceTableContext.Provider>
 
-                {uploadMode && (
-                    <animated.div
-                        className="workspace-drawer-bottom"
-                        style={{
-                            height: drawerHandleActiveRef.current
-                                ? tableViewHeight
-                                : springProps.tableViewHeight,
-                            width: '100%',
-                            borderTop: tableView
-                                ? darkTheme
-                                    ? '1px solid #333'
-                                    : '1px solid #ced4da'
-                                : 'none',
-                            backgroundColor: darkTheme ? '#25262b' : '#fff',
-                            zIndex: 1,
-                            overflow: 'visible',
-                        }}
-                        children={
-                            <div
-                                className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
-                                style={{
-                                    height: '100%',
-                                }}
-                            >
-                                <WorkspaceTableContext.Provider value={tableContextValue}>
-                                    <WorkspaceDrawer
-                                        tableView={tableView}
-                                        tableViewHeight={tableViewHeight}
-                                        progress={progress}
-                                        setProgress={setProgress}
-                                        setNodes={setNodes}
-                                        setRelationships={setRelationships}
-                                        setNeedLayout={setNeedLayout}
-                                        graph={graph}
-                                        upload={upload}
-                                        uploadProcessing={uploadProcessing}
-                                        setUploadProcessing={setUploadProcessing}
-                                        setUpload={setUpload}
-                                        selectedNodes={selectedNodes}
-                                        rebuildIndexDictionary={rebuildIndexDictionary}
-                                        darkTheme={darkTheme}
-                                    />
-                                </WorkspaceTableContext.Provider>
-                                {tableView && (
-                                    <WorkspaceDrawerHandle
-                                        handleActive={drawerHandleActiveRef}
-                                        tableViewHeight={tableViewHeight}
-                                        setTableViewHeight={setTableViewHeight}
-                                        setTableView={setTableView}
-                                    />
-                                )}
-                            </div>
-                        }
-                    />
-                )}
-                <div className="workspace-btn-wrap" style={{ zIndex: 1 }}>
-                    <WorkspaceButtons
+            <animated.div
+                className="workspace-history"
+                style={{
+                    height: springProps.canvasHeight,
+                    width: springProps.historyViewWidth,
+                    borderRight: historyView
+                        ? darkTheme
+                            ? '1px solid #333'
+                            : '1px solid #ced4da'
+                        : 'none',
+                    backgroundColor: darkTheme ? '#25262b' : '#fff',
+                    zIndex: 1,
+                }}
+                children={
+                    <WorkspaceHistory
                         uploadMode={uploadMode}
-                        jsonView={jsonView}
-                        jsonViewWidth={jsonViewWidth}
+                        graph={graph}
+                        setNodes={setNodes}
+                        setRelationships={setRelationships}
+                        setNeedLayout={setNeedLayout}
+                        upload={upload}
+                        setUpload={setUpload}
+                        uploadProcessing={uploadProcessing}
+                        setUploadProcessing={setUploadProcessing}
                         historyView={historyView}
-                        historyViewWidth={historyViewWidth}
-                        tableView={tableView}
-                        tableViewHeight={tableViewHeight}
-                        onSelect={handleSplitView}
                         darkTheme={darkTheme}
                     />
-                </div>
+                }
+            />
+
+            <animated.div
+                className="workspace-drawer-right"
+                style={{
+                    height: springProps.canvasHeight,
+                    width: springProps.jsonViewWidth,
+                    borderLeft: jsonView
+                        ? darkTheme
+                            ? '1px solid #333'
+                            : '1px solid #ced4da'
+                        : 'none',
+                    backgroundColor: darkTheme ? '#25262b' : '#fff',
+                    zIndex: 1,
+                }}
+                children={
+                    <>
+                        {!uploadMode && (
+                            <WorkspaceSearch
+                                graph={graph}
+                                jsonView={jsonView}
+                                darkTheme={darkTheme}
+                            />
+                        )}
+                        <WorkspaceJson graph={graph} jsonView={jsonView} darkTheme={darkTheme} />
+                    </>
+                }
+            />
+
+            {uploadMode && (
+                <animated.div
+                    className="workspace-drawer-bottom"
+                    style={{
+                        height: drawerHandleActiveRef.current
+                            ? tableViewHeight
+                            : springProps.tableViewHeight,
+                        width: '100%',
+                        borderTop: tableView
+                            ? darkTheme
+                                ? '1px solid #333'
+                                : '1px solid #ced4da'
+                            : 'none',
+                        backgroundColor: darkTheme ? '#25262b' : '#fff',
+                        zIndex: 1,
+                        overflow: 'visible',
+                    }}
+                    children={
+                        <div
+                            className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
+                            style={{
+                                height: '100%',
+                            }}
+                        >
+                            <WorkspaceTableContext.Provider value={tableContextValue}>
+                                <WorkspaceDrawer
+                                    tableView={tableView}
+                                    tableViewHeight={tableViewHeight}
+                                    progress={progress}
+                                    setProgress={setProgress}
+                                    setNodes={setNodes}
+                                    setRelationships={setRelationships}
+                                    setNeedLayout={setNeedLayout}
+                                    graph={graph}
+                                    upload={upload}
+                                    uploadProcessing={uploadProcessing}
+                                    setUploadProcessing={setUploadProcessing}
+                                    setUpload={setUpload}
+                                    selectedNodes={selectedNodes}
+                                    rebuildIndexDictionary={rebuildIndexDictionary}
+                                    darkTheme={darkTheme}
+                                />
+                            </WorkspaceTableContext.Provider>
+                            {tableView && (
+                                <WorkspaceDrawerHandle
+                                    handleActive={drawerHandleActiveRef}
+                                    tableViewHeight={tableViewHeight}
+                                    setTableViewHeight={setTableViewHeight}
+                                    setTableView={setTableView}
+                                />
+                            )}
+                        </div>
+                    }
+                />
+            )}
+            <div className="workspace-btn-wrap" style={{ zIndex: 1 }}>
+                <WorkspaceButtons
+                    uploadMode={uploadMode}
+                    jsonView={jsonView}
+                    jsonViewWidth={jsonViewWidth}
+                    historyView={historyView}
+                    historyViewWidth={historyViewWidth}
+                    tableView={tableView}
+                    tableViewHeight={tableViewHeight}
+                    onSelect={handleSplitView}
+                    darkTheme={darkTheme}
+                />
             </div>
-        
+        </div>
     )
 }

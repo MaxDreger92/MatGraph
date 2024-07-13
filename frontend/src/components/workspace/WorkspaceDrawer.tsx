@@ -1,6 +1,5 @@
 import { SetStateAction, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import client from '../../client'
 import 'react-virtualized/styles.css'
 import WorkspaceTableDropzone from './WorkspaceTableDropzone'
 import WorkspacePipeline from './WorkspacePipeline'
@@ -8,6 +7,7 @@ import { TableRow, Dictionary, Upload } from '../../types/workspace.types'
 import { TRelationship, TNode } from '../../types/canvas.types'
 import {
     arrayToDict,
+    buildRevertUpdates,
     convertFromJsonFormat,
     dictToArray,
     filterCsvTable,
@@ -26,21 +26,21 @@ import {
     requestExtractNodes,
     requestFileUpload,
     requestImportGraph,
+    updateUpload,
 } from '../../common/clientHelpers'
-import { useQuery } from 'react-query'
 // import testNodes from '../../alt/testNodesN.json'
 
 const USE_MOCK_DATA = false
 
 const exampleLabelDict: Dictionary = {
-    Header1: { Label: 'matter' },
-    Header2: { Label: 'manufacturing' },
-    Header3: { Label: 'measurement' },
+    Header1: ['matter'],
+    Header2: ['manufacturing'],
+    Header3: ['measurement'],
 }
 const exampleAttrDict: Dictionary = {
-    Header1: { Label: 'matter', Attribute: 'name' },
-    Header2: { Label: 'manufacturing', Attribute: 'identifier' },
-    Header3: { Label: 'measurement', Attribute: 'name' },
+    Header1: ['matter', 'name'],
+    Header2: ['manufacturing', 'identifier'],
+    Header3: ['measurement', 'name'],
 }
 
 interface WorkspaceDrawerProps {
@@ -54,8 +54,8 @@ interface WorkspaceDrawerProps {
     graph: string | null
     upload: Upload | undefined
     setUpload: React.Dispatch<React.SetStateAction<Upload | undefined>>
-    uploadProcessing: boolean
-    setUploadProcessing: React.Dispatch<SetStateAction<boolean>>
+    uploadProcessing: Set<string>
+    setUploadProcessing: React.Dispatch<React.SetStateAction<Set<string>>>
     selectedNodes: TNode[]
     rebuildIndexDictionary: () => void
     darkTheme: boolean
@@ -92,46 +92,15 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     const [additionalTables, setAdditionalTables] = useState<number[][]>([])
     const [columnLength, setColumnLength] = useState(0)
 
-
-    const { data: uploadData, error: uploadError, isLoading: uploadLoading } = useQuery(
-        ['upload', upload?._id],
-        () => client.getUpload(upload?._id as string),
-        {
-            enabled: uploadProcessing,
-            refetchInterval: 1000,
-            onSuccess: (data) => {
-                console.log('drawer polling')
-                if (data && data.upload && data.upload.processing === false) {
-                    setUploadProcessing(false)
-                    setUpload(data.upload)
-                }
-            },
-        }
-    )
-
     useEffect(() => {
-        
-        if (!upload || uploadProcessing) return
-        if (upload.processing) {
-            setUploadProcessing(true)
-            return
-        }
+        if (!upload) return
 
-        const {
-            progress,
-            fileId,
-            context,
-            csvTable,
-            labelDict,
-            attributeDict,
-            graph,
-        } = upload
+        const { progress, fileId, context, csvTable, labelDict, attributeDict, graph } = upload
 
         setProgress(progress)
         setFileId(fileId ?? '')
         setContext(context ?? '')
         setCsvTable(csvTable ? JSON.parse(csvTable) : [])
-
 
         let labelTable: TableRow[] = []
         let attributeTable: TableRow[] = []
@@ -177,8 +146,11 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
             return
         }
 
-        const parsedGraph = JSON.parse(graph)
-        const { nodes, relationships } = convertFromJsonFormat(parsedGraph, true)
+        let parsed = JSON.parse(graph)
+        if (typeof parsed === 'object') {
+            parsed = JSON.stringify(parsed)
+        }
+        const { nodes, relationships } = convertFromJsonFormat(parsed, true)
 
         setNodes(nodes)
         setRelationships(relationships)
@@ -207,9 +179,10 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         if (!USE_MOCK_DATA) {
             const newUpload = await requestFileUpload(file, JSON.stringify(csvTable))
             if (!newUpload) {
-                handlePipelineReset()
+                await handlePipelineReset()
                 return
             }
+            localStorage.setItem('uploadId', newUpload._id)
             setUpload(newUpload)
         } else {
             setCsvTable(csvTable)
@@ -240,16 +213,64 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         setCurrentTableId(tableId)
     }
 
-    const handlePipelineReset = async () => {
+    const handleRevertProgress = async (newProgress: number) => {
+        if (newProgress >= progress) return
+
+        if (!upload || !upload._id) {
+            toast.error('Upload process not found!')
+            return
+        }
+
+        const updates = buildRevertUpdates(newProgress, graph as string)
+
+        try {
+            const revertSuccess = await updateUpload(upload._id, updates)
+            if (!revertSuccess) {
+                toast.error('Progress could not be reverted!')
+                return
+            }
+            console.log('success')
+            const decoyUpload = { ...upload, progress: newProgress }
+            setUpload(decoyUpload)
+        } catch (err: any) {
+            toast.error(err.message)
+            return
+        }
+
+        if (newProgress < 5) {
+            setRelationships([])
+        }
+        if (newProgress < 4) {
+            setNodes([])
+        }
+        if (newProgress < 3) {
+            setAttributeTable([])
+        }
+        if (newProgress < 2) {
+            setLabelTable([])
+        }
+        if (newProgress < 1) {
+            setContext('')
+        }
+    }
+
+    const handlePipelineReset = () => {
         setProgress(0)
         setUpload(undefined)
-        setUploadProcessing(false)
         setCsvTable([])
         setLabelTable([])
         setAttributeTable([])
         handleSetCurrentTable('', [])
         setNodes([])
         setRelationships([])
+    }
+
+    const addUploadProcessing = (uploadId: string) => {
+        setUploadProcessing((prev) => {
+            const newSet = new Set(prev)
+            newSet.add(uploadId)
+            return newSet
+        })
     }
 
     // (file,context) => label_dict, file_link, file_name
@@ -278,9 +299,13 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                     return
                 }
 
-                const uploadProcessing = await requestExtractLabels(upload._id, context, upload.fileId)
-                if (!uploadProcessing) return
-                setUploadProcessing(!!uploadProcessing)
+                const processStarted = await requestExtractLabels(
+                    upload._id,
+                    context,
+                    upload.fileId
+                )
+                if (!processStarted) return
+                addUploadProcessing(upload._id)
             }
         } catch (err: any) {
             toast.error(err.message)
@@ -288,7 +313,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     // (label_dict, context, file_link, file_name) => attribute_dict
-    async function extractAttributes() {
+    const extractAttributes = async () => {
         try {
             if (USE_MOCK_DATA) {
                 const dictArray = dictToArray(exampleAttrDict)
@@ -306,13 +331,14 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                     labelDict = joinDict(labelDict, labelInfo)
                 }
 
-                const uploadProcessing = await requestExtractAttributes(
-                    upload._id, 
+                const processStarted = await requestExtractAttributes(
+                    upload._id,
                     context,
                     fileId,
                     labelDict
                 )
-                setUploadProcessing(!!uploadProcessing)
+                if (!processStarted) return
+                addUploadProcessing(upload._id)
             }
         } catch (err: any) {
             toast.error(err.message)
@@ -320,7 +346,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     // (attribute_dict, context, file_link, file_name) => node_json
-    async function extractNodes() {
+    const extractNodes = async () => {
         try {
             if (!USE_MOCK_DATA) {
                 if (!upload || !upload._id) {
@@ -330,13 +356,14 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
 
                 const attributeDict = arrayToDict(attributeTable)
 
-                const uploadProcessing = await requestExtractNodes(
-                    upload._id, 
+                const processStarted = await requestExtractNodes(
+                    upload._id,
                     context,
                     fileId,
                     attributeDict
                 )
-                setUploadProcessing(!!uploadProcessing)
+                if (!processStarted) return
+                addUploadProcessing(upload._id)
             } else {
             }
         } catch (err: any) {
@@ -345,7 +372,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     // (node_json, context, file_link, file_name) => graph_json
-    async function extractGraph() {
+    const extractGraph = async () => {
         try {
             if (!upload || !upload._id) {
                 toast.error('Upload process not found!')
@@ -356,20 +383,16 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 return
             }
 
-            const uploadProcessing = await requestExtractGraph(
-                upload._id, 
-                context,
-                fileId,
-                graph
-            )
-            setUploadProcessing(!!uploadProcessing)
+            const processStarted = await requestExtractGraph(upload._id, context, fileId, graph)
+            if (!processStarted) return
+            addUploadProcessing(upload._id)
         } catch (err: any) {
             toast.error(err.message)
         }
     }
 
     // (graph_json, context, fileLink, fileName) => success
-    async function importGraph() {
+    const importGraph = async () => {
         try {
             if (!upload || !upload._id) {
                 toast.error('Upload process not found!')
@@ -380,8 +403,9 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 return
             }
 
-            const uploadProcessing = await requestImportGraph(upload._id, context, fileId, graph)
-            setUploadProcessing(!!uploadProcessing)
+            const processStarted = await requestImportGraph(upload._id, context, fileId, graph)
+            if (!processStarted) return
+            addUploadProcessing(upload._id)
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -406,8 +430,12 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     }
 
     return (
-        <>
-            {progress === 0 && tableView && tableViewHeight >= 250 && (
+        <div
+            style={{
+                display: tableView ? 'block' : 'none',
+            }}
+        >
+            {progress === 0 && tableViewHeight >= 250 && (
                 <WorkspaceTableDropzone handleFileSelect={handleFileSelect} />
             )}
             {progress > 0 && (
@@ -428,15 +456,17 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                     />
                     {progress > 0 && csvTable && (
                         <WorkspacePipeline
-                            loadNodes={loadNodes}
                             handlePipelineReset={handlePipelineReset}
+                            handleRevertProgress={handleRevertProgress}
                             handleContextChange={handleContextChange}
-                            requestExtractLabels={extractLabels}
-                            requestExtractAttributes={extractAttributes}
-                            requestExtractNodes={extractNodes}
-                            requestExtractGraph={extractGraph}
-                            requestImportGraph={importGraph}
+                            extractLabels={extractLabels}
+                            extractAttributes={extractAttributes}
+                            extractNodes={extractNodes}
+                            extractGraph={extractGraph}
+                            importGraph={importGraph}
                             progress={progress}
+                            upload={upload}
+                            uploadProcessing={uploadProcessing}
                             darkTheme={darkTheme}
                         />
                     )}
@@ -453,8 +483,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                         {/* Additional Tables */}
                         {additionalTables.length > 0 &&
                             progress > 3 &&
-                            currentTableId === 'csvTable' &&
-                            tableView && (
+                            currentTableId === 'csvTable' && (
                                 <>
                                     <div
                                         style={{
@@ -517,48 +546,46 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                             )}
 
                         {/* CSV Table */}
-                        {tableView && (
+                        <div
+                            style={{
+                                position: 'relative',
+                                minWidth: '50%',
+                                flex: '1 1 50%',
+                                paddingLeft:
+                                    additionalTables.length > 0 &&
+                                    progress > 3 &&
+                                    currentTableId === 'csvTable'
+                                        ? 10
+                                        : 25,
+                                paddingRight: 25,
+                            }}
+                        >
                             <div
                                 style={{
                                     position: 'relative',
-                                    minWidth: '50%',
-                                    flex: '1 1 50%',
-                                    paddingLeft:
-                                        additionalTables.length > 0 &&
-                                        progress > 3 &&
-                                        currentTableId === 'csvTable'
-                                            ? 10
-                                            : 25,
-                                    paddingRight: 25,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    maxWidth: 'fit-content',
+                                    minWidth: '100%',
                                 }}
                             >
-                                <div
-                                    style={{
-                                        position: 'relative',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        maxWidth: 'fit-content',
-                                        minWidth: '100%',
-                                    }}
-                                >
-                                    <WorkspaceTable
-                                        setLabelTable={setLabelTable}
-                                        setAttributeTable={setAttributeTable}
-                                        setCurrentTableFn={handleSetCurrentTable}
-                                        tableRows={currentTable}
-                                        progress={progress}
-                                        currentTableId={currentTableId}
-                                        outerTableHeight={tableViewHeight}
-                                        darkTheme={darkTheme}
-                                        columnsLength={columnLength}
-                                        additionalTables={additionalTables}
-                                    />
-                                </div>
+                                <WorkspaceTable
+                                    setLabelTable={setLabelTable}
+                                    setAttributeTable={setAttributeTable}
+                                    setCurrentTableFn={handleSetCurrentTable}
+                                    tableRows={currentTable}
+                                    progress={progress}
+                                    currentTableId={currentTableId}
+                                    outerTableHeight={tableViewHeight}
+                                    darkTheme={darkTheme}
+                                    columnsLength={columnLength}
+                                    additionalTables={additionalTables}
+                                />
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     )
 }

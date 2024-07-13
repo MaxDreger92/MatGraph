@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { Dictionary } from './types/workspace.types'
+import { Dictionary, Graph } from './types/workspace.types'
 import { Upload } from './types/workspace.types'
 
 const LOCAL = true
@@ -22,7 +22,6 @@ class Client {
     private dataClient: AxiosInstance
 
     constructor() {
-
         if (LOCAL) {
             this.userClient = axios.create({
                 baseURL: LOCAL_USER_API_URL,
@@ -46,24 +45,21 @@ class Client {
         this.getCurrentUser = this.getCurrentUser.bind(this)
     }
 
-    // ################################## API 
+    // ################################## API
     // ##################################
     // ##################################
     apiActiveStatus = async () => {
-        try{
+        try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.get(
-                'data/api-active-status',
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+            const response = await this.dataClient.get('data/api-active-status', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
                 },
-            )
+            })
 
             return response
         } catch (err: any) {
@@ -409,12 +405,16 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.post('users/uploads/create', { csvTable }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            })
+            const response = await this.userClient.post(
+                'users/uploads/create',
+                { csvTable },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
 
             return response
         } catch (err: any) {
@@ -433,8 +433,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.patch(`users/uploads/${uploadId}`, {
-                updates, 
+            const response = await this.userClient.patch(`users/uploads/${uploadId}`, updates, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -502,6 +501,30 @@ class Client {
                 throw err
             }
             throw new Error('Unexpected error while saving graph!')
+        }
+    }
+
+    async updateGraph(graphId: string, updates: Partial<Graph>) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.patch(`users/graphs/${graphId}`, {
+                updates,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating graph!')
         }
     }
 
@@ -593,8 +616,8 @@ class Client {
 
             const response = await this.dataClient.post('import/file', formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             })
 
             if (!response) {
@@ -615,17 +638,21 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/label-extract', {
-                params: {
-                    uploadId: uploadId,
-                    context: context,
-                    fileId: fileId,
+            const response = await this.dataClient.post(
+                'import/label-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
             if (!response) {
                 throw new Error()
@@ -638,25 +665,34 @@ class Client {
     }
 
     // (label_dict, context, file_link, file_name) => attribute_dict
-    async requestExtractAttributes(uploadId: string, context: string, fileId: string, dict: Dictionary) {
+    async requestExtractAttributes(
+        uploadId: string,
+        context: string,
+        fileId: string,
+        dict: Dictionary
+    ) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/attribute-extract', {
-                params: {
-                    uploadId: uploadId,
-                    context: context,
-                    fileId: fileId,
-                    labelDict: dict,
+            const response = await this.dataClient.post(
+                'import/attribute-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        labelDict: dict,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
             if (!response) {
                 throw new Error()
@@ -676,18 +712,22 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/node-extract', {
-                params: {
-                    uploadId: uploadId,
-                    context: context,
-                    fileId: fileId,
-                    attributeDict: dict
+            const response = await this.dataClient.post(
+                'import/node-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        attributeDict: dict,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
             if (!response) {
                 throw new Error()
@@ -707,18 +747,22 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/graph-extract', {
-                params: {
-                    uploadId: uploadId,
-                    context: context,
-                    fileId: fileId,
-                    graph: graph,
+            const response = await this.dataClient.post(
+                'import/graph-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        graph: graph,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
             if (!response) {
                 throw new Error()
@@ -731,30 +775,29 @@ class Client {
     }
 
     // (graph_json, context, file_link, file_name) => success
-    async requestImportGraph(
-        uploadId: string,
-        context: string,
-        fileId: string,
-        graph: string
-    ) {
+    async requestImportGraph(uploadId: string, context: string, fileId: string, graph: string) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/graph-import', {
-                params: {
-                    uploadId: uploadId,
-                    context: context,
-                    fileId: fileId,
-                    graph: graph
+            const response = await this.dataClient.post(
+                'import/graph-import',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        graph: graph,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
             if (!response) {
                 throw new Error()
@@ -763,6 +806,37 @@ class Client {
             return response
         } catch (err: any) {
             throw new Error('Unexpected error while importing graph!')
+        }
+    }
+
+    async cancelTask(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                `import/cancel-task`,
+                {
+                    params: {
+                        uploadId: uploadId,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
         }
     }
 }

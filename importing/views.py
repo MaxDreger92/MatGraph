@@ -26,7 +26,7 @@ from importing.models import FullTableCache
 from importing.utils.user_db_requests import user_db_request
 from matgraph.models.metadata import File
 
-executor = ThreadPoolExecutor()
+from .task_manager import submit_task, cancel_task
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -55,7 +55,11 @@ class FileImportView(APIView):
         file_record = await self.store_file(file_obj)
         file_id = file_record.uid
 
-        request_data = {"csvTable": csv_table, "fileId": file_id}
+        request_data = {
+            "csvTable": csv_table,
+            "fileId": file_id,
+            "fileName": file_obj.name,
+        }
         response_data = await user_db_request(request_data, None, user_token, "post")
 
         return JsonResponse(
@@ -102,40 +106,18 @@ class LabelExtractView(APIView):
         if response_data.get("updateSuccess") is False:
             return JsonResponse({"processing": False})
 
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(
-            executor, self.extract_labels, upload_id, context, file_id, user_token
+        submit_task(
+            upload_id, self.extract_labels, upload_id, context, file_id, user_token
         )
 
         return JsonResponse({"processing": True})
-    
-    async def try_cache(self, upload_id, user_token, file_id):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_obj_bytes = await sync_to_async(file_record.get_file)()
-        file_obj_str = file_obj_bytes.decode("utf-8")
-        file_obj = StringIO(file_obj_str)
-        file_obj.seek(0)
-        first_line = str(file_obj.readline().strip().lower())
 
-        cached = await sync_to_async(FullTableCache.fetch)(first_line)
-        if cached:
-            cached = str(cached).replace("'", '"')
-            sanitized_cached = self.sanitize_data(cached)
-            sanitized_cached_str = json.dumps(sanitized_cached)
-            
-            updates = {
-                "processing": False,
-                "graph": sanitized_cached_str,
-                "progress": 6,
-            }
-            await user_db_request(updates, upload_id, user_token)
-            return True
-        return False
+    def extract_labels(self, task, upload_id, context, file_id, user_token):
+        asyncio.run(
+            self.async_extract_labels(task, upload_id, context, file_id, user_token)
+        )
 
-    def extract_labels(self, upload_id, context, file_id, user_token):
-        asyncio.run(self.async_extract_labels(upload_id, context, file_id, user_token))
-
-    async def async_extract_labels(self, upload_id, context, file_id, user_token):
+    async def async_extract_labels(self, task, upload_id, context, file_id, user_token):
         file_record = await sync_to_async(File.nodes.get)(uid=file_id)
         file_obj_bytes = await sync_to_async(file_record.get_file)()
         file_obj_str = file_obj_bytes.decode("utf-8")
@@ -149,6 +131,10 @@ class LabelExtractView(APIView):
                 file_name=file_record.name,
             )
             await sync_to_async(node_classifier.run)()
+
+            if task.is_cancelled():
+                return
+
             labels = {
                 element["header"]: [element["1_label"], element["column_values"][0]]
                 for element in node_classifier.results
@@ -184,6 +170,29 @@ class LabelExtractView(APIView):
             return data
         return data
 
+    async def try_cache(self, upload_id, user_token, file_id):
+        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+        file_obj_bytes = await sync_to_async(file_record.get_file)()
+        file_obj_str = file_obj_bytes.decode("utf-8")
+        file_obj = StringIO(file_obj_str)
+        file_obj.seek(0)
+        first_line = str(file_obj.readline().strip().lower())
+
+        cached = await sync_to_async(FullTableCache.fetch)(first_line)
+        if cached:
+            cached = str(cached).replace("'", '"')
+            sanitized_cached = self.sanitize_data(cached)
+            sanitized_cached_str = json.dumps(sanitized_cached)
+
+            updates = {
+                "processing": False,
+                "graph": sanitized_cached_str,
+                "progress": 6,
+            }
+            await user_db_request(updates, upload_id, user_token)
+            return True
+        return False
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AttributeExtractView(APIView):
@@ -216,9 +225,8 @@ class AttributeExtractView(APIView):
 
         label_input = self.prepare_data(labels)
 
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(
-            executor,
+        submit_task(
+            upload_id,
             self.extract_attributes,
             upload_id,
             context,
@@ -229,25 +237,31 @@ class AttributeExtractView(APIView):
 
         return JsonResponse({"processing": True})
 
-    def extract_attributes(self, upload_id, context, file_id, user_token, label_input):
+    def extract_attributes(
+        self, task, upload_id, context, file_id, user_token, label_input
+    ):
         asyncio.run(
             self.async_extract_attributes(
-                upload_id, context, file_id, user_token, label_input
+                task, upload_id, context, file_id, user_token, label_input
             )
         )
 
     async def async_extract_attributes(
-        self, upload_id, context, file_id, user_token, label_input
+        self, task, upload_id, context, file_id, user_token, label_input
     ):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_link = file_record.link
-        file_name = file_record.name
-
         try:
+            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+            file_link = file_record.link
+            file_name = file_record.name
+
             attribute_classifier = AttributeClassifier(
                 label_input, context=context, file_link=file_link, file_name=file_name
             )
             await sync_to_async(attribute_classifier.run)()
+
+            if task.is_cancelled():
+                return
+
             attributes = {
                 element["header"]: {
                     "Label": element["1_label"],
@@ -268,11 +282,11 @@ class AttributeExtractView(APIView):
 
     def prepare_data(self, labels):
         input_data = [
-            {"column_values": value["1"], "header": key, "1_label": value["Label"]}
+            {"column_values": [value[1]], "header": key, "1_label": value[0]}
             for key, value in labels.items()
         ]
-        for index, key in enumerate(input_data):
-            key["index"] = index
+        for index, item in enumerate(input_data):
+            item["index"] = index
         return input_data
 
     ATTRIBUTE_MAPPER = {
@@ -318,9 +332,8 @@ class NodeExtractView(APIView):
 
         attribute_input = await self.prepare_data(file_id, attributes)
 
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(
-            executor,
+        submit_task(
+            upload_id,
             self.extract_nodes,
             upload_id,
             context,
@@ -331,21 +344,23 @@ class NodeExtractView(APIView):
 
         return JsonResponse({"processing": True})
 
-    def extract_nodes(self, upload_id, context, file_id, user_token, attribute_input):
+    def extract_nodes(
+        self, task, upload_id, context, file_id, user_token, attribute_input
+    ):
         asyncio.run(
             self.async_extract_nodes(
-                upload_id, context, file_id, user_token, attribute_input
+                task, upload_id, context, file_id, user_token, attribute_input
             )
         )
 
     async def async_extract_nodes(
-        self, upload_id, context, file_id, user_token, attribute_input
+        self, task, upload_id, context, file_id, user_token, attribute_input
     ):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_link = file_record.link
-        file_name = file_record.name
-
         try:
+            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+            file_link = file_record.link
+            file_name = file_record.name
+
             node_extractor = NodeExtractor(
                 context=context,
                 file_link=file_link,
@@ -353,6 +368,10 @@ class NodeExtractView(APIView):
                 data=attribute_input,
             )
             await sync_to_async(node_extractor.run)()
+
+            if task.is_cancelled():
+                return
+
             graph = str(node_extractor.results).replace("'", '"')
             graph_str = json.dumps(graph)
 
@@ -389,8 +408,8 @@ class NodeExtractView(APIView):
                 "index": i,
                 "column_values": column_values[i],
                 "header": header,
-                "1_label": attributes[header]["Label"],
-                "1_attribute": attributes[header]["Attribute"],
+                "1_label": attributes[header][0],
+                "1_attribute": attributes[header][1],
             }
             for i, header in enumerate(first_line)
         ]
@@ -427,9 +446,8 @@ class GraphExtractView(APIView):
 
         header, first_row = await self.prepare_data(file_id)
 
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(
-            executor,
+        submit_task(
+            upload_id,
             self.extract_relationships,
             upload_id,
             context,
@@ -442,22 +460,26 @@ class GraphExtractView(APIView):
         return JsonResponse({"processing": True})
 
     def extract_relationships(
-        self, upload_id, context, user_token, graph, header, first_row
+        self, task, upload_id, context, user_token, graph, header, first_row
     ):
         asyncio.run(
             self.async_extract_relationships(
-                upload_id, context, user_token, graph, header, first_row
+                task, upload_id, context, user_token, graph, header, first_row
             )
         )
 
     async def async_extract_relationships(
-        self, upload_id, context, user_token, graph, header, first_row
+        self, task, upload_id, context, user_token, graph, header, first_row
     ):
         try:
             relationships_extractor = fullRelationshipsExtractor(
                 graph, context, header, first_row
             )
             await sync_to_async(relationships_extractor.run)()
+
+            if task.is_cancelled():
+                return
+
             graph = relationships_extractor.results
             graph = (
                 str(graph)
@@ -510,15 +532,14 @@ class GraphImportView(APIView):
                 {"error:" "Missing params"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         updates = {"processing": True, "context": context, "graph": graph_str}
         response_data = await user_db_request(updates, upload_id, user_token)
         if response_data.get("updateSuccess") is False:
             return JsonResponse({"processing": False})
 
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(
-            executor,
+        submit_task(
+            upload_id,
             self.import_graph,
             upload_id,
             context,
@@ -529,17 +550,25 @@ class GraphImportView(APIView):
 
         return JsonResponse({"processing": True})
 
-    def import_graph(self, upload_id, context, file_id, user_token, graph):
+    def import_graph(self, task, upload_id, context, file_id, user_token, graph):
         asyncio.run(
-            self.async_import_graph(upload_id, context, file_id, user_token, graph)
+            self.async_import_graph(
+                task, upload_id, context, file_id, user_token, graph
+            )
         )
 
-    async def async_import_graph(self, upload_id, context, file_id, user_token, graph):
+    async def async_import_graph(
+        self, task, upload_id, context, file_id, user_token, graph
+    ):
         try:
             file_record = await sync_to_async(File.nodes.get)(uid=file_id)
             file_link = file_record.link
             importer = TableImporter(graph, file_link, context)
             importer.run()
+
+            if task.is_cancelled():
+                return
+
             FullTableCache.update(self.request.session.get("first_line"), graph)
 
             updates = {
@@ -549,3 +578,39 @@ class GraphImportView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during graph import: {e}", exc_info=True)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CancelTaskView(APIView):
+
+    def post(self, request):
+        return async_to_sync(self.handle_post)(request)
+
+    async def handle_post(self, request):
+        try:
+            user_token = request.user_token
+            data = json.loads(request.body)
+            params = data.get("params", {})
+            upload_id = params.get("uploadId")
+
+            if not upload_id:
+                return JsonResponse(
+                    {"cancelled": False, "error": "uploadId is required"}, status=400
+                )
+
+            success = cancel_task(upload_id)
+            updates = {"processing": False}
+            await user_db_request(updates, upload_id, user_token)
+            if success:
+
+                return JsonResponse({"cancelled": True})
+            else:
+                return JsonResponse(
+                    {
+                        "cancelled": False,
+                        "error": "Task not found or already completed",
+                    },
+                    status=404,
+                )
+        except Exception as e:
+            return JsonResponse({"cancelled": False, "error": str(e)}, status=500)
