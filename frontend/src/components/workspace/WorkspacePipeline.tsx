@@ -121,8 +121,6 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
     }
 
     const getButtonColor = (step: number) => {
-
-
         if (step > progress) {
             return ''
         }
@@ -139,7 +137,7 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
             }
         }
 
-        if (step < progress) {
+        if (step < progress && step < 5) {
             if (buttonHovered === step) {
                 return darkTheme ? '#f0d971' : '#eba400'
             } else {
@@ -356,6 +354,7 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
                         width: buttonWidth,
                         height: 40,
                         padding: 0,
+                        backgroundColor: getButtonColor(5),
                     }}
                     onClick={() => handleButtonLocal(5, importGraph)}
                     onMouseEnter={() => setButtonHovered(5)}

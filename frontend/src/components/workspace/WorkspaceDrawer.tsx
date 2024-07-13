@@ -179,7 +179,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
         if (!USE_MOCK_DATA) {
             const newUpload = await requestFileUpload(file, JSON.stringify(csvTable))
             if (!newUpload) {
-                await handlePipelineReset()
+                handlePipelineReset()
                 return
             }
             localStorage.setItem('currentUploadId', newUpload._id)
