@@ -9,6 +9,7 @@ import { useQuery } from 'react-query'
 import client from '../../client'
 import logo_sm from '../../img/logo_nodes_sm.png'
 import logo_light_sm from '../../img/logo_nodes_light_sm.png'
+import { getLocalStorageItem, setLocalStorageItem } from '../../common/localStorageHelpers'
 
 interface WorkspaceHistoryProps {
     uploadMode: boolean
@@ -163,7 +164,7 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
             if (!uploads) return
             const selectedUpload = uploads.find((upload) => upload._id === id)
             if (!selectedUpload || !selectedUpload._id) return
-            localStorage.setItem('uploadId', selectedUpload._id)
+            localStorage.setItem('currentUploadId', selectedUpload._id)
             setUpload(selectedUpload)
         }
     }
@@ -191,6 +192,13 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
     }
 
     // ###################################################################### Other
+    useEffect(() => {
+        const savedNotHighlighted = getLocalStorageItem('historyItemNotHighlighted')
+        if (!savedNotHighlighted || !Array.isArray(savedNotHighlighted)) return
+        const newSet = new Set(savedNotHighlighted)
+        setNotHighlighted(newSet)
+    }, [])
+
     const isHighlighted = (item: Graph | Upload): boolean => {
         if (isUpload(item)) {
             return item.processing === false && !notHighlighted.has(item._id)
@@ -202,6 +210,8 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         setNotHighlighted((prev) => {
             const newSet = new Set(prev)
             newSet.add(itemId)
+            const array = Array.from(newSet)
+            setLocalStorageItem('historyItemNotHighlighted', array)
             return newSet
         })
     }
@@ -210,6 +220,8 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
         setNotHighlighted((prev) => {
             const newSet = new Set(prev)
             newSet.delete(itemId)
+            const array = Array.from(newSet)
+            setLocalStorageItem('historyItemNotHighlighted', array)
             return newSet
         })
     }

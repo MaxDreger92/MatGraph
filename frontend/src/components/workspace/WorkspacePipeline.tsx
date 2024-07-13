@@ -121,28 +121,29 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
     }
 
     const getButtonColor = (step: number) => {
+
+
         if (step > progress) {
             return ''
         }
 
         if (uploadProcessing.has(upload?._id ?? '')) {
             if (step === progress) {
-                return darkTheme ? '#e15554' : '#f6511d'
+                if (buttonHovered === step) {
+                    return darkTheme ? '#c94b4b' : '#e64b1c'
+                } else {
+                    return darkTheme ? '#e15554' : '#f6511d'
+                }
             } else {
                 return ''
             }
         }
 
         if (step < progress) {
-            // if (buttonHovered === step) {
-            //     return '#323536'
-            // } else {
-            //     return '#373a40'
-            // }
             if (buttonHovered === step) {
-                return '#f0d971'
+                return darkTheme ? '#f0d971' : '#eba400'
             } else {
-                return '#fff07c'
+                return darkTheme ? '#fff07c' : '#ffb400'
             }
         }
     }

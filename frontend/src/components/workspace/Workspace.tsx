@@ -254,7 +254,7 @@ export default function Workspace(props: WorkspaceProps) {
         setNodes([])
         setRelationships([])
         if (uploadMode) {
-            const uploadId = localStorage.getItem('uploadId')
+            const uploadId = localStorage.getItem('currentUploadId')
             if (!uploadId) return
 
             fetchUpload(uploadId, setUpload)
@@ -484,19 +484,19 @@ export default function Workspace(props: WorkspaceProps) {
                                 canvasRect={canvasRect}
                             />
                             <div
-                                className='hodenball'
                                 style={{
-                                    display: uploadProcessing.has(upload?._id ?? '') ? 'block' : 'none',
+                                    display: uploadProcessing.has(upload?._id ?? '') ? 'flex' : 'none',
+                                    // display: 'flex',
                                     position: 'absolute',
                                     top: 0,
                                     left: 0,
-                                    // display: 'block',
                                     width: '100%',
                                     height: '100%',
-                                    backgroundColor: '#1a1b1e',
+                                    backgroundColor: darkTheme ? '#1a1b1e' : '#f8f9fa',
                                     opacity: 0.5,
                                 }}
-                            ></div>
+                            >
+                            </div>
                         </>
                     }
                 />

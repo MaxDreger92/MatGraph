@@ -182,7 +182,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
                 await handlePipelineReset()
                 return
             }
-            localStorage.setItem('uploadId', newUpload._id)
+            localStorage.setItem('currentUploadId', newUpload._id)
             setUpload(newUpload)
         } else {
             setCsvTable(csvTable)
@@ -432,6 +432,7 @@ export default function WorkspaceDrawer(props: WorkspaceDrawerProps) {
     return (
         <div
             style={{
+                height: '100%',
                 display: tableView ? 'block' : 'none',
             }}
         >
