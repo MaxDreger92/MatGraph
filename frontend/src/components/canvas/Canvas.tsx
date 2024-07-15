@@ -692,10 +692,11 @@ export default function Canvas(props: CanvasProps) {
             const graphWidth = bounds.maxX - bounds.minX
             const graphHeight = bounds.maxY - bounds.minY
 
-            const nodeSize = 100 - 10 * Math.floor(nodes.length / 10)
-
             const canvasWidth = canvasRect.width - 200
-            const canvasHeight = canvasRect.height - nodeSize - 50
+            const canvasHeight = canvasRect.height - 150
+            const canvasRadius = Math.min(canvasWidth, canvasHeight) / 2
+
+            const nodeSize = canvasRadius / Math.sqrt(nodes.length) * 1.2
 
             let rotate = false
             if (canvasWidth > canvasHeight) {
@@ -706,7 +707,7 @@ export default function Canvas(props: CanvasProps) {
 
             const scaleX = rotate ? canvasWidth / graphHeight : canvasWidth / graphWidth
             const scaleY = rotate ? canvasHeight / graphWidth : canvasHeight / graphHeight
-            const scale = Math.min(Math.min(scaleX, scaleY), 1)
+            const scale = Math.min(scaleX, scaleY)
 
             // ############# handle nodes out of bounds
             // let nodeOutOfBounds = false

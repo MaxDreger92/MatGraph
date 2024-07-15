@@ -4,12 +4,13 @@ import { useMantineColorScheme } from "@mantine/core"
 import { useSpring, animated } from 'react-spring'
 
 import { TbBinaryTree as GraphIcon } from "react-icons/tb"
-import { PiGraph as GraphIcon2 } from "react-icons/pi"
+import { PiGraphFill as GraphIcon2 } from "react-icons/pi"
 import ResetIcon from "@mui/icons-material/RestartAlt"
 import { MdUndo as UndoIcon } from "react-icons/md"
 import { MdRedo as RedoIcon } from "react-icons/md"
-import { VscSaveAs, VscSave } from "react-icons/vsc";
-import { RiSave3Line } from "react-icons/ri";
+import { VscSave } from "react-icons/vsc";
+import { FiSave } from "react-icons/fi";
+import { AiOutlineSave } from "react-icons/ai";
 import { MdRestartAlt as ResetIcon2 } from "react-icons/md"
 import { PiDotsSixVertical as HandleIcon } from "react-icons/pi"
 
@@ -356,7 +357,7 @@ const BUTTON_TYPES: { type: TCanvasButton["type"]; icon: JSX.Element; tooltip: s
   { type: "undo", icon: <UndoIcon className="canvas-btn-icon" />, tooltip: "Undo" },
   { type: "reset", icon: <ResetIcon2 className="canvas-btn-icon" />, tooltip: "Reset Canvas" },
   { type: "redo", icon: <RedoIcon className="canvas-btn-icon" />, tooltip: "Redo" },
-  { type: "layout", icon: <GraphIcon2 className="canvas-btn-icon"/>, tooltip: "Layout Nodes" },
-  { type: "saveGraph", icon: <VscSave className="canvas-btn-icon" style={{width:25, height:25}} />, tooltip: "Save Graph" },
+  { type: "layout", icon: <GraphIcon2 className="canvas-btn-icon" />, tooltip: "Layout Nodes" },
+  { type: "saveGraph", icon: <VscSave className="canvas-btn-save-icon" />, tooltip: "Save Graph" },
 ];
 
