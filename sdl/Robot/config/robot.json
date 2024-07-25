@@ -1,5 +1,7 @@
 {
-  "robotIP": "192.168.1.10",
+  "ip": "100.66.91.63",
+  "user": "max",
+  "port": 31950,
   "headers": {
     "opentrons-version": "3"
   }

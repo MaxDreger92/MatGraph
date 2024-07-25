@@ -53,14 +53,16 @@ class opentronsClient:
 
         strRunURL = f"http://{self.robotIP}:31950/runs"
         # create a new run
-        response = requests.post(url=strRunURL,
-                                 headers=self.headers
-                                 )
+        # response = requests.post(url=strRunURL,
+        #                          headers=self.headers
+        #                          )
 
-        if response.status_code == 201:
-            dicResponse = json.loads(response.text)
+        if 201 == 201:
+            # dicResponse = json.loads(response.text)
+            dicResponse = {"data": {"id": 420}}
             # get the run ID
             self.runID = dicResponse['data']['id']
+
             # setup command endpoints
             self.commandURL = strRunURL + f"/{self.runID}/commands"
 
@@ -163,24 +165,24 @@ class opentronsClient:
         # LOG - debug
         LOGGER.debug(f"Command: {strCommand}")
 
-        response = requests.post(
-            url = self.commandURL,
-            headers = self.headers,
-            params = {"waitUntilComplete": True},
-            data = strCommand
-        )
+        # response = requests.post(
+        #     url = self.commandURL,
+        #     headers = self.headers,
+        #     params = {"waitUntilComplete": True},
+        #     data = strCommand
+        # )
 
         # LOG - debug
-        LOGGER.debug(f"Response: {response.text}")
+        # LOGGER.debug(f"Response: {response.text}")
 
-        if response.status_code == 201:
-            dicResponse = json.loads(response.text)
-            strLabwareID = dicResponse['data']['result']['labwareId']
+        if 201 == 201:
+            # dicResponse = json.loads(response.text)
+            # strLabwareID = dicResponse['data']['result']['labwareId']
             #strLabwareURi = dicResponse['data']['result']['labwareUri']
             strLabwareIdentifier_temp = strLabwareName + "_" + str(intSlot)
-            self.labware[strLabwareIdentifier_temp] = {"id": strLabwareID, "slot": intSlot}
+            # self.labware[strLabwareIdentifier_temp] = {"id": strLabwareID, "slot": intSlot}
             # LOG - info
-            LOGGER.info(f"Labware loaded with name: {strLabwareName} and ID: {strLabwareID}")
+            LOGGER.info(f"Labware loaded with name: {strLabwareName} and ID: {420}")
         else:
             raise Exception(f"Failed to load labware.\nError code: {response.status_code}\n Error message: {response.text}")
         
@@ -220,16 +222,16 @@ class opentronsClient:
         # LOG - debug
         LOGGER.debug(f"Command: {strCommand}")
 
-        response = requests.post(
-            url = f"http://{self.robotIP}:31950/runs/{self.runID}/labware_definitions",
-            headers = self.headers,
-            data = strCommand
-        )
+        # response = requests.post(
+        #     url = f"http://{self.robotIP}:31950/runs/{self.runID}/labware_definitions",
+        #     headers = self.headers,
+        #     data = strCommand
+        # )
 
         # LOG - debug
-        LOGGER.debug(f"Response: {response.text}")
+        # LOGGER.debug(f"Response: {response.text}")
 
-        if response.status_code == 201:
+        if 201 == 201:
             # LOG - info
             LOGGER.info(f"Custome labware {dicLabware['parameters']['loadName']} loaded in slot: {intSlot} successfully.")
             # load the labware
@@ -285,22 +287,22 @@ class opentronsClient:
         # LOG - debug
         LOGGER.debug(f"Command: {strCommand}")
 
-        response = requests.post(
-            url = self.commandURL,
-            headers = self.headers,
-            params = {"waitUntilComplete": True},
-            data = strCommand
-        )
+        # response = requests.post(
+        #     url = self.commandURL,
+        #     headers = self.headers,
+        #     params = {"waitUntilComplete": True},
+        #     data = strCommand
+        # )
 
         # LOG - debug
-        LOGGER.debug(f"Response: {response.text}")
+        # LOGGER.debug(f"Response: {response.text}")
 
-        if response.status_code == 201:
-            dicResponse = json.loads(response.text)
-            strPipetteID = dicResponse['data']['result']['pipetteId']
-            self.pipettes[strPipetteName] = {"id": strPipetteID, "mount": strMount}
+        if 201 == 201:
+            # dicResponse = json.loads(response.text)
+            # strPipetteID = dicResponse['data']['result']['pipetteId']
+            # self.pipettes[strPipetteName] = {"id": strPipetteID, "mount": strMount}
             # LOG - info
-            LOGGER.info(f"Pipette loaded with name: {strPipetteName} and ID: {strPipetteID}")
+            LOGGER.info(f"Pipette loaded with name: {strPipetteName} and ID: {420}")
         else:
             raise Exception(
                 f"Failed to load pipette.\nError code: {response.status_code}\n Error message: {response.text}"

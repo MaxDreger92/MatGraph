@@ -14,8 +14,10 @@ from matgraph.choices.ChoiceFields import INSTITUTION_TYPE_CHOICEFIELD
 from matgraph.models.abstractclasses import CausalObject
 from matgraph.models.relationships import ByRel, InLocationRel, HasPIDRel, ResearcherOwnsRel
 
+class Metadata(CausalObject):
+    pass
 
-class PIDA(CausalObject):
+class PIDA(Metadata):
     """
     Represents a PIDA.
     """
@@ -30,14 +32,14 @@ class PIDA(CausalObject):
     tag = StringProperty()
 
 
-class Country(CausalObject):
+class Country(Metadata):
     """
     Represents a country.
     """
     abbreviation = StringProperty()
 
 
-class Institution(CausalObject):
+class Institution(Metadata):
     """
     Represents an institution.
     """
@@ -49,7 +51,7 @@ class Institution(CausalObject):
     country = RelationshipTo(Country, "IN", model=InLocationRel, cardinality=One)
 
 
-class Instrument(CausalObject):
+class Instrument(Metadata):
     """
     Represents an instrument.
     """
@@ -61,7 +63,7 @@ class Instrument(CausalObject):
     model = StringProperty(unique_index=True, required=True)
 
 
-class Researcher(CausalObject):
+class Researcher(Metadata):
     """
     Represents a researcher.
     """
@@ -82,7 +84,7 @@ class Researcher(CausalObject):
     conducted = RelationshipTo("matgraph.models.processes.Measurement", "CONDUCTED", model=ByRel)
 
 
-class Publication(UniqueNode):
+class Publication(Metadata, UniqueNode):
     """
     Represents a publication.
     """
@@ -98,7 +100,7 @@ class Publication(UniqueNode):
     citations = IntegerProperty()
 
 
-class File(CausalObject):
+class File(Metadata):
     """
     Represents a file.
     """

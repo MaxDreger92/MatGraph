@@ -1,0 +1,28 @@
+{
+  "labware": [
+    {
+      "slot": 1,
+      "name": "opentrons_flex_96_tiprack_50ul",
+      "filename": "kjl",
+      "namespace": "opentrons",
+      "version": 1,
+      "intent": "setup"
+    },
+    {
+      "slot": 5,
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    },
+    {
+      "slot": 6,
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    }
+  ]
+}
