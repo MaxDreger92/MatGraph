@@ -16,7 +16,6 @@ from datetime import datetime
 import sys
 import time
 
-from opentrons import opentronsClient
 
 from ardu import Arduino
 
@@ -50,7 +49,7 @@ def fillWell(opentronsClient,
              ) -> None:
     '''
     function to manage solution in a well because the maximum volume the opentrons can move is 1000 uL
-    
+
     Parameters
     ----------
     opentronsClient : opentronsClient
@@ -77,16 +76,16 @@ def fillWell(opentronsClient,
 
     strOffset_to : str
         offset to dispense to
-        options: 'bottom', 'center', 'top'  
+        options: 'bottom', 'center', 'top'
 
     intVolume : int
-        volume to transfer in uL    
+        volume to transfer in uL
 
     intMoveSpeed : int
         speed to move in mm/s
         default: 100
     '''
-    
+
     # while the volume is greater than 1000 uL
     while intVolume > 1000:
         # move to the well to aspirate from
@@ -97,7 +96,7 @@ def fillWell(opentronsClient,
                                    fltOffsetX = fltOffsetX_from,
                                    fltOffsetY = fltOffsetY_from,
                                    intSpeed = intMoveSpeed)
-        
+
         # aspirate 1000 uL
         opentronsClient.aspirate(strLabwareName = strLabwareName_from,
                                  strWellName = strWellName_from,
@@ -107,7 +106,7 @@ def fillWell(opentronsClient,
                                  fltOffsetX = fltOffsetX_from,
                                  fltOffsetY = fltOffsetY_from,
                                  fltOffsetZ = fltOffsetZ_from)
-        
+
         # move to the well to dispense to
         opentronsClient.moveToWell(strLabwareName = strLabwareName_to,
                                    strWellName = strWellName_to,
@@ -116,7 +115,7 @@ def fillWell(opentronsClient,
                                    fltOffsetX = fltOffsetX_to,
                                    fltOffsetY = fltOffsetY_to,
                                    intSpeed = intMoveSpeed)
-        
+
         # dispense 1000 uL
         opentronsClient.dispense(strLabwareName = strLabwareName_to,
                                  strWellName = strWellName_to,
@@ -126,7 +125,7 @@ def fillWell(opentronsClient,
                                  fltOffsetX = fltOffsetX_to,
                                  fltOffsetY = fltOffsetY_to,
                                  fltOffsetZ = fltOffsetZ_to)
-        
+
         # subtract 1000 uL from the volume
         intVolume -= 1000
 
@@ -139,7 +138,7 @@ def fillWell(opentronsClient,
                                fltOffsetX = fltOffsetX_from,
                                fltOffsetY = fltOffsetY_from,
                                intSpeed = intMoveSpeed)
-    
+
     # aspirate the remaining volume
     opentronsClient.aspirate(strLabwareName = strLabwareName_from,
                              strWellName = strWellName_from,
@@ -149,7 +148,7 @@ def fillWell(opentronsClient,
                              fltOffsetX = fltOffsetX_from,
                              fltOffsetY = fltOffsetY_from,
                              fltOffsetZ = fltOffsetZ_from)
-    
+
     # move to the well to dispense to
     opentronsClient.moveToWell(strLabwareName = strLabwareName_to,
                                strWellName = strWellName_to,
@@ -158,7 +157,7 @@ def fillWell(opentronsClient,
                                fltOffsetX = fltOffsetX_to,
                                fltOffsetY = fltOffsetY_to,
                                intSpeed = intMoveSpeed)
-    
+
     # dispense the remaining volume
     opentronsClient.dispense(strLabwareName = strLabwareName_to,
                              strWellName = strWellName_to,
@@ -168,7 +167,7 @@ def fillWell(opentronsClient,
                              fltOffsetX = fltOffsetX_to,
                              fltOffsetY = fltOffsetY_to,
                              fltOffsetZ = fltOffsetZ_to)
-    
+
     return
 
 # define helper function to wash electrode
@@ -209,7 +208,7 @@ def washElectrode(opentronsClient,
                                fltOffsetY = -15,
                                fltOffsetZ = -10,
                                intSpeed = 50)
-    
+
     arduinoClient.set_ultrasound_on(cartridge = 0, time = 30)
 
     # drain wash station
@@ -393,7 +392,7 @@ oc.loadPipette(strPipetteName = 'p1000_single_gen2',
 #%%
 # MOVE OPENTRONS INSTRUMENTS-----------------------------------------------------------------------
 
-# turn the lights on 
+# turn the lights on
 oc.lights(True)
 
 # home robot
@@ -693,7 +692,7 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
                                    'intTechniqueIndex': None}
 
             # run all techniques
-            runner = channel.run_techniques([peisTech_irCompensation,
+                runner = channel.run_techniques([peisTech_irCompensation,
                                              ocvTech_10mins,
                                              caTech,
                                              ocvTech_15mins,
@@ -701,12 +700,12 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
                                              cppTech,
                                              ocvTech_30mins,
                                              peisTech])
-    
+
             for data_temp in runner:
 
                 # if the type of the result is PEISData
                 if isinstance(data_temp.data, PEISData):
-                    
+
                     # if process_index is 0
                     if data_temp.data.process_index == 0:
                         # check if this technique is not the same as the previous technique
@@ -729,7 +728,7 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
                         strDataPath = os.path.join(strExperimentPath, f'{strExperimentID}_{dicTechniqueTracker["intTechniqueIndex"]}_PEISV.csv')
                         # write the dataframe to a csv
                         dfData.to_csv(strDataPath)
-                        
+
                     # if process_index is 1
                     elif data_temp.data.process_index == 1:
                         # check if this technique is not the same as the previous technique
@@ -752,7 +751,7 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
                         strDataPath = os.path.join(strExperimentPath, f'{strExperimentID}_{dicTechniqueTracker["intTechniqueIndex"]}_PEIS.csv')
                         # write the dataframe to a csv
                         dfData.to_csv(strDataPath)
-                        
+
 
                 # if the type of the result is OCVData
                 elif isinstance(data_temp.data, OCVData):

@@ -1,5 +1,13 @@
+from pydantic import BaseModel, Field
+
 from sdl.Robot.workflow.utils import BaseProcedure
 
+class Location(BaseModel):
+    device: str = Field(None, description="Name of the device")
+
+class OpentronsLocation(BaseModel):
+    slot: int = Field(None, description="Slot number")
+    well: str = Field(None, description="Well ID")
 
 class ArduinoBaseProcedure(BaseProcedure):
 
@@ -9,7 +17,7 @@ class ArduinoBaseProcedure(BaseProcedure):
         raise NotImplementedError
 
 
-    def wait_for_arduino(self, max_wait_time: int = 2000, CONNECTION_TIMEOUT: int = 0.1):
+    def wait_for_arduino(self, connection, max_wait_time: int = 2000, CONNECTION_TIMEOUT: int = 0.1, *args, **kwargs):
         """To make sure arduino completed the particular task.
 
         Args:
@@ -19,13 +27,14 @@ class ArduinoBaseProcedure(BaseProcedure):
         Raises:
             RuntimeWarning: Arduino did not finish the job in given time.
         """
+        logger = kwargs.get("logger")
         max_try = (1 / CONNECTION_TIMEOUT) * max_wait_time
         count = 0
         while count < max_try:
-            self.LOGGER.debug("waiting for arduino to finish the task")
-            state = self.connection.read().decode()
+            logger.info("waiting for arduino to finish the task")
+            state = connection.read().decode()
             if state == "#":
-                self.LOGGER.debug("Arduino finished the task")
+                logger.debug("Arduino finished the task")
                 break
             count += 1
         else:

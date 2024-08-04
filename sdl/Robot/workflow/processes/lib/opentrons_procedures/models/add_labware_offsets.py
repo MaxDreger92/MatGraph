@@ -21,6 +21,6 @@ class AddLabwareOffsetParams(BaseModel):
 
 class AddLabwareOffset(OpentronsBaseProcedure):
     url: str = '/runs/{run_id}/commands'
-    commandType = "add_labware_offsets"
+    commandType = "addLabwareOffsets"
     params: AddLabwareOffsetParams
     intent: Optional[str] = None

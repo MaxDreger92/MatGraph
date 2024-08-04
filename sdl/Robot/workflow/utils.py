@@ -1,7 +1,7 @@
 import importlib
 import json
 import pkgutil
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from pydantic import BaseModel
 
@@ -39,10 +39,9 @@ class Registry:
         return list(self._registry.keys())
 
 class BaseWorkflow(Registry):
-    def __init__(self, operations: list = None):
+    def __init__(self, operations: list[Union['BaseWorkflow', BaseProcedure]] = None):
         self.operations = operations if operations is not None else []
-        self.responses = []
-        self.requests = []
+        self.outputs = []
 
     def add_step(self, step):
         self.operations.append(step)
@@ -50,15 +49,25 @@ class BaseWorkflow(Registry):
     def get_operations(self):
         return self.operations
 
-    def execute(self, robot_ip, headers, run_id, additional_params, offline=False, logger = None, LOGGER=None):
+    def execute(self, *args, **kwargs):
         for operation in self.operations:
             print(operation)
-            operation.execute(robot_ip, headers, run_id, logger, additional_params, offline)
+            output = operation.execute(*args, **kwargs)
+            self.outputs.append(output)
             # response = output['response']
             # request = output['request']
             # self.responses = [*self.responses, *response]
             # self.requests = [*self.requests, *request]
-        return {"response": self.responses, "request": self.requests}
+        return self.outputs
+
+    def to_graph(self):
+        previous_step = None
+        print(self.operations)
+        for operation in self.operations:
+            if previous_step:
+                previous_step.followed_by.connect(operation)
+            step = operation.to_graph()
+            previous_step = step
 
 
 class BaseStep:

@@ -2,14 +2,15 @@ import os
 from datetime import datetime
 import time
 
-from neomodel import UniqueIdProperty, FloatProperty, StringProperty, RelationshipTo, IntegerProperty, DateTimeProperty
+from neomodel import UniqueIdProperty, FloatProperty, StringProperty, RelationshipTo, IntegerProperty, DateTimeProperty, \
+    RelationshipFrom
 
 from neomodel import db
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 
 from matgraph.models.metadata import Metadata
-from matgraph.models.relationships import HasPartRel
+from matgraph.models.relationships import HasPartRel, InLocationRel
 
 
 # Create your models here.
@@ -92,7 +93,7 @@ class Opentron_Module(Metadata):
 
     def add_slot(self, ExperimentID, slot):
         query = f'''
-            MATCH (o:Opentron_O2 {{setup_id: '{ExperimentID}'}})-[:HAS_PART]->(s:Slot {{number: {slot}}})
+            MATCH (o:Opentrons {{setup_id: '{ExperimentID}'}})-[:HAS_PART]->(s:Slot {{number: {slot}}})
             MATCH (m:Opentron_Module {{uid: '{self.uid}'}})
             WITH DISTINCT s, m
             CREATE (m)<-[:HAS_PART]-(s)
@@ -111,14 +112,9 @@ class Slot(Metadata):
     def __str__(self):
         return f"Slot {self.number}"
 
-class Pump(Metadata):
-    number = IntegerProperty(unique=True, required=True)
-    time = FloatProperty()
 
-    def __str__(self):
-        return f"Pump {self.number}"
 
-class Opentron_O2(Metadata):
+class Opentrons(Metadata):
     setup_id = StringProperty(unique=True, required=True)
     date_added = DateTimeProperty(default=datetime.now())
     slots = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
@@ -137,11 +133,11 @@ class Opentron_O2(Metadata):
         pass
 
 
-class ArduinoSetup(Metadata):
+
+class ArduinoModule(Metadata):
     setup_id = StringProperty(unique=True, required=True)
     date_added = DateTimeProperty(default=datetime.now())
-    pumps = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
-    ultrasonic = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
+    relay = RelationshipTo('Relay', 'HAS_PART', model=HasPartRel)
     cartridge = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
 
     def save(self):
@@ -152,8 +148,53 @@ class ArduinoSetup(Metadata):
             self.slots.connect(slot)
 
     def __str__(self):
+        return f"ArduinoModule {self.experiment_id}"
+
+    class Meta(Metadata.Meta):
+        pass
+
+class ArduinoBoard(Metadata):
+    date_added = DateTimeProperty(default=datetime.now())
+    relay = RelationshipTo('Relay', 'HAS_PART', model=HasPartRel)
+    cartridge = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
+    baud_rate = IntegerProperty()
+    port = StringProperty()
+
+
+    def __str__(self):
         return f"ArduinoSetup {self.experiment_id}"
 
     class Meta(Metadata.Meta):
         pass
 
+
+class Relay(Metadata):
+    relay_id = StringProperty(required=True)
+    name = StringProperty(required=True)
+    device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+
+class Pump(Metadata):
+    name = StringProperty(required=True)
+    pump_slope = FloatProperty()
+    pump_intercept = FloatProperty()
+    device = RelationshipTo('matgraph.models.metadata.Metadata', 'HAS_PART', model=HasPartRel)
+    inlet = RelationshipTo('matgraph.models.metadata.Metadata', 'HAS_PART', model=HasPartRel)
+    outlet = RelationshipTo('matgraph.models.metadata.Metadata', 'HAS_PART', model=HasPartRel)
+
+    slope = FloatProperty()
+    intercept = FloatProperty()
+
+class Ultrasonic(Metadata):
+    name = StringProperty(required=True)
+    device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    slot = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    connected_to = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+
+class Reservoir(Metadata):
+    name = StringProperty(required=True)
+    device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    slot = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    connected_to = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    material = RelationshipFrom('matgraph.models.matter.Matter', 'IN', model=InLocationRel)
+    volume = FloatProperty()
+    unit = StringProperty()

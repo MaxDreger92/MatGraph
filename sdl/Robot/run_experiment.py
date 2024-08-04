@@ -19,7 +19,6 @@ import time
 from dotenv import load_dotenv
 
 from mat2devplatform.settings import BASE_DIR
-from opentrons import opentronsClient
 
 # from ardu import Arduino
 #
