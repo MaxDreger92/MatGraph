@@ -1,18 +1,11 @@
 import functools
 import json
-import opentrons
 
-from sdl.workflow.utils import BaseProcedure, P
-
-print(opentrons)
-
-import opentrons.protocol_engine.errors as ot_errors
-from opentrons.protocol_engine.errors import ModuleNotLoadedError
 import requests
 from neomodel import db
 from pydantic import BaseModel
 
-
+from sdl.workflow.utils import BaseProcedure, P
 
 
 def request_with_run_id(f):
@@ -32,8 +25,6 @@ def request_with_run_id(f):
             raise e
 
     return wrapper
-
-
 
 
 class Offset(BaseModel):
@@ -57,10 +48,7 @@ class Vector(BaseModel):
     z: float
 
 
-
-
 class OpentronsBaseProcedure(BaseProcedure[P]):
-
     name_space = "opentrons"
 
     def execute(self, *args, **kwargs):
@@ -144,7 +132,6 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             logger.error(f"Unexpected error: {error_message}")
             raise Exception(f"Unexpected error: {error_message}")
 
-
     def create_cypher_query(self, data):
         queries = []
         params = {}
@@ -167,7 +154,6 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         labware_query = ""
         well_query = ""
 
-
         params.update({
             f"id": entry.get('id'),
             f"createdAt": entry.get('createdAt'),
@@ -185,7 +171,9 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             """
             params[f"pipetteId"] = entry['params']['pipetteId']
 
-        if 'labwareId' in entry.get('params', {}) and 'wellName' in entry.get('params', {}) and 'wellLocation' in entry.get('params', {}):
+        if 'labwareId' in entry.get('params', {}) and 'wellName' in entry.get('params',
+                                                                              {}) and 'wellLocation' in entry.get(
+            'params', {}):
             well_query = f"""
                 MERGE (mo:Opentron_Module{{module_id: $labwareId}})
                 MERGE(mo)-[:HAS_PART]->(w:Well {{well_id: $wellName}})
@@ -214,5 +202,3 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         full_query = " ".join(queries)
         db.cypher_query(full_query, params)
         return {"id": entry.get('id'), "response": entry.get('status')}
-
-
