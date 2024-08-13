@@ -13,7 +13,6 @@ class Experiment:
             setups (list): A list of setup instances.
             workflow (Workflow): An instance of a workflow.
         """
-        print(setups)
         self.setups = {setup.name_space: setup for setup in setups}  # Using a dictionary for easy access by name
         self.workflow = workflow
         self.logger = logger
@@ -34,18 +33,16 @@ class Experiment:
             self.update_setups(setup)
 
     def store_setups(self):
-        """Store all setups."""
+        """Store all setups..."""
         for name, setup in self.setups.items():
             self.logger.info(f"Storing setup '{name}'")
             kwargs = self.configs
-            print("KWARGS", kwargs)
             setup.save_graph(**kwargs)
 
     def execute(self, workflow=None, *args, **kwargs):
         # Check if the workflow is a list
         if isinstance(self.workflow, list):
             for sub_workflow in self.workflow:
-                print("CONFIGS: ", self.configs)
                 configs = {k: v for config in self.configs.values() for k, v in config.items()}
                 output = sub_workflow.execute(**configs,
                                               logger=self.logger)
@@ -55,7 +52,3 @@ class Experiment:
             if not isinstance(output, list):
                 output = [output]
             self.outputs = [*self.outputs, *output]
-
-        match_query = []
-        names = []
-        connect_query = []

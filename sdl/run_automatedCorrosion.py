@@ -1,6 +1,10 @@
+import json
 import logging
+import os
 
 from django.conf import settings
+from dotenv import load_dotenv
+
 settings.configure()
 
 from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
@@ -12,9 +16,7 @@ from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
 
 
 def main():
-    import os
-    from dotenv import load_dotenv
-    import json
+
 
     SIMULATE = False
 
@@ -51,27 +53,16 @@ def main():
 
     # SETUP EXPERIMENTAL SETUP------------------------------------------------------------------------
     opentrons = OpentronsSetup(robot_config_source=robot_config,
-                         labware_config_source=labware_config,
-                         ip=robot_config['ip'],
-                         port=robot_config['port'],
-                         logger=LOGGER)
-
+                               labware_config_source=labware_config,
+                               ip=robot_config['ip'],
+                               port=robot_config['port'],
+                               logger=LOGGER)
 
     arduino = ArduinoSetup(config=arduino_config,
                            relay_config=arduino_setup,
-                         logger=LOGGER)
+                           logger=LOGGER)
 
     biologic = BiologicSetup(config_source=biologic_config, logger=LOGGER)
-    #
-    # test = SetRelayOnTime(relay_num=3, time_on=5)
-    #
-    #
-    #
-    # print("connection",arduino.connection)
-    #
-    # print("relay:",test.execute(connection=arduino.connection))
-
-
 
 
     experiment = Experiment(setups=[biologic],
@@ -93,59 +84,12 @@ def main():
                                 #           pipette_id=opentrons.default_pipette
                                 #       )
                                 HomeRobot(HomeRobotParams())
-                                      ],
+                            ],
                             logger=LOGGER)
-    # experiment = Experiment(setups=[opentrons, arduino],
-    #                         workflow=HelloWorldWorkflow(),
-    #                         logger=LOGGER)
-    experiment.initialize_setups(simulate = SIMULATE)
+
+    experiment.initialize_setups(simulate=SIMULATE)
     experiment.store_setups()
     experiment.execute()
-
-
-# dispense = DispenseMl(
-    #     volume=10,
-    #     from_loc={
-    #         "device": "opentrons",
-    #         "properties": {
-    #             "slot": 6,
-    #             "well": "A1"
-    #         }
-    #     },
-    #     to_loc={
-    #         "device": "opentrons",
-    #         "properties": {
-    #             "slot": 6,
-    #             "well": "A1"
-    #         }
-    #     }
-    # )
-    # dispense.execute(connection=arduino.connection, arduino_config=arduino.setup_config, amount=50, logger=LOGGER)
-    # apply_ultrasound = SetUltrasoundOn(
-    #     time = 5,
-    #     relay_num = 6
-    #
-    # )
-    # apply_ultrasound.execute(connection=arduino.connection, arduino_config=arduino.setup_config, logger=LOGGER)
-
-    # experiment.workflow.execute(
-    #     robot_ip= experiment.setups['opentrons'].robot_ip,
-    #     headers = experiment.setups['opentrons'].headers,
-    #     run_id = experiment.setups['opentrons'].runID,
-    #     logger = LOGGER,
-    #     additional_params = None,
-
-    # experiment.execute()
-
-    # Setting up an Experiment:
-
-    # 1. Define a SetupClass for each kind of setup you have
-    # 2. Define a class for the workflow you are doing
-    # 3. Define an Experiment Class with the setups and workflows you want to do
-    # 4. Instantiate the experiment
-    # 5. Run the experiment
-    # experiment.to_graph()
-    # Example usage:
 
 
 if __name__ == '__main__':
