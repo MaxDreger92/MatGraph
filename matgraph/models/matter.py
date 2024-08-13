@@ -3,9 +3,9 @@ from neomodel import RelationshipTo, RelationshipFrom
 
 from matgraph.models.abstractclasses import CausalObject, UIDDjangoNode
 from matgraph.models.relationships import (HasPartRel, HasMeasurementOutputRel,
-                                             IsManufacturingOutputRel,
-                                             IsManufacturingInputRel,
-                                             IsARel, HasPropertyRel)
+                                           IsManufacturingOutputRel,
+                                           IsManufacturingInputRel,
+                                           IsARel, HasPropertyRel, HasMetadataRel)
 
 
 class Matter(CausalObject):
@@ -25,6 +25,8 @@ class Matter(CausalObject):
                                          model=IsManufacturingInputRel)
     manufacturing_output = RelationshipFrom('matgraph.models.processes.Manufacturing', 'IS_MANUFACTURING_OUTPUT',
                                             model=IsManufacturingOutputRel)
+    by = RelationshipTo('matgraph.models.metadata.Metadata', 'HAS_METADATA', model=HasMetadataRel)
+
     class Meta(UIDDjangoNode.Meta):
         pass
 
