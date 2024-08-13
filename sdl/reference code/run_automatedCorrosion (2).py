@@ -17,15 +17,16 @@ import sys
 import time
 
 
-from ardu import Arduino
 
-from biologic import connect, BANDWIDTH, I_RANGE, E_RANGE
-from biologic.techniques.ocv import OCVTechnique, OCVParams, OCVData
-from biologic.techniques.peis import PEISTechnique, PEISParams, SweepMode, PEISData
-from biologic.techniques.ca import CATechnique, CAParams, CAStep, CAData
-from biologic.techniques.cpp import CPPTechnique, CPPParams, CPPData
+
 
 import pandas as pd
+from biologic.biologic.techniques.ca import CAStep, CAParams, CATechnique
+from biologic.biologic.techniques.cpp import CPPParams, CPPTechnique
+from biologic.biologic.techniques.ocv import OCVParams, OCVTechnique
+from biologic.biologic.techniques.peis import PEISParams, SweepMode, PEISTechnique, PEISData
+from biologic.kbio.types import BANDWIDTH, E_RANGE, I_RANGE
+
 
 # HELPER FUNCTIONS---------------------------------------------------------------------------------
 
@@ -692,14 +693,14 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
                                    'intTechniqueIndex': None}
 
             # run all techniques
-                runner = channel.run_techniques([peisTech_irCompensation,
-                                             ocvTech_10mins,
-                                             caTech,
-                                             ocvTech_15mins,
-                                             peisTech,
-                                             cppTech,
-                                             ocvTech_30mins,
-                                             peisTech])
+            runner = channel.run_techniques([peisTech_irCompensation,
+                                         ocvTech_10mins,
+                                         caTech,
+                                         ocvTech_15mins,
+                                         peisTech,
+                                         cppTech,
+                                         ocvTech_30mins,
+                                         peisTech])
 
             for data_temp in runner:
 
@@ -838,6 +839,8 @@ while boolTryToConnect and intAttempts_temp < intMaxAttempts:
         logging.info(f"Attempting again in 50 seconds")
         time.sleep(50)
         intAttempts_temp += 1
+    return e
+
 
 # log the end of the experiment
 logging.info("End of electrochemical experiment")

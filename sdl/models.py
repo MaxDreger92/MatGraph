@@ -140,12 +140,7 @@ class ArduinoModule(Metadata):
     relay = RelationshipTo('Relay', 'HAS_PART', model=HasPartRel)
     cartridge = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
 
-    def save(self):
-        super().save()
-        for i in range(1, 13):
-            slot = Slot(number=i)
-            slot.save()
-            self.slots.connect(slot)
+
 
     def __str__(self):
         return f"ArduinoModule {self.experiment_id}"
@@ -194,6 +189,16 @@ class Reservoir(Metadata):
     name = StringProperty(required=True)
     device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
     slot = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    connected_to = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    material = RelationshipFrom('matgraph.models.matter.Matter', 'IN', model=InLocationRel)
+    volume = FloatProperty()
+    unit = StringProperty()
+
+
+class Biologic(Metadata):
+    name = StringProperty(default="Biologic Setup")
+    device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+    slot = RelationshipFrom('matgraph.models.metadata.Metadata', 'HAS_PART', model=HasPartRel)
     connected_to = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
     material = RelationshipFrom('matgraph.models.matter.Matter', 'IN', model=InLocationRel)
     volume = FloatProperty()
