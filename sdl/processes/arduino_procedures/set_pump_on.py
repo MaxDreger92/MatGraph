@@ -1,6 +1,7 @@
 from pydantic import Field, BaseModel
 
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
+from sdl.processes.utils import ProcessOutput
 
 
 class SetPumpOnParams(BaseModel):
@@ -15,3 +16,4 @@ class SetPumpOn(ArduinoBaseProcedure[SetPumpOnParams]):
         self.LOGGER.info(f"Switching relay {self.pump} on for {self.time} seconds")
         self.connection.write(self.command.encode())
         self.wait_for_arduino()
+        return ProcessOutput(input=self.params.dict(), output={})

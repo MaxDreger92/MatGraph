@@ -1,10 +1,12 @@
 import functools
 import json
+from typing import Optional
 
 import requests
 from neomodel import db
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from sdl.processes.utils import ProcessOutput
 from sdl.workflow.utils import BaseProcedure, P
 
 
@@ -47,9 +49,22 @@ class Vector(BaseModel):
     y: float
     z: float
 
+class OpentronsParamsMoveToLocation(BaseModel):
+    labwareId: Optional[str] = None
+    labwareLocation: Optional[str] = None
+    wellName: str
+    pipetteId: Optional[str] = None
+    pipetteName: Optional[str] = None
+    wellLocation: Optional[WellLocation] = Field(default= WellLocation(origin='top', offset=Offset(x=0, y=0, z=0)))
+
+    speed: int = Field(default = 100)
+
+
+
 
 class OpentronsBaseProcedure(BaseProcedure[P]):
     name_space = "opentrons"
+
 
     def execute(self, *args, **kwargs):
         """
@@ -62,8 +77,15 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         Returns:
         - Response data from the Opentrons API.
         """
-
+        opentrons = kwargs.get('opentrons_setup')
         # Extract and validate necessary fields from the combined dictionary
+        if hasattr(self.params, 'labwareId') and hasattr(self.params, 'labwareLocation'):
+            if not self.params.labwareId and self.params.labwareLocation:
+                self.params.labwareId = opentrons.get_labware_id(self.params.labwareLocation)
+        if hasattr(self.params, 'pipetteId') and hasattr(self.params, 'pipetteName'):
+            if not self.params.pipetteId:
+                self.params.pipetteId = opentrons.get_pipette_id(self.params.pipetteName)
+
         required_kwargs = ['opentrons_ip', 'opentrons_headers', 'opentrons_run_id', 'logger', 'opentrons_port']
         missing_kwargs = [key for key in required_kwargs if key not in kwargs]
 
@@ -115,7 +137,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
             dic_response = response_content['data']
             logger.info(f"Command {command_type} executed successfully.")
-            return self.create_cypher_query(dic_response)
+            return self.create_cypher_query(dic_response, **kwargs)
 
         except requests.exceptions.RequestException as e:
             error_message = str(e)
@@ -132,7 +154,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             logger.error(f"Unexpected error: {error_message}")
             raise Exception(f"Unexpected error: {error_message}")
 
-    def create_cypher_query(self, data):
+    def create_cypher_query(self, data, **kwargs):
         queries = []
         params = {}
         entry = data
@@ -142,6 +164,8 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
         common_query = f"""
             MERGE (m:Manufacturing {{id: $id}})
+            MERGE (u:Opentrons {{setup_id: '{kwargs['opentrons_id']}'}})
+            MERGE (m)-[:BY]-> (u)
             SET m.createdAt = $createdAt,
                 m.name = $commandType,
                 m.status = $status,
@@ -166,8 +190,8 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
         if 'pipetteId' in entry.get('params', {}):
             pipette_query = f"""
-                MERGE (p:Pipette {{id: $pipetteId}})
-                MERGE (p)-[:USED_IN]->(m)
+                MERGE (p:Pipette {{module_id: $pipetteId}})
+                MERGE (p)<-[:USED]-(m)
             """
             params[f"pipetteId"] = entry['params']['pipetteId']
 
@@ -177,7 +201,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             well_query = f"""
                 MERGE (mo:Opentron_Module{{module_id: $labwareId}})
                 MERGE(mo)-[:HAS_PART]->(w:Well {{well_id: $wellName}})
-                MERGE (m)-[:BY]->(mo)
+                MERGE (m)-[:IN]->(mo)
                 MERGE (m)-[:IN]->(w)
             """
             params[f"labwareId"] = entry['params']['labwareId']
@@ -201,4 +225,4 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
         full_query = " ".join(queries)
         db.cypher_query(full_query, params)
-        return {"id": entry.get('id'), "response": entry.get('status')}
+        return ProcessOutput(id=entry.get('id'), status=entry.get('status'), output=entry, input=self.params.dict())

@@ -1,0 +1,12 @@
+{
+  "labware": [
+    {
+      "slot": "3",
+      "name": "opentrons_96_deep_well_adapter",
+      "filename": "",
+      "namespace": "opentrons",
+      "version": 1,
+      "intent": "setup"
+    }
+  ]
+}

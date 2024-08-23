@@ -1,15 +1,18 @@
-from pydantic import BaseModel
-
-from sdl.processes.opentrons_utils import OpentronsBaseProcedure
-
-
-class PickUpTipParams(BaseModel):
-    labwareId: str
-    wellName: str
-    pipetteId: str
+from sdl.processes.opentrons_utils import OpentronsBaseProcedure, OpentronsParamsMoveToLocation
+from sdl.processes.opentrons_utils1 import OpentronsMoveAction
 
 
-class PickUpTip(OpentronsBaseProcedure[PickUpTipParams]):
+class PickUpTipParams(OpentronsParamsMoveToLocation):
+    pass
+
+class PickUpTip(OpentronsMoveAction[PickUpTipParams]):
     commandType = 'pickUpTip'
     url = '/runs/{run_id}/commands'
     intent = None
+
+    def execute(self, *args, **kwargs):
+        output = self.execute_all(*args, **kwargs)
+        return output
+
+
+

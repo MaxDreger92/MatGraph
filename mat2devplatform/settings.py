@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'matching',
     'usermanagement',
     'importing',
+    'sdl',
     'matgraph',
     'graphutils',
     'colorfield',

@@ -5,7 +5,6 @@ from datetime import datetime
 
 import requests
 import serial
-from Arduino import Arduino
 from neomodel import db
 
 from mat2devplatform.settings import BASE_DIR
@@ -25,7 +24,7 @@ class BaseSetup:
         """
         self.config_source = self.load_configuration(config_source)
         self.setup_model = db_model
-        self.config = None
+        self.config = self.config_source
         self.name_space = None  # needs to be implemented in subclass
         self.simulate = False
 

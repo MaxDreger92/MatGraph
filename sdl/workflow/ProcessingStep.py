@@ -1,6 +1,6 @@
 from typing import Union, List, Callable, Optional, Dict
 
-from sdl.Robot.workflow.utils import BaseProcedure, BaseStep, BaseWorkflow
+from sdl.workflow.utils import BaseStep, BaseProcedure, BaseWorkflow
 
 
 class SingleStep(BaseStep):

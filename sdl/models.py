@@ -1,7 +1,7 @@
 import os
+import uuid
 from datetime import datetime
-import time
-
+from django.db import models
 from neomodel import UniqueIdProperty, FloatProperty, StringProperty, RelationshipTo, IntegerProperty, DateTimeProperty, \
     RelationshipFrom
 
@@ -25,6 +25,7 @@ class Well(BaseModel):
     x: float
     y: float
     z: float
+
 
 class Module(BaseModel):
     ordering: List[List[str]]
@@ -60,6 +61,7 @@ class Well(Metadata):
 
     def __str__(self):
         return f"Well {self.uid}"
+
     class Meta(Metadata.Meta):
         pass
 
@@ -85,7 +87,7 @@ class Opentron_Module(Metadata):
 
         wells_data = data.pop('wells')
         for well_id, well_attr in wells_data.items():
-            well_instance = Well(well_id = well_id, **well_attr)
+            well_instance = Well(well_id=well_id, **well_attr)
             well_instance.save()
             module_instance.wells.connect(well_instance)
 
@@ -93,36 +95,37 @@ class Opentron_Module(Metadata):
 
     def add_slot(self, ExperimentID, slot):
         query = f'''
-            MATCH (o:Opentrons {{setup_id: '{ExperimentID}'}})-[:HAS_PART]->(s:Slot {{number: {slot}}})
+            MATCH (o:Opentrons {{setup_id: '{ExperimentID}'}})-[:HAS_PART]->(s:Slot {{number: '{str(slot)}'}})
             MATCH (m:Opentron_Module {{uid: '{self.uid}'}})
             WITH DISTINCT s, m
             CREATE (m)<-[:HAS_PART]-(s)
         '''
-
-        res,_ = db.cypher_query(query, {})
-
-
+        res, _ = db.cypher_query(query, {})
 
     class Meta(Metadata.Meta):
         pass
 
+class Pipette(Opentron_Module):
+    pass
+
+
 class Slot(Metadata):
-    number = IntegerProperty(unique=True, required=True)
+    number = StringProperty(unique=True, required=True)
 
     def __str__(self):
         return f"Slot {self.number}"
-
 
 
 class Opentrons(Metadata):
     setup_id = StringProperty(unique=True, required=True)
     date_added = DateTimeProperty(default=datetime.now())
     slots = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
+    pipettes = RelationshipTo('Pipette', 'HAS_PART', model=HasPartRel)
 
     def save(self):
         super().save()
         for i in range(1, 13):
-            slot = Slot(number=i)
+            slot = Slot(number=str(i))
             slot.save()
             self.slots.connect(slot)
 
@@ -133,14 +136,11 @@ class Opentrons(Metadata):
         pass
 
 
-
 class ArduinoModule(Metadata):
     setup_id = StringProperty(unique=True, required=True)
     date_added = DateTimeProperty(default=datetime.now())
     relay = RelationshipTo('Relay', 'HAS_PART', model=HasPartRel)
     cartridge = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
-
-
 
     def __str__(self):
         return f"ArduinoModule {self.experiment_id}"
@@ -148,13 +148,13 @@ class ArduinoModule(Metadata):
     class Meta(Metadata.Meta):
         pass
 
+
 class ArduinoBoard(Metadata):
     date_added = DateTimeProperty(default=datetime.now())
     relay = RelationshipTo('Relay', 'HAS_PART', model=HasPartRel)
     cartridge = RelationshipTo('Slot', 'HAS_PART', model=HasPartRel)
     baud_rate = IntegerProperty()
     port = StringProperty()
-
 
     def __str__(self):
         return f"ArduinoSetup {self.experiment_id}"
@@ -168,6 +168,7 @@ class Relay(Metadata):
     name = StringProperty(required=True)
     device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
 
+
 class Pump(Metadata):
     name = StringProperty(required=True)
     pump_slope = FloatProperty()
@@ -179,11 +180,13 @@ class Pump(Metadata):
     slope = FloatProperty()
     intercept = FloatProperty()
 
+
 class Ultrasonic(Metadata):
     name = StringProperty(required=True)
     device = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
     slot = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
     connected_to = RelationshipTo('Metadata', 'HAS_PART', model=HasPartRel)
+
 
 class Reservoir(Metadata):
     name = StringProperty(required=True)
@@ -203,3 +206,25 @@ class Biologic(Metadata):
     material = RelationshipFrom('matgraph.models.matter.Matter', 'IN', model=InLocationRel)
     volume = FloatProperty()
     unit = StringProperty()
+
+
+class ExperimentModel(models.Model):
+    STATUS_CHOICES = [("queued", 'QUEUED'), ("running", 'RUNNING'), ("completed", 'COMPLETED'), ("failed", 'FAILED')]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+    opentrons = models.JSONField()
+    labware = models.JSONField()
+    chemicals = models.JSONField()
+    biologic = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+    arduino = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+    arduino_relays = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+    workflow = models.JSONField()
+    status = models.CharField(choices=STATUS_CHOICES, default="queued")
+    description = models.TextField(null=True, blank=True)  # Allow NULL and empty values
+    remarks = models.TextField(null=True, blank=True)  # Allow NULL and empty values
+    results = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+
+    def __str__(self):
+        """Return a readable representation of the importing report."""
+        return f'Queued Experiment ({self.id}, {self.date_created})'

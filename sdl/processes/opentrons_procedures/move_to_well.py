@@ -1,17 +1,9 @@
 
-from typing import Optional
-
-from pydantic import BaseModel
-
-from sdl.processes.opentrons_utils import WellLocation, OpentronsBaseProcedure
+from sdl.processes.opentrons_utils import OpentronsBaseProcedure, OpentronsParamsMoveToLocation
 
 
-class MoveToWellParams(BaseModel):
-    labwareId: str
-    wellName: str
-    pipetteId: str
-    wellLocation: WellLocation
-    speed: int
+class MoveToWellParams(OpentronsParamsMoveToLocation):
+    pass
 
 
 class MoveToWell(OpentronsBaseProcedure[MoveToWellParams]):

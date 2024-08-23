@@ -6,21 +6,23 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel
+from sdl.processes.opentrons_utils import WellLocation, Offset, OpentronsBaseProcedure, OpentronsParamsMoveToLocation
+from sdl.processes.opentrons_utils1 import OpentronsMoveAction
 
-from sdl.processes.opentrons_utils import WellLocation, Offset, OpentronsBaseProcedure
 
-
-class AspirateParams(BaseModel):
-    labwareId: str
-    wellName: str
-    pipetteId: str
+class AspirateParams(OpentronsParamsMoveToLocation):
     volume: int
     flowRate: float = 100
-    wellLocation: WellLocation = WellLocation(origin='top', offset=Offset(x=0, y=0, z=0))
+    wellLocation : Optional[WellLocation] = WellLocation(origin='bottom', offset=Offset(x=0, y=0, z=2))
 
 
-class Aspirate(OpentronsBaseProcedure[AspirateParams]):
+
+class Aspirate(OpentronsMoveAction[AspirateParams]):
     url: str = '/runs/{run_id}/commands'
     commandType = "aspirate"
     intent: Optional[str] = None
+
+    def execute(self, *args, **kwargs):
+        output = self.execute_all(*args, **kwargs)
+        print("Aspirate")
+        return output

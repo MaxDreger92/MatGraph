@@ -16,7 +16,7 @@ class RelayClass(ABC):
 
     def connect_to_opentrons_query(self, opentrons_id, slot, well_id):
         return f"""
-        MATCH (n:Opentrons {{setup_id: "{opentrons_id}"}})-[:HAS_PART]->(m:Slot {{number: {slot}}})
+        MATCH (n:Opentrons {{setup_id: "{opentrons_id}"}})-[:HAS_PART]->(m:Slot {{number: '{slot}'}})
         -[:HAS_PART]->(o:Opentron_Module)-[:HAS_PART]->(p:Well {{well_id: "{well_id}"}})
         RETURN p as well
         """
@@ -24,7 +24,7 @@ class RelayClass(ABC):
     def connect_to_materials_query(self, material, quantity, quantity_unit, material_id = None):
         if material_id is None or material_id == "":
             return f"""
-            CREATE (n:Matter {{name: "{material}"}})-[:HAS_PROPERTY]->(m:Quantity {{value: {quantity}, unit: "{quantity_unit}"}})
+            CREATE (n:Matter {{name: "{material}"}})-[:HAS_PROPERTY]->(m:Property {{name: "Quantity", value: {quantity}, unit: "{quantity_unit}"}})
             RETURN n
             """
         else:

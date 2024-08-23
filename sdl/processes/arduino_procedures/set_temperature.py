@@ -1,6 +1,7 @@
 from pydantic import Field, BaseModel
 
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
+from sdl.processes.utils import ProcessOutput
 
 
 class SetTemperatureParams(BaseModel):
@@ -18,8 +19,8 @@ class SetTemperature(ArduinoBaseProcedure[SetTemperatureParams]):
         # However the last digit is read as a decimal point.
         if self.params.relay_num:
             relay_num = self.params.relay_num
-        print("Logger", self.logger)
         connection.write(self.command.decode())
         connection.readline().decode()
+        return ProcessOutput(input=self.params.dict(), output={})
 
 

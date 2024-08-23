@@ -3,6 +3,7 @@ import time
 from pydantic import Field, BaseModel
 
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
+from sdl.processes.utils import ProcessOutput
 
 
 class GetRelayStatusParams(BaseModel):
@@ -14,10 +15,4 @@ class GetRelayStatus(ArduinoBaseProcedure[GetRelayStatusParams]):
         command = f"<get_relay_{self.params.relay_num}_state>"
         connection.write(command.encode())
         status = connection.readline().decode().strip()
-        if status == 0 or status == True or status == "True":
-            print(f"Status of relay {self.params.relay_num}: High / On")
-            return True
-        else:
-            print(f"Status of relay {self.params.relay_num}: Low / Off")
-            return False
-        return status
+        return ProcessOutput( input= self.params.dict(), output = {"status": bool(status)})

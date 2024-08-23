@@ -17,9 +17,11 @@ class SetUltrasoundOn(ArduinoBaseProcedure[SetUltrasoundParams]):
     def execute(self, connection, *args, **kwargs):
         time_ms = round(self.params.time * 1000, 0)
         if self.params.relay_num:
-            relay_num = self.params.relay_num
-        elif self.apply_on:
-            relay_num = self.get_relay_from_location(self.params.apply_on)
-        set_realay_on = SetRelayOnTime(relay_num=relay_num, time_on=time_ms)
-        set_realay_on.execute(connection, *args, **kwargs)
+            self.params.relay_num = self.params.relay_num
+        elif self.params.apply_on:
+            self.params.relay_num = self.params.get_relay_from_location(self.params.apply_on)
+        set_realay_on = SetRelayOnTime(relay_num=self.relay_num, time_on=time_ms)
+        response = set_realay_on.execute(connection, *args, **kwargs)
+        response.output["type"] =  "ultrasound"
+        return response
 
