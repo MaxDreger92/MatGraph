@@ -1,7 +1,8 @@
 import time
 
 import serial
-
+import serial.tools.list_ports
+from serial.tools import list_ports
 
 from sdl.models import ArduinoBoard
 from sdl.setup.ExperimentalSetup import BaseSetup
@@ -19,7 +20,7 @@ class ArduinoSetup(BaseSetup):
         """
         super().__init__(config_source = config, db_model= ArduinoSetup)
         # self.logger = logger
-        self.setup_config = relay_config
+        self.relay_config = relay_config
         self.relays = []
         self.pids = []
         self.init_relays(relay_config['relays'])
@@ -47,8 +48,12 @@ class ArduinoSetup(BaseSetup):
             "CONNECTION_TIMEOUT": self.CONNECTION_TIMEOUT,
         }
 
-    def connect(self) -> None:
+    def connect(self, simulate = True) -> None:
         """Connects to the serial port of the Arduino and verifies the connection."""
+        if simulate:
+            self.logger.warning("Simulating connection to Arduino.")
+            self.SERIAL_PORT = "SimulatedPort"
+            return
         self.SERIAL_PORT = self.define_arduino_port(self.arduino_search_string)
         try:
             self.logger.info(f"Attempting to connect to {self.SERIAL_PORT} at {self.BAUD_RATE} baud.")
@@ -87,9 +92,8 @@ class ArduinoSetup(BaseSetup):
         """
 
         # List Arduinos on computer
-        ports = list(serial.tools.list_ports.comports())
+        ports = list(list_ports.comports())
         self.logger.info("List of USB ports:")
-        print(ports)
         for p in ports:
             self.logger.info(f"{p}")
 

@@ -3,6 +3,7 @@ from datetime import time
 from pydantic import Field, BaseModel
 
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
+from sdl.processes.utils import ProcessOutput
 
 
 class GetTemperatureParams(BaseModel):
@@ -44,4 +45,5 @@ class GetAmbientTemperature(ArduinoBaseProcedure[GetAmbientTemperatureParams]):
             except Exception:
                 time.sleep(1)
 
-        return temperature
+        return ProcessOutput(input=self.params.dict(), output={"temperature": temperature})
+

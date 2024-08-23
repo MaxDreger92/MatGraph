@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from sdl.workflow.utils import BaseProcedure
+from sdl.workflow.utils import BaseProcedure, P
 
 
 class Location(BaseModel):
@@ -12,7 +12,7 @@ class OpentronsLocation(BaseModel):
 
 
 
-class ArduinoBaseProcedure(BaseProcedure):
+class ArduinoBaseProcedure(BaseProcedure[P]):
 
     def __init__(self, params):
         super().__init__(params)

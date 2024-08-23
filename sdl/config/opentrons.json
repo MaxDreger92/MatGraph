@@ -1,5 +1,6 @@
 {
-  "ip": "100.67.86.19799",
+  "ip": "100.66.91.63",
+  "opentrons_type": "OT-2",
   "user": "max",
   "port": 31950,
   "headers": {

@@ -4,7 +4,7 @@
   "potentiostat":
   {
     "location": {
-        "device": "shmopentrons",
+        "device": "opentrons",
         "properties": {
           "slot": 10
         }

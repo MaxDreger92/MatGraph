@@ -18,15 +18,15 @@
     },
     {
       "slot": 3,
-      "name": "nis_2_wellplate_30000ul",
+      "name": "tlg_1_reservoir_50000ul",
       "namespace": "custom_beta",
       "version": 1,
       "intent": "setup",
-      "filename": "nis_2_wellplate_30000ul.json"
+      "filename": "tlg_1_reservoir_50000ul.json"
     },
     {
       "slot": 4,
-      "name": "AUTODIAL 25 Reservoir 4620 µL",
+      "name": "autodial_25_reservoir_4620ul",
       "namespace": "custom_beta",
       "version": 1,
       "intent": "setup",
@@ -34,7 +34,15 @@
     },
     {
       "slot": 5,
-      "name": "TLG 1 Reservoir 50000 µL",
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    },
+    {
+      "slot": 6,
+      "name": "tlg_1_reservoir_50000ul",
       "namespace": "custom_beta",
       "version": 1,
       "intent": "setup",
@@ -42,7 +50,7 @@
     },
     {
       "slot": 9,
-      "name": "Nis 15 Well Plate 3895 µL",
+      "name": "nis_15_wellplate_3895ul",
       "namespace": "custom_beta",
       "version": 1,
       "intent": "setup",
@@ -50,7 +58,7 @@
     },
     {
       "slot": 10,
-      "name": "Nis_tall 4 Tip Rack 1 µL",
+      "name": "nistall_4_tiprack_1ul",
       "namespace": "custom_beta",
       "version": 1,
       "intent": "setup",

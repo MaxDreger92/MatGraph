@@ -6,21 +6,28 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from sdl.processes.opentrons_utils import WellLocation, OpentronsBaseProcedure
-
-
-class DropTipParams(BaseModel):
-    pipetteId: str
-    labwareId: str
-    wellName: str
-    wellLocation: WellLocation
-    homeAfter: Optional[bool] = None
-    alternateDropLocation: Optional[bool] = None
+from sdl.processes.opentrons_procedures.home_robot import HomeRobot, HomeRobotParams
+from sdl.processes.opentrons_procedures.move_to_well import MoveToWell, MoveToWellParams
+from sdl.processes.opentrons_utils import WellLocation, OpentronsBaseProcedure, Offset, OpentronsParamsMoveToLocation
+from sdl.processes.opentrons_utils1 import OpentronsMoveAction
 
 
-class DropTip(OpentronsBaseProcedure[DropTipParams]):
+class DropTipParams(OpentronsParamsMoveToLocation):
+    wellLocation : Optional[WellLocation] = WellLocation(origin='bottom', offset=Offset(x=0, y=0, z=0))
+    homeAfter: Optional[bool] = False
+
+
+
+class DropTip(OpentronsMoveAction[DropTipParams]):
     url = '/runs/{run_id}/commands'
     commandType = 'dropTip'
     intent = None
+
+    def execute(self, *args, **kwargs):
+        output = self.execute_all(*args, **kwargs)
+        if self.params.homeAfter:
+            HomeRobot(HomeRobotParams()).execute(*args, **kwargs)
+        return output
+

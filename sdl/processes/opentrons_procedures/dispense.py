@@ -8,19 +8,21 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from sdl.processes.opentrons_utils import OpentronsBaseProcedure, WellLocation
+from sdl.processes.opentrons_utils import OpentronsBaseProcedure, WellLocation, OpentronsParamsMoveToLocation, Offset
+from sdl.processes.opentrons_utils1 import OpentronsMoveAction
 
 
-class DispenseParams(BaseModel):
-    labwareId: str
-    wellName: str
-    pipetteId: str
+class DispenseParams(OpentronsParamsMoveToLocation):
     volume: int
     flowRate: float
-    wellLocation: WellLocation
+    wellLocation : Optional[WellLocation] = WellLocation(origin='bottom', offset=Offset(x=0, y=0, z=2))
 
 
-class Dispense(OpentronsBaseProcedure[DispenseParams]):
+class Dispense(OpentronsMoveAction[DispenseParams]):
     url = '/runs/{run_id}/commands'
     commandType = 'dispense'
     intent = None
+
+    def execute(self, *args, **kwargs):
+        output = self.execute_all(*args, **kwargs)
+        return output

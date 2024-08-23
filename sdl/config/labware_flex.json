@@ -24,5 +24,18 @@
       "intent": "setup",
       "filename": "tlg_1_reservoir_50000ul.json"
     }
-  ]
+  ],
+  "pipettes": [
+    {
+      "mount": "right",
+      "name": "p1000_single_flex",
+      "intent": "setup"
+    },
+    {
+      "mount": "left",
+      "name": "p50_single_flex",
+      "intent": "setup"
+    }
+    ]
+
 }

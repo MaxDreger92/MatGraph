@@ -13,7 +13,7 @@
     "metadata": {
         "displayName": "TLG 1 Reservoir 50000 µL",
         "displayCategory": "reservoir",
-        "displayVolumeUnits": "µL",
+        "displayVolumeUnits": "mL",
         "tags": []
     },
     "dimensions": {

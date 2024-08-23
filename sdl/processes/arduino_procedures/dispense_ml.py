@@ -1,6 +1,9 @@
+from dataclasses import asdict
+from typing import ClassVar
+
 from pydantic import Field, BaseModel
 
-from sdl.processes.arduino_procedures.set_relay_on_time import SetRelayOnTime, SetRelayParams
+from sdl.processes.arduino_procedures.set_relay_on_time import SetRelayOnTime, SetRelayOnTimeParams
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
 
 
@@ -10,7 +13,7 @@ class DispenseMLParams(BaseModel):
     from_loc: dict = Field(None, description="Location to dispense from")
     to_loc: dict = Field(None, description="Location to dispense to")
     relay_num: int = Field(None, description="Relay number to dispense from")
-    device_type = "pump"
+    device_type: ClassVar[str] = 'pump'
 
 class DispenseMl(ArduinoBaseProcedure[DispenseMLParams]):
 
@@ -62,5 +65,8 @@ class DispenseMl(ArduinoBaseProcedure[DispenseMLParams]):
         pump_slope, intercept = self.params.get_pump_calibration(arduino_config, relay_num)
         time_on = self.params.get_pumping_time(self.params.volume, pump_slope, intercept)
 
-        start_relay = SetRelayOnTime(SetRelayParams(relay_num=relay_num, time_on=time_on, **kwargs))
-        start_relay.execute(connection, *args, **kwargs)
+        start_relay = SetRelayOnTime(SetRelayOnTimeParams(relay_num=relay_num, time_on=time_on, **kwargs))
+        response = start_relay.execute(connection, *args, **kwargs)
+        response.output["type"] = "dispense"
+        response.input=asdict(self.params)
+        return response
