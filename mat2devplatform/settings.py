@@ -60,10 +60,13 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
     'mat2devplatform',
     'matching',
     'usermanagement',
     'importing',
+    'sdl',
     'matgraph',
     'graphutils',
     'colorfield',
@@ -83,8 +86,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'related_admin',
     'admin_interface',
-    'dal',
-    'dal_select2',
     'rest_framework',
 ]
 
@@ -116,7 +117,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'https://matgraph.xyz'
+]
 ROOT_URLCONF = 'mat2devplatform.urls'
 # OpenAI API Key
 TEMPLATES = [

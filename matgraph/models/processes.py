@@ -1,5 +1,5 @@
 from neomodel import (RelationshipTo, StringProperty, RelationshipFrom,
-                      BooleanProperty, OneOrMore, ZeroOrMore)
+                      BooleanProperty, OneOrMore, ZeroOrMore, DateTimeProperty)
 
 from matgraph.models.abstractclasses import CausalObject
 from matgraph.models.matter import Material, Molecule, Component, Device
@@ -16,6 +16,8 @@ class Process(CausalObject):
     # Organizational Data
     run_title = StringProperty(unique=True)
     run_id = StringProperty(unique=True)
+    time_started = DateTimeProperty()
+    time_completed = DateTimeProperty()
     public_access = BooleanProperty()
 
     # Relationships
@@ -23,7 +25,7 @@ class Process(CausalObject):
                           model=IsARel, cardinality=ZeroOrMore)
     parameter = RelationshipTo('matgraph.models.properties.Parameter', "HAS_PARAMETER",
                                model=HasParameterRel, cardinality=ZeroOrMore)
-    researcher = RelationshipTo('matgraph.models.metadata.Researcher', "BY",
+    researcher = RelationshipTo('matgraph.models.metadata.Metadata', "BY",
                                 model=ByResearcherRel, cardinality=ZeroOrMore)
     instrument = RelationshipTo('matgraph.models.metadata.Instrument', "BY_INSTRUMENT",
                                 model=ByRel, cardinality=ZeroOrMore)

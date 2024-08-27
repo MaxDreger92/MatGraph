@@ -28,6 +28,12 @@ class InLocationRel(StructuredRel):
     """
     test = StringProperty()
 
+class HasMetadataRel(StructuredRel):
+    """
+    Relationship between an entity and its metadata.
+    """
+    pass
+
 
 # Part-related properties
 

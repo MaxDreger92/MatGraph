@@ -84,7 +84,7 @@ class RelationshipExtractor:
                     for key, value_list in node["attributes"].items()
                 }
 
-        }
+            }
             for node in self.label_one_nodes
         ]
         label_two_nodes = [
@@ -166,6 +166,7 @@ class HasManufacturingExtractor(RelationshipExtractor):
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
         self.examples = MATTER_MANUFACTURING_EXAMPLES
 
+
 class HasPartMatterExtractor(RelationshipExtractor):
     """Extractor for Matter-Manufacturing relationships."""
 
@@ -179,7 +180,8 @@ class HasPartMatterExtractor(RelationshipExtractor):
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
-        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        label_one_nodes = [{"node_id": node['id'], "node_attributes": node["attributes"]} for node in
+                           self.label_one_nodes]
         prompt = f"""
 Scientific Context: {self.context}
 {', '.join(self.label_one)} nodes: {label_one_nodes}
@@ -187,6 +189,7 @@ Scientific Context: {self.context}
  Table Header: {', '.join(self.header)}
  First Row: {', '.join(self.first_line)}"""
         return prompt
+
 
 class HasPartManufacturingExtractor(RelationshipExtractor):
     """Extractor for Matter-Manufacturing relationships."""
@@ -199,10 +202,10 @@ class HasPartManufacturingExtractor(RelationshipExtractor):
         self.label_two = ["manufacturing"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input_json, self.label_one, self.label_two)
 
-
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
-        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        label_one_nodes = [{"node_id": node['id'], "node_attributes": node["attributes"]} for node in
+                           self.label_one_nodes]
         prompt = f"""
 Scientific Context: {self.context}
 {', '.join(self.label_one)} nodes: {label_one_nodes}
@@ -211,6 +214,7 @@ Scientific Context: {self.context}
  First Row: {', '.join(self.first_line)}"""
         print(prompt)
         return prompt
+
 
 class HasPartMeasurementExtractor(RelationshipExtractor):
     """Extractor for Matter-Manufacturing relationships."""
@@ -225,7 +229,8 @@ class HasPartMeasurementExtractor(RelationshipExtractor):
 
     def create_query(self):
         """Generates the initial query prompt for relationship extraction."""
-        label_one_nodes = [{"node_id": node['id'], "node_attributes" : node["attributes"]} for node in self.label_one_nodes]
+        label_one_nodes = [{"node_id": node['id'], "node_attributes": node["attributes"]} for node in
+                           self.label_one_nodes]
         prompt = f"""
 Scientific Context: {self.context}
 {', '.join(self.label_one)} nodes: {label_one_nodes}

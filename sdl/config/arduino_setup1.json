@@ -1,0 +1,229 @@
+{
+  "version": "1.0",
+  "arduino_search_string": "CH340",
+  "relays": [
+    {
+      "relay": 0,
+      "name": "pump 0",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 10,
+            "well": "B1"
+          }
+        },
+        "outlet": {
+          "device": "material",
+          "properties": {
+            "material": "trash",
+            "quantity": {
+              "value": "0",
+              "unit": "ml"
+            }
+          }
+        }
+      }
+    },
+    {
+      "relay": 1,
+      "name": "pump 1",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "H2O",
+            "quantity": {
+              "value":  "10000",
+              "unit": "ml"
+            }
+          }
+        },
+        "outlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 10,
+            "well": "B1"
+          }
+        }
+      }
+    },
+    {
+      "relay": 2,
+      "name": "pump 2",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "HCl",
+            "quantity": {
+              "value": "10000",
+              "unit": "ml"
+            }
+          }
+        },
+        "outlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 10,
+            "well": "B1"
+          }
+        }
+      }
+    },
+    {
+      "relay": 3,
+      "name": "pump 3",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 3,
+            "well": "A2"
+          }
+        },
+        "outlet": {
+          "device": "material",
+          "properties": {
+            "material": "trash",
+            "quantity": {
+              "value": 0,
+              "unit": "ml"
+            }
+          }
+          }
+      }
+    },
+    {
+      "relay": 4,
+      "name": "pump 4",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "H2O",
+            "quantity": {
+              "value": 6000,
+              "unit": "ml"
+            }
+          }
+        },
+        "outlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 3,
+            "well": "A2"
+          }
+        }
+      }
+    },
+    {
+      "relay": 5,
+      "name": "pump 5",
+      "device": "pump",
+      "properties": {
+        "calibration": {
+          "slope": 1.0,
+          "intercept": 0.0
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "HCl",
+            "quantity": {
+              "value": "10000",
+              "unit": "mL"
+            }
+          }
+        },
+        "outlet": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 3,
+            "well": "A2"
+          }
+        }
+      }
+    },
+    {
+      "relay": 6,
+      "name": "Relay 6",
+      "device": "ultrasonic",
+      "properties": {
+        "connected_to": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 3,
+            "well": "A1"
+          }
+        }
+      }
+    },
+    {
+      "relay": 7,
+      "name": "Relay 7",
+      "device": "ultrasonic",
+      "properties": {
+        "slot": "B1",
+        "connected_to": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 9,
+            "well": "A1"
+          }
+        }
+      }
+    }
+  ],
+  "pids": [
+    {
+      "number": 0,
+      "heating_element_pid": {
+        "connected_to": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 3,
+            "well": "A1"
+          }
+        }
+      }
+    },
+    {
+      "number": 1,
+      "heating_element_pid": {
+        "connected_to": {
+          "device": "opentrons",
+          "properties": {
+            "slot": 9,
+            "well": "A1"
+          }
+        }
+      }
+    }
+  ]
+}

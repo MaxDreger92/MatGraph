@@ -1,0 +1,220 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1",
+            "C1"
+        ],
+        [
+            "A2",
+            "B2",
+            "C2"
+        ],
+        [
+            "A3",
+            "B3",
+            "C3"
+        ],
+        [
+            "A4",
+            "B4",
+            "C4"
+        ],
+        [
+            "A5",
+            "B5",
+            "C5"
+        ]
+    ],
+    "brand": {
+        "brand": "Nis",
+        "brandId": []
+    },
+    "metadata": {
+        "displayName": "Nis 15 Well Plate 3895 µL",
+        "displayCategory": "wellPlate",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127,
+        "yDimension": 85,
+        "zDimension": 100
+    },
+    "wells": {
+        "A1": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 12.7,
+            "y": 70.83,
+            "z": 69
+        },
+        "B1": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 12.7,
+            "y": 42.5,
+            "z": 69
+        },
+        "C1": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 12.7,
+            "y": 14.17,
+            "z": 69
+        },
+        "A2": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 38.1,
+            "y": 70.83,
+            "z": 69
+        },
+        "B2": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 38.1,
+            "y": 42.5,
+            "z": 69
+        },
+        "C2": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 38.1,
+            "y": 14.17,
+            "z": 69
+        },
+        "A3": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 63.5,
+            "y": 70.83,
+            "z": 69
+        },
+        "B3": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 63.5,
+            "y": 42.5,
+            "z": 69
+        },
+        "C3": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 63.5,
+            "y": 14.17,
+            "z": 69
+        },
+        "A4": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 88.9,
+            "y": 70.83,
+            "z": 69
+        },
+        "B4": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 88.9,
+            "y": 42.5,
+            "z": 69
+        },
+        "C4": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 88.9,
+            "y": 14.17,
+            "z": 69
+        },
+        "A5": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 114.3,
+            "y": 70.83,
+            "z": 69
+        },
+        "B5": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 114.3,
+            "y": 42.5,
+            "z": 69
+        },
+        "C5": {
+            "depth": 31,
+            "totalLiquidVolume": 3895,
+            "shape": "circular",
+            "diameter": 20,
+            "x": 114.3,
+            "y": 14.17,
+            "z": 69
+        }
+    },
+    "groups": [
+        {
+            "metadata": {
+                "wellBottomShape": "v"
+            },
+            "wells": [
+                "A1",
+                "B1",
+                "C1",
+                "A2",
+                "B2",
+                "C2",
+                "A3",
+                "B3",
+                "C3",
+                "A4",
+                "B4",
+                "C4",
+                "A5",
+                "B5",
+                "C5"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isMagneticModuleCompatible": false,
+        "loadName": "nis_15_wellplate_3895ul",
+        "isTiprack": false
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}

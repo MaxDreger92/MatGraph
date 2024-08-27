@@ -15,6 +15,7 @@ OntologyNode is an abstract base class representing ontology nodes in the knowle
 from UIDDjangoNode and contains properties for the name, URI, description, and alternative_label relationship
 of the ontology node according to the EMMO (European Materials & Modelling Ontology).
 """
+from datetime import datetime
 
 from django_neomodel import classproperty
 from neomodel import StringProperty, RelationshipTo, ZeroOrMore, \
@@ -33,7 +34,7 @@ class CausalObject(UIDDjangoNode):
     name = StringProperty()
     __abstract_node__ = True
 
-    date_added = StringProperty(required=True)
+    date_added = StringProperty(default=datetime.now().strftime("%Y-%m-%d"))
 
     def __str__(self):
         return self.name

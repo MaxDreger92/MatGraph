@@ -55,7 +55,7 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
             }}
         >
             <Button
-                onClick={() => handleSubmit}
+                onClick={() => handleSubmit(searchForm.values)}
                 type="submit"
                 radius="xl"
                 style={{
