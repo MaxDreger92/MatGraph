@@ -428,15 +428,18 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.get('match/fabrication-workflow', {
-                params: {
-                    workflow,
+            const response = await this.dataClient.post('match/fabrication-workflow',
+                {
+                    params: {
+                        graph: workflow,
+                    }
                 },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                responseType: 'blob',
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    responseType: 'blob',
+                })
             return response
         } catch (err: any) {
             if (err.response?.data?.message) {
