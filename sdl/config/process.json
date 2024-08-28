@@ -1,0 +1,45 @@
+{
+  "aspirateParams": {
+    "strLabwareName": "corning_96_wellplate_360ul_flat",
+    "strWellName": "A1",
+    "strPipetteName": "p300_single",
+    "intVolume": 100,
+    "fltFlowRate": 7,
+    "strOffsetStart": "top",
+    "fltOffsetX": 0,
+    "fltOffsetY": 0,
+    "fltOffsetZ": 0,
+    "strIntent": "setup"
+  },
+  "dispenseParams": {
+    "strLabwareName": "corning_96_wellplate_360ul_flat",
+    "strWellName": "B1",
+    "strPipetteName": "p300_single",
+    "intVolume": 100,
+    "fltFlowRate": 7,
+    "strOffsetStart": "top",
+    "fltOffsetX": 0,
+    "fltOffsetY": 0,
+    "fltOffsetZ": 0,
+    "strIntent": "setup"
+  },
+  "fillWellParams": {
+    "strLabwareName_from": "corning_96_wellplate_360ul_flat",
+    "strWellName_from": "A1",
+    "strOffsetStart_from": "bottom",
+    "strPipetteName": "p1000_single_gen2",
+    "strLabwareName_to": "corning_96_wellplate_360ul_flat",
+    "strWellName_to": "B1",
+    "strOffsetStart_to": "center",
+    "intVolume": 400,
+    "fltOffsetX_from": 0,
+    "fltOffsetY_from": 0,
+    "fltOffsetZ_from": 2,
+    "fltOffsetX_to": -1,
+    "fltOffsetY_to": 0.5,
+    "fltOffsetZ_to": 0,
+    "intMoveSpeed": 100
+  }
+}
+
+

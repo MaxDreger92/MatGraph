@@ -1,0 +1,94 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1"
+        ],
+        [
+            "A2",
+            "B2"
+        ]
+    ],
+    "brand": {
+        "brand": "nis_tall",
+        "brandId": [
+            "electrodeHolder_tall"
+        ]
+    },
+    "metadata": {
+        "displayName": "Nis_tall 4 Tip Rack 1 µL",
+        "displayCategory": "tipRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 127.75,
+        "yDimension": 85.5,
+        "zDimension": 117
+    },
+    "wells": {
+        "A1": {
+            "depth": 94,
+            "totalLiquidVolume": 1,
+            "shape": "circular",
+            "diameter": 8,
+            "x": 31.75,
+            "y": 64.25,
+            "z": 26
+        },
+        "B1": {
+            "depth": 94,
+            "totalLiquidVolume": 1,
+            "shape": "circular",
+            "diameter": 8,
+            "x": 31.75,
+            "y": 20.75,
+            "z": 26
+        },
+        "A2": {
+            "depth": 94,
+            "totalLiquidVolume": 1,
+            "shape": "circular",
+            "diameter": 8,
+            "x": 95.25,
+            "y": 64.25,
+            "z": 26
+        },
+        "B2": {
+            "depth": 94,
+            "totalLiquidVolume": 1,
+            "shape": "circular",
+            "diameter": 8,
+            "x": 95.25,
+            "y": 20.75,
+            "z": 26
+        }
+    },
+    "groups": [
+        {
+            "metadata": {},
+            "wells": [
+                "A1",
+                "B1",
+                "A2",
+                "B2"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "tipLength": 94,
+        "isMagneticModuleCompatible": false,
+        "loadName": "nistall_4_tiprack_1ul",
+        "isTiprack": true
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}
