@@ -98,6 +98,12 @@ a:link {
     color: #a6a7ab;
 }
 
+.canvas-btn-save-icon {
+    width: 25px;
+    height: 25px;
+    color: #a6a7ab;
+}
+
 /* .canvas-btn-ttip {
   background-color: #2c2e33 !important;
   color: #c1c2c5 !important;
@@ -182,6 +188,13 @@ a:link {
     max-width: 100%;
 }
 
+.history-item-fadeout {
+    width: 264px;
+    display: inline-block;
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 85%);
+    mask-image: linear-gradient(to right, black 0%, black 80%, transparent 85%);
+}
+
 .input {
     border: none;
     font-family: Poppins-Medium;
@@ -249,6 +262,26 @@ a:link {
     width: 25vw;
     height: auto;
     transform: translate(5px, 0);
+}
+
+.logo-sm-spinner {
+    position: absolute;
+    width: 25px;
+    height: auto;
+    right: 4%;
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.logo-spin-anim {
+    animation: logo-spin 2s linear infinite;
 }
 
 .main {
@@ -511,7 +544,7 @@ input::webkit-inner-spin-button {
     justify-content: right;
 }
 
-.workflow {
+.workspace {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -519,34 +552,34 @@ input::webkit-inner-spin-button {
     height: 100%;
 }
 
-.workflow input[type='text'] {
+.workspace input[type='text'] {
     outline: none;
     border-radius: 3px;
     padding: 5px;
     width: 100%;
 }
 
-.workflow .node-input input[type='text'] {
+.workspace .node-input input[type='text'] {
     outline: none;
     border-radius: 3px;
     padding: 5px;
     height: 40px;
 }
 
-.workflow-btn {
+.workspace-btn {
     position: absolute;
     width: 35px;
     height: 35px;
 }
 
-.workflow-btn-wrap {
+.workspace-btn-wrap {
     pointer-events: none;
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
-.workflow-drawer-bottom {
+.workspace-drawer-bottom {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -554,7 +587,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-drawer-right {
+.workspace-drawer-right {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -562,7 +595,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-history {
+.workspace-history {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -570,7 +603,7 @@ input::webkit-inner-spin-button {
     overflow: hidden;
 }
 
-.workflow-json textarea {
+.workspace-json textarea {
     background-color: inherit;
     position: relative;
     outline: none;
@@ -578,7 +611,7 @@ input::webkit-inner-spin-button {
     top: 50px;
 }
 
-.workflow-search {
+.workspace-search {
     display: flex;
     flex-direction: column;
     position: relative;

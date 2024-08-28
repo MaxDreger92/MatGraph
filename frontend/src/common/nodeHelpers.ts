@@ -1,6 +1,6 @@
-import { INode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
+import { TNode, NodeAttribute, NodeValOpAttribute } from "../types/canvas.types"
 import { ensureArray, splitStrBySemicolon } from "./helpers"
-import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
+import { isAttrDefined, relationshipToRelType } from "./workspaceHelpers"
 
 /**
  * Determine if a relationship between two nodes is allowed.
@@ -9,7 +9,7 @@ import { isAttrDefined, relationshipToRelType } from "./workflowHelpers"
  * @param end Ending node
  * @returns true if the relationship is legitimate, false otherwise
  */
-export function isRelationshipLegitimate(start: INode, end: INode): boolean {
+export function isRelationshipLegitimate(start: TNode, end: TNode): boolean {
     const allowedRelationships: Array<[string, string]> = [
         ['matter', 'manufacturing'], // IS_MANUFACTURING_INPUT
         ['manufacturing', 'matter'], // IS_MANUFACTURING_OUTPUT
@@ -106,7 +106,7 @@ const calculateLabelFontSize = (nodeSize: number) => {
     return fontSize
 }
 
-export const getIsValueNode = (nodeType: INode['type']) => {
+export const getIsValueNode = (nodeType: TNode['type']) => {
     return ['property', 'parameter'].includes(nodeType)
 }
 

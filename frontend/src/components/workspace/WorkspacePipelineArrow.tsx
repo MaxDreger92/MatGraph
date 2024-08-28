@@ -1,9 +1,9 @@
-interface WorkflowPipelineArrowProps {
+interface WorkspacePipelineArrowProps {
   length: number
 }
 
-export default function WorkflowPipelineArrow(
-  props: WorkflowPipelineArrowProps
+export default function WorkspacePipelineArrow(
+  props: WorkspacePipelineArrowProps
 ) {
   const { length } = props
 

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { IDictionary } from './types/workflow.types'
+import { Dictionary, Graph } from './types/workspace.types'
+import { Upload } from './types/workspace.types'
 
 const LOCAL = true
 
@@ -21,7 +22,6 @@ class Client {
     private dataClient: AxiosInstance
 
     constructor() {
-
         if (LOCAL) {
             this.userClient = axios.create({
                 baseURL: LOCAL_USER_API_URL,
@@ -45,21 +45,21 @@ class Client {
         this.getCurrentUser = this.getCurrentUser.bind(this)
     }
 
-    async apiActiveStatus() {
-        try{
+    // ################################## API
+    // ##################################
+    // ##################################
+    apiActiveStatus = async () => {
+        try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.get(
-                'data/api-active-status',
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+            const response = await this.dataClient.get('data/api-active-status', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
                 },
-            )
+            })
 
             return response
         } catch (err: any) {
@@ -71,6 +71,9 @@ class Client {
         }
     }
 
+    // ################################## User
+    // ##################################
+    // ##################################
     async login(email: string, password: string) {
         try {
             const response = await this.userClient.post('users/login', {
@@ -346,7 +349,56 @@ class Client {
         }
     }
 
-    async saveWorkflow(workflow: string) {
+    // ################################## Uploads
+    // ##################################
+    // ##################################
+    async getUploads() {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get('users/uploads/list', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response.data
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while retrieving the upload list!')
+        }
+    }
+
+    async getUpload(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get(`users/uploads/${uploadId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response.data
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while retrieving upload data!')
+        }
+    }
+
+    async createUpload(csvTable: string) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -354,9 +406,86 @@ class Client {
             }
 
             const response = await this.userClient.post(
-                'users/workflows',
+                'users/uploads/create',
+                { csvTable },
                 {
-                    workflow,
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while saving the upload process!')
+        }
+    }
+
+    async updateUpload(uploadId: string, updates: Partial<Upload>) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.patch(`users/uploads/${uploadId}`, updates, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
+        }
+    }
+
+    async deleteUpload(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.delete(`users/uploads/${uploadId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
+        }
+    }
+
+    // ################################## Graphs
+    // ##################################
+    // ##################################
+    async saveGraph(graph: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.post(
+                'users/graphs',
+                {
+                    graph: graph,
                 },
                 {
                     headers: {
@@ -371,18 +500,19 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while saving workflow!')
+            throw new Error('Unexpected error while saving graph!')
         }
     }
 
-    async deleteWorkflow(workflowId: string) {
+    async updateGraph(graphId: string, updates: Partial<Graph>) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.delete(`users/workflows/${workflowId}`, {
+            const response = await this.userClient.patch(`users/graphs/${graphId}`, {
+                updates,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -394,18 +524,18 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while deleting workflow!')
+            throw new Error('Unexpected error while updating graph!')
         }
     }
 
-    async getWorkflows() {
+    async deleteGraph(graphId: string) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.get(`users/workflows`, {
+            const response = await this.userClient.delete(`users/graphs/${graphId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -417,11 +547,37 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error while retrieving workflows!')
+            throw new Error('Unexpected error while deleting graph!')
         }
     }
 
-    async workflowSearch(workflow: string | null) {
+    async getGraphs() {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.userClient.get(`users/graphs`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while retrieving graphs!')
+        }
+    }
+
+    // ################################## Django API
+    // ##################################
+    // ##################################
+    async graphSearch(graph: string | null) {
         try {
             const token = getCookie('token')
             if (!token) {
@@ -431,7 +587,7 @@ class Client {
             const response = await this.dataClient.post('match/fabrication-workflow',
                 {
                     params: {
-                        graph: workflow,
+                        graph: graph,
                     }
                 },
                 {
@@ -446,139 +602,77 @@ class Client {
                 err.message = err.response.data.message
                 throw err
             }
-            throw new Error('Unexpected error in workflow query.')
+            throw new Error('Unexpected error while matching graph to workflows!')
         }
     }
 
-    // (file,context) => label_dict, file_link, file_name
-    async requestExtractLabels(file: File, context: string) {
+    async requestFileUpload(file: File, csvTable: string) {
         try {
             const token = getCookie('token')
             if (!token) {
                 throw new Error('Token could not be retrieved!')
             }
 
-            let formData = new FormData();
-            formData.append('file', file);
-            formData.append('context', context);
+            let formData = new FormData()
+            formData.append('file', file)
+            formData.append('csvTable', csvTable)
 
-            // Make the POST request with formData
-            const response = await this.dataClient.post('import/label-extract', formData, {
+            const response = await this.dataClient.post('import/file', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    // Don't set 'Content-Type': 'multipart/form-data' manually
                 },
-            });
+            })
 
-            if (!response || !response.data) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
+        } catch (err: any) {
+            throw new Error('Unexpected error while uploading file!')
+        }
+    }
+
+    // (file,context) => label_dict, file_link, file_name
+    async requestExtractLabels(uploadId: string, context: string, fileId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                'import/label-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            if (!response) {
+                throw new Error()
+            }
+
+            return response
         } catch (err) {
             throw new Error('Unexpected error while extracting labels!')
         }
     }
 
     // (label_dict, context, file_link, file_name) => attribute_dict
-    async requestExtractAttributes(dict: IDictionary, context: string, link: string, name: string) {
-        try {
-            const token = getCookie('token')
-            if (!token) {
-                throw new Error('Token could not be retrieved!')
-            }
-
-            const response = await this.dataClient.post('import/attribute-extract', {
-                params: {
-                    label_dict: dict,
-                    context: context,
-                    file_link: link,
-                    file_name: name,
-                },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-
-            if (!response || !response.data) {
-                throw new Error()
-            }
-
-            return response.data
-        } catch (err: any) {
-            throw new Error('Unexpected error while extracting atributes!')
-        }
-    }
-
-    // (attribute_dict, context, file_link, file_name) => node_json
-    async requestExtractNodes(dict: IDictionary, context: string, link: string, name: string) {
-        try {
-            const token = getCookie('token')
-            if (!token) {
-                throw new Error('Token could not be retrieved!')
-            }
-
-            const response = await this.dataClient.post('import/node-extract', {
-                params: {
-                    attribute_dict: dict,
-                    context: context,
-                    file_link: link,
-                    file_name: name,
-                },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-
-            if (!response || !response.data) {
-                throw new Error()
-            }
-
-            return response.data
-        } catch (err: any) {
-            throw new Error('Unexpected error while extracting nodes!')
-        }
-    }
-
-    // (node_json, context, file_link, file_name) => graph_json
-    async requestExtractGraph(nodeJson: string, context: string, link: string, name: string) {
-        try {
-            const token = getCookie('token')
-            if (!token) {
-                throw new Error('Token could not be retrieved!')
-            }
-
-            const response = await this.dataClient.post('import/graph-extract', {
-                params: {
-                    node_json: nodeJson,
-                    context: context,
-                    file_link: link,
-                    file_name: name,
-                },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-
-            if (!response || !response.data) {
-                throw new Error()
-            }
-
-            return response.data
-        } catch (err: any) {
-            throw new Error('Unexpected error while extracting graph!')
-        }
-    }
-
-    // (graph_json, context, file_link, file_name) => success
-    async requestImportGraph(
-        graphJson: string,
-        context: string, // Change 'context' parameter name
-        fileLink: string, // Change 'fileLink' parameter name
-        fileName: string // Change 'fileName' parameter name
+    async requestExtractAttributes(
+        uploadId: string,
+        context: string,
+        fileId: string,
+        dict: Dictionary
     ) {
         try {
             const token = getCookie('token')
@@ -586,26 +680,166 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.dataClient.post('import/graph-import', {
-                params: {
-                    graph_json: graphJson,
-                    context: context, // Use the corrected parameter name
-                    file_link: fileLink, // Use the corrected parameter name
-                    file_name: fileName, // Use the corrected parameter name
+            const response = await this.dataClient.post(
+                'import/attribute-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        labelDict: dict,
+                    },
                 },
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
 
-            if (!response || !response.data.success) {
+            if (!response) {
                 throw new Error()
             }
 
-            return response.data
+            return response
+        } catch (err: any) {
+            throw new Error('Unexpected error while extracting atributes!')
+        }
+    }
+
+    // (attribute_dict, context, file_link, file_name) => node_json
+    async requestExtractNodes(uploadId: string, context: string, fileId: string, dict: Dictionary) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                'import/node-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        attributeDict: dict,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            if (!response) {
+                throw new Error()
+            }
+
+            return response
+        } catch (err: any) {
+            throw new Error('Unexpected error while extracting nodes!')
+        }
+    }
+
+    // (node_json, context, file_link, file_name) => graph_json
+    async requestExtractGraph(uploadId: string, context: string, fileId: string, graph: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                'import/graph-extract',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        graph: graph,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            if (!response) {
+                throw new Error()
+            }
+
+            return response
+        } catch (err: any) {
+            throw new Error('Unexpected error while extracting graph!')
+        }
+    }
+
+    // (graph_json, context, file_link, file_name) => success
+    async requestImportGraph(uploadId: string, context: string, fileId: string, graph: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                'import/graph-import',
+                {
+                    params: {
+                        uploadId: uploadId,
+                        context: context,
+                        fileId: fileId,
+                        graph: graph,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            if (!response) {
+                throw new Error()
+            }
+
+            return response
         } catch (err: any) {
             throw new Error('Unexpected error while importing graph!')
+        }
+    }
+
+    async cancelTask(uploadId: string) {
+        try {
+            const token = getCookie('token')
+            if (!token) {
+                throw new Error('Token could not be retrieved!')
+            }
+
+            const response = await this.dataClient.post(
+                `import/cancel-task`,
+                {
+                    params: {
+                        uploadId: uploadId,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            return response
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                err.message = err.response.data.message
+                throw err
+            }
+            throw new Error('Unexpected error while updating upload data!')
         }
     }
 }

@@ -1,6 +1,7 @@
 import React, { createContext } from "react";
+import { TNode, TRelationship } from "../types/canvas.types";
 
-interface IWorkflowContext {
+interface IWorkspaceTableContext {
     setHighlightedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
     selectedColumnIndex: number | null
     setSelectedColumnIndex: React.Dispatch<React.SetStateAction<number | null>>
@@ -9,7 +10,7 @@ interface IWorkflowContext {
     tableViewHeight: number
 }
 
-const defaultContextValue: IWorkflowContext = {
+const defaultTableContextValue: IWorkspaceTableContext = {
     setHighlightedColumnIndex: () => {},
     selectedColumnIndex: null,
     setSelectedColumnIndex: () => {},
@@ -18,6 +19,4 @@ const defaultContextValue: IWorkflowContext = {
     tableViewHeight: 0,
 }
 
-const WorkflowContext = createContext<IWorkflowContext>(defaultContextValue)
-
-export default WorkflowContext
+export const WorkspaceTableContext = createContext<IWorkspaceTableContext>(defaultTableContextValue)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
-import { UserContext } from '../common/UserContext'
+import { UserContext } from '../context/UserContext'
 import { useContext } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'

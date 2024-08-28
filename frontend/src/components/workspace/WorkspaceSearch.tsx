@@ -1,18 +1,19 @@
 import toast from 'react-hot-toast'
 import client from '../../client'
-import { saveBlobAsFile } from '../../common/workflowHelpers'
+import { saveBlobAsFile } from '../../common/workspaceHelpers'
 import { useSpring, animated } from 'react-spring'
 import { useState } from 'react'
 import { Button, Checkbox, Flex, Select } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
-interface WorkflowSearchProps {
-    workflow: string | null
+interface WorkspaceSearchProps {
+    graph: string | null
+    jsonView: boolean
     darkTheme: boolean
 }
 
-export default function WorkflowSearch(props: WorkflowSearchProps) {
-    const { workflow, darkTheme } = props
+export default function WorkspaceSearch(props: WorkspaceSearchProps) {
+    const { graph, jsonView, darkTheme } = props
     const [advancedHovered, setAdvancedHovered] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
 
@@ -26,14 +27,14 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
     })
 
     const handleSubmit = (formValues: SearchFormValues) => {
-        workflowSearch(formValues)
+        graphSearch(formValues)
     }
 
-    async function workflowSearch(params: SearchFormValues) {
+    async function graphSearch(params: SearchFormValues) {
         try {
-            const response = await client.workflowSearch(workflow)
+            const response = await client.graphSearch(graph)
             if (response) {
-                saveBlobAsFile(response.data, 'workflows.csv')
+                saveBlobAsFile(response.data, 'graphs.csv')
             }
         } catch (err: any) {
             toast.error(err.message)
@@ -48,10 +49,11 @@ export default function WorkflowSearch(props: WorkflowSearchProps) {
 
     return (
         <animated.div
-            className="workflow-search"
+            className="workspace-search"
             style={{
                 paddingBottom: showAdvanced ? 10 : 0,
                 borderBottom: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
+                display: jsonView ? 'block' : 'none',
             }}
         >
             <Button

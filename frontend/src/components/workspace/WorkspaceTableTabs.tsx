@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
-import { TableRow } from "../../types/workflow.types"
-import WorkflowContext from "./context/WorkflowContext"
+import { TableRow } from "../../types/workspace.types"
+import { WorkspaceTableContext } from "../../context/WorkspaceContext"
 import { useMantineColorScheme } from "@mantine/core"
 
-interface WorkflowTableTabsProps {
+interface WorkspaceTableTabsProps {
     progress: number
     currentTableId: string
     setCurrentTableFn: (tableId: string) => void
 }
 
-export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
+export default function WorkspaceTableTabs(props: WorkspaceTableTabsProps) {
     const {
         progress,
         currentTableId,
@@ -17,7 +17,7 @@ export default function WorkflowTableTabs(props: WorkflowTableTabsProps) {
     } = props
     const [hoveredTableTab, setHoveredTableTab] = useState<number | null>(null)
 
-    const { tableViewHeight } = useContext(WorkflowContext)
+    const { tableViewHeight } = useContext(WorkspaceTableContext)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'

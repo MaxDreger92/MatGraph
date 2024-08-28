@@ -188,9 +188,13 @@ class TableDataTransformer(ReportBuilder):
         """
         Executes the data transformation, builds the report, and saves it.
         """
+        print('trying iterate')
         self.iterate()
+        print('trying build results')
         self.build_results()
+        print('trying build report')
         self.build_report()
+        print('trying save report')
         self.save_report(report=self.report, context=self.context, file_link=self.file_link,
                          html_report=self.html_report, report_file_link=self.report_file_link,
                          file_name=self.file_name)

@@ -1,6 +1,6 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
-import UserService from '../services/user.service-mongodb'
+import UserService from '../services/service'
 import { IGetUserAuthInfoRequest } from '../types/req'
 import { Response } from 'express'
 import { v2 as cloudinary } from 'cloudinary'
@@ -9,12 +9,14 @@ import fileUpload from 'express-fileupload'
 import FormData from 'form-data'
 
 import { CLOUDINARY_CONFIG } from '../config'
-import { MDB_IUser as IUser } from '../types/user.type'
 
 const router = express.Router()
 router.use(fileUpload())
 cloudinary.config(CLOUDINARY_CONFIG)
 
+// ################################## User
+// ##################################
+// ##################################
 router.post('/api/users/login', async (req, res) => {
     try {
         const { email, password } = req.body
@@ -103,18 +105,17 @@ router.get(
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
-            
             const userId = req.userId
             if (!userId) {
                 return res.status(404).json({
-                    message: 'User ID not found!'
+                    message: 'User ID not found!',
                 })
             }
 
             const user = await UserService.findByID(userId)
             if (!user) {
                 return res.status(404).json({
-                    message: "User could not be found!"
+                    message: 'User could not be found!',
                 })
             }
 
@@ -127,7 +128,7 @@ router.get(
             if (confirmed) {
                 const mailSuccess = await UserService.sendVerificationMail(username, usermail)
                 if (!mailSuccess) {
-                   throw Error
+                    throw Error
                 }
                 return res.status(200).send(htmlResponse)
             } else {
@@ -172,7 +173,7 @@ router.get(
             if (verified) {
                 const mailSuccess = await UserService.sendVerificationConfirmation(usermail)
                 if (!mailSuccess) {
-                   throw Error
+                    throw Error
                 }
                 return res.status(200).send(htmlResponse)
             } else {
@@ -558,7 +559,7 @@ router.post(
             })
         } catch (err: any) {
             if (err.response) {
-                console.error('error:', err.response.data)
+                console.error('error: ', err.response.data)
                 return res.status(err.response.status).json({
                     message: err.message,
                 })
@@ -568,8 +569,11 @@ router.post(
     }
 )
 
+// ################################## Graphs
+// ##################################
+// ##################################
 router.post(
-    '/api/users/workflows/',
+    '/api/users/graphs/',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -580,21 +584,59 @@ router.post(
                 })
             }
 
-            const { workflow } = req.body
+            const { graph } = req.body
 
-            const saveSuccess = await UserService.saveWorkflow(userId, workflow)
+            const saveSuccess = await UserService.saveGraph(userId, graph)
             if (!saveSuccess) {
                 return res.status(400).json({
-                    message: 'Workflow could not be saved!',
+                    message: 'Graph could not be saved!',
                 })
             }
 
             return res.status(201).json({
-                message: 'Workflow saved successfully!',
+                message: 'Graph saved successfully!',
             })
         } catch (err: any) {
             if (err.response) {
-                console.error('error:', err.response.data)
+                console.error('error: ', err.response.data)
+                return res.status(err.response.status).json({
+                    message: err.message,
+                })
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.patch(
+    '/api/users/graphs/:graphId',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { graphId } = req.params
+            const updates = req.body
+
+            const updateSuccess = await UserService.updateGraph(userId, graphId, updates)
+            if (!updateSuccess) {
+                return res.status(400).json({
+                    message: 'Graph could not be updated!',
+                })
+            }
+
+            return res.status(200).json({
+                updateSuccess: true,
+                message: 'Graph updated successfully!',
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
                 return res.status(err.response.status).json({
                     message: err.message,
                 })
@@ -605,7 +647,7 @@ router.post(
 )
 
 router.delete(
-    '/api/users/workflows/:workflowId',
+    '/api/users/graphs/:graphId',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -616,21 +658,21 @@ router.delete(
                 })
             }
 
-            const { workflowId } = req.params
+            const { graphId } = req.params
 
-            const deleteSuccess = await UserService.deleteWorkflow(workflowId)
+            const deleteSuccess = await UserService.deleteGraph(userId, graphId)
             if (!deleteSuccess) {
                 return res.status(400).json({
-                    message: 'Workflow could not be deleted!',
+                    message: 'Graph could not be deleted!',
                 })
             }
 
             return res.status(200).json({
-                message: 'Workflow deleted successfully!',
+                message: 'Graph deleted successfully!',
             })
         } catch (err: any) {
             if (err.response) {
-                console.error('error:', err.response.data)
+                console.error('error: ', err.response.data)
                 return res.status(err.response.status).json({
                     message: err.message,
                 })
@@ -641,7 +683,7 @@ router.delete(
 )
 
 router.get(
-    '/api/users/workflows',
+    '/api/users/graphs',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -652,15 +694,192 @@ router.get(
                 })
             }
 
-            const workflows = await UserService.getWorkflowsByUserID(userId)
+            const graphs = await UserService.getGraphsByUserID(userId)
 
             return res.status(200).json({
-                message: 'Workflows retrieved successfully!',
-                workflows: workflows,
+                message: 'Graphs retrieved successfully!',
+                graphs: graphs,
             })
         } catch (err: any) {
             if (err.response) {
-                console.error('error:', err.response.data)
+                console.error('error: ', err.response.data)
+                return res.status(err.response.status).json({
+                    message: err.message,
+                })
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+// ################################## Uploads
+// ##################################
+// ##################################
+router.get(
+    '/api/users/uploads/list',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const uploads = await UserService.getUploadsByUserID(userId)
+
+            if (uploads.length === 0) {
+                return res.status(200).json({
+                    message: 'No upload processes found!'
+                })
+            }
+
+            return res.status(200).json({
+                message: 'Upload list retrieved successfully!',
+                uploads: uploads,
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.get(
+    '/api/users/uploads/:uploadId',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { uploadId } = req.params
+
+            const upload = await UserService.getUploadByID(userId, uploadId)
+
+            return res.status(200).json({
+                message: 'Upload retrieved successfully!',
+                upload: upload,
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.post(
+    '/api/users/uploads/create',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { csvTable, fileId, fileName } = req.body
+
+            const upload = await UserService.createUpload(userId, csvTable, fileId, fileName)
+            if (!upload) {
+                return res.status(400).json({
+                    message: 'Upload process could not be saved!',
+                })
+            }
+
+            return res.status(201).json({
+                upload: upload,
+                message: 'Upload process saved successfully!',
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.patch(
+    '/api/users/uploads/:uploadId',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { uploadId } = req.params
+            const updates = req.body
+
+            const updateSuccess = await UserService.updateUploadFields(userId, uploadId, updates)
+
+            if (updateSuccess) {
+                return res.status(200).json({
+                    updateSuccess: true,
+                    message: 'Upload process updated successfully!',
+                })
+            } else {
+                return res.status(404).json({
+                    updateSuccess: false,
+                    message: 'Upload process not found!',
+                })
+            }
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
+                return res.status(err.response.status).json({
+                    message: err.message,
+                })
+            }
+            return res.status(500).json('Internal server error!')
+        }
+    }
+)
+
+router.delete(
+    '/api/users/uploads/:uploadId',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const userId = req.userId
+            if (!userId) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const { uploadId } = req.params
+
+            const deleteSuccess = await UserService.deleteUpload(userId, uploadId)
+            if (!deleteSuccess) {
+                return res.status(400).json({
+                    deleteSuccess: false,
+                    message: 'Upload process could not be deleted!',
+                })
+            }
+
+            return res.status(200).json({
+                deleteSuccess: true,
+                message: 'Upload process deleted successfully!',
+            })
+        } catch (err: any) {
+            if (err.response) {
+                console.error('error: ', err.response.data)
                 return res.status(err.response.status).json({
                     message: err.message,
                 })

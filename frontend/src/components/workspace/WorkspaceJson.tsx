@@ -2,36 +2,37 @@ import SearchIcon from "@mui/icons-material/Search"
 import { GiSpiralLollipop } from "react-icons/gi";
 
 import client from "../../client"
-import { saveBlobAsFile } from "../../common/workflowHelpers"
+import { saveBlobAsFile } from "../../common/workspaceHelpers"
 import toast from "react-hot-toast"
 
-interface WorkflowJsonProps {
-  workflow: string | null
+interface WorkspaceJsonProps {
+  graph: string | null
+  jsonView: boolean
   darkTheme: boolean
 }
 
-export default function WorkflowJson(props: WorkflowJsonProps) {
+export default function WorkspaceJson(props: WorkspaceJsonProps) {
   const {
-    workflow,
+    graph,
+    jsonView,
     darkTheme,
   } = props
-
-
 
   return (
     <>
       <div
-        className="workflow-json"
+        className="workspace-json"
         style={{
           position: "relative",
-          width: "100%",
+          width: 450,
           flex: 1,
           paddingTop: 15,
+          display: jsonView ? 'block' : 'none',
         }}
       >
         <textarea
           readOnly
-          value={workflow ? workflow : "asd"}
+          value={graph ? graph : ""}
           style={{
             position:"relative",
             top: 0,

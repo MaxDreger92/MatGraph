@@ -1,12 +1,32 @@
-import { Operator, Position } from './canvas.types'
-
-export interface IWorkflow {
+export type Graph = {
     _id: string
-    workflow: string
+    name?: string
+    graph: string
     timestamp: Date
 }
 
-export interface ITempNode {
+export type Upload = {
+    _id: string
+    name?: string
+    progress: number
+    fileId: string
+    fileName: string
+    context?: string | null
+    csvTable: string // TableRow[]
+    labelDict?: string | null // IDictionary
+    attributeDict?: string | null // IDictionary
+    graph?: string | null
+    timestamp: Date
+    processing: boolean
+}
+
+export type UploadListItem = {
+    _id: string
+    timestamp: Date
+    processing: boolean
+}
+
+export type TempNode = {
     id: string
     attributes: { [key: string]: any }
     label: Label
@@ -16,19 +36,19 @@ export interface ITempNode {
     }>
 }
 
-export interface IGraphData {
-    nodes: IGraphNode[]
-    relationships: IRelationship[]
+export type GraphData = {
+    nodes: GraphNode[]
+    relationships: Relationship[]
 }
 
-export interface IGraphNode {
+export type GraphNode = {
     id: string
     label: Label
     name: any
     attributes: { [key: string]: ParsableAttribute }
 }
 
-export interface IRelationship {
+export type Relationship = {
     rel_type: string
     connection: [string, string]
 }
@@ -41,8 +61,8 @@ export type Attribute = {
     index?: number | string | number[] | string[]
 }
 
-export interface IDictionary {
-    [key: string]: { [key: string]: string }
+export type Dictionary = {
+    [key: string]: any[]
 }
 
 export type TableRow = {
