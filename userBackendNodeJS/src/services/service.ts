@@ -141,7 +141,7 @@ class UserService {
             const userToken = await UserService.generateAccessToken(usermail, 'user-confirmation')
             const htmlPath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/confirmation-mail.html'
+                '/MatGraph/userBackendNodeJS/src/html/confirmation-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
             const confirmationLink = `https://matgraph.xyz/api/users/confirm?token=${userToken}`
 
@@ -173,7 +173,7 @@ class UserService {
             )
             const htmlPath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/verification-mail.html'
+                '/MatGraph/userBackendNodeJS/src/html/verification-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
             const verificationLink = `https://matgraph.xyz/api/users/verify?token=${adminToken}&username=${username}`
 
@@ -203,7 +203,7 @@ class UserService {
         try {
             const htmlPath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/verified-mail.html'
+                '/MatGraph/userBackendNodeJS/src/html/verified-mail.html'
             let html = fs.readFileSync(htmlPath, 'utf8')
 
             const mailOptions = {
@@ -256,11 +256,11 @@ class UserService {
         if (confirmed) {
             pagePath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/email-confirmed.html'
+                '/MatGraph/userBackendNodeJS/src/html/email-confirmed.html'
         } else {
             pagePath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/confirmation-error.html'
+                '/MatGraph/userBackendNodeJS/src/html/confirmation-error.html'
         }
         html = fs.readFileSync(pagePath, 'utf8')
         return html
@@ -272,11 +272,11 @@ class UserService {
         if (verified) {
             pagePath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/user-verified.html'
+                '/MatGraph/userBackendNodeJS/src/html/user-verified.html'
         } else {
             pagePath =
                 require('os').homedir() +
-                '/Projects/MatGraph/userBackendNodeJS/src/html/verification-error.html'
+                '/MatGraph/userBackendNodeJS/src/html/verification-error.html'
         }
         html = fs.readFileSync(pagePath, 'utf8')
         return html
