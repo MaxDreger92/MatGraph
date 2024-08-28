@@ -61,7 +61,7 @@ class Client {
                 },
             })
 
-            return response
+            return response.data
         } catch (err: any) {
             if (err.response?.data?.message) {
                 err.message = err.response.data.message
