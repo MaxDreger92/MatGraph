@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { setLocalStorageItem } from '../../common/localStorageHelpers'
 
-interface WorkflowDrawerHandleProps {
+interface WorkspaceDrawerHandleProps {
     handleActive: React.MutableRefObject<boolean>
     tableViewHeight: number
     setTableViewHeight: React.Dispatch<React.SetStateAction<number>>
     setTableView: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
+export default function WorkspaceDrawerHandle(props: WorkspaceDrawerHandleProps) {
     const { handleActive, tableViewHeight, setTableViewHeight, setTableView } = props
 
     const [screenSize, setScreenSize] = useState(window.innerHeight)
@@ -16,6 +17,7 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
     const startYRef = useRef(0)
     const initialHeightRef = useRef(0)
     const drawerClosedRef = useRef(false)
+    const tableHeightMirror = useRef(0)
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         draggingRef.current = true
@@ -35,10 +37,13 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
                 const diffY = startYRef.current - newY
                 const newHeight = initialHeightRef.current + diffY
                 if (newHeight < 25) {
+                    tableHeightMirror.current = 0
                     setTableViewHeight(0)
                     drawerClosedRef.current = true
                 } else if (newHeight > 180) {
-                    setTableViewHeight((prevHeight) => Math.min(Math.max(250, newHeight), window.innerHeight - 160))
+                    const value =  Math.min(Math.max(250, newHeight), window.innerHeight - 160)
+                    tableHeightMirror.current = value
+                    setTableViewHeight(value)
                     drawerClosedRef.current = false
                 } 
 
@@ -55,6 +60,9 @@ export default function WorkflowDrawerHandle(props: WorkflowDrawerHandleProps) {
         if (drawerClosedRef.current === true) {
             setTableView(false)
         }
+
+        console.log(tableHeightMirror.current)
+        setLocalStorageItem('uploadTableViewHeight', tableHeightMirror.current)
 
         document.removeEventListener('mousemove', handleMouseMove)
         document.removeEventListener('mouseup', handleMouseUp)

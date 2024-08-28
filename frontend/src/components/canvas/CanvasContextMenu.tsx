@@ -25,27 +25,27 @@ import { GiArtificialIntelligence } from 'react-icons/gi'
 
 import { Position } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
-import { INode } from '../../types/canvas.types'
+import { TNode } from '../../types/canvas.types'
 import { possibleRelationships } from '../../common/nodeHelpers'
 
 interface CanvasContextProps {
-    onSelect: (nodeType: INode['type']) => void
+    onSelect: (nodeType: TNode['type']) => void
     open: boolean
-    contextRestrict?: INode['type']
+    contextRestrict?: TNode['type']
     position: Position
 }
 
 interface ContextButtonProps {
-    onSelect: (nodeType: INode['type']) => void
-    nodeType: INode['type']
+    onSelect: (nodeType: TNode['type']) => void
+    nodeType: TNode['type']
     children: React.ReactNode
     fontColor: string
     fontSize: number
     centerPosition: Position
-    hovered: INode['type'] | null
-    setHovered: React.Dispatch<React.SetStateAction<INode['type'] | null>>
-    extendedHover: INode['type'] | null
-    setExtendedHover: React.Dispatch<React.SetStateAction<INode['type'] | null>>
+    hovered: TNode['type'] | null
+    setHovered: React.Dispatch<React.SetStateAction<TNode['type'] | null>>
+    extendedHover: TNode['type'] | null
+    setExtendedHover: React.Dispatch<React.SetStateAction<TNode['type'] | null>>
     moveOnHover: boolean
     darkTheme: boolean
 }
@@ -232,8 +232,8 @@ function ContextButton(props: ContextButtonProps) {
 
 export default function CanvasContext(props: CanvasContextProps) {
     const { onSelect, open, contextRestrict, position } = props
-    const [hovered, setHovered] = useState<INode['type'] | null>(null)
-    const [extendedHover, setExtendedHover] = useState<INode['type'] | null>(null)
+    const [hovered, setHovered] = useState<TNode['type'] | null>(null)
+    const [extendedHover, setExtendedHover] = useState<TNode['type'] | null>(null)
 
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
@@ -293,7 +293,7 @@ export default function CanvasContext(props: CanvasContextProps) {
     )
 }
 
-const BUTTON_TYPES: { type: INode['type']; icon: JSX.Element; fColor: string; fSize: number }[] = [
+const BUTTON_TYPES: { type: TNode['type']; icon: JSX.Element; fColor: string; fSize: number }[] = [
     {
         type: 'matter',
         icon: <MatterIcon style={{ color: '#1a1b1e' }} />,
@@ -332,7 +332,7 @@ const BUTTON_TYPES: { type: INode['type']; icon: JSX.Element; fColor: string; fS
     },
 ]
 
-const BUTTON_SIM_DARK: { type: INode['type']; icon: JSX.Element; fColor: string; fSize: number } = {
+const BUTTON_SIM_DARK: { type: TNode['type']; icon: JSX.Element; fColor: string; fSize: number } = {
     type: 'simulation',
     icon: (
         <div
@@ -353,7 +353,7 @@ const BUTTON_SIM_DARK: { type: INode['type']; icon: JSX.Element; fColor: string;
     fSize: 11,
 }
 
-const BUTTON_SIM_LIGHT: { type: INode['type']; icon: JSX.Element; fColor: string; fSize: number } =
+const BUTTON_SIM_LIGHT: { type: TNode['type']; icon: JSX.Element; fColor: string; fSize: number } =
     {
         type: 'simulation',
         icon: (

@@ -1,15 +1,15 @@
 import React, { useMemo, useEffect, useState, useCallback, useContext } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useReactTable, ColumnDef, getCoreRowModel } from '@tanstack/react-table'
-import { TableRow } from '../../types/workflow.types'
-import { Label } from '../../types/workflow.types'
+import { TableRow } from '../../types/workspace.types'
+import { Label } from '../../types/workspace.types'
 import { Select } from '@mantine/core'
-import { getAttributesByLabel, mapNodeTypeString } from '../../common/workflowHelpers'
-import { INode } from '../../types/canvas.types'
+import { getAttributesByLabel, mapNodeTypeString } from '../../common/workspaceHelpers'
+import { TNode } from '../../types/canvas.types'
 import { colorPalette } from '../../types/colors'
-import WorkflowContext from './context/WorkflowContext'
+import { WorkspaceTableContext } from '../../context/WorkspaceContext'
 
-interface WorkflowTableProps {
+interface WorkspaceTableProps {
     setLabelTable: React.Dispatch<React.SetStateAction<TableRow[]>>
     setAttributeTable: React.Dispatch<React.SetStateAction<TableRow[]>>
     setCurrentTableFn: (tableId: string, tableRows: TableRow[]) => void
@@ -35,7 +35,7 @@ const labelOptions = [
     { value: 'simulation', label: 'Simulation' },
 ]
 
-export default function WorkflowTable(props: WorkflowTableProps) {
+export default function WorkspaceTable(props: WorkspaceTableProps) {
     const {
         setLabelTable,
         setAttributeTable,
@@ -70,7 +70,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     const [dragging, setDragging] = useState(false)
 
     const { setHighlightedColumnIndex, selectedColumnIndex, setSelectedColumnIndex } =
-        useContext(WorkflowContext)
+        useContext(WorkspaceTableContext)
 
     useEffect(() => {
         if (progress === 2) {
@@ -87,7 +87,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     useEffect(() => {
         // 52 + 45 * tableRows
         if (outerTableHeight) {
-            const rowHeight = 52 + 45 * tableRows.length
+            const rowHeight = 69 + 45 * tableRows.length
             const divHeight = outerTableHeight - 90
             setInnerTableHeight(Math.min(rowHeight, divHeight))
             return
@@ -148,7 +148,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
         count: tableRows.length,
         getScrollElement: () => tableRef.current,
         estimateSize: () => 45, // Adjust based on your row height
-        overscan: 1,
+        overscan: tableRows.length,
     })
 
     const columnVirtualizer = useVirtualizer({
@@ -312,7 +312,7 @@ export default function WorkflowTable(props: WorkflowTableProps) {
     return (
         <div
             ref={tableRef}
-            className="workflow-table"
+            className="workspace-table"
             tabIndex={0}
             onBlur={() => handleBlur()}
             style={{

@@ -1,4 +1,4 @@
-export interface SQL_IUser {
+export type SQL_IUser = {
   id: number
   name?: string | undefined
   username: string | undefined
@@ -9,7 +9,7 @@ export interface SQL_IUser {
   imgurl?: string | undefined
 }
 
-export interface MDB_IUser {
+export type MDB_IUser = { 
   name?: string | undefined
   username: string | undefined
   email: string

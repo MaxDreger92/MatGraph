@@ -15,7 +15,7 @@ import {
 import { IconLogout, IconSettings, IconChevronDown, IconUser } from '@tabler/icons-react'
 import logo_sm from '../img/logo_nodes.png'
 import logo_sm_light from '../img/logo_nodes_light.png'
-import { UserContext } from '../common/UserContext'
+import { UserContext } from '../context/UserContext'
 import { useLocation } from 'react-router-dom'
 import { MdOutlineLightMode, MdLightMode, MdOutlineDarkMode, MdDarkMode } from 'react-icons/md'
 import client from '../client'

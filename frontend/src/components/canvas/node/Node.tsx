@@ -4,20 +4,20 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import chroma from 'chroma-js'
 import { useSpring, animated } from 'react-spring'
 
-import NodeContext from './NodeContext'
+import NodeContext from './NodeContextMenu'
 import NodeInput from './NodeInput'
 import NodeLabel from './NodeLabel'
 import NodeWarning from './NodeWarning'
 import NodeConnector from './NodeConnector'
-import { INode, NodeAttribute, NodeValOpAttribute, Position } from '../../../types/canvas.types'
+import { TNode, NodeAttribute, NodeValOpAttribute, Position } from '../../../types/canvas.types'
 import { colorPalette } from '../../../types/colors'
-import { isAttrDefined, isValidOperator } from '../../../common/workflowHelpers'
+import { isAttrDefined, isValidOperator } from '../../../common/workspaceHelpers'
 import { getIsValueNode } from '../../../common/nodeHelpers'
 import _, { split } from 'lodash'
 import { ensureArray, splitStrBySemicolon } from '../../../common/helpers'
 
 interface NodeProps {
-    node: INode
+    node: TNode
     isSelected: number // 1 = solo selected, 2 = multi selected
     isHighlighted: boolean
     isLayouting: boolean
@@ -25,8 +25,8 @@ interface NodeProps {
     canvasRect: DOMRect | null
     mousePosition: Position | null
     darkTheme: boolean
-    initNodeMove: (nodeId: INode['id']) => void
-    handleNodeAction: (node: INode, action: string, conditional?: any) => void
+    initNodeMove: (nodeId: TNode['id']) => void
+    handleNodeAction: (node: TNode, action: string, conditional?: any) => void
 }
 
 export default React.memo(function Node(props: NodeProps) {
@@ -304,7 +304,7 @@ export default React.memo(function Node(props: NodeProps) {
 
     // Update node attributes
     const handleNodeUpdate = useCallback(
-        (updatedNode: INode, endEditing?: boolean) => {
+        (updatedNode: TNode, endEditing?: boolean) => {
             handleNodeAction(updatedNode, 'nodeUpdate', endEditing)
         },
         [handleNodeAction]

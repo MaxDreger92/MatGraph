@@ -22,8 +22,7 @@ const queryClient = new QueryClient({
 })
 
 const container = document.getElementById("root")
-// @ts-ignore
-const root = createRoot(container)
+const root = createRoot(container as HTMLElement)
 
 const ThemeProvider = () => {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('dark')
@@ -52,17 +51,5 @@ root.render(
     </QueryClientProvider>
   // </React.StrictMode>
 )
-
-//########## React 17 ###########
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <QueryClientProvider client={queryClient}>
-//       <BrowserRouter>
-//         <App />
-//       </BrowserRouter>
-//     </QueryClientProvider>
-//   </React.StrictMode>,
-//   document.getElementById('root')
-// )
 
 reportWebVitals()

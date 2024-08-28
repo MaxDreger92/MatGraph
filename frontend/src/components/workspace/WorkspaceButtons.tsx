@@ -8,7 +8,7 @@ import {
 } from "react-icons/fi"
 import { useSpring, animated } from "react-spring"
 
-interface WorkflowButtonProps {
+interface WorkspaceButtonsProps {
   uploadMode: boolean
   jsonView: boolean
   jsonViewWidth: number
@@ -20,7 +20,7 @@ interface WorkflowButtonProps {
   darkTheme: boolean
 }
 
-export default function WorkflowButtons(props: WorkflowButtonProps) {
+export default function WorkspaceButtons(props: WorkspaceButtonsProps) {
   const {
     uploadMode,
     jsonView,
@@ -81,7 +81,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
   const renderJsonIcon = () => {
     return (
       <animated.div
-        className="workflow-btn"
+        className="workspace-btn"
         style={{
           top: iconTopValue,
           right: springProps.jsonIconRight,
@@ -127,7 +127,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
   const renderHistoryIcon = () => {
     return (
       <animated.div
-        className="workflow-btn"
+        className="workspace-btn"
         style={{
           left: springProps.historyIconLeft,
           top: iconTopValue,
@@ -173,7 +173,7 @@ export default function WorkflowButtons(props: WorkflowButtonProps) {
   const renderTableIcon = () => {
     return (
       <animated.div
-        className="workflow-btn"
+        className="workspace-btn"
         style={{
           bottom: springProps.tableIconBottom,
           left: "50%",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { INode, ValOpPair } from '../../../types/canvas.types'
-import { isAttrDefined } from '../../../common/workflowHelpers'
+import { TNode, ValOpPair } from '../../../types/canvas.types'
+import { isAttrDefined } from '../../../common/workspaceHelpers'
 import { splitStrBySemicolon } from '../../../common/helpers'
 import { getRenderLabel } from '../../../common/nodeHelpers'
 
@@ -10,7 +10,7 @@ interface NodeLabelsProps {
     size: number
     name: string
     valOp: ValOpPair
-    type: INode['type']
+    type: TNode['type']
     layer: number
     onMouseUp: (e: React.MouseEvent) => void
 }
