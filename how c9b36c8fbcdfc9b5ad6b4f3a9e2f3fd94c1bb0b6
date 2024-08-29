@@ -1,0 +1,17 @@
+[33me3e65706ed7330e5e87eb56a58b3419f62d15f4e[m - implementation of NodeEvaulator
+[33m3926793e903e23df9b34838312b404da0dd8294e[m[33m ([m[1;32mmaster[m[33m)[m - implementation of NodeEvaulator
+[33m1a1443f92ac68671c1b81f2014bf7f257bce7116[m[33m ([m[1;32menhancement/addNodeAggregatorValidation[m[33m)[m - improved prompts
+[33ma617f28910c8e057b9da4a68466a1798d661ce65[m - separated ontology extension from model classes closes nothing
+[33m5fa18ca0fc6158284b1d3d62a884554b1aa5750f[m - relationhsip extractor with feedback loop
+[33m9cb2f0dd1ca3c4fd962b5a75b543e88e682a6972[m[33m ([m[1;32menhancement/workflow-search[m[33m)[m - added property/parameter filter operator
+[33mf67d1c746bcdddb44dbf2cf348af6a24ff3d4fad[m - removed kartheisian products from cypher queries - solved enhancement/workflow-search
+[33m454b55adb58b41b3bb4a8f809416c5ff0504e37b[m - made importer.py and OntologyMapper.py more readable
+[33m15f9e43d31c04093953955ea114d6d5714113e62[m[33m ([m[1;32menhancement/import-query-builder[m[33m)[m - query builder works enhancement/import-query-builder
+[33m21ef90abb25df773e72b32d2570c0f434687f7bf[m Frontend Data Transformation
+[33meb454af7fc144b93bdb6a1f9162ea0d735a0efaf[m Frontend Data Transformation
+[33m07ae298458637bc1070efdafd81a381d7f7ac859[m Frontend-Dev
+[33m7544101244afc717b85a474b9aabd4aeb71f671d[m Frontend-Dev
+[33mc3675b24f9e635e52f8e93d07fac10759a0a42a1[m Frontend-Dev
+[33m6f5e87f511ccaa5f6241065c930689e4b7bdfea9[m Frontend-Dev
+[33mcc4267ad60de9811b484a73b0df5824c37ee28ba[m Frontend-Dev
+[33mf719254a859dca275d414611846899d159a9297b[m Initial commit
