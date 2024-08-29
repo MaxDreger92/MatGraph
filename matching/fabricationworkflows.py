@@ -1,48 +1,77 @@
 import os
 
-import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from matching.matcher import Matcher
-from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
 
-
-# Improved DataFrame creation and manipulation
-def create_dataframe(combinations, attributes, columns):
-    df_combinations = pd.DataFrame(combinations, columns=columns).drop_duplicates()
-    df_attributes = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute']).drop_duplicates(['UID', 'Attribute'])
-    return df_combinations, df_attributes
-
-def pivot_and_merge(df_combinations, df_attributes, columns):
-    df_pivoted = df_attributes.pivot(index='UID', columns='Attribute', values='Value').reset_index()
-    for column in columns:
-        df_combinations = pd.merge(df_combinations, df_pivoted, how='left', left_on=column, right_on='UID').drop('UID', axis=1)
-    return df_combinations.dropna(axis=1, how='all')
-
-def generate_columns(max_len):
-    half_len = max_len // 2
-    uid_columns = [f'UID_{i+1}' for i in range(half_len)]
-    name_columns = [f'name_{i+1}' for i in range(half_len)]
-    return uid_columns + name_columns
 
 def create_table_structure(data):
-    combinations, attributes = data[0][0], data[0][1]
+    # Extract combinations and attributes
+    combinations = data[0][0]
+    attributes = data[0][1]
+
+    # Check if combinations list is empty
+    if len(combinations) == 0:
+        # Create a DataFrame with the message and save it to a CSV file
+        no_data_df = pd.DataFrame({"Message": ["No workflows found for your query"]})
+        no_data_df.to_csv('output_filename.csv', index=False)
+        print("No workflows found for your query.")
+        return no_data_df
+
+    print(f"Number of combinations: {len(combinations)}")
+
+    # Dynamically generate column names based on the longest combination
     max_len = max(map(len, combinations))
-    columns = generate_columns(max_len)
-    df_combinations, df_attributes = create_dataframe(combinations, attributes, columns)
-    final_df = pivot_and_merge(df_combinations, df_attributes, columns)
+    half_len = max_len // 2  # We assume max_len is always even for this to work
+
+    uid_columns = [f'UID_{i+1}' for i in range(half_len)]
+    name_columns = [f'name_{i+1}' for i in range(half_len)]
+
+    columns = uid_columns + name_columns
+    print(columns)
+    print(combinations[0])
+
+    # Convert combinations into a DataFrame
+    df_combinations = pd.DataFrame(combinations, columns=columns).fillna('N/A')
+    df_combinations = df_combinations.drop_duplicates(subset=columns)
+
+    # Convert attributes into a DataFrame
+    df_attributes_raw = pd.DataFrame(attributes, columns=['UID', 'Value', 'Attribute']).fillna('N/A')
+    df_attributes = df_attributes_raw.drop_duplicates(subset=['UID', 'Attribute'])
+
+    # Pivot the attributes dataframe
+    df_pivoted = df_attributes.pivot(index='UID', columns='Attribute', values='Value').reset_index()
+    df_pivoted['UID'] = df_pivoted['UID'].fillna('N/A')
+    df_combinations = df_combinations.fillna('N/A')
+
+    # Iteratively merge with the combinations dataframe on each UID
+    for i, column in enumerate(columns):
+        merged = pd.merge(df_combinations, df_pivoted, how='left', left_on=column, right_on='UID', suffixes=('', f'_y{i+1}'))
+        # Drop the unnecessary UID column (which came from df_pivoted)
+        merged.drop('UID', axis=1, inplace=True)
+        df_combinations = merged
+
+    # Drop columns that have only NaNs
+    final_df = df_combinations.dropna(axis=1, how='all')
+
+    # Drop all columns that contain the string 'UID'
     final_df = final_df[final_df.columns.drop(list(final_df.filter(regex='UID')))]
+
+    # Save the final DataFrame to a CSV file
     final_df.to_csv('output_filename.csv', index=False)
+
     return final_df
 
 
-
+# TODO implement filtering for values!
+QUERY_BY_VALUE = """"""
+from matching.matcher import Matcher
+from matgraph.models.ontology import *
 
 ONTOMAPPER = {"matter": "EMMOMatter",
               "manufacturing": "EMMOProcess",
               "measurement": "EMMOProcess",
               "property": "EMMOQuantity",
-                "parameter": "EMMOQuantity"
+              "parameter": "EMMOQuantity"
               }
 
 RELAMAPPER = {"IS_MANUFACTURING_INPUT": "IS_MANUFACTURING_INPUT|IS_MANUFACTURING_OUTPUT",
@@ -73,19 +102,16 @@ $id as id
 """
 
 class FabricationWorkflowMatcher(Matcher):
-    def __init__(self, workflow_list, count=False, **kwargs):
-        """
-        Initialize the FabricationWorkflowMatcher.
 
-        Args:
-            workflow_list (dict): A dictionary containing nodes and relationships of the workflow.
-            count (bool): A flag indicating whether to count the results.
-            **kwargs: Additional arguments to be passed to the parent class.
-        """
+
+    def __init__(self, workflow_list, count=False, **kwargs):
+        print(workflow_list)
         self.query_list = [
             {
                 **node,
-                'uid': self.get_node_uid(node)
+                'uid': EMMOMatter.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOMatter' else
+                EMMOProcess.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOProcess' else
+                EMMOQuantity.nodes.get_by_string(string = node['attributes']['name']['value'], limit = 10)[0].uid if ONTOMAPPER[node['label']] == 'EMMOQuantity' else 'nope'
             }
             for node in workflow_list['nodes']
         ]
@@ -93,78 +119,23 @@ class FabricationWorkflowMatcher(Matcher):
         self.count = count
         super().__init__(**kwargs)
 
-    def get_node_uid(self, node):
-        """
-        Retrieve the UID for a given node based on its label.
 
-        Args:
-            node (dict): The node from which to retrieve the UID.
 
-        Returns:
-            str: The UID of the node or 'nope' if not found.
-        """
-        label = ONTOMAPPER.get(node['label'])
-        name_value = node['attributes']['name']['value']
-
-        node_classes = {
-            'EMMOMatter': EMMOMatter,
-            'EMMOProcess': EMMOProcess,
-            'EMMOQuantity': EMMOQuantity
-        }
-
-        node_class = node_classes.get(label)
-        if node_class:
-            try:
-                return node_class.nodes.get_by_string(string=name_value, limit=10)[0].uid
-            except IndexError:
-                return 'nope'
-        return 'nope'
-
-    def build_ontology_query(self, node):
-        """
-        Build an ontology query for a given node.
-
-        Args:
-            node (dict): The node for which to build the query.
-
-        Returns:
-            str: The Cypher query for the node.
-        """
+    def _build_ontology_query(self, node):
         node_id, label = node['id'], node['label']
-        return f"(onto_{node_id}: {ONTOMAPPER[label]} {{uid: '{node['uid']}'}})" if label != 'metadata' else ""
+        return f"(onto_{node_id}: {ONTOMAPPER[label]} {{uid: '{node['uid']}'}})"
 
-    def build_tree_query(self, node_id, label):
-        """
-        Build a tree query to retrieve all hierarchical relationships for a node.
-
-        Args:
-            node_id (str): The ID of the node.
-            label (str): The label of the node.
-
-        Returns:
-            str: The Cypher tree query for the node.
-        """
+    def _build_tree_query(self, node_id, label):
         return f"""CALL {{
         WITH onto_{node_id}
         OPTIONAL MATCH (onto_{node_id})<-[:EMMO__IS_A*..]-(tree_onto_{node_id}:{ONTOMAPPER[label]})
         RETURN collect(DISTINCT tree_onto_{node_id}) + collect(DISTINCT onto_{node_id}) AS combined_{node_id}
         }}
-        """ if label != 'metadata' else ""
-
-    def build_find_nodes_query(self, node_id, label, attributes):
         """
-        Build a query to find nodes based on their attributes.
 
-        Args:
-            node_id (str): The ID of the node.
-            label (str): The label of the node.
-            attributes (dict): The attributes of the node.
-
-        Returns:
-            str: The Cypher query to find nodes based on attributes.
-        """
+    def _build_find_nodes_query(self, node_id, label, attributes):
         label = label.capitalize()
-        if label in ['Property', 'Parameter']:
+        if label == 'Property' or label == 'Parameter':
             value = attributes['value']['value']
             operator = OPERATOR_MAPPING[attributes['value']['operator']]
             return f"""CALL {{
@@ -183,44 +154,15 @@ class FabricationWorkflowMatcher(Matcher):
             }}
             """
 
-    def build_single_path_query(self, source, target, rel_type, index):
-        """
-        Build a query to find paths between source and target nodes.
+    def _build_path_queries(self):
+        path_queries = []
+        for i, rel in enumerate(self.relationships):
+            source, target = rel['connection']
+            rel_type = rel['rel_type']
+            path_queries.append(self._build_single_path_query(source, target, rel_type, i))
+        return path_queries
 
-        Args:
-            source (str): The source node ID.
-            target (str): The target node ID.
-            rel_type (str): The relationship type.
-            index (int): The index of the path.
-
-        Returns:
-            str: The Cypher query to find paths between source and target nodes.
-        """
-        path = f"path_{source}_{target}"
-        uid_path = f"uids_path_{source}_{target}"
-        return f"""
-        CALL {{
-        WITH nodes_{source}, nodes_{target}
-        UNWIND nodes_{source} AS node_{source}
-        UNWIND nodes_{target} AS node_{target}
-        MATCH {path} = (node_{source})-[:{RELAMAPPER[rel_type]}*..8]->(node_{target})
-        WITH collect(DISTINCT {path}) AS {path}
-        RETURN {path}, [path IN {path} | [nodes(path)[0].uid, nodes(path)[-1].uid]] AS {uid_path}
-        }}
-        """
-
-    def build_path_conditions(self, paths, uid_paths, relationships):
-        """
-        Build conditions for path queries to ensure correct matching.
-
-        Args:
-            paths (list): List of path queries.
-            uid_paths (list): List of UID path queries.
-            relationships (list): List of relationships.
-
-        Returns:
-            str: The Cypher query to build path conditions.
-        """
+    def _build_path_conditions(self, paths, uid_paths, xid_paths, relationships):
         path_conditions = []
         return_statements = []
         idx_list = []
@@ -233,12 +175,14 @@ class FabricationWorkflowMatcher(Matcher):
             path = f"path_{source}_{target}"
             return_statements.append(f"nodes({path}[idx[{idx}]])")
 
+            # Generate path conditions by comparing this relationship to all others
             for idx2, rel2 in enumerate(relationships):
                 if idx == idx2:
-                    continue
+                    continue  # Avoid self-comparison
                 source2, target2 = rel2['connection']
                 uid_path2 = f"uids_path_{source2}_{target2}"
 
+                # Construct condition strings based on source and target matches
                 if source == source2:
                     path_conditions.append(f"{uid_path}[{idx_var}][0] = {uid_path2}[idx{idx2}][0]")
                 if target == target2:
@@ -247,56 +191,58 @@ class FabricationWorkflowMatcher(Matcher):
                     path_conditions.append(f"{uid_path}[{idx_var}][0] = {uid_path2}[idx{idx2}][-1]")
 
         path_condition = " AND ".join(path_conditions)
-        unwind_statements = [f"UNWIND range(0, size({uid_path})-1) AS idx{i}" for i, uid_path in enumerate(uid_paths)]
 
-        def build_path_connector(uid_paths, unwind_statements, path_condition, idx_list):
-            base_query = f"""CALL {{
+        # Constructing the Cypher query with cleaner formatting
+        path_connector = f"""CALL {{
                 WITH {', '.join(uid_paths)}
-                {' '.join(unwind_statements)}
+                {' '.join([f"UNWIND range(0, size({uid_path})-1) AS idx{i}" for i, uid_path in enumerate(uid_paths)])}
                 WITH *
-            """
-            if path_condition:
-                base_query += f"""
                 WHERE {path_condition}
-                """
-            base_query += f"""
                 RETURN collect(DISTINCT [{', '.join(idx_list)}]) AS idxs
             }}
+    
+            CALL {{
+                WITH idxs, {', '.join(paths)}
+                UNWIND idxs AS idx
+                RETURN apoc.coll.toSet(apoc.coll.flatten([{', '.join(return_statements)}])) AS pathNodes
+            }}
             """
-            return base_query
-
-
-        path_connector = build_path_connector(uid_paths, unwind_statements, path_condition, idx_list)
         return path_connector
-
-    def build_path_queries_and_conditions(self):
+    def _build_single_path_query(self, source, target, rel_type, index):
+        path = f"path_{source}_{target}"
+        uid_path = f"uids_path_{source}_{target}"
+        return f"""
+        CALL {{
+        WITH nodes_{source}, nodes_{target}
+        UNWIND nodes_{source} AS node_{source}
+        UNWIND nodes_{target} AS node_{target}
+        MATCH {path} = (node_{source})-[:{RELAMAPPER[rel_type]}*..8]->(node_{target})
+        WITH collect(DISTINCT {path}) AS {path}
+        RETURN {path}, [path IN {path} | [nodes(path)[0].uid, nodes(path)[-1].uid]] AS {uid_path}
+        }}
         """
-        Build the queries and conditions for all paths in the workflow.
-
-        Returns:
-            str: The combined Cypher query for all paths and conditions.
-        """
-        paths, uid_paths = [], []
+    def _build_path_queries_and_conditions(self):
+        paths, uid_paths, xid_paths, path_combinations = [], [], [], []
         path_queries = []
 
         for i, rel in enumerate(self.relationships):
             source, target = rel['connection']
             rel_type = rel['rel_type']
-            paths.append(f"path_{source}_{target}")
-            uid_paths.append(f"uids_path_{source}_{target}")
+            path = f"path_{source}_{target}"
+            uid_path = f"uids_path_{source}_{target}"
+            xid_path = f"idx_uids_path_{source}_{target}"
 
-            path_queries.append(self.build_single_path_query(source, target, rel_type, i))
+            paths.append(path)
+            uid_paths.append(uid_path)
+            xid_paths.append(xid_path)
+            path_combinations.append(f"nodes({path})[idx{i}]")
 
-        path_connector = self.build_path_conditions(paths, uid_paths, self.relationships)
+            path_queries.append(self._build_single_path_query(source, target, rel_type, i))
+
+        path_connector = self._build_path_conditions(paths, uid_paths, xid_paths, self.relationships)
         return "\n".join(path_queries) + "\n" + path_connector
 
-    def build_results_query(self):
-        """
-        Build the query to retrieve the results of the path matching.
-
-        Returns:
-            str: The Cypher query to retrieve the results.
-        """
+    def _build_results(self):
         return f"""
         WITH DISTINCT
         pathNodes,
@@ -314,46 +260,38 @@ class FabricationWorkflowMatcher(Matcher):
         apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) AS metadata
         """
 
+        # Assuming _build_single_path_query remains unchanged
+
     def build_query(self):
-        """
-        Build the final query by combining ontology, tree, node, path, and results queries.
+        ontology_queries = [self._build_ontology_query(node) for node in self.query_list]
+        tree_queries = [self._build_tree_query(node['id'], node['label']) for node in self.query_list]
+        find_nodes_queries = [self._build_find_nodes_query(node['id'], node['label'], node['attributes']) for node in self.query_list]
+        path_queries_and_conditions = self._build_path_queries_and_conditions()
+        prepare_results = self._build_results()
 
-        Returns:
-            tuple: The final Cypher query and an empty dictionary.
-        """
-        ontology_queries = [self.build_ontology_query(node) for node in self.query_list]
-        tree_queries = [self.build_tree_query(node['id'], node['label']) for node in self.query_list]
-        find_nodes_queries = [self.build_find_nodes_query(node['id'], node['label'], node['attributes']) for node in self.query_list]
-        path_queries_and_conditions = self.build_path_queries_and_conditions()
-        results_query = self.build_results_query()
-
+        # Combining all parts into a single query
         final_query = f"""MATCH {", ".join(ontology_queries)} 
-        {" ".join(tree_queries + find_nodes_queries + [path_queries_and_conditions] + [results_query])}
+        {" ".join(tree_queries + find_nodes_queries + [path_queries_and_conditions] + [prepare_results])}
         """
         print(final_query)
         return final_query, {}
 
-    def build_result(self):
-        """
-        Build the result table from the database result.
 
-        Returns:
-            pandas.DataFrame: The result table.
-        """
+
+
+
+    def build_result(self):
+
+        # if self.count:
+        #     return self.db_results[0][0]
         return create_table_structure(self.db_result)
 
     def build_results_for_report(self):
-        """
-        Build the results for the report.
-
-        Returns:
-            tuple: List of results and columns.
-        """
+        # Dynamic extraction
         result = create_table_structure(self.db_result)
         return result.values.tolist(), result.columns
 
+
     def build_extra_reports(self):
-        """
-        Placeholder for building extra reports if needed.
-        """
         pass
+
