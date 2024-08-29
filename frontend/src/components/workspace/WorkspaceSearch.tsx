@@ -53,7 +53,7 @@ export default function WorkspaceSearch(props: WorkspaceSearchProps) {
             style={{
                 paddingBottom: showAdvanced ? 10 : 0,
                 borderBottom: `1px solid ${darkTheme ? '#333' : '#ced4da'}`,
-                display: jsonView ? 'block' : 'none',
+                display: jsonView ? 'flex' : 'none',
             }}
         >
             <Button
