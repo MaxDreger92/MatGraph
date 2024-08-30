@@ -1,0 +1,68 @@
+{
+  "labware": [
+    {
+      "slot": 1,
+      "name": "opentrons_96_tiprack_1000ul",
+      "filename": "opentrons_96_tiprack_1000ul.json",
+      "namespace": "opentrons",
+      "version": 1,
+      "intent": "setup"
+    },
+    {
+      "slot": 2,
+      "name": "nis_8_reservoir_25000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "nis_8_reservoir_25000ul.json"
+    },
+    {
+      "slot": 3,
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    },
+    {
+      "slot": 4,
+      "name": "autodial_25_reservoir_4620ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "autodial_25_reservoir_4620ul.json"
+    },
+    {
+      "slot": 5,
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    },
+    {
+      "slot": 6,
+      "name": "tlg_1_reservoir_50000ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "tlg_1_reservoir_50000ul.json"
+    },
+    {
+      "slot": 9,
+      "name": "nis_15_wellplate_3895ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "nis_15_wellplate_3895ul.json"
+    },
+    {
+      "slot": 10,
+      "name": "nistall_4_tiprack_1ul",
+      "namespace": "custom_beta",
+      "version": 1,
+      "intent": "setup",
+      "filename": "nistall_4_tiprack_1ul.json"
+    }
+  ]
+}

@@ -2,13 +2,17 @@ import dotenv from "dotenv"
 dotenv.config({ override: true })
 
 import express from "express"
-import userRouter from "./controllers/user.controller-mongodb"
+import userRouter from "./controllers/controller"
 import cors from "cors"
+import bodyParser from 'body-parser';
 
 const app = express()
 const port = process.env.PORT || 8080 // Set the desired port number
 
 // Middleware
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+
 app.use(express.json())
 
 app.use(cors())

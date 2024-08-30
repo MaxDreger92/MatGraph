@@ -1,15 +1,15 @@
 import { useMantineColorScheme } from '@mantine/core'
 import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
 
-import { INode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
+import { TNode, NodeAttribute, NodeValOpAttribute } from '../../../types/canvas.types'
 import NodeInputStr from './NodeInputStr'
 import NodeInputStrOp from './NodeInputStrOp'
-import WorkflowContext from '../../workflow/context/WorkflowContext'
+import { WorkspaceTableContext } from '../../../context/WorkspaceContext'
 
 interface NodeInputProps {
     isValueNode: boolean
-    node: INode
-    handleNodeUpdate: (node: INode, endEditing?: boolean) => void
+    node: TNode
+    handleNodeUpdate: (node: TNode, endEditing?: boolean) => void
     getFieldErrors: (field: NodeAttribute | NodeValOpAttribute, attributeName: string) => void
 }
 
@@ -33,10 +33,10 @@ export default React.memo(function NodeInput(props: NodeInputProps) {
     const { colorScheme } = useMantineColorScheme()
     const darkTheme = colorScheme === 'dark'
 
-    const { forceEndEditing } = useContext(WorkflowContext)
+    const { forceEndEditing } = useContext(WorkspaceTableContext)
 
     const updateNode = useCallback(() => {
-        const updatedNode: INode = {
+        const updatedNode: TNode = {
             ...node,
             name: nodeName,
             value: nodeValue,

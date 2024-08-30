@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "search_string": "CH340",
+  "potentiostat":
+  {
+    "location": {
+        "device": "opentrons",
+        "properties": {
+          "slot": 10
+        }
+    }
+  }
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { UserContext } from './common/UserContext'
+import { Routes, Route } from 'react-router-dom'
+import { UserContext } from './context/UserContext'
 import { Toaster } from 'react-hot-toast'
 import Header from './components/Header'
 import { MDB_IUser as IUser } from './types/user.type'
@@ -26,36 +27,36 @@ export default function App() {
 
     const {
         data: currentUser,
-        isLoading,
-        isError,
-        error,
+        isLoading: userIsLoading,
+        isError: userIsError,
+        error: userError,
     } = useQuery<IUser | null | undefined>('getCurrentUser', client.getCurrentUser)
 
     useEffect(() => {
-        if (isError) {
-            const err = error as Error
+        if (userIsError) {
+            const err = userError as Error
             console.log(err.message)
         }
-    }, [isError, error])
+    }, [userIsError, userError])
 
     useEffect(() => {
         if (
             !currentUser &&
-            !isLoading &&
+            !userIsLoading &&
             !['/', '/login', '/legal-information'].includes(location.pathname)
         ) {
             navigate('/')
         }
-    }, [location, navigate, currentUser, isLoading])
-
-    const handleHeaderLinkClick = (key: string) => {
-        navigate(key)
-    }
+    }, [location, navigate, currentUser, userIsLoading])
 
     const handleLogout = () => {
         queryClient.setQueryData<IUser | null | undefined>('getCurrentUser', undefined)
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure'
         navigate('/')
+    }
+
+    const handleHeaderLinkClick = (key: string) => {
+        navigate(key)
     }
 
     const getCookieConsent = useCallback(() => {

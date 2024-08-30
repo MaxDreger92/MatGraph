@@ -1,4 +1,4 @@
-from neomodel import RelationshipTo, RelationshipFrom
+from neomodel import RelationshipTo, RelationshipFrom, StringProperty, FloatProperty, JSONProperty
 from matgraph.models.abstractclasses import CausalObject
 
 
@@ -6,6 +6,9 @@ class PhysicalDimension(CausalObject):
     """
     Class representing a physical dimension in the knowledge graph.
     """
+    unit = StringProperty()
+    value = FloatProperty()
+    dataframe_json = JSONProperty()
     class Meta:
         app_label = 'matgraph'
 

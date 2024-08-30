@@ -10,7 +10,7 @@ class TokenAuthenticationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        api_path = '/api/data/'
+        api_path = '/api/'
         
         if request.path.startswith(api_path):
             token = request.META.get('HTTP_AUTHORIZATION', '')
@@ -18,6 +18,7 @@ class TokenAuthenticationMiddleware:
                 token_parts = token.split()
                 if len(token_parts) == 2 and token_parts[0].lower() == 'bearer':
                     token = token_parts[1]
+                    request.user_token = token
                 else:
                     return JsonResponse({'error': 'Invalid token format'}, status=401)
                 try:

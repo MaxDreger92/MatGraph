@@ -5,6 +5,12 @@ export default function Claims() {
     const [index, setIndex] = useState(0)
 
     useEffect(() => {
+        const startIndex = Math.floor(Math.random() * CLAIMS.length) % CLAIMS.length
+        console.log(startIndex)
+        setIndex(startIndex)
+    }, [])
+
+    useEffect(() => {
         const timer = setTimeout(() => {
             setIndex((state) => (state + 1) % CLAIMS.length)
         }, 7000)
