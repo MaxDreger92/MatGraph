@@ -130,6 +130,21 @@ class UserRepository {
         );
         return result.modifiedCount > 0;
     }
+
+    static async getUserList(): Promise<Partial<IUser>[]> {
+        const collection = await this.getCollection();
+        const users = await collection.find({}, {
+            projection: {
+                name: 1,
+                email: 1,
+                username: 1,
+                roles: 1,
+                confirmed: 1,
+                verified: 1,
+            }
+        }).toArray()
+        return users
+    }
 }
 
 export default UserRepository;

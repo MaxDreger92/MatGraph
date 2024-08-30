@@ -569,6 +569,51 @@ router.post(
     }
 )
 
+router.get(
+    '/api/users/list',
+    UserService.authenticateToken,
+    async (req: IGetUserAuthInfoRequest, res: Response) => {
+        try {
+            const id = req.userId
+            if (!id) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!',
+                })
+            }
+
+            const user = await UserService.findByID(id)
+
+            if (!user) {
+                return res.status(404).json({
+                    message: 'User could not be found!'
+                })
+            }
+
+            if (!(user.username === 'admin' &&
+                user.email === 'admin@matgraph.xyz' &&
+                (user.roles ?? []).includes('admin')
+            )) {
+                return res.status(401).json({
+                    message: 'Unauthorized access!'
+                })
+            }
+
+            const userList = await UserService.getUserList()
+
+            if (!userList) {
+                return res.status(500).send('Internal Server Error!')
+            }
+
+            return res.status(200).json({
+                userList: userList,
+                message: 'User list retrieved!'
+            })
+        } catch (err) {
+            return res.status(500).send('Internal Server Error!')
+        }
+    }
+)
+
 // ################################## Graphs
 // ##################################
 // ##################################
