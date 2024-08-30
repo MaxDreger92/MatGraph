@@ -242,7 +242,8 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
                 paddingTop: 15,
                 paddingLeft: 10,
                 paddingRight: 10,
-                overflow: 'auto',
+                overflowY: 'auto',
+                overflowX: 'hidden',
                 display: historyView ? 'block' : 'none',
             }}
         >
