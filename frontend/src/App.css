@@ -612,7 +612,6 @@ input::webkit-inner-spin-button {
 }
 
 .workspace-search {
-    display: flex;
     flex-direction: column;
     position: relative;
     align-items: center;

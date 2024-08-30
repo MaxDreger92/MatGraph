@@ -41,6 +41,12 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
     const [buttonWidth, setButtonWidth] = useState(155)
     const [buttonHovered, setButtonHovered] = useState<number | null>(null)
 
+    const [contextValue, setContextValue] = useState<string>(upload?.context ?? '')
+
+    useEffect(() => {
+        setContextValue(upload?.context ?? '')
+    }, [upload])
+
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
             if (workspacePipelineRef.current) {
@@ -200,18 +206,22 @@ export default function WorkspacePipeline(props: WorkspacePipelineProps) {
                         display: 'flex',
                         flexDirection: 'column',
                         width: 250,
-                        paddingLeft: 25,
+                        paddingLeft: 15,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
                 >
                     <input
+                        disabled={progress !== 1}
                         className={`${inputClass}`}
                         type="text"
                         id="contextInput"
                         placeholder={'Enter table context...'}
-                        defaultValue={upload?.context ?? ''}
-                        onChange={handleContextChange} // write nodeName state
+                        value={contextValue}
+                        onChange={(e) => {
+                            setContextValue(e.target.value); // Update local state
+                            handleContextChange(e); // Call the passed handler
+                        }}
                         autoFocus={true}
                         style={{
                             alignSelf: 'center',

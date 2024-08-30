@@ -310,6 +310,7 @@ export default function WorkspaceHistory(props: WorkspaceHistoryProps) {
                                 fontSize: 16,
                                 fontWeight: 'bold',
                                 userSelect: 'none',
+                                whiteSpace: 'nowrap'
                             }}
                         >
                             {getItemName(item, index)}

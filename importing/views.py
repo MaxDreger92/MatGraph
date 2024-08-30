@@ -44,32 +44,43 @@ class FileImportView(APIView):
                 {"error": "No CSV Table provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        csv_table = request.POST["csvTable"]
-        user_token = request.user_token
+        try:
+            csv_table = request.POST["csvTable"]
+            user_token = request.user_token
 
-        file_obj = request.FILES["file"]
-        if not file_obj.name.endswith(".csv"):
-            return response.Response(
-                {"error": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        file_record = await self.store_file(file_obj)
-        file_id = file_record.uid
+            file_obj = request.FILES["file"]
+            if not file_obj.name.endswith(".csv"):
+                return response.Response(
+                    {"error": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST
+                )
+            file_record = await self.store_file(file_obj)
+            file_id = file_record.uid
 
-        request_data = {
-            "csvTable": csv_table,
-            "fileId": file_id,
-            "fileName": file_obj.name,
-        }
-        response_data = await user_db_request(request_data, None, user_token, "post")
-
-        return JsonResponse(
-            {
-                "upload": response_data.get("upload"),
-                "message": response_data.get(
-                    "message", "Upload process saved successfully!"
-                ),
+            request_data = {
+                "csvTable": csv_table,
+                "fileId": file_id,
+                "fileName": file_obj.name,
             }
-        )
+        
+            response_data = await user_db_request(request_data, None, user_token, "post")
+            if "upload" in response_data:
+                return JsonResponse(
+                    {
+                        "upload": response_data.get("upload")
+                    },
+                    status = 201
+                )
+            else:
+                raise ValueError("No upload process was returned!")
+        
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            return JsonResponse(
+                {
+                    "error": f"Unexpected error occurred during file import: {e}",
+                },
+                status = 500
+            )
 
     async def store_file(self, file_obj):
         """Store the uploaded file and return the file record."""
@@ -100,30 +111,34 @@ class LabelExtractView(APIView):
         cached = await self.try_cache(upload_id, user_token, file_id)
         if cached:
             return JsonResponse({"cached": True})
-
+        
+        # Set upload process in user db to processing
         updates = {"processing": True, "context": context}
         response_data = await user_db_request(updates, upload_id, user_token)
         if response_data.get("updateSuccess") is False:
             return JsonResponse({"processing": False})
-
+    
+        # Start asynchronous job execution
         submit_task(
             upload_id, self.extract_labels, upload_id, context, file_id, user_token
         )
 
         return JsonResponse({"processing": True})
 
+
     def extract_labels(self, task, upload_id, context, file_id, user_token):
         asyncio.run(
             self.async_extract_labels(task, upload_id, context, file_id, user_token)
         )
 
-    async def async_extract_labels(self, task, upload_id, context, file_id, user_token):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_obj_bytes = await sync_to_async(file_record.get_file)()
-        file_obj_str = file_obj_bytes.decode("utf-8")
-        file_obj = StringIO(file_obj_str)
 
+    async def async_extract_labels(self, task, upload_id, context, file_id, user_token):
         try:
+            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
+            file_obj_bytes = await sync_to_async(file_record.get_file)()
+            file_obj_str = file_obj_bytes.decode("utf-8")
+            file_obj = StringIO(file_obj_str)
+
             node_classifier = NodeClassifier(
                 data=file_obj,
                 context=context,
@@ -150,7 +165,10 @@ class LabelExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during label extraction: {e}", exc_info=True)
-            raise
+            updates = {
+                "processing": False
+            }
+            await user_db_request(updates, upload_id, user_token)
 
     def sanitize_data(self, data):
         if isinstance(data, dict):
@@ -279,6 +297,11 @@ class AttributeExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during attribute extraction: {e}", exc_info=True)
+            updates = {
+                "processing": False
+            }
+            await user_db_request(updates, upload_id, user_token)
+            
 
     def prepare_data(self, labels):
         input_data = [
@@ -383,6 +406,10 @@ class NodeExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during node extraction: {e}", exc_info=True)
+            updates = {
+                "processing": False
+            }
+            await user_db_request(updates, upload_id, user_token)
 
     async def prepare_data(self, file_id, attributes):
         file_record = await sync_to_async(File.nodes.get)(uid=file_id)
@@ -496,6 +523,10 @@ class GraphExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during relationship extraction: {e}", exc_info=True)
+            updates = {
+                "processing": False
+            }
+            await user_db_request(updates, upload_id, user_token)
 
     async def prepare_data(self, file_id):
         file_record = await sync_to_async(File.nodes.get)(uid=file_id)
@@ -578,6 +609,10 @@ class GraphImportView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during graph import: {e}", exc_info=True)
+            updates = {
+                "processing": False
+            }
+            await user_db_request(updates, upload_id, user_token)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
