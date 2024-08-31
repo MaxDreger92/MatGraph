@@ -1,17 +1,26 @@
+import json
+import logging
 import os
 import uuid
 from typing import Union, List
 
 from django.db.models import Q
+from pydantic import BaseModel
 
 from mat2devplatform.settings import BASE_DIR
 from sdl.models import ExperimentModel
-from sdl.workflow.utils import BaseWorkflow, BaseProcedure, BaseStep
+from sdl.setup.arduino_setup.ArduinoSetup import ArduinoSetup
+from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
+from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
+from sdl.workflow.utils import BaseWorkflow, BaseProcedure, BaseStep, Requirements
+
+
+
 
 
 class Experiment:
     def __init__(self, setups, workflow: Union[BaseWorkflow, List[Union[BaseWorkflow, BaseProcedure, BaseStep]]],
-                 logger, experiment_id = None):
+                 experiment_id = None, store_experiment = True):
         """
         Initialize an experiment with a list of setups and a workflow.
 
@@ -19,18 +28,28 @@ class Experiment:
             setups (list): A list of setup instances.
             workflow (Workflow): An instance of a workflow.
         """
-        self.setups = {setup.name_space: setup for setup in setups}  # Using a dictionary for easy access by name
-        self.workflow = workflow
-        self.logger = logger
-        self.outputs = []
         self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
         self.create_experiment_directory()
+        self.logger = self.initialize_logger()
+        self.setups = {setup.name_space: setup for setup in setups}  # Using a dictionary for easy access by name
+        self.workflow = workflow
+
+        self.outputs = []
+        self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
+
+
+        if store_experiment:
+            self.store_experiment()
+
+
+    def store_experiment(self):
+
         required_fields = {
             'id': self.experiment_id,
             'opentrons': self.setups['opentrons'].config,
             'labware': self.setups['opentrons'].labware_config,
             'chemicals': self.setups['opentrons'].chemicals_config,
-            'workflow': {"test": "test"}
+            'workflow': {"name": "TestWorkflow", "variables": {"test": "test"}}
         }
 
         # Use dictionary comprehension to conditionally add optional fields
@@ -46,15 +65,47 @@ class Experiment:
         self.model = ExperimentModel(**model_data)
         self.model.save()
 
+    def initialize_logger(self):
+        logging_path = os.path.join(self.experiment_directory, 'logfile.log')
+        logging.basicConfig(
+            level=logging.INFO,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Set the logging format
+            handlers=[
+                logging.FileHandler("logfile.log"),  # Log to a file
+                logging.StreamHandler()  # Log to console
+            ]
+        )
+        return logging.getLogger(__name__)
+
+    @classmethod
+    def from_model(cls, model, logger):
+        setups = []
+        if model.opentrons:
+            opentrons = OpentronsSetup(robot_config_source=model.opentrons,
+                                       labware_config_source=model.labware,
+                                       chemicals_config_source=model.chemicals,
+                                       ip=model.opentrons['ip'],
+                                       port=model.opentrons['port'],
+                                       logger=logger)
+            setups.append(opentrons)
+        if model.arduino:
+            arduino = ArduinoSetup(config=model.arduino, relay_config=model.arduino_relays, logger=logger)
+            setups.append(arduino)
+        if model.biologic:
+            biologic = BiologicSetup(config_source=model.biologic, logger=logger)
+            setups.append(biologic)
+        workflow = BaseWorkflow.from_config(model.workflow)
+        return cls(setups = setups, workflow=workflow, experiment_id= model.id, store_experiment=False)
+
     def create_experiment_directory(self):
         # Construct the directory path
         experiment_dir = os.path.join(BASE_DIR, str(self.experiment_id))
+        self.experiment_directory = experiment_dir
 
         # Create the directory if it doesn't exist
         os.makedirs(experiment_dir, exist_ok=True)
 
-        # Log or print a message that the directory has been created
-        self.logger.info(f"Experiment directory created: {experiment_dir}")
+
 
 
     def update_setups(self, setup):
@@ -116,6 +167,8 @@ class ExperimentManager:
         self.biologic_setup = self.biologic.config if self.biologic else None
         self.chemicals_setup = self.opentrons.chemicals_config if self.opentrons else None
         self.logger = logger
+        self.setup = setups
+        self.runnable_experiments = []
 
     def find_setup_by_namespace(self, setups, namespace):
         for setup in setups:
@@ -136,6 +189,21 @@ class ExperimentManager:
         )
         for i in runnable_experiments:
             print(i)
+            try:
+                self.runnable_experiments.append(Experiment.from_model(i, self.logger))
+            except KeyError as e:
+                print(e)
+                self.logger.error(f"Error creating experiment: {e}")
+                continue
+        print("Runnable Experiments",
+              self.runnable_experiments[0].workflow.get_procedures(),
+              self.runnable_experiments[0].workflow.get_requirements()
+              )
+            self.check_executability(i)
+
+        # self.runnable_experiments[0].initialize_setups()
+        # self.runnable_experiments[0].store_setups()
+        # self.runnable_experiments[0].execute()
 
 
 

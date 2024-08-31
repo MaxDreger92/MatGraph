@@ -9,7 +9,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from sdl.processes.opentrons_utils import Location, Vector, OpentronsBaseProcedure
+from sdl.processes.opentrons_utils import Vector, OpentronsBaseProcedure
+from sdl.workflow.utils import Location
 
 
 class AddLabwareOffsetParams(BaseModel):

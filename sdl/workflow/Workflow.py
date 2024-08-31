@@ -22,7 +22,7 @@ from sdl.processes.opentrons_procedures.move_to_well import MoveToWell, MoveToWe
 from sdl.processes.opentrons_procedures.pick_up_tip import PickUpTip, PickUpTipParams
 from sdl.processes.opentrons_utils import WellLocation
 from sdl.workflow.ProcessingStep import AddPythonCode
-from sdl.workflow.utils import BaseWorkflow
+from sdl.workflow.utils import BaseWorkflow, Requirements, Chemical, Labware
 
 
 class HelloWorldWorkflow(BaseWorkflow):
@@ -481,6 +481,9 @@ class ElectrochemicalExperiments(BaseWorkflow):
             end_measuring_I = 1.0,
             record_every_dT = 0.5))]
 
+    def __name__ (self):
+        return "ElectrochemicalExperiments"
+
 
 
 class TestBiologic(BaseWorkflow):
@@ -491,6 +494,10 @@ class TestBiologic(BaseWorkflow):
         E_range = E_RANGE.E_RANGE_10V,
         bandwidth = BANDWIDTH.BW_5,
     ))]
+
+    def __name__ (self):
+        return "TestBiologic"
+
 
 
 class TestWorkflow(BaseWorkflow):
@@ -514,7 +521,8 @@ class TestWorkflow(BaseWorkflow):
             labwareLocation="1",
             wellName="A1",
             homeAfter=True))]
-
+    def __name__ (self):
+        return "TestWorkflow"
 
 class NewFullWorkFlow(BaseWorkflow):
     def __init__(self,
@@ -604,6 +612,9 @@ class NewFullWorkFlow(BaseWorkflow):
             HomeRobot(HomeRobotParams())
         ]
 
+    def __name__ (self):
+        return "NewFullWorkFlow"
+
 class WashElectrodeWorkflowNoArduino(BaseWorkflow):
     def __init__(self,
                  labwareLocation,
@@ -667,6 +678,9 @@ class WashElectrodeWorkflowNoArduino(BaseWorkflow):
                 ))
             )
         ]
+
+    def __name__ (self):
+        return "WashElectrodeWorkflowNoArduino"
 
 
 
@@ -753,13 +767,29 @@ class TestWorkflow(BaseWorkflow):
 
 
 
+class TestWorkflow1(BaseWorkflow):
+    def __init__(self,):
+        super().__init__()
+        print("printing test variable")
+        self.operations = [
+            HomeRobot(HomeRobotParams()),
+
+        ]
+        self.requirements = Requirements(
+            chemicals = [Chemical(name="H2O", volume=25, unit="ml"),
+                         Chemical(name="NaCl", volume=25, unit="ml")],
+            labware = [Labware(name_space = "opentrons", name="Nis 8 Reservoir 25000 µL"),
+                       Labware(name_space = "opentrons", name="Nis 8 Reservoir 25000 µL")]
+        )
+
+
 class TestWorkflow(BaseWorkflow):
-    def __init__(self):
+    def __init__(self, test):
         super().__init__()
         self.operations = [
-            HomeRobot(HomeRobotParams())
+            HomeRobot(HomeRobotParams()),
+            TestWorkflow1()
         ]
-
 
 
 

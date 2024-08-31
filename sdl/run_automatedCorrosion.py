@@ -38,11 +38,9 @@ def main():
     from neomodel import config
     from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
     from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
-    from sdl.experiment.Experiment import ExperimentManager
-    from sdl.experiment.Experiment import Experiment
-    from sdl.workflow.Workflow import TestWorkflow
     from sdl.setup.arduino_setup.ArduinoSetup import ArduinoSetup
-
+    from sdl.experiment.Experiment import Experiment, ExperimentManager
+    from sdl.workflow.Workflow import TestWorkflow
     config_dir = os.path.join(os.getcwd(), 'sdl', 'config')
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
 
@@ -66,7 +64,7 @@ def main():
     with open(os.path.join(config_dir, 'biologic_setup.json'), 'r', encoding='utf-8') as file:
         biologic_config = json.load(file)
 
-    with open(os.path.join(config_dir, 'opentron_no_arduino_setup.json'), 'r', encoding='utf-8') as file:
+    with open(os.path.join(config_dir, 'labware_flex.json'), 'r', encoding='utf-8') as file:
         labware_config = json.load(file)
 
     with open(os.path.join(config_dir, 'chemicals.json'), 'r', encoding='utf-8') as file:
@@ -86,12 +84,11 @@ def main():
 
     arduino = ArduinoSetup(config=arduino_config, relay_config=arduino_setup, logger=LOGGER)
 
-    experiment = Experiment(setups=[opentrons, biologic],
-                            workflow=[TestWorkflow()],
-                            logger=LOGGER)
-    experiment.initialize_setups()
-    experiment.store_setups()
-    experiment.execute()
+    # experiment = Experiment(setups=[opentrons, biologic],
+    #                         workflow=[TestWorkflow(test = "miau")])
+    # experiment.initialize_setups()
+    # experiment.store_setups()
+    # experiment.execute()
     exp_Manager = ExperimentManager(setups = [opentrons, biologic, arduino], logger=LOGGER)
     exp_Manager.find_executable_experiments()
 

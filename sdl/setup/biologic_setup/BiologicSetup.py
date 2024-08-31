@@ -46,7 +46,7 @@ class BiologicSetup(SDLSetup):
     def save_graph(self, **kwargs):
         # Save the graph to the database
         self.logger.info("Saving Biologic Setup")
-        self.setup_node = self.setup_model()
+        self.setup_node = self.setup_model_class()
         self.setup_node.setup_id = self.setup_node.uid
 
         self.setup_node.save()
@@ -58,7 +58,6 @@ class BiologicSetup(SDLSetup):
             RETURN slot
             """
             slot = db.cypher_query(query, resolve_objects=True)[0][0][0]
-            print("SLOT: ", slot)
             self.setup_node.slot.connect(slot)
 
     @property

@@ -40,8 +40,10 @@ class WellLocation(BaseModel):
     offset: Offset
 
 
-class Location(BaseModel):
+class SlotLocation(BaseModel):
     slotName: str
+
+
 
 
 class Vector(BaseModel):

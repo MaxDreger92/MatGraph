@@ -23,7 +23,8 @@ class BaseSetup:
             db_model (Model): Django model for database operations.
         """
         self.config_source = self.load_configuration(config_source)
-        self.setup_model = db_model
+        self.setup_model_class = db_model
+        self.setup_model = None
         self.config = self.config_source
         self.name_space = None  # needs to be implemented in subclass
         self.simulate = False
@@ -79,7 +80,7 @@ class BaseSetup:
         Returns:
             obj (Model): Saved Django model instance.
         """
-        obj = self.setup_model(**kwargs)
+        obj = self.setup_model_class(**kwargs)
         self.setup_model = obj
         obj.save()
         return obj
