@@ -1,0 +1,6 @@
+{
+  "name": "TestWorkflow",
+  "variables": {
+    "test": "test"
+  }
+}

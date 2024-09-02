@@ -684,11 +684,10 @@ class WashElectrodeWorkflowNoArduino(BaseWorkflow):
 
 
 
-class TestWorkflow(BaseWorkflow):
+class FullWorkflow(BaseWorkflow):
     def __init__(self):
         super().__init__()
         self.operations = [
-            HomeRobot(HomeRobotParams()),
             PickUpTip(PickUpTipParams(
                 labwareLocation="1",
                 wellName="A1")),
@@ -787,8 +786,12 @@ class TestWorkflow(BaseWorkflow):
     def __init__(self, test):
         super().__init__()
         self.operations = [
+            MoveToWell(MoveToWellParams(
+                labwareName="opentrons_flex_96_tiprack_50ul",
+                wellName="A1",
+                )),
             HomeRobot(HomeRobotParams()),
-            TestWorkflow1()
+            # TestWorkflow1()
         ]
 
 

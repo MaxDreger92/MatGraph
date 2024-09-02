@@ -3,7 +3,7 @@ import json
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django import forms
-from sdl.models import ExperimentModel
+from sdl.models import Job
 
 class PrettyJSONWidget(forms.Textarea):
     def format_value(self, value):
@@ -20,12 +20,12 @@ class PrettyJSONWidget(forms.Textarea):
         return mark_safe(super().render(name, formatted_value, attrs, renderer))
 
 
-@admin.register(ExperimentModel)
-class ExperimentModelAdmin(admin.ModelAdmin):
+@admin.register(Job)
+class JobModelAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'date_created', 'date_updated', "status"]
     list_filter = ('id', 'date_created', 'date_updated', 'status')
-    fields = (('id', 'date_created', "status"), 'description', 'remarks', 'results', 'opentrons', 'labware', 'chemicals', 'biologic', 'arduino', 'arduino_relays', 'workflow')
+    fields = (('id', 'date_created', "status"), 'description', 'remarks', 'requirements', 'results', 'opentrons', 'labware', 'chemicals', 'biologic', 'arduino', 'arduino_relays', 'workflow')
     readonly_fields = ('id', 'date_created', 'date_updated', 'remarks', "description", 'results')
 
     # Override formfield_for_dbfield to apply the custom widget

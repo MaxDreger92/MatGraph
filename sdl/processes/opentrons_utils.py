@@ -53,8 +53,9 @@ class Vector(BaseModel):
 
 class OpentronsParamsMoveToLocation(BaseModel):
     labwareId: Optional[str] = None
+    labwareName: Optional[str] = None
     labwareLocation: Optional[str] = None
-    wellName: str
+    wellName: Optional[str] = None
     pipetteId: Optional[str] = None
     pipetteName: Optional[str] = None
     wellLocation: Optional[WellLocation] = Field(default= WellLocation(origin='top', offset=Offset(x=0, y=0, z=0)))
@@ -82,24 +83,26 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         opentrons = kwargs.get('opentrons_setup')
         # Extract and validate necessary fields from the combined dictionary
         if hasattr(self.params, 'labwareId') and hasattr(self.params, 'labwareLocation'):
+            if self.params.labwareName:
+                self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
             if not self.params.labwareId and self.params.labwareLocation:
                 self.params.labwareId = opentrons.get_labware_id(self.params.labwareLocation)
         if hasattr(self.params, 'pipetteId') and hasattr(self.params, 'pipetteName'):
             if not self.params.pipetteId:
                 self.params.pipetteId = opentrons.get_pipette_id(self.params.pipetteName)
 
-        required_kwargs = ['opentrons_ip', 'opentrons_headers', 'opentrons_run_id', 'logger', 'opentrons_port']
+        required_kwargs = ['opentrons', 'logger']
         missing_kwargs = [key for key in required_kwargs if key not in kwargs]
 
         if missing_kwargs:
             missing_keys = ', '.join(missing_kwargs)
             raise ValueError(f"Missing required keyword arguments: {missing_keys}")
 
-        robot_ip = kwargs['opentrons_ip']
-        headers = kwargs['opentrons_headers']
-        run_id = kwargs['opentrons_run_id']
+        robot_ip = kwargs['opentrons']['opentrons_ip']
+        headers = kwargs['opentrons']['opentrons_headers']
+        run_id = kwargs['opentrons']['opentrons_run_id']
         logger = kwargs['logger']
-        port = kwargs['opentrons_port']
+        port = kwargs['opentrons']['opentrons_port']
         command_type = self.commandType
         params = self.params.dict()
         intent = self.intent
@@ -166,7 +169,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
         common_query = f"""
             MERGE (m:Manufacturing {{id: $id}})
-            MERGE (u:Opentrons {{setup_id: '{kwargs['opentrons_id']}'}})
+            MERGE (u:Opentrons {{setup_id: '{kwargs['opentrons']['opentrons_id']}'}})
             MERGE (m)-[:BY]-> (u)
             SET m.createdAt = $createdAt,
                 m.name = $commandType,

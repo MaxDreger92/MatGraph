@@ -91,6 +91,14 @@ class BaseWorkflow(Registry):
         self.outputs = []
         self.procedures = self.get_procedures()
 
+    def json(self):
+
+        return json.dumps({
+            'name': self.__class__.__name__,
+            'variables': {},
+            'requirements': self.get_requirements().dict(),
+        })
+
     @classmethod
     def get_all_subclasses(cls):
         """
@@ -107,6 +115,7 @@ class BaseWorkflow(Registry):
         :param config:
         :return: workflow instance
         """
+        print(config)
         workflow_name = config['name']
         workflow_variables = config.get('variables', {})
         workflow = cls.get_workflow(workflow_name)(**workflow_variables)
@@ -165,7 +174,7 @@ class BaseWorkflow(Registry):
 
     def execute(self, *args, **kwargs):
         for operation in self.operations:
-            print(operation)
+            print("OPERATION", operation)
             output = operation.execute(*args, **kwargs)
             self.outputs.append(output)
             # response = output['response']

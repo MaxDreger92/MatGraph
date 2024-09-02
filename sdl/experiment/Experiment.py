@@ -5,10 +5,11 @@ import uuid
 from typing import Union, List
 
 from django.db.models import Q
+from neomodel import db
 from pydantic import BaseModel
 
 from mat2devplatform.settings import BASE_DIR
-from sdl.models import ExperimentModel
+from sdl.models import Job
 from sdl.setup.arduino_setup.ArduinoSetup import ArduinoSetup
 from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
 from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
@@ -16,11 +17,44 @@ from sdl.workflow.utils import BaseWorkflow, BaseProcedure, BaseStep, Requiremen
 
 
 
+class JobRequest:
+    def __init__(self, job_request: json, job_uid: Union[str, uuid] = None):
+        self.job_request = job_request
+        self.workflow = BaseWorkflow.from_config(job_request)
+        self.requirements = self.workflow.get_requirements()
+        self.job_uid = job_uid if job_uid else uuid.uuid4()
+        self.queue_job()
+
+    def get_workflow(self):
+        return self.workflow
+
+    def queue_job(self):
+        model_data = {
+            'id': self.job_uid,
+            'requirements': self.requirements.json(),
+            'workflow': self.job_request
+        }
+        # Create the ExperimentModel instance
+        self.model = Job(**model_data)
+        self.model.save()
+
+
+
+
 
 
 class Experiment:
-    def __init__(self, setups, workflow: Union[BaseWorkflow, List[Union[BaseWorkflow, BaseProcedure, BaseStep]]],
-                 experiment_id = None, store_experiment = True):
+    def __init__(self,
+                    opentrons_config: json = None,
+                    labware_config: json = None,
+                    chemicals_config: json = None,
+                    arduino_config: json = None,
+                    relay_config: json = None,
+                    biologic_config: json = None,
+                    workflow: json = None,
+                    experiment_id: Union[uuid, str] = None,
+                    store_experiment: bool = True
+                 ):
         """
         Initialize an experiment with a list of setups and a workflow.
 
@@ -31,25 +65,47 @@ class Experiment:
         self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
         self.create_experiment_directory()
         self.logger = self.initialize_logger()
-        self.setups = {setup.name_space: setup for setup in setups}  # Using a dictionary for easy access by name
-        self.workflow = workflow
-
+        self.setups = self.create_setups(opentrons_config,labware_config, chemicals_config, arduino_config, relay_config, biologic_config)  # Using a dictionary for easy access by name
+        self.workflow = self.create_workflow(workflow)
         self.outputs = []
         self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
 
 
-        if store_experiment:
-            self.store_experiment()
+        # if store_experiment:
+        #     self.store_experiment()
+
+
+    def create_workflow(self, workflow):
+        if workflow:
+            return BaseWorkflow.from_config(workflow)
+        raise KeyError("No workflow provided.")
+
+
+    def create_setups(self, opentrons_config, labware_config, chemicals_config, arduino_config, relay_config, biologic_config):
+        setups = {}
+        if opentrons_config:
+            opentrons = OpentronsSetup(robot_config_source=opentrons_config,
+                                       labware_config_source=labware_config,
+                                       chemicals_config_source=chemicals_config,
+                                       ip=opentrons_config['ip'],
+                                       port=opentrons_config['port'],
+                                       logger=self.logger)
+            setups['opentrons'] = opentrons
+        if arduino_config:
+            arduino = ArduinoSetup(config=arduino_config, relay_config=relay_config, logger=self.logger)
+            setups['arduino'] = arduino
+        if biologic_config:
+            biologic = BiologicSetup(config_source=biologic_config, logger=self.logger)
+            setups['biologic'] = biologic
+        return setups
 
 
     def store_experiment(self):
 
         required_fields = {
             'id': self.experiment_id,
-            'opentrons': self.setups['opentrons'].config,
-            'labware': self.setups['opentrons'].labware_config,
-            'chemicals': self.setups['opentrons'].chemicals_config,
-            'workflow': {"name": "TestWorkflow", "variables": {"test": "test"}}
+            'requirements': self.setups['opentrons'].config,
+            'workflow': self.workflow.json()
         }
 
         # Use dictionary comprehension to conditionally add optional fields
@@ -62,7 +118,7 @@ class Experiment:
         model_data = {**required_fields, **optional_fields}
 
         # Create the ExperimentModel instance
-        self.model = ExperimentModel(**model_data)
+        self.model = Job(**model_data)
         self.model.save()
 
     def initialize_logger(self):
@@ -77,26 +133,6 @@ class Experiment:
         )
         return logging.getLogger(__name__)
 
-    @classmethod
-    def from_model(cls, model, logger):
-        setups = []
-        if model.opentrons:
-            opentrons = OpentronsSetup(robot_config_source=model.opentrons,
-                                       labware_config_source=model.labware,
-                                       chemicals_config_source=model.chemicals,
-                                       ip=model.opentrons['ip'],
-                                       port=model.opentrons['port'],
-                                       logger=logger)
-            setups.append(opentrons)
-        if model.arduino:
-            arduino = ArduinoSetup(config=model.arduino, relay_config=model.arduino_relays, logger=logger)
-            setups.append(arduino)
-        if model.biologic:
-            biologic = BiologicSetup(config_source=model.biologic, logger=logger)
-            setups.append(biologic)
-        workflow = BaseWorkflow.from_config(model.workflow)
-        return cls(setups = setups, workflow=workflow, experiment_id= model.id, store_experiment=False)
-
     def create_experiment_directory(self):
         # Construct the directory path
         experiment_dir = os.path.join(BASE_DIR, str(self.experiment_id))
@@ -104,9 +140,6 @@ class Experiment:
 
         # Create the directory if it doesn't exist
         os.makedirs(experiment_dir, exist_ok=True)
-
-
-
 
     def update_setups(self, setup):
         self.setups[setup.name_space] = setup
@@ -140,10 +173,22 @@ class Experiment:
                                               opentrons_setup = self.setups['opentrons'])
                 self.outputs = [*self.outputs, *output]
         else:
-            output = self.workflow.execute(logger=self.logger, **self.configs)
+            output = self.workflow.execute(logger=self.logger, **self.configs, opentrons_setup=self.setups['opentrons'])
             if not isinstance(output, list):
                 output = [output]
             self.outputs = [*self.outputs, *output]
+
+
+    def find_chemicals(self, chemical_name, opentrons_id):
+        query = f'''
+            MATCH (p:Property)<-[:HAS_PROPERTY]-(c:Matter {{name: '{chemical_name}'}})-[:IN|HAS_METADATA]->(m:Metadata)<-[:HAS_PART*..5]-(o:Opentrons {{setup_id: '{opentrons_id}'}})
+            WHERE p.name = 'amount' OR p.name = 'Quantity'
+            RETURN c.name, p.value, p.unit'''
+        print(query)
+        res, _ = db.cypher_query(query, {})
+        print(res)
+
+        return res
 
 
 class ExperimentManager:
@@ -156,7 +201,7 @@ class ExperimentManager:
     """
 
     def __init__(self, setups, logger):
-        self.experiments = ExperimentModel.objects.filter(status="queued")
+        self.jobs = Job.objects.filter(status="queued")
         self.opentrons = self.find_setup_by_namespace(setups, "opentrons")
         self.arduino = self.find_setup_by_namespace(setups, "arduino")
         self.biologic = self.find_setup_by_namespace(setups, "biologic")
@@ -169,6 +214,7 @@ class ExperimentManager:
         self.logger = logger
         self.setup = setups
         self.runnable_experiments = []
+        self.experiment = None
 
     def find_setup_by_namespace(self, setups, namespace):
         for setup in setups:
@@ -178,7 +224,8 @@ class ExperimentManager:
 
 
     def find_executable_experiments(self):
-        runnable_experiments = ExperimentModel.objects.filter(
+        self.initialize_setups()
+        runnable_jobs = Job.objects.filter(
             status="queued"
         ).filter(
             Q(opentrons__isnull=True) | Q(opentrons=self.opentrons_config),
@@ -187,23 +234,36 @@ class ExperimentManager:
             Q(arduino__isnull=True) | Q(arduino=self.relays_setup),
             Q(biologic__isnull=True) | Q(biologic=self.biologic_setup)
         )
-        for i in runnable_experiments:
-            print(i)
-            try:
-                self.runnable_experiments.append(Experiment.from_model(i, self.logger))
-            except KeyError as e:
-                print(e)
-                self.logger.error(f"Error creating experiment: {e}")
-                continue
-        print("Runnable Experiments",
-              self.runnable_experiments[0].workflow.get_procedures(),
-              self.runnable_experiments[0].workflow.get_requirements()
-              )
-            self.check_executability(i)
+        for job in runnable_jobs:
+            self.check_requirements(job)
+            self.runnable_experiments.append(job)
 
-        # self.runnable_experiments[0].initialize_setups()
-        # self.runnable_experiments[0].store_setups()
-        # self.runnable_experiments[0].execute()
+    def initialize_setups(self):
+        self.experiment = Experiment(
+            opentrons_config=self.opentrons_config,
+            labware_config=self.labware_setup,
+            chemicals_config=self.chemicals_setup,
+            arduino_config=self.arduino_config,
+            relay_config=self.relays_setup,
+            biologic_config=self.biologic_setup,
+            workflow={
+                "name": "TestWorkflow",
+                "variables": {"test": "egal"}
+            },
+        )
+        self.experiment.initialize_setups()
+        self.experiment.store_setups()
+
+    def check_requirements(self, job):
+        print(job.requirements)
+        req = job.requirements
+        req = json.loads(req)  # Use json.loads instead of json.load
+        requirements = Requirements(**req)
+        for chemical in requirements.chemicals:
+            id = self.experiment.setups['opentrons'].info['opentrons_id']
+            print(self.experiment.find_chemicals(chemical.name, opentrons_id=id))
+        print(job.requirements)
+        print(self.experiment)
 
 
 

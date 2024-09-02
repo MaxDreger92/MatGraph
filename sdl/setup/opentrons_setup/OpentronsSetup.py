@@ -186,6 +186,28 @@ class OpentronsSetup(SDLSetup):
         else:
             return None
 
+
+
+    def get_labware_id_by_name(self, name):
+        """
+        Get the labware ID for a given name.
+
+        Args:
+            name (str): Name of the labware.
+
+        Returns:
+            str: Labware ID.
+        """
+        query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(:Slot)-[:HAS_PART]->(m:Opentron_Module {{name: '{name}'}}) RETURN m.module_id"
+        result = db.cypher_query(query, resolve_objects=False)
+        print(result)
+        print(query)
+        labware_id =result[0][0][0]
+        if labware_id:
+            return labware_id
+        else:
+            return None
+
     def get_pipette_id(self, name):
         """
         Get the pipette ID for a given name.
