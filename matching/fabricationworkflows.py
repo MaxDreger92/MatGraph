@@ -250,7 +250,7 @@ class FabricationWorkflowMatcher(Matcher):
         UNWIND pathNodes AS pathNode
         CALL apoc.case([
         pathNode:Matter,
-        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Property)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info',
+        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Property)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property.name] as node_info',
         pathNode:Process,
         'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Parameter)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info'
         ])
