@@ -1,16 +1,6 @@
 import json
-import os
-import time
-from datetime import datetime
 
 import requests
-import serial
-from neomodel import db
-
-from mat2devplatform.settings import BASE_DIR
-from matgraph.models.matter import Material
-from matgraph.models.properties import Property
-from sdl.models import Opentron_Module, ArduinoBoard
 
 
 class BaseSetup:
@@ -110,7 +100,7 @@ class SDLSetup(BaseSetup):
             config_source (Union[dict, str, Model, URL]): The source of the configuration.
             model (Model): Django model for database operations.
         """
-        super().__init__(config_source = config_source, db_model = model)
+        super().__init__(config_source=config_source, db_model=model)
         self._setup_id = None
         self._user = None
 
@@ -149,8 +139,6 @@ class SDLSetup(BaseSetup):
         Placeholder method for robot initialization.
         """
         return NotImplementedError
-
-
 
 
 class ExternalDeviceSetup(BaseSetup):
@@ -198,5 +186,3 @@ class ExternalDeviceSetup(BaseSetup):
             device (dict): Device configuration.
         """
         pass
-
-

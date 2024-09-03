@@ -90,13 +90,11 @@ class PumpRelay(RelayClass):
             if self.outlet['device'] == "material":
                 self.connect_to_materials(node, self.outlet, "outlet", **kwargs)
     def connect_to_materials(self, node, connection_props, connection_type, **kwargs):
-        print("connection_props", connection_props)
         material = connection_props["properties"]["material"]
         quantity = connection_props["properties"]["quantity"]["value"]
         quantity_unit = connection_props["properties"]["quantity"]["unit"]
         material_id = connection_props["properties"].get("material_id", None)
         query = self.connect_to_materials_query(material, quantity, quantity_unit, material_id)
-        print(query)
         result, _ = db.cypher_query(query, resolve_objects=True)
         material = result[0][0]
         if connection_type == "inlet":
@@ -115,14 +113,10 @@ class PumpRelay(RelayClass):
             node.outlet.connect
 
     def connect_to_opentrons(self, node, connection_props, connection_type, **kwargs):
-        print("connection_props", connection_props)
         opentrons_id = kwargs["opentrons"]["opentrons_id"]
-        print("openTRONSID", opentrons_id)
-        print(kwargs)
         slot = connection_props["properties"]['slot']
         well_id = connection_props["properties"]['well']
         query = self.connect_to_opentrons_query(opentrons_id, slot, well_id)
-        print(query)
         result, _ = db.cypher_query(query, resolve_objects=True)
         well = result[0][0]
         if connection_type == "inlet":
@@ -164,14 +158,9 @@ class UltrasonicRelay(RelayClass):
     def add_connected_to(self, node, **kwargs):
         if self.connected_to['device'] == "opentrons":
             opentrons_id = kwargs.get("opentrons").get("opentrons_id")
-            print(self.connected_to)
             query = self.connect_to_opentrons_query(opentrons_id, self.connected_to['properties']["slot"], self.connected_to['properties']["well"])
             result, _ = db.cypher_query(query, resolve_objects=True)
-            print(query)
-            print(result)
             well = result[0][0]
-            print(node, type(node))
-            print(well, type(well))
             node.slot.connect(well)
         elif self.connected_to['device'] == "material":
             query = self.connect_to_materials_query(self.connected_to['properties']["material"], self.connected_to['properties']["quantity"], self.connected_to['properties']["quantity_unit"], self.connected_to['properties']["material_id"])

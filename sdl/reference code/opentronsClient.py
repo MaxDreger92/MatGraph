@@ -884,10 +884,8 @@ class opentronsClient:
         # from the self.labware dictionary, get the labware ID
         strLabwareID = self.labware[strLabwareName]["id"]
 
-        print(strLabwareID)
 
         dicRunInfo = self.getRunInfo()
-        print(dicRunInfo)
 
         # find the list of labware from the run info
         lstLabware = dicRunInfo['data']['labware']
@@ -903,7 +901,6 @@ class opentronsClient:
                 # get the slot
                 strSlot = dicLabware_temp['location']['slotName']
     
-        print(strDefinitionUri)
 
         # if the definitionUri is not found
         if strDefinitionUri == None:

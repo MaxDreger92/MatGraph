@@ -200,8 +200,6 @@ class OpentronsSetup(SDLSetup):
         """
         query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(:Slot)-[:HAS_PART]->(m:Opentron_Module {{name: '{name}'}}) RETURN m.module_id"
         result = db.cypher_query(query, resolve_objects=False)
-        print(result)
-        print(query)
         labware_id =result[0][0][0]
         if labware_id:
             return labware_id
@@ -229,7 +227,6 @@ class OpentronsSetup(SDLSetup):
 
     def loadPipette(self,
                     strMount = 'right'
-
                     ):
         '''
         loads a pipette onto the robot
@@ -383,8 +380,6 @@ class OpentronsSetup(SDLSetup):
 
         if response.status_code == 201:
             dicResponse = json.loads(response.text)
-            print(dicResponse)
-            print(dicResponse)
             if dicResponse['data']['result']['definition']['parameters']['isTiprack']:
                 self.tiprackID = dicResponse['data']['result']['labwareId']
             strLabwareID = dicResponse['data']['result']['labwareId']

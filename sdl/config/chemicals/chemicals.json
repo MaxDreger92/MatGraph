@@ -13,47 +13,27 @@
     },
     {
       "location": {
-        "slot": 5,
-        "well": "A1"
-      },
-      "name": "Salt H2O",
-      "volume": {
-        "value": 20,
-        "unit": "mL"
-      }
-    },
-    {
-      "location": {
-        "slot": 5,
-        "well": "A1"
-      },
-      "name": "DI H2O",
-      "volume": {
-        "value": 20,
-        "unit": "mL"
-      }
-    },
-    {
-      "location": {
         "slot": 6,
         "well": "A1"
       },
-      "name": "H2O",
-      "volume": {
-        "value": 100,
-        "unit": "mL"
-      }
-    },
-    {
-      "location": {
-        "slot": 6,
-        "well": "A1"
-      },
-      "name": "HCl",
+      "name": "NaCl",
       "volume": {
         "value": 100,
         "unit": "mL"
       }
     }
-  ]
+  ],
+    "arduino": [
+        {
+        "name": "NaCl",
+        "location": {
+            "pump": "0",
+            "type": "inlet"
+            },
+        "volume": {
+            "value": 100,
+            "unit": "uL"
+            }
+        }
+    ]
 }

@@ -25,7 +25,7 @@ class JobModelAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'date_created', 'date_updated', "status"]
     list_filter = ('id', 'date_created', 'date_updated', 'status')
-    fields = (('id', 'date_created', "status"), 'description', 'remarks', 'requirements', 'results', 'opentrons', 'labware', 'chemicals', 'biologic', 'arduino', 'arduino_relays', 'workflow')
+    fields = (('id', 'date_created', "status"), 'description', 'remarks', 'results', 'opentrons', 'opentrons_setup', 'chemicals', 'biologic', 'arduino', 'arduino_setup', 'workflow')
     readonly_fields = ('id', 'date_created', 'date_updated', 'remarks', "description", 'results')
 
     # Override formfield_for_dbfield to apply the custom widget

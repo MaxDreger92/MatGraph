@@ -4,8 +4,6 @@ import os
 
 from dotenv import load_dotenv
 
-
-
 # Configure logging early
 logging.basicConfig(
     level=logging.INFO,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
@@ -17,6 +15,7 @@ logging.basicConfig(
 )
 
 LOGGER = logging.getLogger(__name__)
+
 
 def main():
     # LOAD CONFIG FILES
@@ -43,14 +42,6 @@ def main():
     config_dir = os.path.join(os.getcwd(), 'sdl', 'config')
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
 
-
-
-
-
-
-
-
-
     with open(os.path.join(config_dir, 'opentrons', 'flex.json'), 'r', encoding='utf-8') as file:
         opentrons_config = json.load(file)
 
@@ -76,43 +67,51 @@ def main():
 
     # SETUP EXPERIMENTAL SETUP------------------------------------------------------------------------
 
-    opentrons = OpentronsSetup(
-        robot_config_source=opentrons_config,
-        labware_config_source=labware_config,
-        chemicals_config_source=chemicals_config,
-        logger=logger)
+    # opentrons = OpentronsSetup(
+    #     robot_config_source=opentrons_config,
+    #     labware_config_source=labware_config,
+    #     chemicals_config_source=chemicals_config,
+    #     logger=logger)
+    #
+    # arduino = ArduinoSetup(
+    #     config=arduino_config,
+    #     relay_config=arduino_setup,
+    #     logger=logger
+    # )
+    #
+    # biologic = BiologicSetup(
+    #     config_source=biologic_config,
+    #     logger=logger
+    # )
 
-    arduino = ArduinoSetup(
-        config=arduino_config,
-        relay_config=arduino_setup,
-        logger=logger
-    )
-
-    biologic = BiologicSetup(
-        config_source=biologic_config,
-        logger=logger
-    )
-
-
-    experiment = Experiment(
-        opentrons_config=opentrons_config,
-        arduino_config=arduino_config,
-        relay_config=arduino_setup,
-        biologic_config=biologic_config,
-        labware_config=labware_config,
-        chemicals_config=chemicals_config,
-        workflow = workflow
-    )
-    experiment.initialize_setups()
-    experiment.store_setups()
-    experiment.execute()
+    # experiment = Experiment(
+    #     opentrons_config=opentrons_config,
+    #     arduino_config=arduino_config,
+    #     relay_config=arduino_setup,
+    #     biologic_config=biologic_config,
+    #     labware_config=labware_config,
+    #     chemicals_config=chemicals_config,
+    #     workflow = workflow
+    # )
+    # experiment.initialize_setups()
+    # experiment.store_setups()
+    # experiment.execute()
     # job = JobRequest(
-    #     job_request=workflow
+    #     job_request=workflow,
+    #
+    #
     # )
 
     #
-    # exp_Manager = ExperimentManager(setups = [opentrons, biologic, arduino], logger=LOGGER)
-    # exp_Manager.find_executable_experiments()
+    exp_Manager = ExperimentManager(
+        opentrons=opentrons_config,
+        arduino=arduino_config,
+        biologic=biologic_config,
+        opentrons_setup=labware_config,
+        chemicals=chemicals_config,
+        arduino_relays=arduino_setup,
+        logger=LOGGER)
+    exp_Manager.find_executable_experiments()
 
 
 if __name__ == '__main__':

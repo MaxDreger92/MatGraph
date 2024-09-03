@@ -33,7 +33,7 @@ class ArduinoSetup(BaseSetup):
         self.name_space = "arduino"  # Important for mapping to procedures
         self.BAUD_RATE = 115200
         self.CONNECTION_TIMEOUT = 30  # seconds
-
+        self.SERIAL_PORT = None
 
     @property
     def info(self):
@@ -135,8 +135,6 @@ class ArduinoSetup(BaseSetup):
         self.simulate = simulate
         self.load_config()
         self.validate_config()
-        print(self.config)
-        print("relays", self.relays)
 
         self.initialize_arduino()
 

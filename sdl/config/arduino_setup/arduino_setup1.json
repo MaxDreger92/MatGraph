@@ -19,10 +19,10 @@
           }
         },
         "outlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "trash",
-            "quantity": {
+            "chemical": "trash",
+            "volume": {
               "value": "0",
               "unit": "ml"
             }
@@ -40,10 +40,10 @@
           "intercept": 0.0
         },
         "inlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "H2O",
-            "quantity": {
+            "chemical": "H2O",
+            "volume": {
               "value":  "10000",
               "unit": "ml"
             }
@@ -68,10 +68,10 @@
           "intercept": 0.0
         },
         "inlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "HCl",
-            "quantity": {
+            "chemical": "HCl",
+            "volume": {
               "value": "10000",
               "unit": "ml"
             }
@@ -103,10 +103,10 @@
           }
         },
         "outlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "trash",
-            "quantity": {
+            "chemical": "trash",
+            "volume": {
               "value": 0,
               "unit": "ml"
             }
@@ -124,10 +124,10 @@
           "intercept": 0.0
         },
         "inlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "H2O",
-            "quantity": {
+            "chemical": "H2O",
+            "volume": {
               "value": 6000,
               "unit": "ml"
             }
@@ -152,10 +152,10 @@
           "intercept": 0.0
         },
         "inlet": {
-          "device": "material",
+          "device": "chemical",
           "properties": {
-            "material": "HCl",
-            "quantity": {
+            "chemical": "HCl",
+            "volume": {
               "value": "10000",
               "unit": "mL"
             }

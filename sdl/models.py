@@ -212,15 +212,14 @@ class Biologic(Metadata):
 class Job(models.Model):
     STATUS_CHOICES = [("queued", 'QUEUED'), ("running", 'RUNNING'), ("completed", 'COMPLETED'), ("failed", 'FAILED')]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    requirements = models.JSONField(default = {"chemicals": [], "labware": []})
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     opentrons = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    labware = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+    opentrons_setup = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
     chemicals = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
     biologic = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
     arduino = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    arduino_relays = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+    arduino_setup = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
     workflow = models.JSONField()
     status = models.CharField(choices=STATUS_CHOICES, default="queued")
     description = models.TextField(null=True, blank=True)  # Allow NULL and empty values

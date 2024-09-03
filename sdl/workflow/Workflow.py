@@ -22,7 +22,7 @@ from sdl.processes.opentrons_procedures.move_to_well import MoveToWell, MoveToWe
 from sdl.processes.opentrons_procedures.pick_up_tip import PickUpTip, PickUpTipParams
 from sdl.processes.opentrons_utils import WellLocation
 from sdl.workflow.ProcessingStep import AddPythonCode
-from sdl.workflow.utils import BaseWorkflow, Requirements, Chemical, Labware
+from sdl.workflow.utils import BaseWorkflow, Requirements, Chemical, RequirementModel
 
 
 class HelloWorldWorkflow(BaseWorkflow):
@@ -774,11 +774,13 @@ class TestWorkflow1(BaseWorkflow):
             HomeRobot(HomeRobotParams()),
 
         ]
-        self.requirements = Requirements(
-            chemicals = [Chemical(name="H2O", volume=25, unit="ml"),
-                         Chemical(name="NaCl", volume=25, unit="ml")],
-            labware = [Labware(name_space = "opentrons", name="Nis 8 Reservoir 25000 µL"),
-                       Labware(name_space = "opentrons", name="Nis 8 Reservoir 25000 µL")]
+        self.requirements = RequirementModel(
+            chemicals = "chemicals.json",
+            opentrons_setup = "labware_flex.json",
+            opentrons = "flex.json",
+            biologic = "biologic_setup.json",
+            arduino= "arduino.json",
+            arduino_setup= "arduino_setup.json"
         )
 
 
@@ -791,7 +793,7 @@ class TestWorkflow(BaseWorkflow):
                 wellName="A1",
                 )),
             HomeRobot(HomeRobotParams()),
-            # TestWorkflow1()
+            TestWorkflow1()
         ]
 
 
