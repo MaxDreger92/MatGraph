@@ -4,6 +4,7 @@ from datetime import datetime
 
 import requests
 from neomodel import db, DateTimeProperty
+from sqlparse.utils import offset
 
 from mat2devplatform.settings import BASE_DIR
 from matgraph.models.matter import Material
@@ -13,7 +14,14 @@ from sdl.setup.ExperimentalSetup import SDLSetup
 
 
 class OpentronsSetup(SDLSetup):
-    def __init__(self, robot_config_source, labware_config_source, chemicals_config_source, logger, ip=None, port=None, model=Opentrons):
+    def __init__(self,
+                 robot_config_source,
+                 labware_config_source,
+                 chemicals_config_source,
+                 logger,
+                 offset_config=None,
+                 ip=None, port=None,
+                 model=Opentrons):
         """
         Initialize the Opentrons setup with configuration source and model.
 
@@ -30,6 +38,7 @@ class OpentronsSetup(SDLSetup):
         self._run_id = None
         self.labware_config = self.load_configuration(labware_config_source)
         self.chemicals_config = self.load_configuration(chemicals_config_source)
+        self.offset_config = self.load_configuration(offset_config)
         self.pipettes = {}
         self.logger = logger
 
@@ -43,7 +52,7 @@ class OpentronsSetup(SDLSetup):
             "opentrons_id": self.setup_id
         }
 
-    def setup(self, simulate = False):
+    def setup(self, simulate=False):
         """
         Load configuration, validate it, initialize the robot, and save the setup ID.
         """
@@ -55,46 +64,44 @@ class OpentronsSetup(SDLSetup):
         self.initialize_modules()
         self.loadPipette()
 
-
     def initialize_platform(self):
-            '''
-            creates a new blank run on the opentrons with command endpoints
+        '''
+        creates a new blank run on the opentrons with command endpoints
 
-            arguments
-            ----------
-            None
+        arguments
+        ----------
+        None
 
-            returns
-            ----------
-            None
-            '''
-            if self.simulate:
-                self._run_id = "simulate"
-                self.logger.info("Simulating Opentrons")
-                return
+        returns
+        ----------
+        None
+        '''
+        if self.simulate:
+            self._run_id = "simulate"
+            self.logger.info("Simulating Opentrons")
+            return
 
-            strRunURL = f"http://{self.robot_ip}:{self.port}/runs"
-            response = requests.post(url=strRunURL,
-                                     headers=self.headers,
-                                     )
+        strRunURL = f"http://{self.robot_ip}:{self.port}/runs"
+        response = requests.post(url=strRunURL,
+                                 headers=self.headers,
+                                 )
 
-            if response.status_code == 201:
-                dicResponse = json.loads(response.text)
-                # get the run ID
+        if response.status_code == 201:
+            dicResponse = json.loads(response.text)
+            # get the run ID
 
-                self._run_id = dicResponse['data']['id']
-                # setup command endpoints
-                self.commandURL = strRunURL + f"/{self.run_id}/commands"
+            self._run_id = dicResponse['data']['id']
+            # setup command endpoints
+            self.commandURL = strRunURL + f"/{self.run_id}/commands"
 
-                # LOG - info
-                self.logger.info(f"New run created with ID: {self.run_id}")
-                self.logger.info(f"Command URL: {self.commandURL}")
-                print(f"New run created with ID: {self.run_id}")
-                print(f"Command URL: {self.commandURL}")
-            else:
-                raise Exception(
-                    f"Failed to create a new run.\nError code: {response.status_code}\n Error message: {response.text}")
-
+            # LOG - info
+            self.logger.info(f"New run created with ID: {self.run_id}")
+            self.logger.info(f"Command URL: {self.commandURL}")
+            print(f"New run created with ID: {self.run_id}")
+            print(f"Command URL: {self.commandURL}")
+        else:
+            raise Exception(
+                f"Failed to create a new run.\nError code: {response.status_code}\n Error message: {response.text}")
 
     def save_graph(self, **kwargs):
         """
@@ -106,7 +113,7 @@ class OpentronsSetup(SDLSetup):
                 json_file = None
                 labware_file_path = os.path.join(BASE_DIR, 'sdl', 'config', 'labware', lw['filename'])
                 try:
-                    with open(labware_file_path, encoding ='utf-8') as f:
+                    with open(labware_file_path, encoding='utf-8') as f:
                         json_file = json.load(f)
                 except FileNotFoundError:
                     pass
@@ -122,9 +129,6 @@ class OpentronsSetup(SDLSetup):
                 self.logger.info(f"Saved module {module.name} with ID {module_id} to the graph")
         self.initialize_chemicals()
 
-
-
-
     def initialize_modules(self):
         """
         Initialize the Opentrons modules.
@@ -135,7 +139,7 @@ class OpentronsSetup(SDLSetup):
             labware_file_path = os.path.join(BASE_DIR, 'sdl', 'config', 'labware', lw['filename'])
             json_file = None  # Default value if file does not exist
             try:
-                with open(labware_file_path,encoding='utf-8') as f:
+                with open(labware_file_path, encoding='utf-8') as f:
                     json_file = json.load(f)
             except FileNotFoundError:
                 pass
@@ -165,9 +169,8 @@ class OpentronsSetup(SDLSetup):
                 well=chem["location"]["well"],
                 name=chem["name"],
                 quantity=chem["volume"]["value"],
-                unit = chem["volume"]["unit"]
+                unit=chem["volume"]["unit"]
             )
-
 
     def get_labware_id(self, slot):
         """
@@ -185,7 +188,6 @@ class OpentronsSetup(SDLSetup):
             return labware_id
         else:
             return None
-
 
     def get_labware_id_by_chemical(self, chemical):
         """
@@ -205,9 +207,6 @@ class OpentronsSetup(SDLSetup):
         well_number = result[1]
         return labware_id, well_number
 
-
-
-
     def get_labware_id_by_name(self, name):
         """
         Get the labware ID for a given name.
@@ -220,7 +219,7 @@ class OpentronsSetup(SDLSetup):
         """
         query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(:Slot)-[:HAS_PART]->(m:Opentron_Module {{name: '{name}'}}) RETURN m.module_id"
         result = db.cypher_query(query, resolve_objects=False)
-        labware_id =result[0][0][0]
+        labware_id = result[0][0][0]
         if labware_id:
             return labware_id
         else:
@@ -246,7 +245,7 @@ class OpentronsSetup(SDLSetup):
             return
 
     def loadPipette(self,
-                    strMount = 'right'
+                    strMount='right'
                     ):
         '''
         loads a pipette onto the robot
@@ -279,13 +278,12 @@ class OpentronsSetup(SDLSetup):
 
             strCommand = json.dumps(dicCommand)
 
-
             if not self.simulate:
                 response = requests.post(
-                    url = self.commandURL,
-                    headers = self.headers,
-                    params = {"waitUntilComplete": True},
-                    data = strCommand
+                    url=self.commandURL,
+                    headers=self.headers,
+                    params={"waitUntilComplete": True},
+                    data=strCommand
                 )
 
                 # LOG - debug
@@ -296,7 +294,7 @@ class OpentronsSetup(SDLSetup):
                     strPipetteID = dicResponse['data']['result']['pipetteId']
                     self.pipettes[strPipetteName] = {"id": strPipetteID, "mount": strMount}
                     self.logger.info(f"Pipette loaded with name: {strPipetteName} and ID: {strPipetteID}")
-                    pipette_node = Pipette(date_added = DateTimeProperty(), name=strPipetteName, module_id=strPipetteID)
+                    pipette_node = Pipette(date_added=DateTimeProperty(), name=strPipetteName, module_id=strPipetteID)
                     pipette_node.save()
                     self.setup_model.pipettes.connect(pipette_node)
 
@@ -312,8 +310,6 @@ class OpentronsSetup(SDLSetup):
             else:
                 self.logger.info(f"Simulating loading pipette with name: {strPipetteName} and mount: {strMount}")
                 print(f"Simulating loading pipette with name: {strPipetteName} and mount: {strMount}")
-
-
 
     def load_labware(self, slot,
                      name,
@@ -354,7 +350,7 @@ class OpentronsSetup(SDLSetup):
             response = requests.post(
                 url=f"http://{self.robot_ip}:{self.port}/runs/{self.run_id}/labware_definitions",
                 headers=self.headers,
-                params = {"waitUntilComplete": True},
+                params={"waitUntilComplete": True},
                 data=strCommand
             )
 
@@ -412,7 +408,6 @@ class OpentronsSetup(SDLSetup):
 
         return strLabwareID
 
-
     def add_material(self, slot, well, name, quantity, unit):
         """
         Add material/chemical to a module.
@@ -432,15 +427,11 @@ class OpentronsSetup(SDLSetup):
         except:
             raise Exception(f"Well {well} and slot {slot} could not be found")
         mat = Material(name=name)
-        prop = Property(name="amount", value=quantity, unit = unit)
+        prop = Property(name="amount", value=quantity, unit=unit)
         prop.save()
         mat.save()
         mat.properties.connect(prop)
         mat.by.connect(slot)
-
-
-
-
 
     @property
     def robot_ip(self):
@@ -495,4 +486,3 @@ class OpentronsSetup(SDLSetup):
     @run_id.setter
     def run_id(self, value):
         self._run_id = value
-

@@ -54,7 +54,8 @@ class Experiment:
                  biologic_config: json = None,
                  workflow: json = None,
                  experiment_id: Union[uuid, str] = None,
-                 store_experiment: bool = True
+                 store_experiment: bool = True,
+                 offset_config: json = None
                  ):
         """
         Initialize an experiment with a list of setups and a workflow.
@@ -67,7 +68,7 @@ class Experiment:
         self.create_experiment_directory()
         self.logger = self.initialize_logger()
         self.setups = self.create_setups(opentrons_config, labware_config, chemicals_config, arduino_config,
-                                         relay_config, biologic_config)  # Using a dictionary for easy access by name
+                                         relay_config, biologic_config, offset_config)  # Using a dictionary for easy access by name
         self.workflow = self.create_workflow(workflow)
         self.outputs = []
         self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
@@ -78,12 +79,13 @@ class Experiment:
         raise KeyError("No workflow provided.")
 
     def create_setups(self, opentrons_config, labware_config, chemicals_config, arduino_config, relay_config,
-                      biologic_config):
+                      biologic_config, offset_config):
         setups = {}
         if opentrons_config:
             opentrons = OpentronsSetup(robot_config_source=opentrons_config,
                                        labware_config_source=labware_config,
                                        chemicals_config_source=chemicals_config,
+                                       offset_config=offset_config,
                                        ip=opentrons_config['ip'],
                                        port=opentrons_config['port'],
                                        logger=self.logger)
@@ -166,10 +168,14 @@ class Experiment:
                 output = sub_workflow.execute(**configs,
                                               logger=self.logger,
                                               experiment_id=self.experiment_id,
-                                              opentrons_setup=self.setups['opentrons'])
+                                              opentrons_setup=self.setups['opentrons'],
+                                              opentrons_offset = self.setups['opentrons'].offset_config,)
                 self.outputs = [*self.outputs, *output]
         else:
-            output = self.workflow.execute(logger=self.logger, **self.configs, opentrons_setup=self.setups['opentrons'])
+            output = self.workflow.execute(logger=self.logger,
+                                           **self.configs,
+                                           opentrons_setup=self.setups['opentrons'],
+                                           opentrons_offset=self.setups['opentrons'].offset_config)
             if not isinstance(output, list):
                 output = [output]
             self.outputs = [*self.outputs, *output]
@@ -307,7 +313,8 @@ class ExperimentManager:
                 labware_config=self.opentrons_setup,
                 chemicals_config=self.chemical_config,
                 workflow=runnable_experiment.workflow,
-                experiment_id=runnable_experiment.id
+                experiment_id=runnable_experiment.id,
+                offset_config=self.offset_config
             )
             experiment.initialize_setups()
             experiment.store_setups()
@@ -319,7 +326,6 @@ class ExperimentManager:
     def update_job_status(self, experiment_id, status):
         # Check if the status is valid
         valid_statuses = dict(Job.STATUS_CHOICES).keys()
-        print("Valid Statuses", valid_statuses, status)
         if status not in valid_statuses:
             raise ValidationError(f"Invalid status: {status}. Must be one of {valid_statuses}")
 

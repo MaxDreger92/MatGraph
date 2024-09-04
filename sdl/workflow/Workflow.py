@@ -788,7 +788,11 @@ class TestWorkflow(BaseWorkflow):
     def __init__(self, test):
         super().__init__()
         self.operations = [
-            HomeRobot(HomeRobotParams()),
+            MoveToWell(MoveToWellParams(
+                labwareLocation="5",
+                wellName="A1",
+                speed=100)),
+            HomeRobot(HomeRobotParams())
             # DropTip(DropTipParams(
             #     labwareLocation="1",
             #     wellName="A1",

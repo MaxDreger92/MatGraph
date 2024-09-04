@@ -81,9 +81,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         - Response data from the Opentrons API.
         """
         opentrons = kwargs.get('opentrons_setup')
-        # Extract and validate necessary fields from the combined dictionary
-        if hasattr(self.params, 'chemical'):
-            print("CHEMICAL", self.params.chemical)
+
         if hasattr(self.params, 'labwareId') and hasattr(self.params, 'labwareLocation'):
             if self.params.labwareId:
                 self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
@@ -92,7 +90,6 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             elif not self.params.labwareId and self.params.labwareLocation:
                 self.params.labwareId = opentrons.get_labware_id(self.params.labwareLocation)
             elif not self.params.labwareId and self.params.chemical:
-                print("CHEMICAL", self.params.chemical)
                 self.params.labwareId, self.params.wellName = opentrons.get_labware_id_by_chemical(self.params.chemical)
         if hasattr(self.params, 'pipetteId') and hasattr(self.params, 'pipetteName'):
             if not self.params.pipetteId:
@@ -105,6 +102,10 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             missing_keys = ', '.join(missing_kwargs)
             raise ValueError(f"Missing required keyword arguments: {missing_keys}")
 
+        if hasattr(self.params, 'labwareLocation'):
+            offset = kwargs['opentrons_offset']
+            self.add_offset_to_params(offset)
+
         robot_ip = kwargs['opentrons']['opentrons_ip']
         headers = kwargs['opentrons']['opentrons_headers']
         run_id = kwargs['opentrons']['opentrons_run_id']
@@ -116,6 +117,8 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
         if not command_type:
             raise ValueError("Missing required field 'commandType' in the command data.")
+
+
 
         command_url = f"http://{robot_ip}:{port}/runs/{run_id}/commands"
 
@@ -239,3 +242,21 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         full_query = " ".join(queries)
         db.cypher_query(full_query, params)
         return ProcessOutput(id=entry.get('id'), status=entry.get('status'), output=entry, input=self.params.dict())
+
+    def add_offset_to_params(self, offset):
+        """
+        Adds the offset to the well location in the parameters.
+        :return:
+        """
+        try:
+            labwareLocation = self.params.labwareLocation
+            print(labwareLocation)
+            print(type(offset))
+            offset = offset[str(labwareLocation)]
+            self.params.wellLocation.offset.x += offset['offset']['x']
+            self.params.wellLocation.offset.y += offset['offset']['y']
+            self.params.wellLocation.offset.z += offset['offset']['z']
+        except KeyError:
+            print(f"Offset not found for {labwareLocation}")
+            raise KeyError(f"Offset not found for {labwareLocation}")
+        print(self.params.wellLocation.offset)
