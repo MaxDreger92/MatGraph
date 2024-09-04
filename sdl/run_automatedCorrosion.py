@@ -99,11 +99,11 @@ def main():
     # experiment.initialize_setups()
     # experiment.store_setups()
     # experiment.execute()
-    # job = JobRequest(
-    #     job_request=workflow,
-    #
-    #
-    # )
+    job = JobRequest(
+        job_request="job.json",
+
+
+    )
 
     #
     # exp_Manager = ExperimentManager(

@@ -17,31 +17,42 @@ from sdl.workflow.utils import BaseWorkflow, BaseProcedure, BaseStep, Chemical, 
 
 
 class JobRequest:
-    def __init__(self, job_request: json, job_uid: Union[str, uuid] = None, ):
+    def __init__(self, job_request: json, job_uid: Union[str, uuid.UUID] = None):
         self.job_request = job_request
-        self.workflow = BaseWorkflow.from_config(job_request)
+        self.workflow = self.create_workflow()
         self.requirements = self.workflow.get_requirements()
-        self.job_uid = job_uid if job_uid else uuid.uuid4()
+        self.job_uid = job_uid or uuid.uuid4()
         self.queue_job()
 
-    def get_workflow(self):
-        return self.workflow
+    def create_workflow(self):
+        try:
+            return BaseWorkflow.from_config(self.job_request)
+        except KeyError as e:
+            raise ValueError(f"Invalid workflow configuration: {str(e)}")
 
     def queue_job(self):
-        requirements = json.loads(self.requirements.json())
+        requirements = self.parse_requirements()
         model_data = {
             'id': self.job_uid,
-            'opentrons': requirements.get('opentrons'),
-            'opentrons_setup': requirements.get('opentrons_setup'),
-            'chemicals': requirements.get('chemicals'),
-            'arduino': requirements.get('arduino'),
-            'biologic': requirements.get('biologic'),
-            "arduino_setup": requirements.get('arduino_setup'),
+            **requirements,
             'workflow': self.job_request
         }
-        # Create the ExperimentModel instance
         self.model = Job(**model_data)
         self.model.save()
+
+    def parse_requirements(self):
+        try:
+            requirements = json.loads(self.requirements.json())
+            return {
+                'opentrons': requirements.get('opentrons'),
+                'opentrons_setup': requirements.get('opentrons_setup'),
+                'chemicals': requirements.get('chemicals'),
+                'arduino': requirements.get('arduino'),
+                'biologic': requirements.get('biologic'),
+                'arduino_setup': requirements.get('arduino_setup'),
+            }
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error parsing requirements: {str(e)}")
 
 
 class Experiment:
@@ -169,13 +180,16 @@ class Experiment:
                                               logger=self.logger,
                                               experiment_id=self.experiment_id,
                                               opentrons_setup=self.setups['opentrons'],
-                                              opentrons_offset = self.setups['opentrons'].offset_config,)
+                                              opentrons_offset = self.setups['opentrons'].offset_config,
+                                              experiment_directory=self.experiment_directory)
                 self.outputs = [*self.outputs, *output]
         else:
             output = self.workflow.execute(logger=self.logger,
                                            **self.configs,
                                            opentrons_setup=self.setups['opentrons'],
-                                           opentrons_offset=self.setups['opentrons'].offset_config)
+                                           opentrons_offset=self.setups['opentrons'].offset_config,
+                                           experiment_id=self.experiment_id,
+                                           experiment_directory=self.experiment_directory)
             if not isinstance(output, list):
                 output = [output]
             self.outputs = [*self.outputs, *output]
@@ -212,8 +226,6 @@ class ExperimentManager:
                  opentrons_setup: Union[str, dict], chemicals: Union[str, dict], arduino_relays: Union[str, dict], offset_config: Union[str, dict],
                  logger):
         self.jobs = Job.objects.all()
-        job = self.jobs[0]
-        print("Jobs", self.jobs)
         self.opentrons = opentrons if isinstance(opentrons, dict) else self.get_json_by_filename(opentrons)
         self.arduino = arduino if isinstance(arduino, dict) else self.get_json_by_filename(arduino)
         self.biologic = biologic if isinstance(biologic, dict) else self.get_json_by_filename(biologic)
@@ -247,7 +259,6 @@ class ExperimentManager:
         queued_jobs = Job.objects.filter(
             status="queued",
         )
-        print("Queued Jobs", queued_jobs)
         for job in queued_jobs:
             if self.check_requirements(job):
                 self.runnable_experiments.append(job)
@@ -259,8 +270,6 @@ class ExperimentManager:
     def check_requirements(self, job):
         chemical_check =  self.check_chemicals(job)
         setup_check = self.check_required_setup(job)
-        print("Chemical Check", chemical_check)
-        print("Setup Check", setup_check)
         return chemical_check and setup_check
 
     def check_chemicals(self, job):
@@ -268,7 +277,7 @@ class ExperimentManager:
         Check if the required chemicals are present. Does a direct comparison of
         open
         """
-        for chemical in job.chemicals:
+        for chemical in job.chemicals['chemicals']:
             chemical = Chemical(**chemical)
             if not self.chemicals.check_chemical(chemical):
                 return False
@@ -362,5 +371,5 @@ class ExperimentManager:
                     raise PermissionError(f"Permission denied when trying to access the file: {file_path}")
                 except json.JSONDecodeError as e:
                     raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
-
-        raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")
+                except FileNotFoundError:
+                    raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")

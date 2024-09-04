@@ -108,6 +108,24 @@ class Chemicals(BaseModel):
                     return False
         return True
 
+    def add_chemicals(self, chemicals: 'Chemicals'):
+        """
+        Add chemicals to the list of chemicals.
+        """
+        for chemical in chemicals.chemicals:
+            self.add_chemical(chemical)
+
+    def add_chemical(self, chemical: Chemical):
+        """
+        Add a chemical to the list of chemicals.
+        """
+        for available_chemical in self.chemicals:
+            if available_chemical.name == chemical.name:
+                available_chemical.add_quantity(chemical)
+                break
+        else:
+            self.chemicals.append(chemical)
+
 from typing import Union, List
 from pydantic import BaseModel, root_validator
 
@@ -306,6 +324,28 @@ class BaseWorkflow(Registry):
             'requirements': self.get_requirements().dict(),
         })
 
+    @staticmethod
+    def get_json_by_filename(name):
+        directory = os.path.join(BASE_DIR, 'sdl', 'config')
+
+        # Walk through the directory and subdirectories to find the file
+        for root, dirs, files in os.walk(directory):
+            if name in files:
+                file_path = os.path.join(root, name)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        content = file.read().strip()
+                        print(content)
+                        if not content:
+                            raise ValueError(f"The file {file_path} is empty.")
+                        return json.loads(content)
+                except PermissionError:
+                    raise PermissionError(f"Permission denied when trying to access the file: {file_path}")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
+
+        raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")
+
     @classmethod
     def get_all_subclasses(cls):
         """
@@ -322,6 +362,8 @@ class BaseWorkflow(Registry):
         :param config:
         :return: workflow instance
         """
+        if type(config) is str:
+            config = cls.get_json_by_filename(config)
         workflow_name = config['name']
         workflow_variables = config.get('variables', {})
         workflow = cls.get_workflow(workflow_name)(**workflow_variables)
@@ -353,7 +395,7 @@ class BaseWorkflow(Registry):
             return self.requirements
         else:
             # Initialize an empty Requirements object to accumulate results
-            accumulated_requirements = RequirementModel(chemicals=[], opentrons_setup={}, opentrons={}, arduino={}, biologic={}, arduino_setup={})
+            accumulated_requirements = RequirementModel(chemicals=Chemicals(chemicals=[]), opentrons_setup={}, opentrons={}, arduino={}, biologic={}, arduino_setup={})
 
             # Iterate through each operation
             for operation in self.operations:
@@ -363,7 +405,7 @@ class BaseWorkflow(Registry):
                     sub_requirements = operation.get_requirements()
 
                     # Accumulate the chemicals and labware from the operation
-                    accumulated_requirements.chemicals.extend(sub_requirements.chemicals)
+                    accumulated_requirements.chemicals.add_chemicals(sub_requirements.chemicals)
                     if sub_requirements.opentrons:
                         accumulated_requirements.opentrons = sub_requirements.opentrons
                     if sub_requirements.arduino:

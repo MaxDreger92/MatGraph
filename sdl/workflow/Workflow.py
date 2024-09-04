@@ -1,9 +1,9 @@
 import time
 
 from biologic import connect
-from biologic.techniques.ca import CAParams, CAStep
-from biologic.techniques.cpp import CPPParams
-from biologic.techniques.ocv import OCVParams
+from biologic.techniques.ca import CAParams, CAStep, CATechnique
+from biologic.techniques.cpp import CPPParams, CPPTechnique
+from biologic.techniques.ocv import OCVParams, OCVTechnique
 from biologic.techniques.peis import PEISParams, SweepMode
 from kbio.types import BANDWIDTH, E_RANGE, I_RANGE
 
@@ -11,9 +11,8 @@ from sdl.processes.arduino_procedures.dispense_ml import DispenseMl
 from sdl.processes.arduino_procedures.set_ultrasound import SetUltrasoundOn, SetUltrasoundParams
 from sdl.processes.biologic_procedures.CA import CA
 from sdl.processes.biologic_procedures.CPP import CPP
-from sdl.processes.biologic_procedures.OCV import OCV
 from sdl.processes.biologic_procedures.PEIS import PEIS
-from sdl.processes.biologic_utils import BiologicBaseProcedure
+from sdl.processes.biologic_utils import BiologicBaseProcedure, BiologicDataHandler
 from sdl.processes.opentrons_procedures.aspirate import Aspirate, AspirateParams
 from sdl.processes.opentrons_procedures.dispense import Dispense, DispenseParams
 from sdl.processes.opentrons_procedures.drop_tip import DropTip, DropTipParams
@@ -235,52 +234,57 @@ class WashElectrodeWorkflow(BaseWorkflow):
                 relay_num=3
             ))]
 
-class BiologicWorkflow(BaseWorkflow):
-    def __init__(self, operations: list[BiologicBaseProcedure]):
+class BiologicWorkflow(BaseWorkflow, BiologicDataHandler):
+    """
+    This class is used to define a Biologic workflow it requires self.operations to be a list of BiologicProcedures only
+    """
+    def __init__(self):
+        """
+        Ensures that self.operations is a list of BiologicBaseProcedure instances.
+        """
         super().__init__()
-        self.operations = operations
+        self.boolTryToConnect = True
+        self.intMaxAttempts = 5
+
+        if not isinstance(self.operations, list):
+            raise TypeError("self.operations must be a list")
+
+        if not all(isinstance(operation, BiologicBaseProcedure) for operation in self.operations):
+            raise ValueError("All operations must be instances of BiologicBaseProcedure")
+
+
 
     def execute(self, *args, **kwargs):
+        print("Executing Biologic Workflow")
         logger = kwargs.get("logger")
         self.intAttempts_temp = 0
         while self.boolTryToConnect and self.intAttempts_temp < self.intMaxAttempts:
             logger.info(f"Attempting to connect to the Biologic: {self.intAttempts_temp + 1} / {self.intMaxAttempts}")
+            print(f"Attempting to connect to the Biologic: {self.intAttempts_temp + 1} / {self.intMaxAttempts}")
 
             try:
                 with connect('USB0', force_load=True) as bl:
                     channel = bl.get_channel(1)
                     # Run the experiment after a successful connection
                     logger.info("Experiment started successfully.")
+                    print("Experiment started successfully.")
+                    print(self.operations)
                     runner = channel.run_techniques(self.operations)
 
                     # If successful, break out of the loop
-                    for data_temp in runner:
-                        print(data_temp)
+                    experiment_id = kwargs["experiment_id"]
+                    experiment_directory = kwargs["experiment_directory"]
+                    self.handle_data(runner, experiment_id, experiment_directory )
                     self.boolTryToConnect = False
             except Exception as e:
                 logger.error(f"Failed to connect to the Biologic: {e}")
+                print(f"Failed to connect to the Biologic: {e}")
                 self.intAttempts_temp += 1
                 time.sleep(5)
 
 
 class FullWorkFlow(BaseWorkflow):
     def __init__(self,
-                 # tipRack,
-                 # pipette,
-                 # strSlot_from,
-                 # strWellName_from,
-                 # strOffsetStart_from,
-                 # strPipetteName,
-                 # strSlot_to,
-                 # strWellName_to,
-                 # strOffsetStart_to,
-                 # intVolume,
-                 # limit,
-                 # ElectrodeTipRack,
-                 # step_size,
-                 # autodialCell,
-                 # strWell2Test_autodialCell,
-                 # washstation
                  MeasuringWell,
                  MaterialWell,
                  pipetteWell,
@@ -296,9 +300,9 @@ class FullWorkFlow(BaseWorkflow):
                 speed=100,
                 wellLocation=WellLocation(
                     origin="top",
-                    offset={"x": 0, #NEEDS TO BE DETERMINED
-                            "y": 0, #NEEDS TO BE DETERMINED
-                            "z": 0} #NEEDS TO BE DETERMINED
+                    offset={"x": 0,
+                            "y": 0,
+                            "z": 0}
                 ))),
             PickUpTip(PickUpTipParams(
                 labwareLocation=1,
@@ -389,7 +393,8 @@ class FullWorkFlow(BaseWorkflow):
             HomeRobot(HomeRobotParams())
         ]
 
-class ElectrochemicalExperiments(BaseWorkflow):
+
+class ElectrochemicalExperiments(BiologicWorkflow):
     def __init__(self):
         super().__init__()
         self.operations = [
@@ -487,7 +492,7 @@ class ElectrochemicalExperiments(BaseWorkflow):
 
 
 class TestBiologic(BaseWorkflow):
-    operations = [OCV(OCVParams(
+    operations = [OCVTechnique(OCVParams(
         rest_time_T = 10,
         record_every_dT = 0.5,
         record_every_dE = 10,
@@ -792,7 +797,7 @@ class TestWorkflow(BaseWorkflow):
                 labwareLocation="5",
                 wellName="A1",
                 speed=100)),
-            HomeRobot(HomeRobotParams())
+            HomeRobot(HomeRobotParams()),
             # DropTip(DropTipParams(
             #     labwareLocation="1",
             #     wellName="A1",
@@ -813,8 +818,47 @@ class TestWorkflow(BaseWorkflow):
             #     wellName="A1",
             #     homeAfter=True)),
             # HomeRobot(HomeRobotParams()),
-            # TestWorkflow1()
+            TestWorkflow1()
         ]
 
 
+
+class TestBiologicWorkflow(BiologicWorkflow):
+    def __init__(self, test):
+        super().__init__()
+        self.operations = [
+                      OCVTechnique(OCVParams(
+                rest_time_T = 10,
+                record_every_dT = 0.5,
+                record_every_dE = 10,
+                E_range = E_RANGE.E_RANGE_10V,
+                bandwidth = BANDWIDTH.BW_5,
+            )),
+            OCVTechnique(OCVParams(
+                rest_time_T = 10,
+                record_every_dT = 0.5,
+                record_every_dE = 10,
+                E_range = E_RANGE.E_RANGE_10V,
+                bandwidth = BANDWIDTH.BW_5,
+            )),
+            OCVTechnique(OCVParams(
+                rest_time_T = 10,
+                record_every_dT = 0.5,
+                record_every_dE = 10,
+                E_range = E_RANGE.E_RANGE_10V,
+                bandwidth = BANDWIDTH.BW_5,
+            )),
+            ]
+
+        self.requirements = RequirementModel(
+            chemicals = "chemicals.json",
+            opentrons_setup = "labware_flex.json",
+            opentrons = "flex.json",
+            biologic = "biologic_setup.json",
+            arduino= "arduino.json",
+            arduino_setup= "arduino_setup.json"
+        )
+
+    def __name__ (self):
+        return "TestBiologicWorkflow"
 

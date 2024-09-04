@@ -10,23 +10,6 @@ from sdl.processes.utils import ProcessOutput
 from sdl.workflow.utils import BaseProcedure, P
 
 
-def request_with_run_id(f):
-    """ get run_id from param """
-
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        if "run_id" not in kwargs:
-            raise TypeError("No run_id given. Please pass run_id as a parameter or use ot_api.set_run_id()")
-            kwargs["run_id"] = run_id
-
-        try:
-            return f(*args, **kwargs)
-        except TypeError as e:
-            if "run_id" in str(e):
-                raise TypeError("Error calling function. Did you not pass run_id as a kwarg?")
-            raise e
-
-    return wrapper
 
 
 class Offset(BaseModel):
