@@ -132,26 +132,14 @@ class RequirementModel(BaseModel):
             if isinstance(field_value, str):
                 json_data = cls.get_json_by_filename(field_value)
                 if field == 'chemicals':
-                    values['chemicals'] = cls.get_chemicals_from_json(json_data)
+                    values['chemicals'] = Chemicals.from_config(json_data)
                 else:
                     values[field] = json_data
             elif isinstance(field_value, dict) and field == 'chemicals':
-                values['chemicals'] = cls.get_chemicals_from_json(field_value)
+                values['chemicals'] = Chemicals.from_config(field_value)
 
         return values
 
-    @staticmethod
-    def get_chemicals_from_json(json_data):
-        chemical_dict = {}
-        for name_space, chemicals in json_data.items():
-            for chemical in chemicals:
-                chemical_triple = [chemical['name'], chemical['volume']['value'], chemical['volume']['unit']]
-                if chemical_triple[0] not in chemical_dict:
-                    chemical_dict[chemical_triple[0]] = Chemical.from_list(chemical_triple)
-                else:
-                    chemical_to_add = Chemical.from_list(chemical_triple)
-                    chemical_dict[chemical_triple[0]].add_quantity(chemical_to_add)
-        return list(chemical_dict.values())
 
     @staticmethod
     def get_json_by_filename(name):
@@ -164,7 +152,6 @@ class RequirementModel(BaseModel):
                 try:
                     with open(file_path, 'r', encoding='utf-8') as file:
                         content = file.read().strip()
-                        print(content)
                         if not content:
                             raise ValueError(f"The file {file_path} is empty.")
                         return json.loads(content)

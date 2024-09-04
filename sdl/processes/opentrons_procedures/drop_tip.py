@@ -15,7 +15,7 @@ from sdl.processes.opentrons_utils1 import OpentronsMoveAction
 
 
 class DropTipParams(OpentronsParamsMoveToLocation):
-    wellLocation : Optional[WellLocation] = WellLocation(origin='bottom', offset=Offset(x=0, y=0, z=0))
+    wellLocation : Optional[WellLocation] = WellLocation(origin='top', offset=Offset(x=0, y=0, z=0))
     homeAfter: Optional[bool] = False
 
 

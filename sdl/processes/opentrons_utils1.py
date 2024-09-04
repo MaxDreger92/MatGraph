@@ -22,7 +22,8 @@ class OpentronsMoveAction(OpentronsBaseProcedure[P]):
             pipetteId=params.pipetteId,
             pipetteName=params.pipetteName,
             wellLocation=wellLocation,
-            speed=params.speed
+            speed=params.speed,
+            chemical = params.chemical
         ))
 
         # Prepare the output list
@@ -43,7 +44,8 @@ class OpentronsMoveAction(OpentronsBaseProcedure[P]):
             pipetteId=params.pipetteId,
             pipetteName=params.pipetteName,
             wellLocation=wellLocation,
-            speed=params.speed
+            speed=params.speed,
+            chemical = params.chemical
         ))
 
         move_to_top.execute(*args, **kwargs)

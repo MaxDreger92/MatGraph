@@ -112,6 +112,7 @@ def main():
         arduino_relays=arduino_setup,
         logger=LOGGER)
     exp_Manager.find_executable_experiments()
+    exp_Manager.run_experiments()
 
 
 if __name__ == '__main__':

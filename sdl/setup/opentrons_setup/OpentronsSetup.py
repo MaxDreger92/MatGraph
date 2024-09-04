@@ -187,6 +187,26 @@ class OpentronsSetup(SDLSetup):
             return None
 
 
+    def get_labware_id_by_chemical(self, chemical):
+        """
+        Get the labware ID for a given chemical.
+
+        Args:
+            chemical (str): Name of the chemical.
+
+        Returns:
+            str: Labware ID.
+        """
+        query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(:Slot)-[:HAS_PART]->(m:Opentron_Module)-[:HAS_PART]->(w:Well)<-[:IN|HAS_METADATA]->(c:Matter {{name: '{chemical}'}}) RETURN m.module_id, w.well_id"
+        print(query)
+        result = db.cypher_query(query, resolve_objects=False)[0][0]
+        print(result)
+        labware_id = result[0]
+        well_number = result[1]
+        return labware_id, well_number
+
+
+
 
     def get_labware_id_by_name(self, name):
         """

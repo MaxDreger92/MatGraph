@@ -788,12 +788,28 @@ class TestWorkflow(BaseWorkflow):
     def __init__(self, test):
         super().__init__()
         self.operations = [
-            MoveToWell(MoveToWellParams(
-                labwareName="opentrons_flex_96_tiprack_50ul",
-                wellName="A1",
-                )),
             HomeRobot(HomeRobotParams()),
-            TestWorkflow1()
+            DropTip(DropTipParams(
+                labwareLocation="1",
+                wellName="A1",
+                homeAfter=False)),
+            PickUpTip(PickUpTipParams(
+                labwareLocation="1",
+                wellName="A1")),
+            Aspirate(AspirateParams(
+                chemical="NaCl",
+                volume=50,
+                flowRate=50)),
+            Dispense(DispenseParams(
+                chemical="H2O",
+                volume=50,
+                flowRate=50)),
+            DropTip(DropTipParams(
+                labwareLocation="1",
+                wellName="A1",
+                homeAfter=True)),
+            HomeRobot(HomeRobotParams()),
+            # TestWorkflow1()
         ]
 
 

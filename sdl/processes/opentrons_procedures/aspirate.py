@@ -21,8 +21,10 @@ class Aspirate(OpentronsMoveAction[AspirateParams]):
     url: str = '/runs/{run_id}/commands'
     commandType = "aspirate"
     intent: Optional[str] = None
+    chemical: Optional[str] = None
 
     def execute(self, *args, **kwargs):
+        print("Aspirate execute")
+        print(self.params)
         output = self.execute_all(*args, **kwargs)
-        print("Aspirate")
         return output

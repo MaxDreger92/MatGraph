@@ -215,6 +215,7 @@ class ExperimentManager:
             arduino_relays)
         self.chemicals = Chemicals.from_config(chemicals) if isinstance(chemicals, dict) else Chemicals.from_config(
             self.get_json_by_filename(chemicals))
+        self.chemical_config = chemicals if isinstance(chemicals, dict) else self.get_json_by_filename(chemicals)
         self.logger = logger
         self.runnable_experiments = []
 
@@ -243,6 +244,7 @@ class ExperimentManager:
                 print("Executeable Job", job)
             else:
                 print("Not executable Job", job)
+        print("Runnable Experiments", self.runnable_experiments)
 
     def check_requirements(self, job):
         chemical_check =  self.check_chemicals(job)
@@ -292,7 +294,17 @@ class ExperimentManager:
 
 
     def run_experiments(self):
-        for experiment in self.experiments:
+        for runnable_experiment in self.runnable_experiments:
+            experiment = Experiment(
+                opentrons_config=self.opentrons,
+                arduino_config=self.arduino,
+                relay_config=self.arduino_setup,
+                biologic_config=self.biologic,
+                labware_config=self.opentrons_setup,
+                chemicals_config=self.chemical_config,
+                workflow=runnable_experiment.workflow,
+                experiment_id=runnable_experiment.id
+            )
             experiment.initialize_setups()
             experiment.store_setups()
             experiment.execute()

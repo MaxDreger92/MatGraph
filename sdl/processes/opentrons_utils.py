@@ -59,7 +59,7 @@ class OpentronsParamsMoveToLocation(BaseModel):
     pipetteId: Optional[str] = None
     pipetteName: Optional[str] = None
     wellLocation: Optional[WellLocation] = Field(default= WellLocation(origin='top', offset=Offset(x=0, y=0, z=0)))
-
+    chemical: Optional[str] = None
     speed: int = Field(default = 100)
 
 
@@ -82,11 +82,18 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         """
         opentrons = kwargs.get('opentrons_setup')
         # Extract and validate necessary fields from the combined dictionary
+        if hasattr(self.params, 'chemical'):
+            print("CHEMICAL", self.params.chemical)
         if hasattr(self.params, 'labwareId') and hasattr(self.params, 'labwareLocation'):
-            if self.params.labwareName:
+            if self.params.labwareId:
                 self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
-            if not self.params.labwareId and self.params.labwareLocation:
+            elif not self.params.labwareId and self.params.labwareName:
+                self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
+            elif not self.params.labwareId and self.params.labwareLocation:
                 self.params.labwareId = opentrons.get_labware_id(self.params.labwareLocation)
+            elif not self.params.labwareId and self.params.chemical:
+                print("CHEMICAL", self.params.chemical)
+                self.params.labwareId, self.params.wellName = opentrons.get_labware_id_by_chemical(self.params.chemical)
         if hasattr(self.params, 'pipetteId') and hasattr(self.params, 'pipetteName'):
             if not self.params.pipetteId:
                 self.params.pipetteId = opentrons.get_pipette_id(self.params.pipetteName)
@@ -142,6 +149,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
             dic_response = response_content['data']
             logger.info(f"Command {command_type} executed successfully.")
+            print(f"Command {command_type} executed successfully.")
             return self.create_cypher_query(dic_response, **kwargs)
 
         except requests.exceptions.RequestException as e:

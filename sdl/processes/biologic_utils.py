@@ -98,8 +98,6 @@ class BiologicBaseProcedure(BaseProcedure, Generic[P]):
             csv_file_path = f"{file_name}_{counter}{file_extension}"
             counter += 1
 
-        # Print the final CSV file path
-        print("CSV FILE PATH: ", csv_file_path)
 
         # Save the DataFrame to the CSV file
         df.to_csv(csv_file_path, index=False)
