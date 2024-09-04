@@ -789,26 +789,26 @@ class TestWorkflow(BaseWorkflow):
         super().__init__()
         self.operations = [
             HomeRobot(HomeRobotParams()),
-            DropTip(DropTipParams(
-                labwareLocation="1",
-                wellName="A1",
-                homeAfter=False)),
-            PickUpTip(PickUpTipParams(
-                labwareLocation="1",
-                wellName="A1")),
-            Aspirate(AspirateParams(
-                chemical="NaCl",
-                volume=50,
-                flowRate=50)),
-            Dispense(DispenseParams(
-                chemical="H2O",
-                volume=50,
-                flowRate=50)),
-            DropTip(DropTipParams(
-                labwareLocation="1",
-                wellName="A1",
-                homeAfter=True)),
-            HomeRobot(HomeRobotParams()),
+            # DropTip(DropTipParams(
+            #     labwareLocation="1",
+            #     wellName="A1",
+            #     homeAfter=False)),
+            # PickUpTip(PickUpTipParams(
+            #     labwareLocation="1",
+            #     wellName="A1")),
+            # Aspirate(AspirateParams(
+            #     chemical="NaCl",
+            #     volume=50,
+            #     flowRate=50)),
+            # Dispense(DispenseParams(
+            #     chemical="H2O",
+            #     volume=50,
+            #     flowRate=50)),
+            # DropTip(DropTipParams(
+            #     labwareLocation="1",
+            #     wellName="A1",
+            #     homeAfter=True)),
+            # HomeRobot(HomeRobotParams()),
             # TestWorkflow1()
         ]
 

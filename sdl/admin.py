@@ -22,17 +22,21 @@ class PrettyJSONWidget(forms.Textarea):
 
 @admin.register(Job)
 class JobModelAdmin(admin.ModelAdmin):
-
-    list_display = ['id', 'date_created', 'date_updated', "status"]
+    list_display = ['id', 'date_created', 'date_updated', 'get_status']
     list_filter = ('id', 'date_created', 'date_updated', 'status')
-    fields = (('id', 'date_created', "status"), 'description', 'remarks', 'results', 'opentrons', 'opentrons_setup', 'chemicals', 'biologic', 'arduino', 'arduino_setup', 'workflow')
-    readonly_fields = ('id', 'date_created', 'date_updated', 'remarks', "description", 'results')
+    fields = (('id', 'date_created', 'status'), 'description', 'remarks', 'results', 'opentrons', 'opentrons_setup', 'chemicals', 'biologic', 'arduino', 'arduino_setup', 'workflow')
+    readonly_fields = ('id', 'date_created', 'date_updated', 'remarks', 'description', 'results')
 
     # Override formfield_for_dbfield to apply the custom widget
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name in ['opentrons', 'labware', 'chemicals', 'biologic', 'arduino', 'workflow', 'results']:
             kwargs['widget'] = PrettyJSONWidget(attrs={'rows': 10, 'cols': 80})
         return super().formfield_for_dbfield(db_field, **kwargs)
+
+    # Custom method to display status
+    def get_status(self, obj):
+        return obj.status
+    get_status.short_description = 'Status'
 
     class Media:
         css = {

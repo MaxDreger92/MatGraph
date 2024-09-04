@@ -6,7 +6,7 @@ from typing import Union, List
 
 from django.db.models import Q
 from neomodel import db
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from mat2devplatform.settings import BASE_DIR
 from sdl.models import Job
@@ -203,9 +203,11 @@ class ExperimentManager:
     """
 
     def __init__(self, opentrons: Union[str, dict], arduino: Union[str, dict], biologic: Union[str, dict],
-                 opentrons_setup: Union[str, dict], chemicals: Union[str, dict], arduino_relays: Union[str, dict],
+                 opentrons_setup: Union[str, dict], chemicals: Union[str, dict], arduino_relays: Union[str, dict], offset_config: Union[str, dict],
                  logger):
-        self.jobs = Job.objects.filter(status="queued")
+        self.jobs = Job.objects.all()
+        job = self.jobs[0]
+        print("Jobs", self.jobs)
         self.opentrons = opentrons if isinstance(opentrons, dict) else self.get_json_by_filename(opentrons)
         self.arduino = arduino if isinstance(arduino, dict) else self.get_json_by_filename(arduino)
         self.biologic = biologic if isinstance(biologic, dict) else self.get_json_by_filename(biologic)
@@ -216,6 +218,7 @@ class ExperimentManager:
         self.chemicals = Chemicals.from_config(chemicals) if isinstance(chemicals, dict) else Chemicals.from_config(
             self.get_json_by_filename(chemicals))
         self.chemical_config = chemicals if isinstance(chemicals, dict) else self.get_json_by_filename(chemicals)
+        self.offset_config = offset_config if isinstance(offset_config, dict) else self.get_json_by_filename(offset_config)
         self.logger = logger
         self.runnable_experiments = []
 
@@ -236,14 +239,15 @@ class ExperimentManager:
         )
 
         queued_jobs = Job.objects.filter(
-            status="queued"
+            status="queued",
         )
+        print("Queued Jobs", queued_jobs)
         for job in queued_jobs:
             if self.check_requirements(job):
                 self.runnable_experiments.append(job)
-                print("Executeable Job", job)
+                print("Executeable Job", job.id)
             else:
-                print("Not executable Job", job)
+                print("Not executable Job", job.id)
         print("Runnable Experiments", self.runnable_experiments)
 
     def check_requirements(self, job):
@@ -309,35 +313,48 @@ class ExperimentManager:
             experiment.store_setups()
             experiment.execute()
             self.logger.info(f"Experiment {experiment.experiment_id} executed successfully.")
-            self.update_experiment_status(experiment.experiment_id, "success")
+            self.update_job_status(experiment.experiment_id, "completed")
 
 
-    def update_experiment_status(self, experiment_id, status):
-        pass
+    def update_job_status(self, experiment_id, status):
+        # Check if the status is valid
+        valid_statuses = dict(Job.STATUS_CHOICES).keys()
+        print("Valid Statuses", valid_statuses, status)
+        if status not in valid_statuses:
+            raise ValidationError(f"Invalid status: {status}. Must be one of {valid_statuses}")
+
+        try:
+            # Use get() for direct retrieval
+            experiment = Job.objects.get(id=experiment_id)
+        except Job.DoesNotExist:
+            return f"Job with id {experiment_id} does not exist."
+
+        # Update and save the status
+        experiment.status = status
+        experiment.save()
+
+        return f"Job {experiment_id} status updated to {status}"
 
 
-def save_experiment_status(self):
-    pass
 
+    @staticmethod
+    def get_json_by_filename(name):
+        directory = os.path.join(BASE_DIR, 'sdl', 'config')
 
-@staticmethod
-def get_json_by_filename(name):
-    directory = os.path.join(BASE_DIR, 'sdl', 'config')
+        # Walk through the directory and subdirectories to find the file
+        for root, dirs, files in os.walk(directory):
+            if name in files:
+                file_path = os.path.join(root, name)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        content = file.read().strip()
+                        print(content)
+                        if not content:
+                            raise ValueError(f"The file {file_path} is empty.")
+                        return json.loads(content)
+                except PermissionError:
+                    raise PermissionError(f"Permission denied when trying to access the file: {file_path}")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
 
-    # Walk through the directory and subdirectories to find the file
-    for root, dirs, files in os.walk(directory):
-        if name in files:
-            file_path = os.path.join(root, name)
-            try:
-                with open(file_path, 'r', encoding='utf-8') as file:
-                    content = file.read().strip()
-                    print(content)
-                    if not content:
-                        raise ValueError(f"The file {file_path} is empty.")
-                    return json.loads(content)
-            except PermissionError:
-                raise PermissionError(f"Permission denied when trying to access the file: {file_path}")
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
-
-    raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")
+        raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")

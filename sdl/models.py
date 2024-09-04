@@ -226,27 +226,39 @@ class Job(models.Model):
     remarks = models.TextField(null=True, blank=True)  # Allow NULL and empty values
     results = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
 
-    def __str__(self):
-        """Return a readable representation of the importing report."""
-        return f'Queued Job ({self.id}, {self.date_created})'
-
-class ExperimentModel(models.Model):
-    STATUS_CHOICES = [("queued", 'QUEUED'), ("running", 'RUNNING'), ("completed", 'COMPLETED'), ("failed", 'FAILED')]
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-    opentrons = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    labware = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    chemicals = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    biologic = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    arduino = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    arduino_relays = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-    workflow = models.JSONField()
-    status = models.CharField(choices=STATUS_CHOICES, default="queued")
-    description = models.TextField(null=True, blank=True)  # Allow NULL and empty values
-    remarks = models.TextField(null=True, blank=True)  # Allow NULL and empty values
-    results = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
 
     def __str__(self):
         """Return a readable representation of the importing report."""
         return f'Queued Job ({self.id}, {self.date_created})'
+
+    def save(self, *args, **kwargs):
+        # Add any custom logic here before saving
+
+        # Example: Ensure status is updated correctly
+        if self.status not in dict(self.STATUS_CHOICES):
+            raise ValueError(f"Invalid status: {self.status}. Must be one of {dict(self.STATUS_CHOICES).keys()}")
+
+        # Call the parent class's save() method to save the changes
+        super(Job, self).save(*args, **kwargs)
+
+
+# class ExperimentModel(models.Model):
+#     STATUS_CHOICES = [("queued", 'QUEUED'), ("running", 'RUNNING'), ("completed", 'COMPLETED'), ("failed", 'FAILED')]
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     date_created = models.DateTimeField(auto_now_add=True)
+#     date_updated = models.DateTimeField(auto_now=True)
+#     opentrons = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     labware = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     chemicals = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     biologic = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     arduino = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     arduino_relays = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#     workflow = models.JSONField()
+#     status = models.CharField(choices=STATUS_CHOICES, default="queued")
+#     description = models.TextField(null=True, blank=True)  # Allow NULL and empty values
+#     remarks = models.TextField(null=True, blank=True)  # Allow NULL and empty values
+#     results = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
+#
+#     def __str__(self):
+#         """Return a readable representation of the importing report."""
+#         return f'Queued Job ({self.id}, {self.date_created})'

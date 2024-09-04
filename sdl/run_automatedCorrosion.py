@@ -63,6 +63,9 @@ def main():
     with open(os.path.join(config_dir, 'job_request', 'job.json'), 'r', encoding='utf-8') as file:
         workflow = json.load(file)
 
+    with open(os.path.join(config_dir, 'offset', 'offset.json'), 'r', encoding='utf-8') as file:
+        offset_config = json.load(file)
+
     logger = logging.getLogger(__name__)
 
     # SETUP EXPERIMENTAL SETUP------------------------------------------------------------------------
@@ -103,14 +106,25 @@ def main():
     # )
 
     #
+    # exp_Manager = ExperimentManager(
+    #     opentrons=opentrons_config,
+    #     arduino=arduino_config,
+    #     biologic=biologic_config,
+    #     opentrons_setup=labware_config,
+    #     chemicals=chemicals_config,
+    #     arduino_relays=arduino_setup,
+    #     offset_config=offset_config,
+    #     logger=LOGGER)
     exp_Manager = ExperimentManager(
-        opentrons=opentrons_config,
-        arduino=arduino_config,
-        biologic=biologic_config,
-        opentrons_setup=labware_config,
-        chemicals=chemicals_config,
-        arduino_relays=arduino_setup,
-        logger=LOGGER)
+        opentrons="flex.json",
+        arduino="arduino.json",
+        biologic="biologic_setup.json",
+        opentrons_setup="labware_flex.json",
+        chemicals="chemicals.json",
+        arduino_relays="arduino_setup.json",
+        offset_config="offset.json",
+        logger=LOGGER
+    )
     exp_Manager.find_executable_experiments()
     exp_Manager.run_experiments()
 
