@@ -43,15 +43,31 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
+        'console': {
             'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '../debug.log',
+            'filename': 'django.log',
         },
     },
-    'root': {
-        'handlers': ['file'],
-        'level': 'DEBUG',
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+        'app_logger': {  # Custom logger for app-level classes
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'db_logger': {  # Logger for handling database-related logs
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
     },
 }
 

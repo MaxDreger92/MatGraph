@@ -30,7 +30,6 @@ class BiologicDataHandler:
         dicTechniqueTracker = {'strPreviousTechnique': None,
                                'strCurrentTechnique': None,
                                'intTechniqueIndex': None}
-        print(experiment_path)
         dfData = pd.DataFrame()
 
         for data_temp in runner:
@@ -186,9 +185,7 @@ class BiologicBaseProcedure(BaseProcedure, Generic[P], BiologicDataHandler):
                     experiment_directory = kwargs["experiment_directory"]
                     self.handle_data(runner, experiment_id, experiment_directory )
 
-                    # If successful, break out of the loop
-                    for data_temp in runner:
-                        print(data_temp)
+
                     self.boolTryToConnect = False
             except Exception as e:
                 logger.error(f"Failed to connect to the Biologic: {e}")

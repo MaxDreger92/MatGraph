@@ -5,10 +5,11 @@ import pkgutil
 from typing import Dict, Optional, Union, TypeVar, Generic, Any, List
 
 from pydantic import BaseModel
-from sqlalchemy.testing.requirements import Requirements
 from pint import UnitRegistry
+from sqlalchemy.testing.requirements import Requirements
 
 from mat2devplatform.settings import BASE_DIR
+from sdl.models import WorkflowModel
 
 
 class WellLocation(BaseModel):
@@ -101,12 +102,17 @@ class Chemicals(BaseModel):
 
         :return:
         """
+        found = False
+        print(self.chemicals, chemical)
         for available_chemical in self.chemicals:
             if available_chemical.name == chemical.name:
                 comparison = available_chemical.compare_quantity(chemical)
                 if comparison < 0:
                     return False
-        return True
+                if comparison >= 0:
+                    found = True
+        print(found)
+        return found
 
     def add_chemicals(self, chemicals: 'Chemicals'):
         """
@@ -364,6 +370,8 @@ class BaseWorkflow(Registry):
         """
         if type(config) is str:
             config = cls.get_json_by_filename(config)
+        if type(config) is WorkflowModel:
+            config = config.dict()
         workflow_name = config['name']
         workflow_variables = config.get('variables', {})
         workflow = cls.get_workflow(workflow_name)(**workflow_variables)

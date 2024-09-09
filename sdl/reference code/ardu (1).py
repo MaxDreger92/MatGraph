@@ -1,9 +1,7 @@
-import logging
 import time
 import serial
 import serial.tools.list_ports
 
-LOGGER = logging.getLogger(__name__)
 
 
 class Arduino:

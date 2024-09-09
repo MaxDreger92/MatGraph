@@ -1,8 +1,7 @@
 import requests
 import json
-import logging
+# import logging
 
-LOGGER = logging.getLogger(__name__)
 
 class opentronsClient:
     '''

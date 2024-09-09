@@ -1,5 +1,3 @@
-import logging
-
 import serial
 from pydantic import Field, BaseModel
 

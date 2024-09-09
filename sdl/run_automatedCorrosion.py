@@ -1,23 +1,15 @@
 import json
-import logging
 import os
 
 from dotenv import load_dotenv
 
-# Configure logging early
-logging.basicConfig(
-    level=logging.INFO,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Set the logging format
-    handlers=[
-        logging.FileHandler("logfile.log"),  # Log to a file
-        logging.StreamHandler()  # Log to console
-    ]
-)
-
-LOGGER = logging.getLogger(__name__)
-
+from mat2devplatform.settings import BASE_DIR
+import logging
 
 def main():
+    # Configure logging early
+
+
     # LOAD CONFIG FILES
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,16 +21,17 @@ def main():
     # Set the environment variable for Django settings
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
 
+
     # Manually setup Django
     import django
+
     django.setup()  # Ensure Django is properly set up
 
     # Now you can import Django models and other components
     from neomodel import config
-    from sdl.experiment.Experiment import Experiment, ExperimentManager, JobRequest
-    from sdl.setup.arduino_setup.ArduinoSetup import ArduinoSetup
-    from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
-    from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
+    from sdl.experiment.Experiment import ExperimentManager, JobRequest
+    from sdl.models import WorkflowModel
+
     config_dir = os.path.join(os.getcwd(), 'sdl', 'config')
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
 
@@ -66,7 +59,6 @@ def main():
     with open(os.path.join(config_dir, 'offset', 'offset.json'), 'r', encoding='utf-8') as file:
         offset_config = json.load(file)
 
-    logger = logging.getLogger(__name__)
 
     # SETUP EXPERIMENTAL SETUP------------------------------------------------------------------------
 
@@ -74,17 +66,17 @@ def main():
     #     robot_config_source=opentrons_config,
     #     labware_config_source=labware_config,
     #     chemicals_config_source=chemicals_config,
-    #     logger=logger)
+    #     LOGGING=LOGGING)
     #
     # arduino = ArduinoSetup(
     #     config=arduino_config,
     #     relay_config=arduino_setup,
-    #     logger=logger
+    #     LOGGING=LOGGING
     # )
     #
     # biologic = BiologicSetup(
     #     config_source=biologic_config,
-    #     logger=logger
+    #     LOGGING=LOGGING
     # )
 
     # experiment = Experiment(
@@ -99,22 +91,14 @@ def main():
     # experiment.initialize_setups()
     # experiment.store_setups()
     # experiment.execute()
-    job = JobRequest(
-        job_request="job.json",
 
 
+
+    Job = JobRequest(
+        job=workflow
     )
 
-    #
-    # exp_Manager = ExperimentManager(
-    #     opentrons=opentrons_config,
-    #     arduino=arduino_config,
-    #     biologic=biologic_config,
-    #     opentrons_setup=labware_config,
-    #     chemicals=chemicals_config,
-    #     arduino_relays=arduino_setup,
-    #     offset_config=offset_config,
-    #     logger=LOGGER)
+
     exp_Manager = ExperimentManager(
         opentrons="flex.json",
         arduino="arduino.json",
@@ -122,8 +106,7 @@ def main():
         opentrons_setup="labware_flex.json",
         chemicals="chemicals.json",
         arduino_relays="arduino_setup.json",
-        offset_config="offset.json",
-        logger=LOGGER
+        offset_config="offset.json"
     )
     exp_Manager.find_executable_experiments()
     exp_Manager.run_experiments()

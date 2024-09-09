@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from openai import OpenAI

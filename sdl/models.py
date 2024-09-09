@@ -1,17 +1,15 @@
-import os
 import uuid
 from datetime import datetime
+from typing import List, Dict, Any, Optional
+
 from django.db import models
 from neomodel import UniqueIdProperty, FloatProperty, StringProperty, RelationshipTo, IntegerProperty, DateTimeProperty, \
     RelationshipFrom
-
 from neomodel import db
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from pydantic import BaseModel
 
 from matgraph.models.metadata import Metadata
 from matgraph.models.relationships import HasPartRel, InLocationRel
-from sdl.workflow.utils import Requirements
 
 
 # Create your models here.
@@ -242,23 +240,6 @@ class Job(models.Model):
         super(Job, self).save(*args, **kwargs)
 
 
-# class ExperimentModel(models.Model):
-#     STATUS_CHOICES = [("queued", 'QUEUED'), ("running", 'RUNNING'), ("completed", 'COMPLETED'), ("failed", 'FAILED')]
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_updated = models.DateTimeField(auto_now=True)
-#     opentrons = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     labware = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     chemicals = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     biologic = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     arduino = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     arduino_relays = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#     workflow = models.JSONField()
-#     status = models.CharField(choices=STATUS_CHOICES, default="queued")
-#     description = models.TextField(null=True, blank=True)  # Allow NULL and empty values
-#     remarks = models.TextField(null=True, blank=True)  # Allow NULL and empty values
-#     results = models.JSONField(null=True, blank=True)  # Allow NULL and empty values
-#
-#     def __str__(self):
-#         """Return a readable representation of the importing report."""
-#         return f'Queued Job ({self.id}, {self.date_created})'
+class WorkflowModel(BaseModel):
+    name: str
+    variables: dict

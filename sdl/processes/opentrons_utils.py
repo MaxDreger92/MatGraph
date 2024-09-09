@@ -66,9 +66,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         opentrons = kwargs.get('opentrons_setup')
 
         if hasattr(self.params, 'labwareId') and hasattr(self.params, 'labwareLocation'):
-            if self.params.labwareId:
-                self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
-            elif not self.params.labwareId and self.params.labwareName:
+            if not self.params.labwareId and self.params.labwareName:
                 self.params.labwareId = opentrons.get_labware_id_by_name(self.params.labwareName)
             elif not self.params.labwareId and self.params.labwareLocation:
                 self.params.labwareId = opentrons.get_labware_id(self.params.labwareLocation)
@@ -77,6 +75,10 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         if hasattr(self.params, 'pipetteId') and hasattr(self.params, 'pipetteName'):
             if not self.params.pipetteId:
                 self.params.pipetteId = opentrons.get_pipette_id(self.params.pipetteName)
+        if hasattr(self.params, 'labwareId'):
+            if self.params.labwareId:
+                self.params.labwareLocation = opentrons.get_labware_location_by_id(self.params.labwareId)
+
 
         required_kwargs = ['opentrons', 'logger']
         missing_kwargs = [key for key in required_kwargs if key not in kwargs]
@@ -86,8 +88,9 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
             raise ValueError(f"Missing required keyword arguments: {missing_keys}")
 
         if hasattr(self.params, 'labwareLocation'):
-            offset = kwargs['opentrons_offset']
-            self.add_offset_to_params(offset)
+            if self.params.labwareLocation:
+                offset = kwargs['opentrons_offset']
+                self.add_offset_to_params(offset)
 
         robot_ip = kwargs['opentrons']['opentrons_ip']
         headers = kwargs['opentrons']['opentrons_headers']
@@ -141,6 +144,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         except requests.exceptions.RequestException as e:
             error_message = str(e)
             logger.error(f"HTTP request failed: {error_message}")
+            print(params)
             raise Exception(f"HTTP request failed: {error_message}")
 
         except json.JSONDecodeError as e:
@@ -233,8 +237,6 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         """
         try:
             labwareLocation = self.params.labwareLocation
-            print(labwareLocation)
-            print(type(offset))
             offset = offset[str(labwareLocation)]
             self.params.wellLocation.offset.x += offset['offset']['x']
             self.params.wellLocation.offset.y += offset['offset']['y']

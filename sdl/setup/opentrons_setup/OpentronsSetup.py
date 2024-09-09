@@ -311,6 +311,20 @@ class OpentronsSetup(SDLSetup):
                 self.logger.info(f"Simulating loading pipette with name: {strPipetteName} and mount: {strMount}")
                 print(f"Simulating loading pipette with name: {strPipetteName} and mount: {strMount}")
 
+    def get_labware_location_by_id(self, labware_id):
+        """
+        Get the location of the labware by ID.
+
+        Args:
+            labware_id (str): Labware ID.
+
+        Returns:
+            dict: Location of the labware.
+        """
+        query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(s:Slot)-[:HAS_PART]->(m:Opentron_Module {{module_id: '{labware_id}'}}) RETURN s.number"
+        slot = db.cypher_query(query, resolve_objects=False)[0][0][0]
+        return slot
+
     def load_labware(self, slot,
                      name,
                      schema,

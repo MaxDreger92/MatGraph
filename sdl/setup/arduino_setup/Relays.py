@@ -1,11 +1,9 @@
-import logging
 from abc import ABC, abstractmethod
 
 from neomodel import db
 
 from sdl.models import Pump, Ultrasonic, Relay, Reservoir
 
-LOGGER = logging.getLogger(__name__)
 
 class RelayClass(ABC):
     def __init__(self, relay_num: int, name: str, properties: dict):
