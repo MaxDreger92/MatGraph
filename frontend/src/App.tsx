@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom'
-import { UserContext } from './common/UserContext'
-import { Toaster, toast } from 'react-hot-toast'
+import { UserContext } from './context/UserContext'
+import { Toaster } from 'react-hot-toast'
 import Header from './components/Header'
 import { MDB_IUser as IUser } from './types/user.type'
 
@@ -11,7 +11,7 @@ import client from './client'
 import { getCookie } from './client'
 
 import Home from './components/home/Home'
-import Workflow from './components/workflow/Workflow'
+import Workspace from './components/workspace/Workspace'
 import Database from './components/Database'
 import Profile from './components/Profile'
 import Authentication from './components/Authentication'
@@ -32,36 +32,36 @@ export default function App() {
 
     const {
         data: currentUser,
-        isLoading,
-        isError,
-        error,
+        isLoading: userIsLoading,
+        isError: userIsError,
+        error: userError,
     } = useQuery<IUser | null | undefined>('getCurrentUser', client.getCurrentUser)
 
     useEffect(() => {
-        if (isError) {
-            const err = error as Error
+        if (userIsError) {
+            const err = userError as Error
             console.log(err.message)
         }
-    }, [isError, error])
+    }, [userIsError, userError])
 
     useEffect(() => {
         if (
             !currentUser &&
-            !isLoading &&
+            !userIsLoading &&
             !['/', '/login', '/legal-information'].includes(location.pathname)
         ) {
             navigate('/')
         }
-    }, [location, navigate, currentUser, isLoading])
-
-    const handleHeaderLinkClick = (key: string) => {
-        navigate(key)
-    }
+    }, [location, navigate, currentUser, userIsLoading])
 
     const handleLogout = () => {
         queryClient.setQueryData<IUser | null | undefined>('getCurrentUser', undefined)
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure'
         navigate('/')
+    }
+
+    const handleHeaderLinkClick = (key: string) => {
+        navigate(key)
     }
 
     const getCookieConsent = useCallback(() => {
@@ -101,8 +101,8 @@ export default function App() {
                 <div className="main" style={{ zIndex: 10 }}>
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/upload" element={<Workflow uploadMode={true} />} />
-                        <Route path="/search" element={<Workflow uploadMode={false} />} />
+                        <Route path="/upload" element={<Workspace uploadMode={true} />} />
+                        <Route path="/search" element={<Workspace uploadMode={false} />} />
                         <Route path="/database" element={<Database />} />
                         <Route path="/login" element={<Authentication />} />
                         <Route path="/profile" element={<Profile />} />

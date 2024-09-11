@@ -1,4 +1,4 @@
-import _io
+from io import StringIO
 import csv
 import os
 import re
@@ -22,7 +22,7 @@ class NodeClassifier(TableDataTransformer):
     """
     def __init__(self, ReportClass = LabelClassificationReport,  **kwargs):
         self.attribute_type = "column_label"
-        if type(kwargs['data']) == _io.StringIO:
+        if isinstance(kwargs['data'], StringIO):
             kwargs['data'].seek(0)
             kwargs['data'] = pd.read_csv(kwargs['data'], header=None)
         kwargs['data'] = [
@@ -103,12 +103,6 @@ class NodeClassifier(TableDataTransformer):
         except Exception as e:
             return False
 
-
-
-
-
-
-
     def _process(self, **kwargs):
         """
         Transform the data.
@@ -186,10 +180,4 @@ class NodeClassifier(TableDataTransformer):
         Build the classification results.
         """
         self._results = sorted(self._results, key=lambda x: x['index'])
-
-
-
-
-
-
-
+        
