@@ -2,7 +2,7 @@ from typing import Union
 
 from pydantic import Field, BaseModel
 
-from sdl.processes.arduino_procedures.set_relay_on_time import SetRelayOnTime
+from sdl.processes.arduino_procedures.set_relay_on_time import SetRelayOnTime, SetRelayOnTimeParams
 from sdl.processes.arduino_utils import Location, ArduinoBaseProcedure
 
 
@@ -15,13 +15,13 @@ class SetUltrasoundParams(BaseModel):
 class SetUltrasoundOn(ArduinoBaseProcedure[SetUltrasoundParams]):
 
     def execute(self, connection, *args, **kwargs):
-        time_ms = round(self.params.time * 1000, 0)
         if self.params.relay_num:
             self.params.relay_num = self.params.relay_num
         elif self.params.apply_on:
             self.params.relay_num = self.params.get_relay_from_location(self.params.apply_on)
-        set_realay_on = SetRelayOnTime(relay_num=self.relay_num, time_on=time_ms)
+        set_realay_on = SetRelayOnTime(SetRelayOnTimeParams(relay_num=self.params.relay_num, time_on=self.params.time))
         response = set_realay_on.execute(connection, *args, **kwargs)
         response.output["type"] =  "ultrasound"
+        self.store_to_graph(response.id, *args, **kwargs)
         return response
 

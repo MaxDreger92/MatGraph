@@ -28,6 +28,6 @@ class DropTip(OpentronsMoveAction[DropTipParams]):
     def execute(self, *args, **kwargs):
         output = self.execute_all(*args, **kwargs)
         if self.params.homeAfter:
-            HomeRobot(HomeRobotParams()).execute(*args, **kwargs)
+            output.append(HomeRobot(HomeRobotParams()).execute(*args, **kwargs))
         return output
 

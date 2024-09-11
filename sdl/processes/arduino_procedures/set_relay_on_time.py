@@ -1,4 +1,6 @@
+import uuid
 from dataclasses import asdict
+from uuid import uuid4
 
 from pydantic import Field, BaseModel
 
@@ -19,4 +21,5 @@ class SetRelayOnTime(ArduinoBaseProcedure[SetRelayOnTimeParams]):
         logger.info(f"Setting relay {self.params.relay_num} on for {self.params.time_on} seconds")
         connection.write(command.encode())
         self.wait_for_arduino(connection, **kwargs)
-        return ProcessOutput(status = "success", input=asdict(self.params), output = {})
+        id = str(uuid.uuid4())
+        return ProcessOutput(id = id, status = "success", input=self.params.dict(), output = {})

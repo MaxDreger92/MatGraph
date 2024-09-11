@@ -139,9 +139,9 @@ class RequirementModel(BaseModel):
     chemicals: Chemicals
     opentrons: Union[dict, str]
     opentrons_setup: Union[dict, str]
-    arduino: Union[dict, str]
-    arduino_setup: Union[dict, str]
-    biologic: Union[dict, str]
+    arduino: Optional[Union[dict, str]]
+    arduino_setup: Optional[Union[dict, str]]
+    biologic: Optional[Union[dict, str]]
 
     @root_validator(pre=True)
     def process_fields(cls, values):
@@ -362,7 +362,7 @@ class BaseWorkflow(Registry):
         return all_subclasses
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any]):
+    def from_config(cls, config: Dict[str, Any], logger=None):
         """
         Create a workflow from a configuration dictionary.
         :param config:
@@ -374,7 +374,12 @@ class BaseWorkflow(Registry):
             config = config.dict()
         workflow_name = config['name']
         workflow_variables = config.get('variables', {})
-        workflow = cls.get_workflow(workflow_name)(**workflow_variables)
+        try:
+            workflow = cls.get_workflow(workflow_name)(**workflow_variables)
+        except TypeError:
+            if logger:
+                logger.error(f"Failed to create workflow {workflow_name}, due to missing or incorrect variables: {workflow_variables}")
+            raise TypeError(f"Failed to create workflow {workflow_name}, due to missing or incorrect variables: {workflow_variables}")
         return workflow
 
     @classmethod
@@ -436,12 +441,9 @@ class BaseWorkflow(Registry):
 
     def execute(self, *args, **kwargs):
         for operation in self.operations:
+            print(kwargs)
             output = operation.execute(*args, **kwargs)
             self.outputs.append(output)
-            # response = output['response']
-            # request = output['request']
-            # self.responses = [*self.responses, *response]
-            # self.requests = [*self.requests, *request]
         return self.outputs
 
     def to_graph(self):

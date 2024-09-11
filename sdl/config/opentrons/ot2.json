@@ -1,6 +1,6 @@
 {
-  "ip": "100.66.91.63",
-  "user": "max",
+  "ip": "100.67.86.197",
+  "robotType": "OT-2",
   "port": 31950,
   "headers": {
     "opentrons-version": "3"

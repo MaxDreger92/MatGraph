@@ -62,48 +62,18 @@ def main():
 
     # SETUP EXPERIMENTAL SETUP------------------------------------------------------------------------
 
-    # opentrons = OpentronsSetup(
-    #     robot_config_source=opentrons_config,
-    #     labware_config_source=labware_config,
-    #     chemicals_config_source=chemicals_config,
-    #     LOGGING=LOGGING)
     #
-    # arduino = ArduinoSetup(
-    #     config=arduino_config,
-    #     relay_config=arduino_setup,
-    #     LOGGING=LOGGING
-    # )
     #
-    # biologic = BiologicSetup(
-    #     config_source=biologic_config,
-    #     LOGGING=LOGGING
-    # )
-
-    # experiment = Experiment(
-    #     opentrons_config=opentrons_config,
-    #     arduino_config=arduino_config,
-    #     relay_config=arduino_setup,
-    #     biologic_config=biologic_config,
-    #     labware_config=labware_config,
-    #     chemicals_config=chemicals_config,
-    #     workflow = workflow
-    # )
-    # experiment.initialize_setups()
-    # experiment.store_setups()
-    # experiment.execute()
-
-
-
     Job = JobRequest(
         job=workflow
     )
 
 
     exp_Manager = ExperimentManager(
-        opentrons="flex.json",
+        opentrons="ot2.json",
         arduino="arduino.json",
         biologic="biologic_setup.json",
-        opentrons_setup="labware_flex.json",
+        opentrons_setup="opentrons_setup_small.json",
         chemicals="chemicals.json",
         arduino_relays="arduino_setup.json",
         offset_config="offset.json"

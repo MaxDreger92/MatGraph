@@ -34,6 +34,7 @@ class ArduinoSetup(BaseSetup):
         self.BAUD_RATE = 115200
         self.CONNECTION_TIMEOUT = 30  # seconds
         self.SERIAL_PORT = None
+        # self.connect()
 
     @property
     def info(self):
@@ -48,7 +49,7 @@ class ArduinoSetup(BaseSetup):
             "CONNECTION_TIMEOUT": self.CONNECTION_TIMEOUT,
         }
 
-    def connect(self, simulate = True) -> None:
+    def connect(self, simulate = False) -> None:
         """Connects to the serial port of the Arduino and verifies the connection."""
         if simulate:
             self.logger.warning("Simulating connection to Arduino.")

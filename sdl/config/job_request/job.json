@@ -1,6 +1,7 @@
 {
   "name": "TestWorkflow",
   "variables": {
-    "test": "test"
+    "volume": 70,
+    "chemical" : "H2O"
   }
 }

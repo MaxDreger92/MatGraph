@@ -14,72 +14,81 @@
         "inlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 5,
-            "well": "A1"
+            "slot": 10,
+            "well": "A2"
           }
         },
         "outlet": {
-          "device": "opentrons",
+          "device": "material",
           "properties": {
-            "slot": 5,
-            "well": "A1"
+            "material": "waste",
+            "quantity": {
+              "value": "10000",
+              "unit": "mL"
+            }
           }
         }
-      }
+    }
     },
     {
       "relay": 1,
-      "name": "pump 1",
+      "name": "pump 0",
       "device": "pump",
       "properties": {
         "calibration": {
           "slope": 1.0,
           "intercept": 0.0
         },
-        "inlet": {
-          "device": "opentrons",
-          "properties": {
-            "slot": 6,
-            "well": "A1"
-          }
-        },
         "outlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 5,
-            "well": "A1"
+            "slot": 10,
+            "well": "A2"
+          }
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "H2O",
+            "quantity": {
+              "value": "10000",
+              "unit": "mL"
+            }
           }
         }
       }
     },
     {
       "relay": 2,
-      "name": "pump 2",
+      "name": "pump 0",
       "device": "pump",
       "properties": {
         "calibration": {
           "slope": 1.0,
           "intercept": 0.0
         },
-        "inlet": {
-          "device": "opentrons",
-          "properties": {
-            "slot": 5,
-            "well": "A1"
-          }
-        },
         "outlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 5,
-            "well": "A1"
+            "slot": 10,
+            "well": "A2"
+          }
+        },
+        "inlet": {
+          "device": "material",
+          "properties": {
+            "material": "HCl",
+            "quantity": {
+              "value": "10000",
+              "unit": "mL"
+            }
           }
         }
       }
     },
     {
       "relay": 3,
-      "name": "pump 3",
+      "name": "pump 0",
       "device": "pump",
       "properties": {
         "calibration": {
@@ -89,17 +98,20 @@
         "inlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 6,
-            "well": "A1"
+            "slot": 3,
+            "well": "A2"
           }
         },
         "outlet": {
-          "device": "opentrons",
+          "device": "material",
           "properties": {
-            "slot": 6,
-            "well": "A1"
+            "material": "waste",
+            "quantity": {
+              "value": "0",
+              "unit": "mL"
+            }
           }
-          }
+        }
       }
     },
     {
@@ -111,18 +123,20 @@
           "slope": 1.0,
           "intercept": 0.0
         },
-        "inlet": {
-          "device": "opentrons",
-          "properties": {
-            "slot": 6,
-            "well": "A1"
+          "inlet": {
+            "device": "material",
+            "properties": {
+          "material": "H2O",
+          "quantity": {
+            "value": "10000",
+            "unit": "mL"
           }
-        },
+        }},
         "outlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 6,
-            "well": "A1"
+            "slot": 3,
+            "well": "A2"
           }
         }
       }
@@ -149,22 +163,8 @@
         "outlet": {
           "device": "opentrons",
           "properties": {
-            "slot": 6,
-            "well": "A1"
-          }
-        }
-      }
-    },
-    {
-      "relay": 6,
-      "name": "Relay 6",
-      "device": "ultrasonic",
-      "properties": {
-        "connected_to": {
-          "device": "opentrons",
-          "properties": {
-            "slot": 6,
-            "well": "A1"
+            "slot": 3,
+            "well": "A2"
           }
         }
       }
@@ -178,7 +178,7 @@
         "connected_to": {
           "device": "opentrons",
           "properties": {
-            "slot": 6,
+            "slot": 3,
             "well": "A1"
           }
         }

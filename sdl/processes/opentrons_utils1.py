@@ -50,6 +50,7 @@ class OpentronsMoveAction(OpentronsBaseProcedure[P]):
             chemical = params.chemical
         ))
 
-        move_to_top.execute(*args, **kwargs)
+        post_move = move_to_top.execute(*args, **kwargs)
+        output.append(post_move)
 
         return output

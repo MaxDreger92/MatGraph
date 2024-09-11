@@ -2,12 +2,13 @@ import json
 import logging
 import os
 import uuid
-from typing import Union
+from typing import Union, Iterable
 
 from neomodel import db
 from pydantic import ValidationError
 
 from mat2devplatform.settings import BASE_DIR
+from matgraph.models.processes import Manufacturing, Process
 from sdl.models import Job, WorkflowModel
 from sdl.setup.arduino_setup.ArduinoSetup import ArduinoSetup
 from sdl.setup.biologic_setup.BiologicSetup import BiologicSetup
@@ -74,7 +75,7 @@ class JobRequest:
     def create_workflow(self):
         self.logger.info(f"Creating workflow from job request: {self.job_request}")
         try:
-            return BaseWorkflow.from_config(self.job_request)
+            return BaseWorkflow.from_config(self.job_request, self.logger)
         except KeyError as e:
             self.logger.error(f"Invalid workflow configuration: {e}")
             raise ValueError(f"Invalid workflow configuration: {str(e)}")
@@ -150,6 +151,7 @@ class Experiment:
         self.outputs = []
 
         self.logger.info("Experiment initialization completed.")
+
 
     def initialize_logger(self, log_directory: str):
         """
@@ -238,30 +240,30 @@ class Experiment:
         self.logger.info("Setups created successfully.")
         return setups
 
-    def store_experiment(self):
-        self.logger.info(f"Storing experiment with ID {self.experiment_id}.")
-        required_fields = {
-            'id': self.experiment_id,
-            'requirements': self.setups['opentrons'].config,
-            'workflow': self.workflow.json()
-        }
-
-        # Use dictionary comprehension to conditionally add optional fields
-        optional_fields = {key: self.setups[key].config for key in ['biologic', 'arduino'] if key in self.setups}
-
-        if 'arduino' in optional_fields:
-            optional_fields['arduino_relays'] = self.setups['arduino'].relay_config
-
-        # Merge required fields and optional fields
-        model_data = {**required_fields, **optional_fields}
-
-        try:
-            self.model = Job(**model_data)
-            self.model.save()
-            self.logger.info(f"Experiment {self.experiment_id} stored successfully.")
-        except Exception as e:
-            self.logger.error(f"Error saving the experiment model: {str(e)}")
-            raise
+    # def store_experiment(self):
+    #     self.logger.info(f"Storing experiment with ID {self.experiment_id}.")
+    #     required_fields = {
+    #         'id': self.experiment_id,
+    #         'requirements': self.setups['opentrons'].config,
+    #         'workflow': self.workflow.json()
+    #     }
+    #
+    #     # Use dictionary comprehension to conditionally add optional fields
+    #     optional_fields = {key: self.setups[key].config for key in ['biologic', 'arduino'] if key in self.setups}
+    #
+    #     if 'arduino' in optional_fields:
+    #         optional_fields['arduino_relays'] = self.setups['arduino'].relay_config
+    #
+    #     # Merge required fields and optional fields
+    #     model_data = {**required_fields, **optional_fields}
+    #
+    #     try:
+    #         self.model = Job(**model_data)
+    #         self.model.save()
+    #         self.logger.info(f"Experiment {self.experiment_id} stored successfully.")
+    #     except Exception as e:
+    #         self.logger.error(f"Error saving the experiment model: {str(e)}")
+    #         raise
 
 
 
@@ -322,7 +324,8 @@ class Experiment:
                                                   experiment_id=self.experiment_id,
                                                   opentrons_setup=self.setups['opentrons'],
                                                   opentrons_offset=self.setups['opentrons'].offset_config,
-                                                  experiment_directory=self.experiment_directory)
+                                                  experiment_directory=self.experiment_directory,
+                                                  connection = self.setups['arduino'].connection)
                     self.outputs.extend(output)
             else:
                 self.logger.info(f"Executing main workflow for experiment {self.experiment_id}.")
@@ -331,15 +334,20 @@ class Experiment:
                                                opentrons_setup=self.setups['opentrons'],
                                                opentrons_offset=self.setups['opentrons'].offset_config,
                                                experiment_id=self.experiment_id,
-                                               experiment_directory=self.experiment_directory)
+                                               experiment_directory=self.experiment_directory,
+                                               connection = self.setups['arduino'].connection)
                 if not isinstance(output, list):
                     output = [output]
                 self.outputs.extend(output)
+                self.store_experiment()
+
 
             self.logger.info(f"Workflow execution completed for experiment {self.experiment_id}.")
         except Exception as e:
             self.logger.error(f"Error during workflow execution: {str(e)}")
             raise
+        if 'arduino' in self.setups:
+            self.setups['arduino'].connection.close()
 
     def find_chemicals(self, chemical_name, opentrons_id):
         self.logger.info(f"Finding chemicals: {chemical_name} for Opentrons ID: {opentrons_id}")
@@ -369,6 +377,43 @@ class Experiment:
             self.logger.error(f"Error finding labware: {str(e)}")
             raise
 
+
+
+    def store_experiment(self):
+        """
+        Store the experiment steps in the database and connect them using the 'followed_by' relationship.
+        Handles both single outputs and nested lists of outputs.
+        """
+        def flatten(items):
+            """
+            Recursively flattens a list of items, handling nested lists.
+            """
+            for item in items:
+                if isinstance(item, list) and not isinstance(item, (str, bytes)):
+                    yield from flatten(item)
+                else:
+                    yield item
+        # Flatten the outputs list
+        flattened_outputs = list(flatten(self.outputs))
+
+        # Initialize the previous step as None
+        previous_step = None
+
+        # Iterate over the flattened outputs and connect each step
+        for output in flattened_outputs:
+            try:
+                current_step = Process.nodes.get(uid=output.id)
+                if previous_step:
+                    # Connect the previous step to the current step
+                    previous_step.followed_by.connect(current_step)
+
+                # Set the current step as the previous step for the next iteration
+                previous_step = current_step
+
+            except Exception as e:
+                # Handle errors in node lookup or relationship creation
+                print(f"Error processing output {output}: {e}")
+                raise
 
 class ExperimentManager:
     """
@@ -468,6 +513,8 @@ class ExperimentManager:
             self.logger.info("Arduino relays not matching")
             return False
         return True
+
+
 
 
     def run_experiments(self):

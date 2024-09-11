@@ -65,6 +65,7 @@ class BaseSetup:
         Store data in the database using Django ORM.
 
         Args:
+        Args:
             **kwargs: Key-value pairs of model fields and values.
 
         Returns:

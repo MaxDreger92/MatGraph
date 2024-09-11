@@ -3,6 +3,8 @@ from typing import ClassVar
 
 from pydantic import Field, BaseModel
 
+from matgraph.models.processes import Manufacturing
+from matgraph.models.properties import Parameter
 from sdl.processes.arduino_procedures.set_relay_on_time import SetRelayOnTime, SetRelayOnTimeParams
 from sdl.processes.arduino_utils import ArduinoBaseProcedure
 
@@ -41,8 +43,8 @@ class DispenseMl(ArduinoBaseProcedure[DispenseMLParams]):
     def get_pump_calibration(self, arduino_config, relay_num):
         print("arduino_config", arduino_config)
         for relay in arduino_config['relays']:
-            if relay['relay'] == relay_num:
-                return relay['properties']['calibration']['slope'], relay['properties']['calibration']['intercept']
+            if relay.relay_num == relay_num:
+                return relay.pump_slope, relay.pump_intercept
         raise ValueError(f"Could not find calibration for relay {relay_num}")
 
     def get_pumping_time(self, volume, slope, intercept):
@@ -55,18 +57,21 @@ class DispenseMl(ArduinoBaseProcedure[DispenseMLParams]):
                 to_mat= None,
                 *args,
                 **kwargs):
-        arduino_config = kwargs.get("arduino_config")
+        arduino_config = kwargs.get('arduino')
         if self.params.relay_num:
             relay_num = self.params.relay_num
         elif self.params.pump_name:
             relay_num = self.get_relay_from_pump_name()
         elif self.params.from_loc or self.params.to_loc:
             relay_num  = self.params.get_relay_from_location(arduino_config)
-        pump_slope, intercept = self.params.get_pump_calibration(arduino_config, relay_num)
-        time_on = self.params.get_pumping_time(self.params.volume, pump_slope, intercept)
+        pump_slope, intercept = self.get_pump_calibration(arduino_config, relay_num)
+        time_on = self.get_pumping_time(self.params.volume, pump_slope, intercept)
 
         start_relay = SetRelayOnTime(SetRelayOnTimeParams(relay_num=relay_num, time_on=time_on, **kwargs))
         response = start_relay.execute(connection, *args, **kwargs)
         response.output["type"] = "dispense"
-        response.input=asdict(self.params)
+        response.input=self.params.dict()
+        self.store_to_graph(response.id)
         return response
+
+

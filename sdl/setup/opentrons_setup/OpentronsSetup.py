@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 from neomodel import db, DateTimeProperty
 from sqlparse.utils import offset
+from srsly import json_loads
 
 from mat2devplatform.settings import BASE_DIR
 from matgraph.models.matter import Material
@@ -64,6 +65,7 @@ class OpentronsSetup(SDLSetup):
         self.initialize_modules()
         self.loadPipette()
 
+
     def initialize_platform(self):
         '''
         creates a new blank run on the opentrons with command endpoints
@@ -97,8 +99,6 @@ class OpentronsSetup(SDLSetup):
             # LOG - info
             self.logger.info(f"New run created with ID: {self.run_id}")
             self.logger.info(f"Command URL: {self.commandURL}")
-            print(f"New run created with ID: {self.run_id}")
-            print(f"Command URL: {self.commandURL}")
         else:
             raise Exception(
                 f"Failed to create a new run.\nError code: {response.status_code}\n Error message: {response.text}")
@@ -142,7 +142,9 @@ class OpentronsSetup(SDLSetup):
                 with open(labware_file_path, encoding='utf-8') as f:
                     json_file = json.load(f)
             except FileNotFoundError:
+                print(f"File {labware_file_path} not found")
                 pass
+            print(json_file)
 
             # Assuming you have a method to load labware
             if self.simulate:
@@ -219,6 +221,8 @@ class OpentronsSetup(SDLSetup):
         """
         query = f"MATCH (o:Opentrons {{uid: '{self.setup_model.uid}'}})-[:HAS_PART]->(:Slot)-[:HAS_PART]->(m:Opentron_Module {{name: '{name}'}}) RETURN m.module_id"
         result = db.cypher_query(query, resolve_objects=False)
+        print(result)
+        print(query)
         labware_id = result[0][0][0]
         if labware_id:
             return labware_id
@@ -367,6 +371,8 @@ class OpentronsSetup(SDLSetup):
                 params={"waitUntilComplete": True},
                 data=strCommand
             )
+            print(response.text)
+            print(json_loads(response.text)['data'])
 
             # LOG - debug
             # LOGGER.debug(f"Response: {response.text}")
@@ -395,8 +401,6 @@ class OpentronsSetup(SDLSetup):
 
         # LOG - info
         self.logger.info(f"Loading labware: {name} in slot: {slot}")
-        # LOG - debug
-        # self.logger.debug(f"Command: {strCommand}")
 
         response = requests.post(
             url=self.commandURL,
@@ -405,11 +409,11 @@ class OpentronsSetup(SDLSetup):
             data=strCommand
         )
 
-        # LOG - debug
-        # LOGGER.debug(f"Response: {response.text}")
+
 
         if response.status_code == 201:
             dicResponse = json.loads(response.text)
+            print(dicResponse['data'])
             if dicResponse['data']['result']['definition']['parameters']['isTiprack']:
                 self.tiprackID = dicResponse['data']['result']['labwareId']
             strLabwareID = dicResponse['data']['result']['labwareId']

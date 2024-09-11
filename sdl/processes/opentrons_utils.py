@@ -41,7 +41,7 @@ class OpentronsParamsMoveToLocation(BaseModel):
     wellName: Optional[str] = None
     pipetteId: Optional[str] = None
     pipetteName: Optional[str] = None
-    wellLocation: Optional[WellLocation] = Field(default= WellLocation(origin='top', offset=Offset(x=0, y=0, z=0)))
+    wellLocation: Optional[WellLocation] = Field(default= WellLocation(origin='top', offset=Offset(x=0, y=0, z=5)))
     chemical: Optional[str] = None
     speed: int = Field(default = 100)
 
@@ -166,7 +166,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
         params_prefix = f"entry"
 
         common_query = f"""
-            MERGE (m:Manufacturing {{id: $id}})
+            MERGE (m:Manufacturing:Process {{uid: $id}})
             MERGE (u:Opentrons {{setup_id: '{kwargs['opentrons']['opentrons_id']}'}})
             MERGE (m)-[:BY]-> (u)
             SET m.createdAt = $createdAt,

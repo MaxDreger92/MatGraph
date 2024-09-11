@@ -41,6 +41,8 @@ class Process(CausalObject):
                                  model=HasPartRel, cardinality=ZeroOrMore)
     institution = RelationshipTo('matgraph.models.metadata.Institution', "PUBLISHED_IN",
                                  model=HasPartRel, cardinality=ZeroOrMore)
+    followed_by = RelationshipTo('matgraph.models.processes.Process', "FOLLOWED_BY",
+                                 model=HasPartRel, cardinality=ZeroOrMore)
 
     class Meta:
         app_label = 'matgraph'
@@ -70,6 +72,7 @@ class Manufacturing(Process):
     device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MANUFACTURING_INPUT",
                                     model=IsManufacturingInputRel, cardinality=ZeroOrMore)
 
+
 class Measurement(Process):
     """
     Class representing measurement processes in the knowledge graph.
@@ -90,6 +93,7 @@ class Measurement(Process):
                                        model=IsMeasurementInputRel, cardinality=ZeroOrMore)
     device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MEASUREMENT_INPUT",
                                     model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+
 
 
 class Simulation(Process):
@@ -113,6 +117,7 @@ class Simulation(Process):
                                        model=IsMeasurementInputRel, cardinality=ZeroOrMore)
     device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MEASUREMENT_INPUT",
                                     model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+
 
 class DataProcessing(Process):
     """
