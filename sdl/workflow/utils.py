@@ -13,22 +13,49 @@ from sdl.models import WorkflowModel
 
 
 class WellLocation(BaseModel):
+    """
+    Represents the location of a well.
+
+    Attributes:
+        wellName (str): The name of the well.
+    """
     wellName: str
 
 class SlotLocation(BaseModel):
+    """
+    Represents the location of a slot.
+
+    Attributes:
+        slotName (str): The name of the slot.
+    """
     slotName: str
 
 class Location(BaseModel):
+    """
+    Represents the location of a well and a slot.
+
+    Attributes:
+        wellLocation (WellLocation): The location of the well.
+        slotLocation (SlotLocation): The location of the slot.
+    """
     wellLocation: WellLocation
     slotLocation: SlotLocation
 
-class BaseProcedure(BaseModel):
-    pass
+
 
 ureg = UnitRegistry()
 
 
 class Chemical(BaseModel):
+    """
+    Represents a chemical with its name, volume, unit, and location.
+
+    Attributes:
+        name (str): The name of the chemical.
+        volume (float): The volume of the chemical.
+        unit (str): The unit of the volume.
+        location (Optional[Location]): The location of the chemical.
+    """
     name: str
     volume: float
     unit: str
@@ -36,6 +63,15 @@ class Chemical(BaseModel):
 
     @classmethod
     def from_list(cls, data: list[Any]):
+        """
+        Creates a Chemical instance from a list.
+
+        Args:
+            data (list[Any]): A list containing the name, volume, and unit of the chemical.
+
+        Returns:
+            Chemical: A Chemical instance.
+        """
         return cls(name=data[0], volume=data[1], unit=data[2])
 
     @classmethod
@@ -315,6 +351,15 @@ class Registry:
         return list(cls._registry.values())
 
 
+P = TypeVar('P', bound=BaseModel)
+
+class BaseProcedure(Generic[P]):
+    def __init__(self, params: P):
+        self.params = params
+
+    pass
+
+
 class BaseWorkflow(Registry):
     def __init__(self, operations: list[Union['BaseWorkflow', BaseProcedure]] = None):
         self.operations = operations if operations is not None else []
@@ -460,11 +505,5 @@ class BaseStep:
         raise NotImplementedError("Each step must implement an execute method")
 
 
-P = TypeVar('P', bound=BaseModel)
 
 
-class BaseProcedure(Generic[P]):
-    def __init__(self, params: P):
-        self.params = params
-
-    pass

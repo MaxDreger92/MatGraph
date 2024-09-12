@@ -17,10 +17,32 @@ from sdl.setup.opentrons_setup.OpentronsSetup import OpentronsSetup
 from sdl.workflow.utils import BaseWorkflow, Chemical, SetupModel, Chemicals
 
 
-
-
 class JobRequest:
+    """
+    A class to handle job requests and manage workflows.
+
+    Attributes:
+        job_request (dict): The parsed job request.
+        workflow (BaseWorkflow): The workflow created from the job request.
+        requirements (dict): The requirements for the workflow.
+        job_uid (uuid.UUID): The unique identifier for the job.
+        model (Job): The job model instance.
+
+    Methods:
+        parse_job(job): Parses the job request.
+        get_json_by_filename(name): Retrieves JSON content from a file.
+        create_workflow(): Creates a workflow from the job request.
+        queue_job(): Queues the job for execution.
+        parse_requirements(): Parses the requirements for the workflow.
+    """
     def __init__(self, job: Union[json, WorkflowModel, str], job_uid: Union[str, uuid.UUID] = None):
+        """
+        Initializes the JobRequest instance.
+
+        Args:
+            job (Union[json, WorkflowModel, str]): The job request.
+            job_uid (Union[str, uuid.UUID], optional): The unique identifier for the job. Defaults to None.
+        """
         self.logger = logging.getLogger('app_logger')
         self.logger.info(f"Initializing JobRequest with job: {job}, job_uid: {job_uid}")
 
@@ -31,6 +53,18 @@ class JobRequest:
         self.queue_job()
 
     def parse_job(self, job):
+        """
+        Parses the job request.
+
+        Args:
+            job (Union[json, WorkflowModel, str]): The job request.
+
+        Returns:
+            dict: The parsed job request.
+
+        Raises:
+            ValueError: If the job request type is invalid or if there is an error parsing the job request.
+        """
         self.logger.info(f"Parsing job: {job}")
         if isinstance(job, str):
             try:
@@ -48,6 +82,20 @@ class JobRequest:
 
     @staticmethod
     def get_json_by_filename(name):
+        """
+        Retrieves JSON content from a file.
+
+        Args:
+            name (str): The name of the file.
+
+        Returns:
+            dict: The JSON content of the file.
+
+        Raises:
+            PermissionError: If there is a permission error accessing the file.
+            ValueError: If there is an error decoding the JSON content or if the file is empty.
+            FileNotFoundError: If the file is not found.
+        """
         directory = os.path.join(BASE_DIR, 'sdl', 'config')
         logging.info(f"Looking for file {name} in directory: {directory}")
 
@@ -71,9 +119,19 @@ class JobRequest:
                     raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
                 except FileNotFoundError:
                     logging.error(f"File {name} not found in config directory or its subdirectories: {directory}")
-                    raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")
+                    raise FileNotFoundError(
+                        f"File {name} not found in config directory or its subdirectories: {directory}")
 
     def create_workflow(self):
+        """
+        Creates a workflow from the job request.
+
+        Returns:
+            BaseWorkflow: The created workflow.
+
+        Raises:
+            ValueError: If there is an invalid workflow configuration.
+        """
         self.logger.info(f"Creating workflow from job request: {self.job_request}")
         try:
             return BaseWorkflow.from_config(self.job_request, self.logger)
@@ -82,6 +140,9 @@ class JobRequest:
             raise ValueError(f"Invalid workflow configuration: {str(e)}")
 
     def queue_job(self):
+        """
+        Queues the job for execution.
+        """
         self.logger.info(f"Queueing job with UID: {self.job_uid}")
         requirements = self.parse_requirements()
         model_data = {
@@ -94,6 +155,15 @@ class JobRequest:
         self.logger.info(f"Job {self.job_uid} has been saved successfully")
 
     def parse_requirements(self):
+        """
+        Parses the requirements for the workflow.
+
+        Returns:
+            dict: The parsed requirements.
+
+        Raises:
+            ValueError: If there is an error parsing the requirements.
+        """
         self.logger.info("Parsing requirements for the workflow")
         try:
             requirements = json.loads(self.requirements.json())
@@ -125,6 +195,28 @@ from sdl.workflow.utils import BaseWorkflow
 
 
 class Experiment:
+    """
+    A class to represent an experiment with various setups and a workflow.
+
+    Attributes:
+        experiment_id (uuid.UUID): The unique identifier for the experiment.
+        experiment_directory (str): The directory for the experiment.
+        logger (logging.Logger): The logger for the experiment.
+        setups (dict): The setups for the experiment.
+        workflow (BaseWorkflow): The workflow for the experiment.
+        outputs (list): The outputs of the experiment.
+
+    Methods:
+        initialize_logger(log_directory): Initializes a logger with a custom log directory.
+        create_workflow(workflow): Creates a workflow for the experiment.
+        create_setups(opentrons_config, labware_config, chemicals_config, arduino_config, relay_config, biologic_config, offset_config): Creates setups for the experiment.
+        create_experiment_directory(): Creates a directory for the experiment.
+        update_setups(setup): Updates a setup.
+        initialize_setups(simulate): Initializes all setups.
+        store_setups(): Stores all setups.
+        execute(workflow, *args, **kwargs): Executes the experiment workflow.
+        store_experiment(): Stores the experiment steps in the database.
+    """
     def __init__(self,
                  opentrons_config: json = None,
                  labware_config: json = None,
@@ -134,13 +226,22 @@ class Experiment:
                  biologic_config: json = None,
                  workflow: json = None,
                  experiment_id: Union[uuid.UUID, str] = None,
-                 store_experiment: bool = True,
                  offset_config: json = None):
         """
-        Initialize an experiment with a list of setups and a workflow.
+        Initializes the Experiment instance.
+
+        Args:
+            opentrons_config (json, optional): The Opentrons configuration. Defaults to None.
+            labware_config (json, optional): The labware configuration. Defaults to None.
+            chemicals_config (json, optional): The chemicals configuration. Defaults to None.
+            arduino_config (json, optional): The Arduino configuration. Defaults to None.
+            relay_config (json, optional): The relay configuration. Defaults to None.
+            biologic_config (json, optional): The Biologic configuration. Defaults to None.
+            workflow (json, optional): The workflow configuration. Defaults to None.
+            experiment_id (Union[uuid.UUID, str], optional): The unique identifier for the experiment. Defaults to None.
+            offset_config (json, optional): The offset configuration. Defaults to None.
         """
         self.experiment_id = uuid.uuid4() if experiment_id is None else experiment_id
-
 
         self.experiment_directory = self.create_experiment_directory()
         self.logger = self.initialize_logger(self.experiment_directory)
@@ -153,17 +254,23 @@ class Experiment:
 
         self.logger.info("Experiment initialization completed.")
 
-
     def initialize_logger(self, log_directory: str):
         """
-        Initialize a logger with a custom log directory.
+        Initializes a logger with a custom log directory.
+
+        Args:
+            log_directory (str): The directory for the log files.
+
+        Returns:
+            logging.Logger: The initialized logger.
         """
         # Ensure the log directory exists
         if log_directory and not os.path.exists(log_directory):
             os.makedirs(log_directory, exist_ok=True)
 
         # Create the log file path
-        log_file_path = os.path.join(log_directory, f"{self.experiment_id}.log") if log_directory else f"{self.experiment_id}.log"
+        log_file_path = os.path.join(log_directory,
+                                     f"{self.experiment_id}.log") if log_directory else f"{self.experiment_id}.log"
 
         # Configure the logger
         logger = logging.getLogger(f'experiment_logger_{self.experiment_id}')
@@ -186,6 +293,18 @@ class Experiment:
         return logger
 
     def create_workflow(self, workflow):
+        """
+        Creates a workflow for the experiment.
+
+        Args:
+            workflow (json): The workflow configuration.
+
+        Returns:
+            BaseWorkflow: The created workflow.
+
+        Raises:
+            KeyError: If there is an invalid workflow configuration.
+        """
         self.logger.info("Creating workflow for the experiment.")
         if workflow:
             try:
@@ -199,6 +318,24 @@ class Experiment:
 
     def create_setups(self, opentrons_config, labware_config, chemicals_config, arduino_config, relay_config,
                       biologic_config, offset_config):
+        """
+        Creates setups for the experiment.
+
+        Args:
+            opentrons_config (json): The Opentrons configuration.
+            labware_config (json): The labware configuration.
+            chemicals_config (json): The chemicals configuration.
+            arduino_config (json): The Arduino configuration.
+            relay_config (json): The relay configuration.
+            biologic_config (json): The Biologic configuration.
+            offset_config (json): The offset configuration.
+
+        Returns:
+            dict: The created setups.
+
+        Raises:
+            Exception: If there is an error initializing any setup.
+        """
         self.logger.info("Creating setups for the experiment.")
         setups = {}
 
@@ -241,34 +378,16 @@ class Experiment:
         self.logger.info("Setups created successfully.")
         return setups
 
-    # def store_experiment(self):
-    #     self.logger.info(f"Storing experiment with ID {self.experiment_id}.")
-    #     required_fields = {
-    #         'id': self.experiment_id,
-    #         'requirements': self.setups['opentrons'].config,
-    #         'workflow': self.workflow.json()
-    #     }
-    #
-    #     # Use dictionary comprehension to conditionally add optional fields
-    #     optional_fields = {key: self.setups[key].config for key in ['biologic', 'arduino'] if key in self.setups}
-    #
-    #     if 'arduino' in optional_fields:
-    #         optional_fields['arduino_relays'] = self.setups['arduino'].relay_config
-    #
-    #     # Merge required fields and optional fields
-    #     model_data = {**required_fields, **optional_fields}
-    #
-    #     try:
-    #         self.model = Job(**model_data)
-    #         self.model.save()
-    #         self.logger.info(f"Experiment {self.experiment_id} stored successfully.")
-    #     except Exception as e:
-    #         self.logger.error(f"Error saving the experiment model: {str(e)}")
-    #         raise
-
-
-
     def create_experiment_directory(self):
+        """
+        Creates a directory for the experiment.
+
+        Returns:
+            str: The path to the experiment directory.
+
+        Raises:
+            Exception: If there is an error creating the directory.
+        """
         experiment_dir = os.path.join(BASE_DIR, str(self.experiment_id))
 
         try:
@@ -278,15 +397,35 @@ class Experiment:
         return experiment_dir
 
     def update_setups(self, setup):
+        """
+        Updates a setup.
+
+        Args:
+            setup (SetupModel): The setup to update.
+        """
         self.logger.info(f"Updating setup '{setup.name_space}'")
         self.setups[setup.name_space] = setup
 
     @property
     def configs(self):
+        """
+        Returns the configurations of all setups.
+
+        Returns:
+            dict: The configurations of all setups.
+        """
         return {setup.name_space: setup.info for setup in self.setups.values()}
 
     def initialize_setups(self, simulate=False):
-        """Initialize all setups."""
+        """
+        Initializes all setups.
+
+        Args:
+            simulate (bool, optional): Whether to simulate the initialization. Defaults to False.
+
+        Raises:
+            Exception: If there is an error initializing any setup.
+        """
         self.logger.info(f"Initializing all setups for experiment {self.experiment_id}.")
         for name, setup in self.setups.items():
             try:
@@ -299,7 +438,12 @@ class Experiment:
         self.logger.info(f"All setups initialized for experiment {self.experiment_id}.")
 
     def store_setups(self):
-        """Store all setups."""
+        """
+        Stores all setups.
+
+        Raises:
+            Exception: If there is an error storing any setup.
+        """
         self.logger.info(f"Storing all setups for experiment {self.experiment_id}.")
         for name, setup in self.setups.items():
             try:
@@ -312,11 +456,20 @@ class Experiment:
         self.logger.info(f"All setups stored for experiment {self.experiment_id}.")
 
     def execute(self, workflow=None, *args, **kwargs):
-        """Execute the experiment workflow."""
+        """
+        Executes the experiment workflow.
+
+        Args:
+            workflow (json, optional): The workflow configuration. Defaults to None.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Raises:
+            Exception: If there is an error during workflow execution.
+        """
         self.logger.info(f"Executing workflow for experiment {self.experiment_id}.")
         try:
             configs = {k: v for config in self.configs.values() for k, v in config.items()}
-
 
             if isinstance(self.workflow, list):
                 for sub_workflow in self.workflow:
@@ -327,7 +480,7 @@ class Experiment:
                                                   opentrons_setup=self.setups['opentrons'],
                                                   opentrons_offset=self.setups['opentrons'].offset_config,
                                                   experiment_directory=self.experiment_directory,
-                                                  connection= self.setups['arduino'].connection)
+                                                  connection=self.setups['arduino'].connection)
 
                     self.outputs.extend(output)
             else:
@@ -338,12 +491,11 @@ class Experiment:
                                                opentrons_offset=self.setups['opentrons'].offset_config,
                                                experiment_id=self.experiment_id,
                                                experiment_directory=self.experiment_directory,
-                                               connection = self.setups['arduino'].connection)
+                                               connection=self.setups['arduino'].connection)
                 if not isinstance(output, list):
                     output = [output]
                 self.outputs.extend(output)
                 self.store_experiment()
-
 
             self.logger.info(f"Workflow execution completed for experiment {self.experiment_id}.")
         except Exception as e:
@@ -352,41 +504,13 @@ class Experiment:
         if 'arduino' in self.setups:
             self.setups['arduino'].connection.close()
 
-    def find_chemicals(self, chemical_name, opentrons_id):
-        self.logger.info(f"Finding chemicals: {chemical_name} for Opentrons ID: {opentrons_id}")
-        query = f'''
-            MATCH (p:Property)<-[:HAS_PROPERTY]-(c:Matter {{name: '{chemical_name}'}})-[:IN|HAS_METADATA]->(m:Metadata)<-[:HAS_PART*..5]-(o:Opentrons {{setup_id: '{opentrons_id}'}})
-            WHERE p.name = 'amount' OR p.name = 'Quantity'
-            RETURN c.name, p.value, p.unit'''
-        try:
-            res, _ = db.cypher_query(query, {})
-            self.logger.info(f"Found chemicals: {res}")
-            return res
-        except Exception as e:
-            self.logger.error(f"Error finding chemicals: {str(e)}")
-            raise
-
-    def find_labware(self, labware_name, opentrons_id):
-        self.logger.info(f"Finding labware: {labware_name} for Opentrons ID: {opentrons_id}")
-        query = f'''
-            MATCH (l:Labware {{name: '{labware_name}'}})-[:HAS_PART]->(w:Well)-[:HAS_PROPERTY]->(p:Property)
-            MATCH (l)-[:HAS_PART]->(o:Opentrons {{setup_id: '{opentrons_id}'}})
-            RETURN l.name, w.well_id, p.value, p.unit'''
-        try:
-            res, _ = db.cypher_query(query, {})
-            self.logger.info(f"Found labware: {res}")
-            return res
-        except Exception as e:
-            self.logger.error(f"Error finding labware: {str(e)}")
-            raise
-
-
 
     def store_experiment(self):
         """
         Store the experiment steps in the database and connect them using the 'followed_by' relationship.
         Handles both single outputs and nested lists of outputs.
         """
+
         def flatten(items):
             """
             Recursively flattens a list of items, handling nested lists.
@@ -396,6 +520,7 @@ class Experiment:
                     yield from flatten(item)
                 else:
                     yield item
+
         # Flatten the outputs list
         flattened_outputs = list(flatten(self.outputs))
 
@@ -418,17 +543,40 @@ class Experiment:
                 print(f"Error processing output {output}: {e}")
                 raise e
 
+
 class ExperimentManager:
     """
-    A class to manage experiments it gets a workflow and setups. Stores the experiment_id with a timestamp and a status in a csv file in the experiment directory.
-    the csv file has the following columns:
-    experiment_id, timestamp, status
+    A class to manage experiments, including finding executable experiments and running them.
 
-    for each experiment it creates a directory with the experiment_id and stores the setups and the workflow in the folder.
+    Attributes:
+        logger (logging.Logger): The logger for the experiment manager.
+        jobs (QuerySet): The queryset of all jobs.
+        opentrons (dict): The Opentrons configuration.
+        arduino (dict): The Arduino configuration.
+        biologic (dict): The Biologic configuration.
+        opentrons_setup (dict): The Opentrons setup configuration.
+        arduino_setup (dict): The Arduino setup configuration.
+        chemicals (Chemicals): The chemicals configuration.
+        chemical_config (dict): The chemicals configuration as a dictionary.
+        offset_config (dict): The offset configuration.
+        runnable_experiments (list): The list of runnable experiments.
     """
+    def __init__(self, opentrons: Union[str, dict], opentrons_setup: Union[str, dict], arduino: Union[str, dict] = None,
+                 biologic: Union[str, dict] = None,
+                 chemicals: Union[str, dict] = None, arduino_relays: Union[str, dict] = None,
+                 offset_config: Union[str, dict] = None):
+        """
+        Initializes the ExperimentManager instance.
 
-    def __init__(self, opentrons: Union[str, dict], opentrons_setup: Union[str, dict], arduino: Union[str, dict] =None, biologic: Union[str, dict] =None,
-                 chemicals: Union[str, dict] =None, arduino_relays: Union[str, dict] =None, offset_config: Union[str, dict]=None):
+        Args:
+            opentrons (Union[str, dict]): The Opentrons configuration.
+            opentrons_setup (Union[str, dict]): The Opentrons setup configuration.
+            arduino (Union[str, dict], optional): The Arduino configuration. Defaults to None.
+            biologic (Union[str, dict], optional): The Biologic configuration. Defaults to None.
+            chemicals (Union[str, dict], optional): The chemicals configuration. Defaults to None.
+            arduino_relays (Union[str, dict], optional): The Arduino relays configuration. Defaults to None.
+            offset_config (Union[str, dict], optional): The offset configuration. Defaults to None.
+        """
         self.logger = logging.getLogger('app_logger')
         self.jobs = Job.objects.all()
         self.opentrons = opentrons if isinstance(opentrons, dict) else self.get_json_by_filename(opentrons)
@@ -441,17 +589,16 @@ class ExperimentManager:
         self.chemicals = Chemicals.from_config(chemicals) if isinstance(chemicals, dict) else Chemicals.from_config(
             self.get_json_by_filename(chemicals))
         self.chemical_config = chemicals if isinstance(chemicals, dict) else self.get_json_by_filename(chemicals)
-        self.offset_config = offset_config if isinstance(offset_config, dict) else self.get_json_by_filename(offset_config)
+        self.offset_config = offset_config if isinstance(offset_config, dict) else self.get_json_by_filename(
+            offset_config)
         self.logger.info("Experiment Manager initialized.")
         self.runnable_experiments = []
 
-    def find_setup_by_namespace(self, setups, namespace):
-        for setup in setups:
-            if setup.name_space == namespace:
-                return setup
-        return None
 
     def find_executable_experiments(self):
+        """
+        Finds executable experiments by checking the requirements of queued jobs.
+        """
         self.setup = SetupModel.from_config(
             chemicals=self.chemicals,
             opentrons_setup=self.opentrons_setup,
@@ -474,14 +621,28 @@ class ExperimentManager:
             self.logger.info(i.workflow)
 
     def check_requirements(self, job):
-        chemical_check =  self.check_chemicals(job)
+        """
+        Checks if the job meets the requirements to be executable.
+
+        Args:
+            job (Job): The job to check.
+
+        Returns:
+            bool: True if the job meets the requirements, False otherwise.
+        """
+        chemical_check = self.check_chemicals(job)
         setup_check = self.check_required_setup(job)
         return chemical_check and setup_check
 
     def check_chemicals(self, job):
         """
-        Check if the required chemicals are present. Does a direct comparison of
-        open
+        Checks if the required chemicals are present.
+
+        Args:
+            job (Job): The job to check.
+
+        Returns:
+            bool: True if the required chemicals are present, False otherwise.
         """
         for chemical in job.chemicals['chemicals']:
             chemical = Chemical(**chemical)
@@ -489,16 +650,15 @@ class ExperimentManager:
                 return False
         return True
 
-
     def check_required_setup(self, job):
         """
-        Check if the required setups are present. Does a direct comparison of the follwing:
-        -opentrons
-        -opentrons_setup
-        -biologic
-        -arduino
-        -arduino_relays
-        The comparison is done as a simple string comparison.
+        Checks if the required setups are present.
+
+        Args:
+            job (Job): The job to check.
+
+        Returns:
+            bool: True if the required setups are present, False otherwise.
         """
         if job.opentrons != self.setup.opentrons:
             self.logger.info("Opentrons setup not matching")
@@ -517,10 +677,10 @@ class ExperimentManager:
             return False
         return True
 
-
-
-
     def run_experiments(self):
+        """
+        Runs the executable experiments.
+        """
         for runnable_experiment in self.runnable_experiments:
             experiment = Experiment(
                 opentrons_config=self.opentrons,
@@ -539,9 +699,20 @@ class ExperimentManager:
             self.logger.info(f"Experiment {experiment.experiment_id} executed successfully.")
             self.update_job_status(experiment.experiment_id, "completed")
 
-
     def update_job_status(self, experiment_id, status):
-        # Check if the status is valid
+        """
+        Updates the status of a job.
+
+        Args:
+            experiment_id (uuid.UUID): The ID of the experiment.
+            status (str): The new status of the job.
+
+        Returns:
+            str: A message indicating the result of the status update.
+
+        Raises:
+            ValidationError: If the status is invalid.
+        """
         valid_statuses = dict(Job.STATUS_CHOICES).keys()
         if status not in valid_statuses:
             raise ValidationError(f"Invalid status: {status}. Must be one of {valid_statuses}")
@@ -558,10 +729,22 @@ class ExperimentManager:
 
         return f"Job {experiment_id} status updated to {status}"
 
-
-
     @staticmethod
     def get_json_by_filename(name):
+        """
+        Retrieves JSON content from a file by its name.
+
+        Args:
+            name (str): The name of the file.
+
+        Returns:
+            dict: The JSON content of the file.
+
+        Raises:
+            PermissionError: If there is a permission error accessing the file.
+            ValueError: If there is an error decoding the JSON content or if the file is empty.
+            FileNotFoundError: If the file is not found.
+        """
         directory = os.path.join(BASE_DIR, 'sdl', 'config')
 
         # Walk through the directory and subdirectories to find the file
@@ -579,4 +762,5 @@ class ExperimentManager:
                 except json.JSONDecodeError as e:
                     raise ValueError(f"Failed to decode JSON from file: {file_path}. Error: {str(e)}")
                 except FileNotFoundError:
-                    raise FileNotFoundError(f"File {name} not found in config directory or its subdirectories: {directory}")
+                    raise FileNotFoundError(
+                        f"File {name} not found in config directory or its subdirectories: {directory}")

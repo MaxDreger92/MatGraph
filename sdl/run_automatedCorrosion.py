@@ -64,9 +64,9 @@ def main():
 
     #
     #
-    Job = JobRequest(
-        job=workflow
-    )
+    # Job = JobRequest(
+    #     job="job.json"
+    # )
 
 
     exp_Manager = ExperimentManager(
