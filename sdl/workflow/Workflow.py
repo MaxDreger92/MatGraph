@@ -17,7 +17,6 @@ from sdl.processes.opentrons_procedures.home_robot import HomeRobot, HomeRobotPa
 from sdl.processes.opentrons_procedures.move_to_well import MoveToWell, MoveToWellParams
 from sdl.processes.opentrons_procedures.pick_up_tip import PickUpTip, PickUpTipParams
 from sdl.processes.opentrons_utils import WellLocation
-from sdl.workflow.ProcessingStep import AddPythonCode
 from sdl.workflow.utils import BaseWorkflow, Chemical, RequirementModel, Chemicals
 
 

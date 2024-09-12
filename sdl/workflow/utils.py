@@ -1,12 +1,13 @@
 import importlib
 import json
+import logging
 import os
 import pkgutil
-from typing import Dict, Optional, Union, TypeVar, Generic, Any, List
+from typing import Dict, Optional, TypeVar, Generic, Any, List
 
-from pydantic import BaseModel
+from openai import models
 from pint import UnitRegistry
-from sqlalchemy.testing.requirements import Requirements
+from pydantic import BaseModel, model_validator
 
 from mat2devplatform.settings import BASE_DIR
 from sdl.models import WorkflowModel
@@ -98,10 +99,22 @@ class Chemical(BaseModel):
             return 0
 
     def get_quantity(self):
-        return self.volume * ureg(self.unit)
+        """
+        Gets the quantity of the chemical.
+
+        Returns:
+            Quantity: The quantity of the chemical.
+        """
+        quantity = self.volume * ureg(self.unit)
+        return quantity
 
     def add_quantity(self, other: "Chemical"):
-        """Adds the quantity of another chemical to this one."""
+        """
+        Adds the quantity of another chemical to this one.
+
+        Args:
+            other (Chemical): The other chemical to add.
+        """
         if self.name != other.name:
             raise ValueError("Cannot add chemicals with different names")
 
@@ -115,11 +128,25 @@ class Chemical(BaseModel):
 
 
 class Chemicals(BaseModel):
+    """
+    Represents a list of chemicals.
+
+    Attributes:
+        chemicals (List[Chemical]): The list of chemicals.
+    """
     chemicals: List[Chemical]
 
     @classmethod
-    def from_config(cls, config: List[List[Any]]):
-        # Assuming config is a list of lists, where each sublist represents a chemical
+    def from_config(cls, config: Dict):
+        """
+        Creates a Chemicals instance from a configuration.
+
+        Args:
+            config (List[List[Any]]): A list of lists, where each sublist represents a chemical.
+
+        Returns:
+            Chemicals: A Chemicals instance.
+        """
         chemical_dict = {}
         for key, value in config.items():
             for chemical in value:
@@ -134,12 +161,16 @@ class Chemicals(BaseModel):
 
     def check_chemical(self, chemical: Chemical) -> bool:
         """
-        Check if the list of chemicals  has the required chemical in the correct quantity.
+        Checks if the list of chemicals has the required chemical in the correct quantity.
 
-        :return:
+        Args:
+            chemical (Chemical): The chemical to check.
+
+        Returns:
+            bool: True if the required chemical is present in the correct quantity, False otherwise.
         """
+
         found = False
-        print(self.chemicals, chemical)
         for available_chemical in self.chemicals:
             if available_chemical.name == chemical.name:
                 comparison = available_chemical.compare_quantity(chemical)
@@ -147,19 +178,24 @@ class Chemicals(BaseModel):
                     return False
                 if comparison >= 0:
                     found = True
-        print(found)
         return found
 
     def add_chemicals(self, chemicals: 'Chemicals'):
         """
-        Add chemicals to the list of chemicals.
+        Adds chemicals to the list of chemicals.
+
+        Args:
+            chemicals (Chemicals): The chemicals to add.
         """
         for chemical in chemicals.chemicals:
             self.add_chemical(chemical)
 
     def add_chemical(self, chemical: Chemical):
         """
-        Add a chemical to the list of chemicals.
+        Adds a chemical to the list of chemicals.
+
+        Args:
+            chemical (Chemical): The chemical to add.
         """
         for available_chemical in self.chemicals:
             if available_chemical.name == chemical.name:
@@ -168,10 +204,22 @@ class Chemicals(BaseModel):
         else:
             self.chemicals.append(chemical)
 
-from typing import Union, List
-from pydantic import BaseModel, root_validator
+from typing import Union
+from pydantic import BaseModel
+
 
 class RequirementModel(BaseModel):
+    """
+    Represents the requirements for a workflow.
+
+    Attributes:
+        chemicals (Chemicals): The required chemicals.
+        opentrons (Union[dict, str]): The Opentrons configuration.
+        opentrons_setup (Union[dict, str]): The Opentrons setup configuration.
+        arduino (Optional[Union[dict, str]]): The Arduino configuration.
+        arduino_setup (Optional[Union[dict, str]]): The Arduino setup configuration.
+        biologic (Optional[Union[dict, str]]): The Biologic configuration.
+    """
     chemicals: Chemicals
     opentrons: Union[dict, str]
     opentrons_setup: Union[dict, str]
@@ -179,11 +227,16 @@ class RequirementModel(BaseModel):
     arduino_setup: Optional[Union[dict, str]] = None
     biologic: Optional[Union[dict, str]] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     def process_fields(cls, values):
         """
-        This validator processes each field that can be a filename, dict, or list.
-        If a filename is given, it loads the corresponding JSON and processes it.
+        Processes each field that can be a filename, dict, or list. If a filename is given, it loads the corresponding JSON and processes it.
+
+        Args:
+            values (dict): The values to process.
+
+        Returns:
+            dict: The processed values.
         """
         fields_to_process = ['chemicals', 'opentrons', 'opentrons_setup', 'arduino', 'arduino_setup', 'biologic']
 
@@ -200,9 +253,22 @@ class RequirementModel(BaseModel):
 
         return values
 
-
     @staticmethod
     def get_json_by_filename(name):
+        """
+        Retrieves JSON content from a file by its name.
+
+        Args:
+            name (str): The name of the file.
+
+        Returns:
+            dict: The JSON content of the file.
+
+        Raises:
+            PermissionError: If there is a permission error accessing the file.
+            ValueError: If there is an error decoding the JSON content or if the file is empty.
+            FileNotFoundError: If the file is not found.
+        """
         directory = os.path.join(BASE_DIR, 'sdl', 'config')
 
         # Walk through the directory and subdirectories to find the file
@@ -226,9 +292,31 @@ class RequirementModel(BaseModel):
 
 
 class SetupModel(RequirementModel):
+    """
+    Represents the setup for a workflow.
 
+    Methods:
+        from_config: Creates a SetupModel instance from a configuration.
+        check_requirements: Checks if the available setup meets the requirements.
+        check_chemicals: Checks if the available setup has the required chemicals.
+        check_setup: Checks if the available setup has the required labware.
+    """
     @classmethod
     def from_config(cls, chemicals, arduino, opentrons, opentrons_setup, arduino_setup, biologic):
+        """
+        Creates a SetupModel instance from a configuration.
+
+        Args:
+            chemicals (Chemicals): The chemicals configuration.
+            arduino (dict): The Arduino configuration.
+            opentrons (dict): The Opentrons configuration.
+            opentrons_setup (dict): The Opentrons setup configuration.
+            arduino_setup (dict): The Arduino setup configuration.
+            biologic (dict): The Biologic configuration.
+
+        Returns:
+            SetupModel: A SetupModel instance.
+        """
         return cls(
             chemicals=chemicals,
             arduino=arduino,
@@ -241,7 +329,7 @@ class SetupModel(RequirementModel):
 
 
 
-    def check_requirements(self, requirements: Requirements) -> bool:
+    def check_requirements(self, requirements: RequirementModel) -> bool:
         """Checks if the available setup meets the requirements.
 
         Args:
@@ -274,7 +362,7 @@ class SetupModel(RequirementModel):
             if not found:
                 return False
 
-    def check_setup(self, requirement: Requirements) -> bool:
+    def check_setup(self, requirement: RequirementModel) -> bool:
         """Checks if the available setup has the required labware. checks sequentially and prints results.
 
         Args:
@@ -305,16 +393,32 @@ class SetupModel(RequirementModel):
 
 
 class Registry:
+    """
+    A registry to discover and manage workflows.
+
+    Attributes:
+        package (str): The package to discover workflows from.
+        _registry (dict): The registry of discovered workflows.
+    """
     package = None
     _registry = {}
 
     @classmethod
     def initialize(cls, package='sdl'):
+        """
+        Initializes the registry with the given package.
+
+        Args:
+            package (str): The package to discover workflows from.
+        """
         cls.package = package
         cls._discover_workflows()
 
     @classmethod
     def _discover_workflows(cls):
+        """
+        Discovers workflows in the specified package.
+        """
         def walk_packages(package_name):
             package = importlib.import_module(package_name)
             for _, module_name, is_pkg in pkgutil.iter_modules(package.__path__):
@@ -332,6 +436,15 @@ class Registry:
 
     @classmethod
     def walk_packages(cls, package_name):
+        """
+        Walks through the packages to discover modules.
+
+        Args:
+            package_name (str): The package name to walk through.
+
+        Yields:
+            str: The full module name.
+        """
         package = importlib.import_module(package_name)
         for _, module_name, is_pkg in pkgutil.iter_modules(package.__path__):
             full_module_name = f"{package_name}.{module_name}"
@@ -341,12 +454,30 @@ class Registry:
 
     @classmethod
     def get_procedure(cls, name):
+        """
+        Gets a procedure by its name.
+
+        Args:
+            name (str): The name of the procedure.
+
+        Returns:
+            type: The procedure class.
+
+        Raises:
+            KeyError: If no procedure is found with the given name.
+        """
         if name not in cls._registry:
             raise KeyError(f"No procedure found with the name '{name}'.")
         return cls._registry[name]
 
     @classmethod
     def list_procedures(cls):
+        """
+        Lists all discovered procedures.
+
+        Returns:
+            list: A list of discovered procedures.
+        """
         cls.initialize()
         return list(cls._registry.values())
 
@@ -361,6 +492,15 @@ class BaseProcedure(Generic[P]):
 
 
 class BaseWorkflow(Registry):
+    """
+    Base class for workflows.
+
+    Attributes:
+        operations (list[Union['BaseWorkflow', BaseProcedure]]): The list of operations in the workflow.
+        requirements (RequirementModel): The requirements for the workflow.
+        outputs (list): The outputs of the workflow.
+        procedures (list): The list of procedures in the workflow.
+    """
     def __init__(self, operations: list[Union['BaseWorkflow', BaseProcedure]] = None):
         self.operations = operations if operations is not None else []
         self.requirements = None
@@ -368,15 +508,34 @@ class BaseWorkflow(Registry):
         self.procedures = self.get_procedures()
 
     def json(self):
+        """
+        Converts the workflow to a JSON representation.
 
+        Returns:
+            str: The JSON representation of the workflow.
+        """
         return json.dumps({
             'name': self.__class__.__name__,
             'variables': {},
-            'requirements': self.get_requirements().dict(),
+            'requirements': self.get_requirements().model_dump(),
         })
 
     @staticmethod
     def get_json_by_filename(name):
+        """
+        Retrieves JSON content from a file by its name.
+
+        Args:
+            name (str): The name of the file.
+
+        Returns:
+            dict: The JSON content of the file.
+
+        Raises:
+            PermissionError: If there is a permission error accessing the file.
+            ValueError: If there is an error decoding the JSON content or if the file is empty.
+            FileNotFoundError: If the file is not found.
+        """
         directory = os.path.join(BASE_DIR, 'sdl', 'config')
 
         # Walk through the directory and subdirectories to find the file
@@ -401,22 +560,32 @@ class BaseWorkflow(Registry):
     def get_all_subclasses(cls):
         """
         Get all subclasses of the current class as well as their subclasses.
-        :return: list of subclasses
+
+        Returns:
+            list: A list of subclasses.
         """
         all_subclasses = cls.list_procedures()  # Start with direct subclasses
         return all_subclasses
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any], logger=None):
+    def from_config(cls, config: Union[dict, str, WorkflowModel], logger: logging.Logger=None):
         """
-        Create a workflow from a configuration dictionary.
-        :param config:
-        :return: workflow instance
+        Creates a workflow from a configuration dictionary.
+
+        Args:
+            config (Dict[str, Any]): The configuration dictionary.
+            logger (Optional[logging.Logger]): The logger instance.
+
+        Returns:
+            BaseWorkflow: A workflow instance.
+
+        Raises:
+            TypeError: If there are missing or incorrect variables in the configuration.
         """
         if type(config) is str:
             config = cls.get_json_by_filename(config)
-        if type(config) is WorkflowModel:
-            config = config.dict()
+        elif type(config) is WorkflowModel:
+            config = config.model_dump()
         workflow_name = config['name']
         workflow_variables = config.get('variables', {})
         try:
@@ -430,9 +599,16 @@ class BaseWorkflow(Registry):
     @classmethod
     def get_workflow(cls, name):
         """
-        Get a workflow by name, using the __subclasses__ method.
-        :param name:
-        :return: workflow class
+        Gets a workflow by name.
+
+        Args:
+            name (str): The name of the workflow.
+
+        Returns:
+            type: The workflow class.
+
+        Raises:
+            KeyError: If no workflow is found with the given name.
         """
         for subclass in cls.get_all_subclasses():
             if subclass.__name__ == name:
@@ -440,6 +616,12 @@ class BaseWorkflow(Registry):
         raise KeyError(f"No workflow found with the name '{name}'.")
 
     def get_procedures(self):
+        """
+        Gets the procedures in the workflow.
+
+        Returns:
+            list: A list of procedures in the workflow.
+        """
         procedures = []
         for operation in self.operations:
             if isinstance(operation, BaseProcedure):
@@ -449,6 +631,12 @@ class BaseWorkflow(Registry):
         return procedures
 
     def get_requirements(self):
+        """
+        Gets the requirements for the workflow.
+
+        Returns:
+            RequirementModel: The requirements for the workflow.
+        """
         if self.requirements is not None:
             return self.requirements
         else:
@@ -478,26 +666,31 @@ class BaseWorkflow(Registry):
             # Return the accumulated requirements
             return accumulated_requirements
 
-    def add_step(self, step):
+    def add_step(self, step: BaseProcedure):
+        """
+        Adds a step to the workflow.
+
+        Args:
+            step (BaseStep): The step to add.
+        """
         self.operations.append(step)
 
-    def get_operations(self):
-        return self.operations
 
     def execute(self, *args, **kwargs):
+        """
+        Executes the workflow.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            list: The outputs of the workflow.
+        """
         for operation in self.operations:
-            print(kwargs)
             output = operation.execute(*args, **kwargs)
             self.outputs.append(output)
         return self.outputs
-
-    def to_graph(self):
-        previous_step = None
-        for operation in self.operations:
-            if previous_step:
-                previous_step.followed_by.connect(operation)
-            step = operation.to_graph()
-            previous_step = step
 
 
 class BaseStep:
