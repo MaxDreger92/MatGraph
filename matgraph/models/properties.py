@@ -1,4 +1,4 @@
-from neomodel import RelationshipTo, RelationshipFrom, StringProperty, FloatProperty, JSONProperty
+from neomodel import RelationshipTo, RelationshipFrom, StringProperty, FloatProperty, JSONProperty, ArrayProperty
 from matgraph.models.abstractclasses import CausalObject
 
 
@@ -9,6 +9,7 @@ class PhysicalDimension(CausalObject):
     unit = StringProperty()
     value = FloatProperty()
     dataframe_json = JSONProperty()
+    list_json = ArrayProperty()
     class Meta:
         app_label = 'matgraph'
 

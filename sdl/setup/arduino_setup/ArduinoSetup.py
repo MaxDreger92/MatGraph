@@ -47,6 +47,7 @@ class ArduinoSetup(BaseSetup):
             "SERIAL_PORT": self.SERIAL_PORT,
             "BAUD_RATE": self.BAUD_RATE,
             "CONNECTION_TIMEOUT": self.CONNECTION_TIMEOUT,
+            "connection": self.connection
         }
 
     def connect(self, simulate = False) -> None:

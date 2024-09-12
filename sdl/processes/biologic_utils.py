@@ -11,6 +11,7 @@ from biologic.technique import Technique
 from biologic.params import TechniqueParams
 from biologic.techniques.ca import CAData
 from biologic.techniques.cpp import CPPData
+from biologic.techniques.cv import CVData
 from biologic.techniques.ocv import OCVData
 from biologic import connect
 from biologic.techniques.peis import PEISData
@@ -24,6 +25,7 @@ from sdl.processes.utils import ProcessOutput
 from sdl.workflow.utils import BaseProcedure
 
 P = TypeVar('P', bound=TechniqueParams)
+
 
 class BiologicDataHandler:
 
@@ -58,60 +60,62 @@ class BiologicDataHandler:
         current_technique = None
 
         for data_temp in runner:
+            data = data_temp.data
             data_type = None
-            time_value = getattr(data_temp.data, 'time', None)
+            print(type(data_temp.data), len(gathered_data))
 
             # Determine the type of data (technique)
             if isinstance(data_temp.data, PEISData):
                 data_type = 'PEISV' if data_temp.data.process_index == 0 else 'PEIS'
+                data = data_temp.data.process_data
             elif isinstance(data_temp.data, OCVData):
                 data_type = 'OCV'
             elif isinstance(data_temp.data, CAData):
                 data_type = 'CA'
             elif isinstance(data_temp.data, CPPData):
                 data_type = 'CPP'
+            elif isinstance(data_temp.data, CVData):
+                data_type = 'CV'
 
             if data_type:
                 # Check if the current technique is different from the previous technique
-                if dicTechniqueTracker['strCurrentTechnique'] != data_type:
-                    # Update the tracker
-                    dicTechniqueTracker['strPreviousTechnique'] = dicTechniqueTracker['strCurrentTechnique']
-                    dicTechniqueTracker['strCurrentTechnique'] = data_type
-                    dicTechniqueTracker['intTechniqueIndex'] = data_temp.tech_index
-
-                # Check if time has reset to '00'
-                if time_value == 0.0 and len(gathered_data) != 0:
-                    print("Processing gathered data")
-                    # Process the gathered data as one JSON and store in the graph
+                if dicTechniqueTracker['strCurrentTechnique'] != data_type and dicTechniqueTracker['strCurrentTechnique'] is not None:
+                    # Process the gathered data when technique changes
+                    print(f"Processing gathered data for technique {dicTechniqueTracker['strPreviousTechnique']}")
                     uid = str(uuid.uuid4())
                     input_data = custom_asdict(techniques[technique_index].param_values)
-                    current_technique = data_type
+                    current_technique = dicTechniqueTracker['strCurrentTechnique']
                     self.process_gathered_data(gathered_data, input_data, current_technique, experiment_path, uid, **kwargs)
 
                     # Save the gathered data to CSV
                     dfData = pd.concat(gathered_data, ignore_index=True)  # Combine the gathered data
-                    strDataPath = os.path.join(experiment_path, f'{experiment_id}_{dicTechniqueTracker["intTechniqueIndex"]}_{data_type}_{str(technique_index)}.csv')
+                    strDataPath = os.path.join(experiment_path, f'{experiment_id}_{dicTechniqueTracker["intTechniqueIndex"]}_{current_technique}_{str(technique_index)}.csv')
                     dfData.to_csv(strDataPath, index=False)
 
-                    gathered_data = []  # Reset the gathered data
+                    gathered_data = []  # Reset the gathered data for the next technique
                     output = ProcessOutput(id=uid, status="success", output={"data": gathered_data}, input=input_data)
                     outputs.append(output)
-                    technique_index += 1
+                    technique_index += 1  # Increment the technique index
+
+                # Update the tracker to the new technique
+                dicTechniqueTracker['strPreviousTechnique'] = dicTechniqueTracker['strCurrentTechnique']
+                dicTechniqueTracker['strCurrentTechnique'] = data_type
+                dicTechniqueTracker['intTechniqueIndex'] = data_temp.tech_index
 
                 # Append the current data to gathered data
-                dfData_temp = pd.DataFrame(data_temp.data.to_json(), index=[0])
+                dfData_temp = pd.DataFrame([data.to_json()])
                 gathered_data.append(dfData_temp)
 
-        # Process any remaining gathered data
+        # Process any remaining gathered data at the end (for the last technique)
         if len(gathered_data) != 0:
-            print("Processing remaining gathered data")
+            print(f"Processing remaining gathered data for technique {dicTechniqueTracker['strCurrentTechnique']}")
             uid = str(uuid.uuid4())
             input_data = custom_asdict(techniques[technique_index].param_values)
-            self.process_gathered_data(gathered_data, input_data, current_technique, experiment_path, uid, **kwargs)
+            self.process_gathered_data(gathered_data, input_data, dicTechniqueTracker['strCurrentTechnique'], experiment_path, uid, **kwargs)
 
             # Save the remaining data to CSV
             dfData = pd.concat(gathered_data, ignore_index=True)
-            strDataPath = os.path.join(experiment_path, f'{experiment_id}_{dicTechniqueTracker["intTechniqueIndex"]}_{current_technique}_{str(technique_index)}.csv')
+            strDataPath = os.path.join(experiment_path, f'{experiment_id}_{dicTechniqueTracker["intTechniqueIndex"]}_{dicTechniqueTracker["strCurrentTechnique"]}_{str(technique_index)}.csv')
             dfData.to_csv(strDataPath, index=False)
 
             output = ProcessOutput(id=uid, status="success", output={"data": gathered_data}, input=input_data)
@@ -164,22 +168,25 @@ class BiologicDataHandler:
             name=graph_data['technique']
         ).save()
         print("Measurement node created", uid)
+        print(type(graph_data['data']))
 
         # Store the corresponding Property node for each technique
-        property_node = Property(
-            dataframe_json=graph_data['data']
-        ).save()
-        for key, value in graph_data['input'].items():
-            parameter =  Parameter(
-                name = key,
-                value = value
+        if isinstance(graph_data['data'], list):
+            property_node = Property(
+                dataframe_list=graph_data['data'])
+            property_node.save()
+            for key, value in graph_data['input'].items():
+                parameter =  Parameter(
+                    name = key,
+                    value = value).save()
+                measurement_node.parameter.connect(parameter)
+            measurement_node.property_output.connect(property_node)
+        elif isinstance(graph_data['data'], dict):
+            property_node = Property(
+                dataframe_json=graph_data['data']
             ).save()
-            measurement_node.parameter.connect(parameter)
-
-        # Connect the Property node to the Measurement node
-        measurement_node.property_output.connect(property_node)
-
-        # Connect the Measurement node to the Biologic setup
+            measurement_node.property_output.connect(property_node)
+        print("Property node created")
         biologic_setup = Biologic.nodes.get(uid=biologic_id)
         measurement_node.researcher.connect(biologic_setup)
 

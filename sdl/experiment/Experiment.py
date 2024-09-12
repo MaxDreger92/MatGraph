@@ -4,6 +4,7 @@ import os
 import uuid
 from typing import Union, Iterable
 
+from django.db import connection
 from neomodel import db
 from pydantic import ValidationError
 
@@ -282,7 +283,6 @@ class Experiment:
 
     @property
     def configs(self):
-        self.logger.info(f"Fetching configs for experiment {self.experiment_id}.")
         return {setup.name_space: setup.info for setup in self.setups.values()}
 
     def initialize_setups(self, simulate=False):
@@ -315,17 +315,20 @@ class Experiment:
         """Execute the experiment workflow."""
         self.logger.info(f"Executing workflow for experiment {self.experiment_id}.")
         try:
+            configs = {k: v for config in self.configs.values() for k, v in config.items()}
+
+
             if isinstance(self.workflow, list):
                 for sub_workflow in self.workflow:
                     self.logger.info(f"Executing sub-workflow for experiment {self.experiment_id}.")
-                    configs = {k: v for config in self.configs.values() for k, v in config.items()}
                     output = sub_workflow.execute(**configs,
                                                   logger=self.logger,
                                                   experiment_id=self.experiment_id,
                                                   opentrons_setup=self.setups['opentrons'],
                                                   opentrons_offset=self.setups['opentrons'].offset_config,
                                                   experiment_directory=self.experiment_directory,
-                                                  connection = self.setups['arduino'].connection)
+                                                  connection= self.setups['arduino'].connection)
+
                     self.outputs.extend(output)
             else:
                 self.logger.info(f"Executing main workflow for experiment {self.experiment_id}.")
@@ -413,7 +416,7 @@ class Experiment:
             except Exception as e:
                 # Handle errors in node lookup or relationship creation
                 print(f"Error processing output {output}: {e}")
-                raise
+                raise e
 
 class ExperimentManager:
     """
@@ -424,8 +427,8 @@ class ExperimentManager:
     for each experiment it creates a directory with the experiment_id and stores the setups and the workflow in the folder.
     """
 
-    def __init__(self, opentrons: Union[str, dict], arduino: Union[str, dict], biologic: Union[str, dict],
-                 opentrons_setup: Union[str, dict], chemicals: Union[str, dict], arduino_relays: Union[str, dict], offset_config: Union[str, dict]):
+    def __init__(self, opentrons: Union[str, dict], opentrons_setup: Union[str, dict], arduino: Union[str, dict] =None, biologic: Union[str, dict] =None,
+                 chemicals: Union[str, dict] =None, arduino_relays: Union[str, dict] =None, offset_config: Union[str, dict]=None):
         self.logger = logging.getLogger('app_logger')
         self.jobs = Job.objects.all()
         self.opentrons = opentrons if isinstance(opentrons, dict) else self.get_json_by_filename(opentrons)

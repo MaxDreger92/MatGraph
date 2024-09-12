@@ -49,7 +49,6 @@ class ArduinoBaseProcedure(BaseProcedure[P]):
         max_try = (1 / CONNECTION_TIMEOUT) * max_wait_time
         count = 0
         while count < max_try:
-            logger.info("waiting for arduino to finish the task")
             state = connection.read().decode()
             if state == "#":
                 logger.debug("Arduino finished the task")

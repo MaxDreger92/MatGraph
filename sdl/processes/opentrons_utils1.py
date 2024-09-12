@@ -13,6 +13,7 @@ class OpentronsMoveAction(OpentronsBaseProcedure[P]):
         # Create a deep copy of wellLocation
         wellLocation = copy.deepcopy(params.wellLocation)
         wellLocation.origin = "top"
+        params.wellLocation.origin = "top"
 
         # Initialize MoveToWell with parameters
         move_to_well = MoveToWell(MoveToWellParams(
@@ -26,6 +27,7 @@ class OpentronsMoveAction(OpentronsBaseProcedure[P]):
             speed=params.speed,
             chemical = params.chemical
         ))
+        print("MoveToWellParams", wellLocation)
 
         # Prepare the output list
         output = []

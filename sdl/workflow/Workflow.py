@@ -4,7 +4,8 @@ from datetime import datetime
 from biologic import connect
 from biologic.techniques.cv import CVTechnique, CVParams, CVStep
 from biologic.techniques.ocv import OCVParams, OCVTechnique
-from kbio.types import BANDWIDTH, E_RANGE
+from biologic.techniques.peis import PEISTechnique, PEISParams, SweepMode
+from kbio.types import BANDWIDTH, E_RANGE, I_RANGE
 
 from sdl.processes.arduino_procedures.dispense_ml import DispenseMl, DispenseMLParams
 from sdl.processes.arduino_procedures.set_ultrasound import SetUltrasoundOn, SetUltrasoundParams
@@ -65,9 +66,8 @@ def fill_well_workflow(
 
 class WashElectrodeWorkflow(BaseWorkflow):
     def __init__(self,
-                 strLabwareName,
+                 labwareName,
                  well_name="A2",
-                 pipette_id="p300_single_v2.0",
                  ):
         super().__init__()
         self.operations = [
@@ -166,7 +166,7 @@ class BiologicWorkflow(BaseWorkflow, BiologicDataHandler):
             except Exception as e:
                 logger.error(f"Failed to connect to the Biologic: {e}")
                 self.intAttempts_temp += 1
-                time.sleep(5)
+                time.sleep(50)
         return outputs
 
 
@@ -388,8 +388,6 @@ class WashElectrodeWorkflowNoArduino(BaseWorkflow):
         return "WashElectrodeWorkflowNoArduino"
 
 
-
-
 # class FullWorkflow(BaseWorkflow):
 #     def __init__(self):
 #         super().__init__()
@@ -501,24 +499,43 @@ class TestBiologicWorkflow(BiologicWorkflow):
                 E_range=E_RANGE.E_RANGE_10V,
                 bandwidth=BANDWIDTH.BW_5,
             )),
-            # CVTechnique(CVParams(
-            #     average_over_dE=False,
-            #     record_every_dE=0.001,
-            #     n_cycles=40,
-            #     begin_measuring_i=0.5,
-            #     end_measuring_i=1,
-            #     Ei=CVStep(voltage=0.150,
-            #               scan_rate=0.05,
-            #               vs_initial=False),
-            #     E1=CVStep(voltage=1.35,
-            #               scan_rate=0.05,
-            #               vs_initial=False),
-            #     E2=CVStep(voltage=-0.25,
-            #               scan_rate=0.05,
-            #               vs_initial=False),
-            #     Ef=CVStep(voltage=-0.25,
-            #               scan_rate=0.05,
-            #               vs_initial=False)
+            CVTechnique(CVParams(
+                average_over_dE=False,
+                record_every_dE=0.001,
+                n_cycles=40,
+                begin_measuring_i=0.5,
+                end_measuring_i=1,
+                bandwidth=BANDWIDTH.BW_5,
+                I_range=I_RANGE.I_RANGE_10mA,
+                Ei=CVStep(voltage=0.15,
+                          scan_rate=0.05,
+                          vs_initial=False),
+                E1=CVStep(voltage=1.35,
+                          scan_rate=0.05,
+                          vs_initial=False),
+                E2=CVStep(voltage=-0.25,
+                          scan_rate=0.05,
+                          vs_initial=False),
+                Ef=CVStep(voltage=-0.25,
+                          scan_rate=0.05,
+                          vs_initial=False)
+            )),
+            # PEISTechnique(PEISParams(
+            #     vs_initial=False,
+            #     initial_voltage_step=0,
+            #     duration_step=0,
+            #     record_every_dT=0.5,
+            #     record_every_dI=0.01,
+            #     final_frequency=0.1,
+            #     initial_frequency=200000,
+            #     sweep= SweepMode.Logarithmic,
+            #     amplitude_voltage=0.025,
+            #     frequency_number=60,
+            #     average_n_times=5,
+            #     correction=False,
+            #     wait_for_steady=0.1,
+            #     bandwidth=BANDWIDTH.BW_5,
+            #     E_range=E_RANGE.E_RANGE_10V
             # )),
             OCVTechnique(OCVParams(
                 rest_time_T=10,
@@ -541,30 +558,45 @@ class TestBiologicWorkflow(BiologicWorkflow):
     def __name__(self):
         return "TestBiologicWorkflow"
 
-
-class TestWorkflow(BaseWorkflow):
-    def __init__(self, chemical, volume):
+class TestBiologicWorkflow1(BiologicWorkflow):
+    def __init__(self):
         super().__init__()
         self.operations = [
-            # HomeRobot(HomeRobotParams()),
-            # PickUpTip(PickUpTipParams(
-            #     labwareName="opentrons_flex_96_tiprack_50ul",
-            #     wellName="A1")),
-            # AddPythonCode(
-            #     fill_well_workflow,
-            #     chemical=chemical,
-            #     target_labware="6",
-            #     target_well="A1",
-            #     volume=volume),
-            TestBiologicWorkflow(),
-            # DropTip(DropTipParams(
-            #     labwareName="opentrons_flex_96_tiprack_50ul",
-            #     wellName="A1",
-            #     homeAfter=True))
-
+            # OCVTechnique(OCVParams(
+            #     rest_time_T=10,
+            #     record_every_dT=0.5,
+            #     record_every_dE=10,
+            #     E_range=E_RANGE.E_RANGE_10V,
+            #     bandwidth=BANDWIDTH.BW_5,
+            # )),
+            PEISTechnique(PEISParams(
+                vs_initial=False,
+                initial_voltage_step=0,
+                duration_step=0,
+                record_every_dT=0.5,
+                record_every_dI=0.01,
+                final_frequency=0.1,
+                initial_frequency=200000,
+                sweep= SweepMode.logarithmic,
+                amplitude_voltage=0.025,
+                frequency_number=60,
+                average_n_times=5,
+                correction=False,
+                wait_for_steady=0.1,
+                bandwidth=BANDWIDTH.BW_5,
+                E_range=E_RANGE.E_RANGE_10V
+            )),
+            # OCVTechnique(OCVParams(
+            #     rest_time_T=10,
+            #     record_every_dT=0.5,
+            #     record_every_dE=10,
+            #     E_range=E_RANGE.E_RANGE_10V,
+            #     bandwidth=BANDWIDTH.BW_5,
+            # )),
         ]
+
         self.requirements = RequirementModel(
-            chemicals=Chemicals(chemicals=[Chemical(name=chemical, volume=volume, unit="ul")]),
+            chemicals="chemicals.json",
             opentrons_setup="labware_flex.json",
             opentrons="flex.json",
             biologic="biologic_setup.json",
@@ -572,36 +604,8 @@ class TestWorkflow(BaseWorkflow):
             arduino_setup="arduino_setup.json"
         )
 
-
-class TestWorkflow1(BaseWorkflow):
-    def __init__(self, chemical, volume):
-        super().__init__()
-        self.operations = [
-            PickUpTip(PickUpTipParams(
-                labwareName="opentrons_flex_96_tiprack_50ul",
-                wellName="A1")),
-            AddPythonCode(
-                fill_well_workflow,
-                chemical=chemical,
-                target_labware="6",
-                target_well="A1",
-                volume=volume),
-            TestBiologicWorkflow(),
-            DropTip(DropTipParams(
-                labwareName="opentrons_flex_96_tiprack_50ul",
-                wellName="A1",
-                homeAfter=True)),
-
-        ]
-
-        self.requirements = RequirementModel(
-            chemicals=Chemicals(chemicals=[Chemical(name=chemical, volume=volume, unit="ul")]),
-            opentrons_setup="labware_flex.json",
-            opentrons="flex.json",
-            biologic="biologic_setup.json",
-            arduino="arduino.json",
-            arduino_setup="arduino_setup.json"
-        )
+    def __name__(self):
+        return "TestBiologicWorkflow"
 
 
 class TestWorkflow(BaseWorkflow):
@@ -612,11 +616,12 @@ class TestWorkflow(BaseWorkflow):
             PickUpTip(PickUpTipParams(
                 labwareName="Nis_tall 4 Tip Rack 1 µL",
                 wellName="A2",
+                speed=80,
                 wellLocation=WellLocation(
-                    origin="bottom",
+                    origin="top",
                     offset={"x": 0,
                             "y": 0,
-                            "z": 20
+                            "z": 2
                             }
                 ))),
             RinseElectrodeWorkflow(
@@ -642,11 +647,20 @@ class TestWorkflow(BaseWorkflow):
                             "y": 0,
                             "z": 2}
                 ))),
-
-
-
             TestBiologicWorkflow(),
-
+            MoveToWell(MoveToWellParams(
+                labwareName="TLG 1 Reservoir 50000 µL",
+                wellName="A1",
+                speed=50,
+                wellLocation=WellLocation(
+                    origin="top",
+                    offset={"x": 0,
+                            "y": 0,
+                            "z": 2}
+                ))),
+            RinseElectrodeWorkflow(
+                strLabwareName="Nis 2 Well Plate 30000 µL",
+                well_name="A2"),
             MoveToWell(MoveToWellParams(
                 labwareName="Nis_tall 4 Tip Rack 1 µL",
                 wellName="A2",
@@ -664,11 +678,10 @@ class TestWorkflow(BaseWorkflow):
                     origin="bottom",
                     offset={"x": 0,
                             "y": 0,
-                            "z": 20}
+                            "z": 2}
                 ),
                 homeAfter=True)
             ),
-
         ]
 
         self.requirements = RequirementModel(
@@ -679,5 +692,3 @@ class TestWorkflow(BaseWorkflow):
             arduino="arduino.json",
             arduino_setup="arduino_setup.json"
         )
-
-

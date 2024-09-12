@@ -107,6 +107,7 @@ class OpentronsBaseProcedure(BaseProcedure[P]):
 
 
         command_url = f"http://{robot_ip}:{port}/runs/{run_id}/commands"
+        print(command_type, self, params)
 
         command_data = {
             "commandType": command_type,

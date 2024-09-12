@@ -139,9 +139,9 @@ class RequirementModel(BaseModel):
     chemicals: Chemicals
     opentrons: Union[dict, str]
     opentrons_setup: Union[dict, str]
-    arduino: Optional[Union[dict, str]]
-    arduino_setup: Optional[Union[dict, str]]
-    biologic: Optional[Union[dict, str]]
+    arduino: Optional[Union[dict, str]] = None
+    arduino_setup: Optional[Union[dict, str]] = None
+    biologic: Optional[Union[dict, str]] = None
 
     @root_validator(pre=True)
     def process_fields(cls, values):
