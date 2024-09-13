@@ -115,6 +115,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mat2devplatform.auth.middleware.TokenAuthenticationMiddleware',
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
@@ -143,7 +144,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mat2devplatform.wsgi.application'
+ASGI_APPLICATION = 'mat2devplatform.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
