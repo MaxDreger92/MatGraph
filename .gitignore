@@ -11,8 +11,13 @@ build/
 static/
 /userBackendNodeJS/src/config.ts
 *.sh
+!deployDjango_docker.sh
+!deployUserBackend_docker.sh
 
 # Byte-compiled / optimized / DLL files
 _pycache_/
 *.py[cod]
 *$py.class
+
+postgres_data/
+neo4j_data/
