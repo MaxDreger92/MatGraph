@@ -1,7 +1,7 @@
 import { useContext, useRef, useState } from 'react'
 import LegalNotice from './LegalNotice'
 import PrivacyPolicy from './PrivacyPolicy'
-import { UserContext } from '../../common/UserContext'
+import { UserContext } from '../../context/UserContext'
 
 export default function Legal() {
     const user = useContext(UserContext)

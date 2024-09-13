@@ -21,3 +21,5 @@ _pycache_/
 
 postgres_data/
 neo4j_data/
+# Mac OSX
+.DS_Store
