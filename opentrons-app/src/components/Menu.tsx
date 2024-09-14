@@ -1,25 +1,39 @@
-import { useContext, useState } from 'react'
-import Labwares from './EquipmentMenu'
+import { useContext, useRef, useState } from 'react'
+import EquipmentMenu from './EquipmentMenu'
 import Button from './Button'
+import ButtonRound from './ButtonRound'
 import { OpentronsContext } from '../context/OpentronsContext'
 import { generateLabwareWells, getLabwareData } from '../functions/labware.functions'
-import { Equipment } from '../types/opentrons.types'
+import { OpentronsSetup } from '../types/opentrons.types'
+import { ILabware } from '../types/labware.types'
+import { getOpentronsSetupData } from '../functions/opentrons.functions'
 
-const { ipcRenderer, fs } = window.electron;
+const { ipcRenderer, fs } = window.electron
 
 interface MenuProps {}
 
 export default function Menu(props: MenuProps) {
-    const [configTabOpen, setConfigTabOpen] = useState(false)
-    const [folderPath, setFolderPath] = useState()
+    const [menuOpen, setMenuOpen] = useState(false)
+    const [activeSetup, setActiveSetup] = useState<number | null>(null)
+    const configPath = useRef<string | null>(null)
+    const setupPath = useRef<string | null>(null)
+    const labwarePath = useRef<string | null>(null)
+    const chemicalsPath = useRef<string | null>(null)
 
-    const { updateOpentrons } = useContext(OpentronsContext)
+    const {
+        opentronsSetupList,
+        setOpentronsSetupList,
+        patchCurrentOpentronsSetup,
+        setCurrentOpentronsSetup,
+        labwareList,
+        setLabwareList,
+    } = useContext(OpentronsContext)
 
-    const handleOpenConfigTab = () => {
-        setConfigTabOpen((prevConfig) => !prevConfig)
+    const handleOpenMenu = () => {
+        setMenuOpen((prev) => !prev)
     }
 
-    const handleLoadFolder = async () => {
+    const handleLoadConfig = async () => {
         try {
             const folderPath = await ipcRenderer.invoke('select-folder')
 
@@ -27,61 +41,203 @@ export default function Menu(props: MenuProps) {
                 throw Error
             }
 
-            loadOpentronsSetup(folderPath)
-            
+            configPath.current = folderPath
+            //might set conditional
+            setupPath.current = folderPath.concat('/opentrons_setup')
+            labwarePath.current = folderPath.concat('/labware')
+            chemicalsPath.current = folderPath.concat('/chemicals')
+
+            loadSetup(true)
+            loadLabware(true)
         } catch (error) {
             console.error('Error loading folder: ', error)
             return
         }
     }
 
-    const handleLoadLabware = () => {
-        // Add logic for loading labware files (if needed)
-    }
-
-    const handleLoadChemicals = () => {
-        // Add logic for loading chemicals files (if needed)
-    }
-
-    const loadOpentronsSetup = async (folderPath: string) => {
+    const handleLoadSetup = async () => {
         try {
-            const pathOpentrons = `${folderPath}/opentrons_setup.json`
-
-            await fs.access(pathOpentrons)
-
-            const fileOpentrons = await fs.readFile(pathOpentrons, { encoding: 'utf-8' })
-            if (!fileOpentrons.success) {
-                throw new Error(`Reading file at path ${pathOpentrons} was unsuccessful`);
+            const selectedPath = await ipcRenderer.invoke('select-file-or-folder')
+            if (!selectedPath) {
+                return
             }
-            
-            const opentronsData = JSON.parse(fileOpentrons.data as string)
+            await fs.access(selectedPath)
+            setupPath.current = selectedPath
 
-            if (opentronsData.labware) {
-                for (const labware of opentronsData.labware) {
-                    const pathLabware = `${folderPath}/labware/${labware.filename}`
+            const stats = await fs.stat(selectedPath)
+            if (!stats.success || !stats.data) {
+                throw Error
+            }
 
-                    try {
-                        await fs.access(pathLabware)
+            const isDirectory = stats.data.isDirectory
+            loadSetup(isDirectory)
+        } catch (err: any) {
+            console.error('Error while loading setup!')
+        }
+    }
 
-                        const fileLabware = await fs.readFile(pathLabware, { encoding: 'utf-8' })
-                        if (!fileLabware.success) {
-                            throw new Error(`Reading file at path ${pathLabware} was unsuccessful`);
-                        }
-                        const labwareData = getLabwareData(fileLabware.data as string)
+    const handleLoadLabware = async () => {
+        try {
+            const selectedPath = await ipcRenderer.invoke('select-file-or-folder')
+            if (!selectedPath) {
+                return
+            }
+            await fs.access(selectedPath)
+            labwarePath.current = selectedPath
 
-                        const equipment: Equipment = {
-                            type: 'labware',
-                            data: labwareData
-                        }
-                        updateOpentrons(labware.slot, equipment)
-                    } catch (err) {
-                        console.error(`Error accessing or reading labware file: ${pathLabware}`, err)
+            const stats = await fs.stat(selectedPath)
+            if (!stats.success || !stats.data) {
+                throw Error
+            }
+
+            const isDirectory = stats.data.isDirectory
+            loadLabware(isDirectory)
+        } catch (err: any) {
+            console.error('Error while loading setup!')
+        }
+    }
+
+    const handleLoadChemicals = async () => {
+        try {
+            const selectedPath = await ipcRenderer.invoke('select-file-or-folder')
+            if (!selectedPath) {
+                return
+            }
+            await fs.access(selectedPath)
+            chemicalsPath.current = selectedPath
+
+            const stats = await fs.stat(selectedPath)
+            if (!stats.success || !stats.data) {
+                throw Error
+            }
+
+            const isDirectory = stats.data.isDirectory
+            // loadChemicals(isDirectory)
+        } catch (err: any) {
+            console.error('Error while loading setup!')
+        }
+    }
+
+    const loadSetup = async (fromDirectory: boolean) => {
+        try {
+            if (!setupPath.current) {
+                throw Error
+            }
+
+            const filePaths: string[] = []
+
+            if (fromDirectory) {
+                const setupFiles = await fs.readdir(setupPath.current)
+                if (!setupFiles.success) {
+                    throw Error
+                }
+
+                const fileNames: string[] = setupFiles.data as string[]
+                fileNames.forEach((fileName) => filePaths.push(`${setupPath.current}/${fileName}`))
+            } else {
+                filePaths.push(setupPath.current)
+            }
+
+            const newSetups: OpentronsSetup[] = []
+
+            for (const filePath of filePaths) {
+                try {
+                    await fs.access(filePath)
+
+                    const setupFile = await fs.readFile(filePath, { encoding: 'utf-8' })
+                    if (!setupFile.success || !setupFile.data) {
+                        throw Error('setupFile')
                     }
-                } 
+
+                    console.log('getting opentrons setup data in')
+                    const setupData = getOpentronsSetupData(setupFile.data)
+                    console.log('getting opentrons setup data out')
+                    newSetups.push(setupData)
+                } catch (err: any) {
+                    if (fromDirectory) {
+                        continue
+                    } else {
+                        throw err
+                    }
+                }
             }
-        } catch (error: any) {
-            console.error(`Error while loading opentrons setup: ${error.message}`);
+
+            if (newSetups.length > 0) {
+                console.log(newSetups.length)
+                setOpentronsSetupList(newSetups, true)
+            }
+        } catch (err: any) {
+            console.error(`Error while loading opentrons setup: ${err.message}`)
             return
+        }
+    }
+
+    const loadLabware = async (fromDirectory: boolean) => {
+        try {
+            if (!labwarePath.current) {
+                throw Error('Path')
+            }
+
+            console.log(labwarePath.current)
+
+            const filePaths: string[] = []
+
+            if (fromDirectory) {
+                const labwareFiles = await fs.readdir(labwarePath.current)
+                if (!labwareFiles.success) {
+                    throw Error('readdir')
+                }
+
+                const fileNames: string[] = labwareFiles.data as string[]
+
+                for (const fileName of fileNames) {
+                    const filePath = `${labwarePath.current}/${fileName}`
+
+                    const stats = await fs.stat(filePath)
+                    if (!stats.success || !stats.data) {
+                        throw Error('stat')
+                    }
+
+                    const isDirectory = stats.data.isDirectory
+
+                    if (isDirectory) continue
+
+                    filePaths.push(filePath)
+                }
+            } else {
+                filePaths.push(labwarePath.current)
+            }
+
+            const newLabwares: ILabware[] = []
+
+            for (const filePath of filePaths) {
+                try {
+                    await fs.access(filePath)
+
+                    const labwareFile = await fs.readFile(filePath, { encoding: 'utf-8' })
+                    if (!labwareFile.success || !labwareFile.data) {
+                        throw Error('readFile')
+                    }
+
+                    const labwareData = getLabwareData(labwareFile.data)
+
+                    newLabwares.push(labwareData)
+                } catch (err: any) {
+                    throw Error(err.message)
+                }
+            }
+
+            setLabwareList(newLabwares)
+        } catch (err: any) {
+            console.error(`Error while loading labware: ${err.message}`)
+            return
+        }
+    }
+
+    const handleSetActiveSetup = (index: number) => {
+        if (labwareList.length > index) {
+            setCurrentOpentronsSetup(index)
+            setActiveSetup(index)
         }
     }
 
@@ -107,21 +263,36 @@ export default function Menu(props: MenuProps) {
                     flexDirection: 'column',
                     paddingBottom: 10,
                     zIndex: 10,
-                    backgroundColor: configTabOpen ? '#f5f5f5' : 'transparent',
-                    filter: configTabOpen ? 'drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.15))' : 'none',
+                    backgroundColor: menuOpen ? '#f5f5f5' : 'transparent',
+                    filter: menuOpen ? 'drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.15))' : 'none',
                     borderRadius: 10,
                 }}
             >
-                <Button label='Load Configuration' fn={handleOpenConfigTab} active={configTabOpen} />
-                {configTabOpen && (
+                <Button label='Load Configuration' fn={handleOpenMenu} active={menuOpen} />
+                {menuOpen && (
                     <>
-                        <Button label='Load Folder' fn={handleLoadFolder} />
-                        <Button label='Load Labware' fn={handleLoadLabware} />
-                        <Button label='Load Chemicals' fn={handleLoadChemicals} />
+                        <Button label='From Folder' fn={handleLoadConfig} />
+                        <Button label='Setup' fn={handleLoadSetup} />
+                        <Button label='Labware' fn={handleLoadLabware} />
+                        <Button label='Chemicals' fn={handleLoadChemicals} />
                     </>
                 )}
             </div>
-            <Labwares />
+            <div
+                style={{
+                    position: 'absolute',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '8px',
+                    top: '4%',
+                    marginLeft: '300%',
+                }}
+            >
+                {opentronsSetupList.map((setup, index) => (
+                    <ButtonRound key={index} label={index + 1} fn={handleSetActiveSetup} active={index === activeSetup} argumentList={[index]}/>
+                ))}
+            </div>
+            <EquipmentMenu />
         </div>
     )
 }

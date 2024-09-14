@@ -1,11 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { equipmentComponents } from '../data/opentrons.data'
+import React, { useRef, useState, useEffect, useContext } from 'react'
+import { OpentronsContext } from '../context/OpentronsContext'
+import Labware from './Labware'
 
 interface EquipmentMenuProps {}
 
 export default function EquipmentMenu(props: EquipmentMenuProps) {
     const containerRef = useRef(null)
     const [itemSize, setItemSize] = useState({ width: 0, height: 0 })
+    const { labwareList } = useContext(OpentronsContext)
 
     useEffect(() => {
         const updateSize = () => {
@@ -50,7 +52,7 @@ export default function EquipmentMenu(props: EquipmentMenuProps) {
                 overflow: 'auto',
             }}
         >
-            {Object.entries(equipmentComponents).map(([key, Equipment], index) => (
+            {Object.entries(labwareList).map(([key, labware], index) => (
                 <div
                     key={key}
                     style={{
@@ -62,7 +64,7 @@ export default function EquipmentMenu(props: EquipmentMenuProps) {
                         flexShrink: 0,
                     }}
                 >
-                    <Equipment slot={0} />
+                    <Labware slot={0} labware={labware}/>
                 </div>
             ))}
         </div>

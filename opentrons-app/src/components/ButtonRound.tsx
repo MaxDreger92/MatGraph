@@ -4,20 +4,27 @@ interface ButtonProps {
     label: string | number
     fn: (...args: any[]) => void
     active?: boolean
+    argumentList?: any[] 
 }
 
-export default function Button(props: ButtonProps) {
-    const { label, fn, active } = props
+export default function ButtonRound(props: ButtonProps) {
+    const { label, fn, active, argumentList } = props
     const [btnHovered, setBtnHovered] = useState(false)
 
     useEffect(() => {
         if (active) {
             setBtnHovered(true)
+        } else if (active === false) {
+            setBtnHovered(false)
         }
     }, [active])
 
     const handleButton = () => {
-        fn()
+        if (argumentList) {
+            fn.apply(null, argumentList)
+        } else {
+            fn()
+        }
     }
 
     const handleMouseEnter = () => {
@@ -39,12 +46,12 @@ export default function Button(props: ButtonProps) {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                width: 160,
+                width: 50,
                 height: 50,
                 filter: 'drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.15))',
                 backgroundColor: btnHovered ? '#e3e3e3' : '#f5f5f5',
                 margin: '5px 5px',
-                borderRadius: 10,
+                borderRadius: '50%',
                 cursor: 'pointer',
             }}
         >

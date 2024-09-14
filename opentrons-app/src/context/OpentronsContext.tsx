@@ -1,50 +1,79 @@
 import React, { createContext, useState, ReactNode } from 'react'
-import { Equipment } from '../types/opentrons.types'
+import { OpentronsSetup } from '../types/opentrons.types'
 import { ILabware } from '../types/labware.types'
 
 interface OpentronsContextType {
-    opentrons: { [slot: number]: Equipment | null }
-    updateOpentrons: (slot: number, equipment: Equipment | null) => void
-    labwares: ILabware[]
-    updateLabwares: (labwares: ILabware[]) => void
+    opentronsSetupList: OpentronsSetup[]
+    setOpentronsSetupList: (setups: OpentronsSetup[], replace: boolean) => void
+    currentOpentronsSetup: OpentronsSetup
+    patchCurrentOpentronsSetup: (slot: number, labware: ILabware | null) => void
+    setCurrentOpentronsSetup: (index: number) => void
+    labwareList: ILabware[]
+    setLabwareList: (labwareList: ILabware[]) => void
 }
 
 export const OpentronsContext = createContext<OpentronsContextType>({
-    opentrons: {},
-    updateOpentrons: () => {},
-    labwares: [],
-    updateLabwares: () => {}
+    opentronsSetupList: [],
+    setOpentronsSetupList: () => {},
+    currentOpentronsSetup: {
+        labware: []
+    },
+    patchCurrentOpentronsSetup: () => {},
+    setCurrentOpentronsSetup: () => {},
+    labwareList: [],
+    setLabwareList: () => {},
 })
 
 export const OpentronsContextProvider = ({ children }: { children: ReactNode }) => {
-    const [opentrons, setOpentrons] = useState<{ [slot: number]: Equipment | null }>({})
-    const [labwares, setLabwares] = useState<ILabware[]>([])
+    const [opentronsSetupList, setOpentronsSetupList] = useState<OpentronsSetup[]>([])
+    const [currentOpentronsSetup, setCurrentOpentronsSetup] = useState<OpentronsSetup>({labware:[]})
+    const [labwareList, setLabwareList] = useState<ILabware[]>([])
 
-    const updateOpentrons = (
-        slot: number, 
-        equipment: Equipment | null
-    ) => {
-        setOpentrons((prevConfig) => {
+    const handleSetOpentronsSetupList = (setups: OpentronsSetup[], replace: boolean) => {
+        if (replace) {
+            if (setups.length > 0) {
+                setOpentronsSetupList(setups)
+                setCurrentOpentronsSetup(setups[0])
+            }
+        } else {
+            setOpentronsSetupList((prevSetups) => {
+                setups.forEach((setup) => prevSetups.push(setup))
+
+                return prevSetups
+            })
+        }
+    }
+
+    const handleSetCurrentOpentronsSetup = (index: number) => {
+        setCurrentOpentronsSetup(opentronsSetupList[index])
+    }
+
+    const patchCurrentOpentronsSetup = (slot: number, labware: ILabware | null) => {
+        setCurrentOpentronsSetup((prevConfig) => {
             const updatedConfig = {
                 ...prevConfig,
-                [slot]: equipment
-            };
-    
-            // console.log('Opentrons:', JSON.stringify(updatedConfig, null, 2));
-    
-            return updatedConfig;
-        });
-    };
+                [slot]: labware,
+            }
 
-    const updateLabwares = (labwares: ILabware[]) => {
-        // setLabwares((prevLabwares) => {
+            return updatedConfig
+        })
+    }
 
-        // })
+    const handleSetLabwareList = (labwareList: ILabware[]) => {
+        setLabwareList(labwareList)
     }
 
     return (
         <OpentronsContext.Provider
-            value={{ opentrons, updateOpentrons, labwares, updateLabwares }}
+            value={{
+                opentronsSetupList: opentronsSetupList,
+                setOpentronsSetupList: handleSetOpentronsSetupList,
+                currentOpentronsSetup,
+                patchCurrentOpentronsSetup,
+                setCurrentOpentronsSetup: handleSetCurrentOpentronsSetup,
+                labwareList,
+                setLabwareList: handleSetLabwareList,
+            }}
         >
             {children}
         </OpentronsContext.Provider>

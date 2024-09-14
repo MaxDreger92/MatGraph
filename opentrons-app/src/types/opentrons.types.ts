@@ -1,10 +1,19 @@
-import { ILabware } from "./labware.types";
-
-type GenEquip = {
-    type: string
+interface Labware {
+    slot: number
+    name: string
+    filename: string
+    namespace: string
+    version: number
+    intent: string
 }
 
-export interface Equipment {
-    type: string
-    data: ILabware | GenEquip
+interface Pipette {
+    mount: string
+    name: string
+    intent: string
+}
+
+export interface OpentronsSetup {
+    labware: Labware[]
+    pipettes?: Pipette[]
 }

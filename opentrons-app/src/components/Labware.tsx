@@ -1,19 +1,19 @@
 import React, { useContext, useState, useEffect, useRef, useCallback } from 'react'
-import { useDrag } from 'react-dnd'
-import { ILabware, Well } from '../../types/labware.types'
-import { ChemicalEntry, IChemicals } from '../../types/chemicals.types'
-import { OpentronsContext } from '../../context/OpentronsContext'
-import { transposeWells } from '../../functions/labware.functions'
+import {useDrag} from 'react-dnd'
+import { ILabware, Well } from '../types/labware.types'
+import { ChemicalEntry, IChemicals } from '../types/chemicals.types'
+import { OpentronsContext } from '../context/OpentronsContext'
+import { transposeWells } from '../functions/labware.functions'
 import chroma from 'chroma-js'
-import { labwareColors } from '../../data/labware.data'
+import { labwareColors } from '../data/labware.data'
 
 interface LabwareProps {
     slot: number
+    labware: ILabware
 }
 
 export default function Labware(props: LabwareProps) {
-    const { slot } = props
-    const { opentrons } = useContext(OpentronsContext)
+    const { slot, labware } = props
     const [labwareType, setLabwareType] = useState('tipRack')
     const [layout, setLayout] = useState({ rows: 0, cols: 0 })
     const [wells, setWells] = useState<{ [key: string]: ChemicalEntry | null }>()
@@ -74,14 +74,10 @@ export default function Labware(props: LabwareProps) {
 
     // Update labware
     useEffect(() => {
-        const equipment = opentrons[slot]
-        if (!equipment || equipment.type !== 'labware') return
-        const labwareData = equipment.data as ILabware
-
-        setupLayout(labwareData.ordering)
-        setupWells(labwareData.wells)
-        setLabwareType(labwareData.metadata.displayCategory)
-    }, [slot, opentrons, setupWells, setupLayout])
+        setupLayout(labware.ordering)
+        setupWells(labware.wells)
+        setLabwareType(labware.metadata.displayCategory)
+    }, [slot, labware, setupWells, setupLayout])
 
     const [{ isDragging }, drag] = useDrag({
         type: slot === 0 ? 'LABWARE' : '',

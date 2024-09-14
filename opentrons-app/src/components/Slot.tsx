@@ -2,8 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { ILabware } from '../types/labware.types';
 import { OpentronsContext } from '../context/OpentronsContext';
-import { equipmentComponents } from '../data/opentrons.data';
-import { Equipment } from '../types/opentrons.types';
+import { getLabwareNameBySlot, isLabwareInSlot } from '../functions/opentrons.functions';
+import Labware from './Labware';
+import { findLabwareByName } from '../functions/labware.functions';
 
 interface SlotProps {
     slot: number;
@@ -14,17 +15,24 @@ interface SlotProps {
 export default function Slot(props: SlotProps) {
     const { slot, bottom, left } = props;
     const [renderedComponent, setRenderedComponent] = useState<React.FC<any> | null>(null)
+    const [componentProps, setComponentProps] = useState<any>(null);
     const [highlighted, setHighlighted] = useState(false);
-    const { opentrons, updateOpentrons } = useContext(OpentronsContext);
+    const { currentOpentronsSetup, patchCurrentOpentronsSetup, labwareList } = useContext(OpentronsContext);
 
     useEffect(() => {
-        const componentKey = opentrons[slot]?.type as string;
-        if (componentKey) {
-            setRenderedComponent(() => equipmentComponents[componentKey]);
+        if (isLabwareInSlot(currentOpentronsSetup, slot)) {
+            const labwareName = getLabwareNameBySlot(currentOpentronsSetup, slot)
+            if (!labwareName) return
+            const labwareData = findLabwareByName(labwareList, labwareName)
+            if (!labwareData) return
+
+            setComponentProps({slot, labware: labwareData})
+            setRenderedComponent(() => Labware)
         } else {
-            setRenderedComponent(null);
+            setComponentProps(null)
+            setRenderedComponent(null)
         }
-    }, [slot, opentrons]);
+    }, [slot, currentOpentronsSetup, labwareList]);
 
     const [{ isOver }, drop] = useDrop({
         accept: 'LABWARE',
@@ -40,7 +48,7 @@ export default function Slot(props: SlotProps) {
 
     const handleMouseDown = (event: React.MouseEvent) => {
         if (event.button === 1 && renderedComponent) {
-            updateOpentrons(slot, null); // Remove the equipment from the slot
+            patchCurrentOpentronsSetup(slot, null); // Remove the equipment from the slot
         }
     };
 
@@ -75,7 +83,7 @@ export default function Slot(props: SlotProps) {
                     }}
                 ></div>
             )}
-            {renderedComponent && React.createElement(renderedComponent, { slot })}
+            {renderedComponent && React.createElement(renderedComponent, componentProps)}
         </div>
     );
 }

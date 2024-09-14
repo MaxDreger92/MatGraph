@@ -1,8 +1,26 @@
 import { ILabware } from '../types/labware.types'
 import { ChemicalEntry } from '../types/chemicals.types'
+import { isILabware } from '../schemas/labware.schema'
 
-export function getLabwareData(data: any): ILabware {
-    return JSON.parse(data) as ILabware
+export const findLabwareByName = (labwareList: ILabware[], key: string): ILabware | undefined => {
+    let labware = labwareList.find((item) => key === item.parameters.loadName)
+    if (!labware) {
+        labware = labwareList.find((item) => key === item.metadata.displayName)
+    }
+    return labware
+}
+
+export const getLabwareData = (data: any): ILabware => {
+    try {
+        const parsedData = JSON.parse(data)
+        if (isILabware(parsedData)) {
+            return parsedData
+        } else {
+            throw Error
+        }
+    } catch (err: any) {
+        throw Error
+    }
 }
 
 export const generateLabwareWells = (rows: number, cols: number): { [key: string]: ChemicalEntry | null } => {

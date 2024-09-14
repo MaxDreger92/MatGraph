@@ -1,8 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const fs = require('fs');
-const path = require('node:path');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const fs = require('fs')
+const path = require('node:path')
 
-const preloadPath = path.join(__dirname, 'preload.js');
+const preloadPath = path.join(__dirname, 'preload.js')
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -50,6 +50,24 @@ ipcMain.handle('fs-access', async (event, path) => {
     }
 })
 
+ipcMain.handle('fs-stat', async (event, path) => {
+    try {
+        const stats = await fs.promises.stat(path)
+        return {
+            success: true,
+            data: {
+                isFile: stats.isFile(),
+                isDirectory: stats.isDirectory(),
+                size: stats.size,
+                createdAt: stats.birthtime,
+                modifiedAt: stats.mtime,
+            },
+        }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
 ipcMain.handle('fs-readFile', async (event, filePath, options) => {
     try {
         const data = await fs.promises.readFile(filePath, { encoding: 'utf-8', ...options })
@@ -59,9 +77,25 @@ ipcMain.handle('fs-readFile', async (event, filePath, options) => {
     }
 })
 
+ipcMain.handle('fs-readdir', async (event, dirPath) => {
+    try {
+        const files = await fs.promises.readdir(dirPath)
+        return { success: true, data: files }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
 ipcMain.handle('select-folder', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
         properties: ['openDirectory'],
+    })
+    return canceled ? null : filePaths[0]
+})
+
+ipcMain.handle('select-file-or-folder', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+        properties: ['openFile', 'openDirectory'],
     })
     return canceled ? null : filePaths[0]
 })

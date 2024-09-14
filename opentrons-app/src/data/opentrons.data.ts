@@ -1,9 +1,3 @@
-import * as Equipment from '../components/equipment'
-
-export const equipmentComponents: { [key: string]: React.FC<any> } = {
-    'labware': Equipment.Labware
-}
-
 // Hyper sloppy needs to be refactored
 export const deckSlotPositions = [
     { slot: 1, bottom: '14.1%', left: '9.7%' },

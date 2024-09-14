@@ -17,7 +17,8 @@
         "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^18.3.1",
         "react-scripts": "^5.0.1",
-        "web-vitals": "^4.2.3"
+        "web-vitals": "^4.2.3",
+        "zod": "^3.23.8"
     },
     "scripts": {
         "start": "react-scripts start",
