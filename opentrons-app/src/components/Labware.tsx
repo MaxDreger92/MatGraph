@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect, useRef, useCallback } from 'react'
-import {useDrag} from 'react-dnd'
-import { ILabware, Well } from '../types/labware.types'
-import { ChemicalEntry, IChemicals } from '../types/chemicals.types'
+import { useDrag } from 'react-dnd'
+import { ILabware, IWell } from '../types/labware.types'
 import { OpentronsContext } from '../context/OpentronsContext'
-import { transposeWells } from '../functions/labware.functions'
+import { generateLabwareWells, transposeWells } from '../functions/labware.functions'
 import chroma from 'chroma-js'
 import { labwareColors } from '../data/labware.data'
+import { Chemical } from '../types/configuration.types'
+import Well from './Well'
 
 interface LabwareProps {
     slot: number
@@ -16,15 +17,73 @@ export default function Labware(props: LabwareProps) {
     const { slot, labware } = props
     const [labwareType, setLabwareType] = useState('tipRack')
     const [layout, setLayout] = useState({ rows: 0, cols: 0 })
-    const [wells, setWells] = useState<{ [key: string]: ChemicalEntry | null }>()
+    const [wells, setWells] = useState<{ [key: string]: Chemical[] | null }>()
     const [wellShape, setWellShape] = useState<{ shape: string; orientation?: string; shrinkFactor?: number }>({
         shape: 'circular',
     })
-    const [wellSize, setWellSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 })
+    const [wellSize, setWellSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
     const [fontSize, setFontSize] = useState(10)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    const setupWellShape = (blueprintWell: Well) => {
+    const { currentConfig } = useContext(OpentronsContext)
+
+    const [{ isDragging }, drag] = useDrag({
+        type: slot === 0 ? 'LABWARE' : '',
+        item: labware,
+        collect: (monitor) => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    })
+
+    const combinedRef = (element: HTMLDivElement | null) => {
+        containerRef.current = element
+        drag(element)
+    }
+
+    // calc sizes
+    useEffect(() => {
+        const updateSize = () => {
+            if (containerRef.current) {
+                const containerWidth = containerRef.current.offsetWidth
+                const containerHeight = containerRef.current.offsetHeight
+
+                setWellSize((prevWellSize) => {
+                    const maxWellWidth = containerWidth / layout.cols
+                    const maxWellHeight = containerHeight / layout.rows
+                    if (wellShape.shape === 'circular') {
+                        const maxWellSize = Math.min(maxWellWidth, maxWellHeight)
+                        return { width: maxWellSize - 2, height: maxWellSize -2 }
+                    } else if (wellShape.orientation && wellShape.shrinkFactor) {
+                        let wellWidth =
+                            wellShape.orientation === 'horizontal'
+                                ? maxWellWidth
+                                : maxWellHeight * wellShape.shrinkFactor
+                        let wellHeight =
+                            wellShape.orientation === 'vertical' ? maxWellHeight : maxWellWidth * wellShape.shrinkFactor
+                        if (wellWidth > maxWellWidth) {
+                            wellWidth *= maxWellWidth / wellWidth
+                        }
+                        if (wellHeight > maxWellHeight) {
+                            wellHeight *= (maxWellHeight / wellHeight)
+                        }
+                        return { width: wellWidth - 2, height: wellHeight - 2 }
+                    } else {
+                        return prevWellSize
+                    }
+                })
+
+                const newFontSize = Math.min(containerWidth / (layout.cols * 2.8), 13)
+                setFontSize(newFontSize)
+            }
+        }
+
+        updateSize()
+        window.addEventListener('resize', updateSize)
+
+        return () => window.removeEventListener('resize', updateSize)
+    }, [layout, wellShape])
+
+    const setupWellShape = (blueprintWell: IWell) => {
         setWellShape((prevShape) => {
             const shape = blueprintWell.shape
             const newWellShape: { shape: string; orientation?: string; shrinkFactor?: number } = { shape: shape }
@@ -43,86 +102,84 @@ export default function Labware(props: LabwareProps) {
         })
     }
 
-    const setupWells = useCallback((labwareWells?: ILabware['wells']) => {
+    const setupWells = useCallback(() => {
+        const updatedWells = generateLabwareWells(layout.rows, layout.cols)
         setWells((prevWells) => {
-            if (!labwareWells) {
-                return {}
+            if (!prevWells) {
+                return updatedWells
             }
 
-            const transposedWells = transposeWells(labwareWells)
-            const newWells: { [key: string]: ChemicalEntry | null } = {}
-
-            for (const wellKey in transposedWells) {
-                if (prevWells && prevWells[wellKey]) {
-                    newWells[wellKey] = prevWells[wellKey]
-                } else {
-                    newWells[wellKey] = null
+            Object.keys(prevWells).forEach((key) => {
+                if (updatedWells[key] && prevWells[key] !== null) {
+                    updatedWells[key] = prevWells[key]
                 }
-            }
+            })
 
-            setupWellShape(labwareWells['A1'])
-
-            return newWells
+            return updatedWells
         })
-    }, [])
+    }, [layout])
 
     const setupLayout = useCallback((ordering: string[][]) => {
         const rows = Math.max(...ordering.map((col) => col.length))
         const cols = ordering.length
-        setLayout({ rows: rows, cols: cols })
+        setLayout((prevLayout) => {
+            if (prevLayout.rows !== rows || prevLayout.cols !== cols) {
+                return { rows, cols }
+            }
+            return prevLayout
+        })
     }, [])
 
-    // Update labware
+    // On labware update
     useEffect(() => {
         setupLayout(labware.ordering)
-        setupWells(labware.wells)
+        setupWells()
+        setupWellShape(labware.wells['A1'])
         setLabwareType(labware.metadata.displayCategory)
     }, [slot, labware, setupWells, setupLayout])
 
-    const [{ isDragging }, drag] = useDrag({
-        type: slot === 0 ? 'LABWARE' : '',
-        collect: (monitor) => ({
-            isDragging: !!monitor.isDragging(),
-        }),
-    })
-
-    const combinedRef = (element: HTMLDivElement | null) => {
-        containerRef.current = element
-        drag(element)
-    }
-
+    // On chemicalSetup update
     useEffect(() => {
-        const updateSize = () => {
-            if (containerRef.current) {
-                const containerWidth = containerRef.current.offsetWidth
-                const containerHeight = containerRef.current.offsetHeight
+        setWells((prevWells) => {
+            if (!prevWells || Object.entries(prevWells).length === 0) return prevWells
 
-                setWellSize((prevWellSize) => {
-                    const maxWellWidth = containerWidth / layout.cols
-                    const maxWellHeight = containerHeight / layout.rows
-                    if (wellShape.shape === 'circular') {
-                        const maxWellSize = Math.min(maxWellWidth, maxWellHeight)
-                        return { width: maxWellSize, height: maxWellSize}
-                    } else if (wellShape.orientation && wellShape.shrinkFactor) {
-                        const wellWidth = wellShape.orientation === 'horizontal' ? maxWellWidth : maxWellHeight * wellShape.shrinkFactor
-                        const wellHeight = wellShape.orientation === 'vertical' ? maxWellHeight : maxWellWidth * wellShape.shrinkFactor
+            const updatedWells = generateLabwareWells(layout.rows, layout.cols)
 
-                        return { width: wellWidth, height: wellHeight }
-                    } else {
-                        return prevWellSize
-                    }
-                })
+            const chemicalsInSlot = currentConfig.chemicalSetup.opentrons.filter(
+                (chemical) => chemical.location.slot === slot
+            )
 
-                const newFontSize = Math.min(containerWidth / (layout.cols * 2), 16)
-                setFontSize(newFontSize)
+            if (chemicalsInSlot.length === 0) {
+                return updatedWells
             }
+
+            chemicalsInSlot.forEach((chemical) => {
+                const well = chemical.location.well
+                if (updatedWells[well] === undefined) return
+
+                if (updatedWells[well] === null) {
+                    updatedWells[well] = []
+                }
+
+                updatedWells[well]?.push(chemical)
+            })
+
+            return updatedWells
+        })
+    }, [currentConfig.chemicalSetup, slot, layout])
+
+    const getWellLabel = (chemicals: Chemical[] | null, key: string): string => {
+        if (!chemicals) {
+            return key
         }
 
-        updateSize()
-        window.addEventListener('resize', updateSize)
+        let label = chemicals[0].name
+        return chemicals.length > 1 ? label.concat('...') : label
+    }
 
-        return () => window.removeEventListener('resize', updateSize)
-    }, [layout, wellShape])
+    const showChart = (): boolean => {
+        return wellSize.width + wellSize.height > 96
+    }
 
     return (
         <div
@@ -137,20 +194,22 @@ export default function Labware(props: LabwareProps) {
                 className='grid-container'
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${layout.cols}, ${wellSize.width - 1}px)`,
-                    gridTemplateRows: `repeat(${layout.rows}, ${wellSize.height - 1}px)`,
+                    gridTemplateColumns: `repeat(${layout.cols}, ${wellSize.width + 1}px)`,
+                    gridTemplateRows: `repeat(${layout.rows}, ${wellSize.height + 1}px)`,
                     gap: '1px',
                 }}
             >
                 {wells &&
-                    Object.entries(wells).map(([key, well], index) => (
+                    Object.entries(wells).map(([wellKey, chemicals], index) => (
                         <div
-                            key={key}
+                        className='isItThis'
+                            key={wellKey}
                             style={{
-                                width: `${wellSize.width - 2}px`,
-                                height: `${wellSize.height - 2}px`,
-                                // aspectRatio: '1',
-                                backgroundColor: well ? '#ffeb3b' : chroma(labwareColors[labwareType]).darken(0.3).hex(),
+                                width: `${wellSize.width}px`,
+                                height: `${wellSize.height}px`,
+                                backgroundColor:
+                                    chemicals ? chroma(labwareColors[labwareType]).brighten(1).hex()
+                                        : chroma(labwareColors[labwareType]).darken(0.3).hex(),
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -158,9 +217,20 @@ export default function Labware(props: LabwareProps) {
                                 position: 'relative',
                                 margin: 'auto',
                                 fontSize: `${fontSize}px`,
+                                color: '#333',
                             }}
                         >
-                            {well ? well.name : key}
+                            {showChart() ? (
+                                <Well
+                                    wellKey={wellKey}
+                                    chemicals={chemicals}
+                                    size={wellSize}
+                                    shape={wellShape}
+                                    totalVolume={labware.wells['A1'].totalLiquidVolume}
+                                />
+                            ) : (
+                                wellKey
+                            )}
                         </div>
                     ))}
             </div>

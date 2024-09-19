@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { ILabware } from '../types/labware.types';
 import { OpentronsContext } from '../context/OpentronsContext';
-import { getLabwareNameBySlot, isLabwareInSlot } from '../functions/opentrons.functions';
+import { getLabwareNameBySlot, isLabwareInSlot } from '../functions/configuration.functions';
 import Labware from './Labware';
-import { findLabwareByName } from '../functions/labware.functions';
+import { createOpentronsSetupLabware, findLabwareByName } from '../functions/labware.functions';
+import { Configuration } from '../types/configuration.types';
 
 interface SlotProps {
     slot: number;
@@ -17,11 +18,11 @@ export default function Slot(props: SlotProps) {
     const [renderedComponent, setRenderedComponent] = useState<React.FC<any> | null>(null)
     const [componentProps, setComponentProps] = useState<any>(null);
     const [highlighted, setHighlighted] = useState(false);
-    const { currentOpentronsSetup, patchCurrentOpentronsSetup, labwareList } = useContext(OpentronsContext);
+    const { currentConfig, setCurrentConfig, labwareList } = useContext(OpentronsContext);
 
     useEffect(() => {
-        if (isLabwareInSlot(currentOpentronsSetup, slot)) {
-            const labwareName = getLabwareNameBySlot(currentOpentronsSetup, slot)
+        if (isLabwareInSlot(currentConfig.opentronsSetup, slot)) {
+            const labwareName = getLabwareNameBySlot(currentConfig.opentronsSetup, slot)
             if (!labwareName) return
             const labwareData = findLabwareByName(labwareList, labwareName)
             if (!labwareData) return
@@ -32,23 +33,40 @@ export default function Slot(props: SlotProps) {
             setComponentProps(null)
             setRenderedComponent(null)
         }
-    }, [slot, currentOpentronsSetup, labwareList]);
+    }, [slot, currentConfig, labwareList]);
 
     const [{ isOver }, drop] = useDrop({
         accept: 'LABWARE',
-        drop: (item: ILabware | null) => {
-            // if (item) {
-            //     updateOpentrons(slot, item);
-            // }
+        drop: (item: ILabware) => {
+            const newLabware = createOpentronsSetupLabware(slot, item);
+            if (!newLabware) return;
+
+            const currentLabwareSetup = currentConfig.opentronsSetup.labware
+            const updatedLabwareSetup = [...currentLabwareSetup.filter((lw) => lw.slot !== slot), newLabware]
+    
+            setCurrentConfig({
+                opentronsSetup: {
+                    labware: updatedLabwareSetup
+                }
+            });
         },
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
         }),
     });
+    
+    
 
     const handleMouseDown = (event: React.MouseEvent) => {
         if (event.button === 1 && renderedComponent) {
-            patchCurrentOpentronsSetup(slot, null); // Remove the equipment from the slot
+            const currentLabwareSetup = currentConfig.opentronsSetup.labware
+            const updatedLabwareSetup = currentLabwareSetup.filter((lw) => lw.slot !== slot)
+
+            setCurrentConfig({
+                opentronsSetup: {
+                    labware: updatedLabwareSetup
+                }
+            })
         }
     };
 

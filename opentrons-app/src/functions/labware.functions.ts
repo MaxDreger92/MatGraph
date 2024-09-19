@@ -1,6 +1,18 @@
 import { ILabware } from '../types/labware.types'
-import { ChemicalEntry } from '../types/chemicals.types'
 import { isILabware } from '../schemas/labware.schema'
+import { Chemical } from '../types/configuration.types'
+
+export const createOpentronsSetupLabware = (slot: number, labware: ILabware) => {
+    if (!isILabware(labware)) return 
+    return {
+        slot: slot,
+        name: labware.parameters.loadName,
+        filename: labware.filename,
+        namespace: labware.namespace,
+        version: labware.version,
+        intent: 'setup'
+    }
+}
 
 export const findLabwareByName = (labwareList: ILabware[], key: string): ILabware | undefined => {
     let labware = labwareList.find((item) => key === item.parameters.loadName)
@@ -10,9 +22,9 @@ export const findLabwareByName = (labwareList: ILabware[], key: string): ILabwar
     return labware
 }
 
-export const getLabwareData = (data: any): ILabware => {
+export const getLabwareData = (data: any, filename: string): ILabware => {
     try {
-        const parsedData = JSON.parse(data)
+        const parsedData = {...JSON.parse(data), filename}
         if (isILabware(parsedData)) {
             return parsedData
         } else {
@@ -23,8 +35,8 @@ export const getLabwareData = (data: any): ILabware => {
     }
 }
 
-export const generateLabwareWells = (rows: number, cols: number): { [key: string]: ChemicalEntry | null } => {
-    const wells: { [key: string]: ChemicalEntry | null } = {}
+export const generateLabwareWells = (rows: number, cols: number): { [key: string]: Chemical[] | null } => {
+    const wells: { [key: string]: Chemical[] | null } = {}
     const rowLabels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, rows)
 
     rowLabels.split('').forEach((row) => {

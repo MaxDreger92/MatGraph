@@ -1,4 +1,4 @@
-export interface Well {
+export interface IWell {
     depth: number
     totalLiquidVolume: number
     shape: string
@@ -56,11 +56,12 @@ export interface ILabware {
     brand: Brand
     metadata: Metadata
     dimensions: Dimensions
-    wells: Record<string, Well> 
+    wells: Record<string, IWell> 
     groups: Group[]
     parameters: LabwareParameters
     namespace: string
     version: number
     schemaVersion: number
     cornerOffsetFromSlot: CornerOffsetFromSlot
+    filename: string
 }
