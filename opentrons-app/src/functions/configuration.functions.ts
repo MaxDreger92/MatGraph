@@ -1,11 +1,13 @@
 import { isChemicalSetup, isOpentronsSetup } from "../schemas/configuration.schema"
 import { ChemicalSetup, OpentronsSetup } from "../types/configuration.types"
 
-export const getOpentronsSetupData = (data: any): OpentronsSetup | null => {
+export const getOpentronsSetupData = (data: any, name: string): OpentronsSetup | null => {
     try {
         const parsedData = JSON.parse(data)
         if (isOpentronsSetup(parsedData)) {
-            return parsedData as OpentronsSetup
+            const opentronsSetup = parsedData as OpentronsSetup
+            opentronsSetup.name = name
+            return opentronsSetup
         } else {
             throw Error
         }
@@ -14,11 +16,13 @@ export const getOpentronsSetupData = (data: any): OpentronsSetup | null => {
     }
 }
 
-export const getChemicalSetupData = (data: any): ChemicalSetup | null => {
+export const getChemicalSetupData = (data: any, name: string): ChemicalSetup | null => {
     try {
         const parsedData = JSON.parse(data)
         if (isChemicalSetup(parsedData)) {
-            return parsedData as ChemicalSetup
+            const chemicalSetup = parsedData as ChemicalSetup
+            chemicalSetup.name = name
+            return chemicalSetup
         } else {
             throw Error
         }

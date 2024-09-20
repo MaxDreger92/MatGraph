@@ -29,6 +29,7 @@ const ArduinoChemicalSchema = z.object({
 });
 
 const ChemicalSetupSchema = z.object({
+    name: z.string().optional(),
     opentrons: z.array(OpentronsChemicalSchema),
     arduino: z.array(ArduinoChemicalSchema),
 });
@@ -49,6 +50,7 @@ const PipetteSchema = z.object({
 });
 
 const OpentronsSetupSchema = z.object({
+    name: z.string().optional(),
     labware: z.array(LabwareSchema),
     pipettes: z.array(PipetteSchema).optional(),
 });

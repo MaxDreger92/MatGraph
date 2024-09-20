@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from 'react'
+import { createContext, useState, ReactNode, useEffect } from 'react'
 import { ILabware } from '../types/labware.types'
 import { ChemicalSetup, Configuration, DefaultConfiguration, OpentronsSetup } from '../types/configuration.types'
 import { asList } from '../functions/functions'
@@ -72,23 +72,32 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
     }
 
     const handleSetCurrentConfig = (config: Partial<Configuration>) => {
-        if (!isPartialConfiguration(config)) return
-        if (!config.chemicalSetup && !config.opentronsSetup) {
-            setCurrentConfig(DefaultConfiguration)
-        }
-        setCurrentConfig((prevConfig) => ({
-            ...prevConfig,
-            ...config,
-            opentronsSetup: {
-                ...prevConfig.opentronsSetup,
-                ...config.opentronsSetup,
-            },
-            chemicalSetup: {
-                ...prevConfig.chemicalSetup,
-                ...config.chemicalSetup,
+        if (!isPartialConfiguration(config)) return;
+
+
+
+        setCurrentConfig((prevConfig) => {
+            if (
+                !config.opentronsSetup &&
+                !config.chemicalSetup
+            ) {
+                return DefaultConfiguration;
+            } else {
+                return {
+                    ...prevConfig,
+                    ...config,
+                    opentronsSetup: {
+                        ...prevConfig.opentronsSetup,
+                        ...config.opentronsSetup,
+                    },
+                    chemicalSetup: {
+                        ...prevConfig.chemicalSetup,
+                        ...config.chemicalSetup,
+                    },
+                };
             }
-        }))
-    }
+        });
+    };
 
     const handleSetOpentronsSetupList = (action: ListAction, setup?: OpentronsSetup | OpentronsSetup[], index?: number) => {
         setOpentronsSetupList((prevList) => {
@@ -140,7 +149,31 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
         })
     }
 
+    const isOpentronsSetupEmpty = (opentronsSetup: OpentronsSetup): boolean => {
+        return (
+            (!opentronsSetup.labware || opentronsSetup.labware.length === 0) &&
+            (!opentronsSetup.pipettes || opentronsSetup.pipettes.length === 0)
+        );
+    };
+    
+    const isChemicalSetupEmpty = (chemicalSetup: ChemicalSetup): boolean => {
+        return (
+            (!chemicalSetup.opentrons || chemicalSetup.opentrons.length === 0) &&
+            (!chemicalSetup.arduino || chemicalSetup.arduino.length === 0)
+        );
+    };
 
+    useEffect(() => {
+        const isEmptyConfig =
+            isOpentronsSetupEmpty(currentConfig.opentronsSetup) &&
+            isChemicalSetupEmpty(currentConfig.chemicalSetup);
+    
+        if (isEmptyConfig) {
+            window.electron.ipcRenderer.send('config-empty');
+        } else {
+            window.electron.ipcRenderer.send('config-not-empty');
+        }
+    }, [currentConfig]);
 
     return (
         <OpentronsContext.Provider

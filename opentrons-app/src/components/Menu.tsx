@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import EquipmentMenu from './EquipmentMenu'
 import Button from './Button'
 import ButtonRound from './ButtonRound'
@@ -6,7 +6,8 @@ import { OpentronsContext } from '../context/OpentronsContext'
 import { getLabwareData } from '../functions/labware.functions'
 import { ILabware } from '../types/labware.types'
 import { getChemicalSetupData, getOpentronsSetupData } from '../functions/configuration.functions'
-import { ChemicalSetup, OpentronsSetup } from '../types/configuration.types'
+import { ChemicalSetup, DefaultConfiguration, OpentronsSetup } from '../types/configuration.types'
+import SetupMenu from './SetupMenu'
 
 const { ipcRenderer, fs } = window.electron
 
@@ -14,12 +15,12 @@ interface MenuProps {}
 
 export default function Menu(props: MenuProps) {
     const [menuOpen, setMenuOpen] = useState(false)
-    const [activeOpentronsSetup, setActiveOpentronsSetup] = useState<number | null>(null)
-    const [activeChemicalSetup, setActiveChemicalSetup] = useState<number | null>(null)
     const configPath = useRef<string | null>(null)
     const setupPath = useRef<string | null>(null)
     const labwarePath = useRef<string | null>(null)
     const chemicalsPath = useRef<string | null>(null)
+
+    const ipcListenersRegistered = useRef(false)
 
     const {
         labwareList,
@@ -29,7 +30,7 @@ export default function Menu(props: MenuProps) {
         opentronsSetupList,
         setOpentronsSetupList,
         chemicalSetupList,
-        setChemicalSetupList
+        setChemicalSetupList,
     } = useContext(OpentronsContext)
 
     const handleOpenMenu = () => {
@@ -41,7 +42,7 @@ export default function Menu(props: MenuProps) {
             const folderPath = await ipcRenderer.invoke('select-folder')
 
             if (!folderPath) {
-                throw Error
+                return
             }
 
             configPath.current = folderPath
@@ -125,7 +126,7 @@ export default function Menu(props: MenuProps) {
     const loadSetup = async (fromDirectory: boolean) => {
         try {
             if (!setupPath.current) {
-                throw Error
+                return
             }
 
             const filePaths: string[] = []
@@ -153,7 +154,10 @@ export default function Menu(props: MenuProps) {
                         throw Error('setupFile')
                     }
 
-                    const setupData = getOpentronsSetupData(setupFile.data)
+                    const filenameWithExtension = filePath.split('/').pop() || 'unknown'
+                    const filename = filenameWithExtension.split('.').shift() || 'unknown'
+
+                    const setupData = getOpentronsSetupData(setupFile.data, filename)
 
                     if (!setupData) continue
 
@@ -169,8 +173,7 @@ export default function Menu(props: MenuProps) {
 
             if (newSetups.length > 0) {
                 setOpentronsSetupList('replace', newSetups)
-                setCurrentConfig({opentronsSetup: newSetups[0]})
-                setActiveOpentronsSetup(0)
+                setCurrentConfig({ opentronsSetup: newSetups[0] })
             }
         } catch (err: any) {
             console.error(`Error while loading opentrons setup: ${err.message}`)
@@ -180,9 +183,8 @@ export default function Menu(props: MenuProps) {
 
     const loadChemicals = async (fromDirectory: boolean) => {
         try {
-            console.log(fromDirectory)
             if (!chemicalsPath.current) {
-                throw Error
+                return
             }
 
             const filePaths: string[] = []
@@ -210,8 +212,10 @@ export default function Menu(props: MenuProps) {
                         throw Error('setupFile')
                     }
 
-                    console.log(setupFile.data)
-                    const setupData = getChemicalSetupData(setupFile.data)
+                    const filenameWithExtension = filePath.split('/').pop() || 'unknown'
+                    const filename = filenameWithExtension.split('.').shift() || 'unknown'
+
+                    const setupData = getChemicalSetupData(setupFile.data, filename)
 
                     if (!setupData) continue
 
@@ -227,8 +231,7 @@ export default function Menu(props: MenuProps) {
 
             if (newSetups.length > 0) {
                 setChemicalSetupList('replace', newSetups)
-                setCurrentConfig({chemicalSetup: newSetups[0]})
-                setActiveChemicalSetup(0)
+                setCurrentConfig({ chemicalSetup: newSetups[0] })
             }
         } catch (err: any) {
             console.error(`Error while loading chemicals setup: ${err.message}`)
@@ -241,8 +244,6 @@ export default function Menu(props: MenuProps) {
             if (!labwarePath.current) {
                 throw Error('Path')
             }
-
-            console.log(labwarePath.current)
 
             const filePaths: string[] = []
 
@@ -301,69 +302,97 @@ export default function Menu(props: MenuProps) {
     }
 
     const handleResetConfig = () => {
-        setCurrentConfig({opentronsSetup:undefined,chemicalSetup:undefined})
+        setCurrentConfig(DefaultConfiguration)
     }
 
-    const handleSetActiveSetup = (index: number) => {
-        if (labwareList.length > index) {
-            setCurrentConfig({opentronsSetup: opentronsSetupList[index], chemicalSetup: chemicalSetupList[0]})
-            setActiveOpentronsSetup(index)
+    const handleSetActiveSetup = (type: string, index: number) => {
+        if (type === 'opentrons') {
+            if (opentronsSetupList.length <= index) return
+            setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
+        }
+        if (type === 'chemicals') {
+            if (chemicalSetupList.length <= index) return
+            setCurrentConfig({ chemicalSetup: chemicalSetupList[index] })
         }
     }
 
+    useEffect(() => {
+        if (ipcListenersRegistered.current) {
+            return
+        }
+
+        ipcListenersRegistered.current = true
+
+        const { ipcRenderer } = window.electron
+
+        const handleResetConfigFromMenu = () => {
+            handleResetConfig()
+        }
+
+        const handleLoadFromFolderFromMenu = () => {
+            handleLoadConfig()
+        }
+
+        const handleLoadSetupFromMenu = () => {
+            handleLoadSetup()
+        }
+
+        const handleLoadLabwareFromMenu = () => {
+            handleLoadLabware()
+        }
+
+        const handleLoadChemicalsFromMenu = () => {
+            handleLoadChemicals()
+        }
+
+        ipcRenderer.on('menu-reset-configuration', handleResetConfigFromMenu)
+        ipcRenderer.on('menu-load-from-folder', handleLoadFromFolderFromMenu)
+        ipcRenderer.on('menu-load-setup', handleLoadSetupFromMenu)
+        ipcRenderer.on('menu-load-labware', handleLoadLabwareFromMenu)
+        ipcRenderer.on('menu-load-chemicals', handleLoadChemicalsFromMenu)
+
+        return () => {
+            ipcRenderer.removeListener('menu-reset-configuration', handleResetConfigFromMenu)
+            ipcRenderer.removeListener('menu-load-from-folder', handleLoadFromFolderFromMenu)
+            ipcRenderer.removeListener('menu-load-setup', handleLoadSetupFromMenu)
+            ipcRenderer.removeListener('menu-load-labware', handleLoadLabwareFromMenu)
+            ipcRenderer.removeListener('menu-load-chemicals', handleLoadChemicalsFromMenu)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     return (
-        <div
-            style={{
-                position: 'absolute',
-                left: 0,
-                width: '25%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-        >
+        <>
             <div
                 style={{
                     position: 'absolute',
-                    top: '1.3%',
-                    left: '5%',
+                    left: 0,
+                    top: 0,
+                    width: '25%',
+                    height: '100%',
                     display: 'flex',
-                    flexDirection: 'column',
-                    paddingBottom: 10,
-                    zIndex: 10,
-                    backgroundColor: menuOpen ? '#f5f5f5' : 'transparent',
-                    filter: menuOpen ? 'drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.15))' : 'none',
-                    borderRadius: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
             >
-                <Button label='Load Configuration' fn={handleOpenMenu} active={menuOpen} />
-                {menuOpen && (
-                    <>
-                        <Button label='Reset' fn={handleResetConfig} />
-                        <Button label='From Folder' fn={handleLoadConfig} />
-                        <Button label='Setup' fn={handleLoadSetup} />
-                        <Button label='Labware' fn={handleLoadLabware} />
-                        <Button label='Chemicals' fn={handleLoadChemicals} />
-                    </>
-                )}
+                {labwareList.length > 0 && <EquipmentMenu />}
             </div>
             <div
                 style={{
                     position: 'absolute',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: '8px',
-                    top: '4%',
-                    marginLeft: '300%',
+                    left: '25%',
+                    top: 20,
+                    width: '50%',
+                    height: '100%',
                 }}
             >
-                {opentronsSetupList.map((setup, index) => (
-                    <ButtonRound key={index} label={index + 1} fn={handleSetActiveSetup} active={index === activeOpentronsSetup} argumentList={[index]}/>
-                ))}
+                <SetupMenu
+                    opentronsSetupList={opentronsSetupList}
+                    chemicalSetupList={chemicalSetupList}
+                    setActiveSetup={handleSetActiveSetup}
+                    currentConfig={currentConfig}
+                />
             </div>
-            <EquipmentMenu />
-        </div>
+        </>
     )
 }

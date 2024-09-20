@@ -217,7 +217,7 @@ export default function Labware(props: LabwareProps) {
                                 position: 'relative',
                                 margin: 'auto',
                                 fontSize: `${fontSize}px`,
-                                color: '#333',
+                                // color: '#333',
                             }}
                         >
                             {showChart() ? (

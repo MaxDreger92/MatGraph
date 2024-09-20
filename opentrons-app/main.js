@@ -1,6 +1,9 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { isDisabled } = require('@testing-library/user-event/dist/cjs/utils/index.js')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const fs = require('fs')
 const path = require('node:path')
+
+app.setName('ot2-App')
 
 const preloadPath = path.join(__dirname, 'preload.js')
 
@@ -18,12 +21,110 @@ function createWindow() {
     const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, 'build', 'index.html')}`
     mainWindow.loadURL(startUrl)
 
-    mainWindow.webContents.openDevTools()
+    // Remove or comment out this line if you don't want the DevTools to open automatically
+    // mainWindow.webContents.openDevTools()
+}
+
+function buildMenu() {
+    const menuTemplate = [
+        {
+            label: app.name,
+            submenu: [
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' },
+            ],
+        },
+        {
+            label: 'Configuration && Setup',
+            submenu: [
+                {
+                    label: 'Load File/Folder',
+                    submenu: [
+                        {
+                            label: 'Config',
+                            click() {
+                                BrowserWindow.getAllWindows()[0].webContents.send('menu-load-from-folder')
+                            },
+                        },
+                        {
+                            label: 'Opentrons Setup',
+                            click() {
+                                BrowserWindow.getAllWindows()[0].webContents.send('menu-load-setup')
+                            },
+                        },
+                        {
+                            label: 'Labware',
+                            click() {
+                                BrowserWindow.getAllWindows()[0].webContents.send('menu-load-labware')
+                            },
+                        },
+                        {
+                            label: 'Chemicals',
+                            click() {
+                                BrowserWindow.getAllWindows()[0].webContents.send('menu-load-chemicals')
+                            },
+                        },
+                    ],
+                },
+                { type: 'separator' },
+                {
+                    label: 'Reset Current Configuration',
+                    enabled: !configIsEmpty,
+                    click() {
+                        BrowserWindow.getAllWindows()[0].webContents.send('menu-reset-configuration')
+                    },
+                },
+            ],
+        },
+        {
+            label: 'View',
+            submenu: [
+                { role: 'reload' },
+                { role: 'forceReload' },
+                { type: 'separator' },
+                { role: 'toggleDevTools' }, // This restores the Option+Command+I shortcut
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' },
+            ],
+        },
+        {
+            label: 'Window',
+            role: 'windowMenu',
+        },
+        {
+            label: 'Help',
+            role: 'help',
+            submenu: [
+                {
+                    label: 'Learn More',
+                    click: async () => {
+                        const { shell } = require('electron')
+                        await shell.openExternal('https://electronjs.org')
+                    },
+                },
+            ],
+        },
+    ]
+
+    const menu = Menu.buildFromTemplate(menuTemplate)
+    Menu.setApplicationMenu(menu)
 }
 
 app.whenReady()
     .then(() => {
         createWindow()
+        buildMenu()
 
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) {
@@ -40,6 +141,18 @@ app.on('window-all-closed', () => {
         app.quit()
     }
 })
+
+let configIsEmpty = true
+
+ipcMain.on('config-empty', () => {
+    configIsEmpty = true;
+    buildMenu();
+});
+
+ipcMain.on('config-not-empty', () => {
+    configIsEmpty = false;
+    buildMenu();
+});
 
 ipcMain.handle('fs-access', async (event, path) => {
     try {
