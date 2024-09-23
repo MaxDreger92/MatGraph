@@ -3,17 +3,23 @@ import EquipmentMenu from './EquipmentMenu'
 import Button from './Button'
 import ButtonRound from './ButtonRound'
 import { OpentronsContext } from '../context/OpentronsContext'
-import { getLabwareData } from '../functions/labware.functions'
+import { getLabwareDataFromFile } from '../functions/labware.functions'
 import { ILabware } from '../types/labware.types'
-import { getChemicalSetupData, getOpentronsSetupData } from '../functions/configuration.functions'
-import { ChemicalSetup, DefaultConfiguration, OpentronsSetup } from '../types/configuration.types'
+import { getChemicalSetupData, getOpentronsSetupData, sortSetupListByName } from '../functions/configuration.functions'
+import { ChemicalSetup, DefaultConfiguration, getNamedDefaultConfig, OpentronsSetup } from '../types/configuration.types'
 import SetupMenu from './SetupMenu'
+import { useSpring, animated } from 'react-spring'
+import Detail from './Detail'
 
 const { ipcRenderer, fs } = window.electron
 
-interface MenuProps {}
+interface MenuProps {
+    focusMode: boolean
+    split: number
+}
 
 export default function Menu(props: MenuProps) {
+    const { focusMode, split } = props
     const [menuOpen, setMenuOpen] = useState(false)
     const configPath = useRef<string | null>(null)
     const setupPath = useRef<string | null>(null)
@@ -31,11 +37,8 @@ export default function Menu(props: MenuProps) {
         setOpentronsSetupList,
         chemicalSetupList,
         setChemicalSetupList,
+        setSelectedSlot,
     } = useContext(OpentronsContext)
-
-    const handleOpenMenu = () => {
-        setMenuOpen((prev) => !prev)
-    }
 
     const handleLoadConfig = async () => {
         try {
@@ -173,7 +176,6 @@ export default function Menu(props: MenuProps) {
 
             if (newSetups.length > 0) {
                 setOpentronsSetupList('replace', newSetups)
-                setCurrentConfig({ opentronsSetup: newSetups[0] })
             }
         } catch (err: any) {
             console.error(`Error while loading opentrons setup: ${err.message}`)
@@ -231,7 +233,6 @@ export default function Menu(props: MenuProps) {
 
             if (newSetups.length > 0) {
                 setChemicalSetupList('replace', newSetups)
-                setCurrentConfig({ chemicalSetup: newSetups[0] })
             }
         } catch (err: any) {
             console.error(`Error while loading chemicals setup: ${err.message}`)
@@ -286,7 +287,7 @@ export default function Menu(props: MenuProps) {
 
                     const filename = filePath.split('/').pop() || 'unknown'
 
-                    const labwareData = getLabwareData(labwareFile.data, filename)
+                    const labwareData = getLabwareDataFromFile(labwareFile.data, filename)
 
                     newLabwares.push(labwareData)
                 } catch (err: any) {
@@ -298,21 +299,6 @@ export default function Menu(props: MenuProps) {
         } catch (err: any) {
             console.error(`Error while loading labware: ${err.message}`)
             return
-        }
-    }
-
-    const handleResetConfig = () => {
-        setCurrentConfig(DefaultConfiguration)
-    }
-
-    const handleSetActiveSetup = (type: string, index: number) => {
-        if (type === 'opentrons') {
-            if (opentronsSetupList.length <= index) return
-            setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
-        }
-        if (type === 'chemicals') {
-            if (chemicalSetupList.length <= index) return
-            setCurrentConfig({ chemicalSetup: chemicalSetupList[index] })
         }
     }
 
@@ -361,14 +347,119 @@ export default function Menu(props: MenuProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const handleResetConfig = () => {
+        setCurrentConfig(getNamedDefaultConfig([currentConfig.opentronsSetup.name, currentConfig.chemicalSetup.name]))
+    }
+
+    const handleSetActiveSetup = (type: string, index: number) => {
+        if (type === 'opentrons') {
+            if (opentronsSetupList.length <= index) return
+            if (index === -1) {
+                setCurrentConfig({opentronsSetup: {name: '', labware: []}})
+                return
+            }
+            setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
+            setSelectedSlot(null)
+        }
+        if (type === 'chemicals') {
+            if (chemicalSetupList.length <= index) return
+            setCurrentConfig({ chemicalSetup: chemicalSetupList[index] })
+        }
+    }
+
+    const handleCreateSetup = (type: string, name: string): number | null => {
+        if (type === 'opentrons') {
+            const newSetup: OpentronsSetup = {
+                name: name,
+                labware: []
+            }
+            const newSetupListPreview = sortSetupListByName([...opentronsSetupList, ...[newSetup]])
+            const index = newSetupListPreview.findIndex((setup) => setup.name === name)
+
+            setOpentronsSetupList('add', newSetup)
+            return index
+        }
+        if (type === 'chemicals') {
+            const newSetup: ChemicalSetup = {
+                name: name,
+                opentrons: [],
+                arduino: []
+            }
+            const newSetupListPreview = sortSetupListByName([...chemicalSetupList, ...[newSetup]])
+            const index = newSetupListPreview.findIndex((setup) => setup.name === name)
+
+            setChemicalSetupList('add', newSetup)
+            return index
+        }
+        return null
+    }
+
+    const handleSaveSetup = async (type: string, index: number) => {
+        if (type === 'opentrons') {
+            if (!setupPath.current) return
+            const fileName = opentronsSetupList[index].name
+            const filePath = `${setupPath.current}/${fileName}.json`
+            const { name, ...setupToSaveWithoutName } = currentConfig.opentronsSetup
+            const jsonData = JSON.stringify(setupToSaveWithoutName, null, 2)
+
+            try {
+                const result = await fs.writeFile(filePath, jsonData);
+    
+                if (result.success) {
+                    setOpentronsSetupList('replaceIndex', currentConfig.opentronsSetup, index)
+                    console.log('File saved successfully');
+                } else {
+                    console.error('Failed to save file:', result.error);
+                }
+            } catch (error) {
+                console.error('Error during save operation:', error);
+            }
+        }
+        if (type === 'chemicals') {
+            if (!chemicalsPath.current) return
+            const fileName = chemicalSetupList[index].name
+            const filePath = `${chemicalsPath.current}/${fileName}.json`
+            const { name, ...setupToSaveWithoutName } = currentConfig.chemicalSetup
+            const jsonData = JSON.stringify(setupToSaveWithoutName, null, 2)
+
+            try {
+                const result = await fs.writeFile(filePath, jsonData);
+    
+                if (result.success) {
+                    console.log('File saved successfully');
+                } else {
+                    console.error('Failed to save file:', result.error);
+                }
+            } catch (error) {
+                console.error('Error during save operation:', error);
+            }
+        }
+    }
+
+    const equipmentMenuAnimation = useSpring({
+        left: focusMode ? '-30%' : '0%',
+        config: focusMode ? { tension: 400, friction: 26 } : { tension: 170, friction: 26 },
+    })
+
+    const setupMenuAnimation = useSpring({
+        top: focusMode ? '-25%' : '2%',
+        config: focusMode ? { tension: 400, friction: 26 } : { tension: 170, friction: 26 },
+    })
+
+    const detailMenuAnimation = useSpring({
+        right: focusMode ? '-30%' : '0%',
+        config: focusMode ? { tension: 400, friction: 26 } : { tension: 170, friction: 26 },
+    })
+
     return (
         <>
-            <div
+            {/* Equipment */}
+            <animated.div
                 style={{
                     position: 'absolute',
-                    left: 0,
+                    left: equipmentMenuAnimation.left,
                     top: 0,
-                    width: '25%',
+                    width: `${split}%`,
                     height: '100%',
                     display: 'flex',
                     justifyContent: 'center',
@@ -376,12 +467,14 @@ export default function Menu(props: MenuProps) {
                 }}
             >
                 {labwareList.length > 0 && <EquipmentMenu />}
-            </div>
-            <div
+            </animated.div>
+
+            {/* Setup Menu */}
+            <animated.div
                 style={{
                     position: 'absolute',
-                    left: '25%',
-                    top: 20,
+                    left: `${split}%`,
+                    top: setupMenuAnimation.top,
                     width: '50%',
                     height: '100%',
                 }}
@@ -391,8 +484,26 @@ export default function Menu(props: MenuProps) {
                     chemicalSetupList={chemicalSetupList}
                     setActiveSetup={handleSetActiveSetup}
                     currentConfig={currentConfig}
+                    createSetup={handleCreateSetup}
+                    saveSetup={handleSaveSetup}
                 />
-            </div>
+            </animated.div>
+
+            {/* Detail Page */}
+            <animated.div
+                style={{
+                    position: 'absolute',
+                    right: detailMenuAnimation.right,
+                    top: 0,
+                    width: `${50 - split}%`,
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                {<Detail />}
+            </animated.div>
         </>
     )
 }

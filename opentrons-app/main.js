@@ -212,3 +212,12 @@ ipcMain.handle('select-file-or-folder', async () => {
     })
     return canceled ? null : filePaths[0]
 })
+
+ipcMain.handle('fs-writeFile', async (event, filePath, data, options) => {
+    try {
+        await fs.promises.writeFile(filePath, data, { encoding: 'utf-8', ...options })
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})

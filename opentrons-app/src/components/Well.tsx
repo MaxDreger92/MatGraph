@@ -1,28 +1,25 @@
-import chroma from "chroma-js"
-import { Chemical } from "../types/configuration.types"
-import { Cell, Pie, PieChart } from "recharts"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import chroma from 'chroma-js'
+import { Chemical } from '../types/configuration.types'
+import { Cell, Pie, PieChart } from 'recharts'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface WellProps {
     wellKey: string
     chemicals: Chemical[] | null
-    size: {width: number, height: number}
-    shape: {shape: string, orientation?: string, shrinkFactor?: number}
+    size: { width: number; height: number }
+    shape: { shape: string; orientation?: string; shrinkFactor?: number }
     totalVolume: number
 }
 
 export default function Well(props: WellProps) {
-    const {
-        wellKey,
-        chemicals,
-        size,
-        shape,
-        totalVolume
-    } = props
+    const { wellKey, chemicals, size, shape, totalVolume } = props
 
-    const getRandomColors = useMemo(() => (numColors: number) => {
-        return Array.from({ length: numColors }, () => chroma.random().hex())
-    }, [])
+    const getRandomColors = useMemo(
+        () => (numColors: number) => {
+            return Array.from({ length: numColors }, () => chroma.random().hex())
+        },
+        []
+    )
 
     const colors = useMemo(() => {
         if (!chemicals) return null
@@ -33,7 +30,7 @@ export default function Well(props: WellProps) {
         if (!chemicals || !colors) return
 
         let chemicalsVolume = 0
-        chemicals.forEach((chemical) => chemicalsVolume += chemical.volume.value)
+        chemicals.forEach((chemical) => (chemicalsVolume += chemical.volume.value))
 
         if (chemicalsVolume > totalVolume) return
 
@@ -43,24 +40,29 @@ export default function Well(props: WellProps) {
                 adjustedEmptyVolume /= 10
             }
 
-            const emptyPie: {name: string, value: number}[] = [{
-                name: 'empty',
-                value: adjustedEmptyVolume
-            }]
+            const emptyPie: { name: string; value: number }[] = [
+                {
+                    name: 'empty',
+                    value: adjustedEmptyVolume,
+                },
+            ]
 
-            const pieData = [...emptyPie, ...chemicals.map((chemical) => ({
-                name: chemical.name,
-                value: chemical.volume.value
-            }))]
+            const pieData = [
+                ...emptyPie,
+                ...chemicals.map((chemical) => ({
+                    name: chemical.name,
+                    value: chemical.volume.value,
+                })),
+            ]
 
             return (
                 <PieChart width={size.width} height={size.height}>
                     <Pie
                         data={pieData}
-                        dataKey="value"
-                        outerRadius={(size.width) / 2}
+                        dataKey='value'
+                        outerRadius={size.width / 2}
                         innerRadius={size.width / 4}
-                        fill="#8884d8"
+                        fill='#8884d8'
                         paddingAngle={3}
                         stroke='none'
                     >
@@ -75,10 +77,11 @@ export default function Well(props: WellProps) {
             while (adjustedTotalVolume / 10 > chemicalsVolume) {
                 adjustedTotalVolume /= 10
             }
-            const chemicalsToMap = shape.orientation === 'horizontal' ? [...chemicals] : [...chemicals.slice(0).reverse()]
+            const chemicalsToMap =
+                shape.orientation === 'horizontal' ? [...chemicals] : [...chemicals.slice(0).reverse()]
 
             return chemicalsToMap.map((chemical, index) => {
-                const percentage = (chemical.volume.value / adjustedTotalVolume)
+                const percentage = chemical.volume.value / adjustedTotalVolume
 
                 return (
                     <div
@@ -89,7 +92,7 @@ export default function Well(props: WellProps) {
                             left: 0,
                             width: shape.orientation === 'vertical' ? size.width : `${percentage * size.width}px`,
                             height: shape.orientation === 'horizontal' ? size.height : `${percentage * size.height}px`,
-                            backgroundColor: colors[index + 1]
+                            backgroundColor: colors[index + 1],
                         }}
                     ></div>
                 )
@@ -100,12 +103,13 @@ export default function Well(props: WellProps) {
     return (
         <div
             style={{
+                position: 'relative',
                 width: size.width,
                 height: size.height,
                 display: 'flex',
                 justifyContent: shape.orientation === 'vertical' ? 'flex-end' : 'flex-start',
                 alignItems: 'center',
-                flexDirection: shape.orientation === 'vertical' ? 'column' : 'row'
+                flexDirection: shape.orientation === 'vertical' ? 'column' : 'row',
             }}
         >
             {chemicals && getChart()}
@@ -118,7 +122,7 @@ export default function Well(props: WellProps) {
                     height: '100%',
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center'
+                    alignItems: 'center',
                 }}
             >
                 {wellKey}

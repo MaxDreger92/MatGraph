@@ -1,6 +1,7 @@
 import { ILabware } from '../types/labware.types'
 import { isILabware } from '../schemas/labware.schema'
-import { Chemical } from '../types/configuration.types'
+import { Chemical, OpentronsSetup } from '../types/configuration.types'
+import { getLabwareNameBySlot } from './configuration.functions'
 
 export const createOpentronsSetupLabware = (slot: number, labware: ILabware) => {
     if (!isILabware(labware)) return 
@@ -22,7 +23,7 @@ export const findLabwareByName = (labwareList: ILabware[], key: string): ILabwar
     return labware
 }
 
-export const getLabwareData = (data: any, filename: string): ILabware => {
+export const getLabwareDataFromFile = (data: any, filename: string): ILabware => {
     try {
         const parsedData = {...JSON.parse(data), filename}
         if (isILabware(parsedData)) {
@@ -33,6 +34,14 @@ export const getLabwareData = (data: any, filename: string): ILabware => {
     } catch (err: any) {
         throw Error
     }
+}
+
+export const getLabwareDataFromList = (slot: number, labwareList: ILabware[], opentronsSetup: OpentronsSetup) => {
+    const labwareName = getLabwareNameBySlot(opentronsSetup, slot)
+    if (!labwareName) return
+    const labwareData = findLabwareByName(labwareList, labwareName)
+    if (!labwareData) return
+    return labwareData
 }
 
 export const generateLabwareWells = (rows: number, cols: number): { [key: string]: Chemical[] | null } => {

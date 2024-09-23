@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('electron', {
         stat: (path) => ipcRenderer.invoke('fs-stat', path),
         readFile: (path, options) => ipcRenderer.invoke('fs-readFile', path, options),
         readdir: (path) => ipcRenderer.invoke('fs-readdir', path),
+        writeFile: (filePath, data, options) => ipcRenderer.invoke('fs-writeFile', filePath, data, options),
     },
 });

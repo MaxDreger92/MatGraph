@@ -7,10 +7,12 @@ interface SetupMenuProps {
     chemicalSetupList: ChemicalSetup[]
     setActiveSetup: (type: string, index: number) => void
     currentConfig: Configuration
+    createSetup: (type: string, name: string) => void
+    saveSetup: (type: string, index: number) => void
 }
 
 export default function SetupMenu(props: SetupMenuProps) {
-    const { opentronsSetupList, chemicalSetupList, setActiveSetup, currentConfig } = props
+    const { opentronsSetupList, chemicalSetupList, setActiveSetup, currentConfig, createSetup, saveSetup } = props
 
     const [setupMenuSize, setSetupMenuSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
     const containerRef = useRef(null)
@@ -23,7 +25,7 @@ export default function SetupMenu(props: SetupMenuProps) {
         const updateSize = () => {
             if (containerRef.current) {
                 const { offsetWidth, offsetHeight } = containerRef.current
-                const height = Math.min(offsetHeight - offsetWidth - 40, offsetHeight * 0.22)
+                const height = Math.min(offsetHeight - offsetWidth - (offsetHeight * 0.04), offsetHeight * 0.22)
                 setSetupMenuSize({ width: offsetWidth, height: height })
             }
         }
@@ -51,21 +53,22 @@ export default function SetupMenu(props: SetupMenuProps) {
             ref={containerRef}
             style={{
                 position: 'relative',
-                width: '100%',
+                width: `calc(100% - 10px)`,
                 height: '100%',
             }}
         >
-            <div
+            {(opentronsSetupList.length > 0 || chemicalSetupList.length > 0) && <div
                 className='setup-list'
                 style={{
                     position: 'relative',
                     width: setupMenuSize.width,
-                    height: setupMenuSize.height,
+                    height: setupMenuSize.height + 2,
                     backgroundColor: '#f5f5f5',
                     borderRadius: '8px',
                     filter: 'drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.15))',
                     display: 'flex',
                     flexDirection: 'row',
+                    padding: 5,
                 }}
             >
                 <SetupList
@@ -75,7 +78,10 @@ export default function SetupMenu(props: SetupMenuProps) {
                     setupList={opentronsSetupList}
                     setActiveSetup={handleSetActiveSetup}
                     currentConfig={currentConfig}
+                    createSetup={createSetup}
+                    saveSetup={saveSetup}
                 />
+                <div style={{ width: 5 }}></div>
                 <SetupList
                     numSetups={2}
                     header='Chemicals'
@@ -83,8 +89,10 @@ export default function SetupMenu(props: SetupMenuProps) {
                     setupList={chemicalSetupList}
                     setActiveSetup={handleSetActiveSetup}
                     currentConfig={currentConfig}
+                    createSetup={createSetup}
+                    saveSetup={saveSetup}
                 />
-            </div>
+            </div>}
         </div>
     )
 }

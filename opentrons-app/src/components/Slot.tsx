@@ -1,61 +1,57 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useDrop } from 'react-dnd';
-import { ILabware } from '../types/labware.types';
-import { OpentronsContext } from '../context/OpentronsContext';
-import { getLabwareNameBySlot, isLabwareInSlot } from '../functions/configuration.functions';
-import Labware from './Labware';
-import { createOpentronsSetupLabware, findLabwareByName } from '../functions/labware.functions';
-import { Configuration } from '../types/configuration.types';
+import React, { useContext, useEffect, useState } from 'react'
+import { useDrop } from 'react-dnd'
+import { ILabware } from '../types/labware.types'
+import { OpentronsContext } from '../context/OpentronsContext'
+import { getLabwareNameBySlot, isLabwareInSlot } from '../functions/configuration.functions'
+import Labware from './Labware'
+import { createOpentronsSetupLabware, findLabwareByName, getLabwareDataFromList } from '../functions/labware.functions'
+import { Configuration } from '../types/configuration.types'
 
 interface SlotProps {
-    slot: number;
-    bottom: string;
-    left: string;
+    slot: number
+    bottom: string
+    left: string
 }
 
 export default function Slot(props: SlotProps) {
-    const { slot, bottom, left } = props;
+    const { slot, bottom, left } = props
     const [renderedComponent, setRenderedComponent] = useState<React.FC<any> | null>(null)
-    const [componentProps, setComponentProps] = useState<any>(null);
-    const [highlighted, setHighlighted] = useState(false);
-    const { currentConfig, setCurrentConfig, labwareList } = useContext(OpentronsContext);
+    const [componentProps, setComponentProps] = useState<any>(null)
+    const [highlighted, setHighlighted] = useState(false)
+    const { currentConfig, setCurrentConfig, labwareList, selectedSlot } = useContext(OpentronsContext)
 
     useEffect(() => {
         if (isLabwareInSlot(currentConfig.opentronsSetup, slot)) {
-            const labwareName = getLabwareNameBySlot(currentConfig.opentronsSetup, slot)
-            if (!labwareName) return
-            const labwareData = findLabwareByName(labwareList, labwareName)
+            const labwareData = getLabwareDataFromList(slot, labwareList, currentConfig.opentronsSetup)
             if (!labwareData) return
-
-            setComponentProps({slot, labware: labwareData})
+            setComponentProps({ slot, labware: labwareData })
             setRenderedComponent(() => Labware)
         } else {
             setComponentProps(null)
             setRenderedComponent(null)
         }
-    }, [slot, currentConfig, labwareList]);
+    }, [slot, currentConfig, labwareList])
 
     const [{ isOver }, drop] = useDrop({
         accept: 'LABWARE',
         drop: (item: ILabware) => {
-            const newLabware = createOpentronsSetupLabware(slot, item);
-            if (!newLabware) return;
+            const newLabware = createOpentronsSetupLabware(slot, item)
+            if (!newLabware) return
 
             const currentLabwareSetup = currentConfig.opentronsSetup.labware
             const updatedLabwareSetup = [...currentLabwareSetup.filter((lw) => lw.slot !== slot), newLabware]
-    
+
             setCurrentConfig({
                 opentronsSetup: {
-                    labware: updatedLabwareSetup
-                }
-            });
+                    name: currentConfig.opentronsSetup.name,
+                    labware: updatedLabwareSetup,
+                },
+            })
         },
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
         }),
-    });
-    
-    
+    })
 
     const handleMouseDown = (event: React.MouseEvent) => {
         if (event.button === 1 && renderedComponent) {
@@ -64,17 +60,18 @@ export default function Slot(props: SlotProps) {
 
             setCurrentConfig({
                 opentronsSetup: {
-                    labware: updatedLabwareSetup
-                }
+                    name: currentConfig.opentronsSetup.name,
+                    labware: updatedLabwareSetup,
+                },
             })
         }
-    };
+    }
 
     return (
         <div
             key={slot}
             ref={drop}
-            className="slot"
+            className='slot'
             onMouseOver={() => setHighlighted(true)}
             onMouseOut={() => setHighlighted(false)}
             onMouseDown={handleMouseDown}
@@ -87,7 +84,7 @@ export default function Slot(props: SlotProps) {
                 height: '18%',
                 bottom: bottom,
                 left: left,
-                border: isOver ? '3px solid #ff9519' : 'none',
+                // border: isOver ? '3px solid #ff9519' : 'none',
             }}
         >
             {highlighted && renderedComponent === null && (
@@ -97,11 +94,31 @@ export default function Slot(props: SlotProps) {
                         width: '80%',
                         height: '80%',
                         borderRadius: '3%',
-                        border: '3px solid #ff9519',
+                        border: '2px solid #ff9519',
                     }}
                 ></div>
             )}
-            {renderedComponent && React.createElement(renderedComponent, componentProps)}
+            {/* {selectedSlot === slot && renderedComponent && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        height: '95%',
+                        width: '95%',
+                        filter: 'drop-shadow(1px 5px 3px #00000045)',
+                        backgroundColor: '#DDD',
+                    }}
+                ></div>
+            )} */}
+            <div
+                style={{
+                    position: 'absolute',
+                    top: '3%',
+                    height: '92%',
+                    width: '96%',
+                }}
+            >
+                {renderedComponent && React.createElement(renderedComponent, componentProps)}
+            </div>
         </div>
-    );
+    )
 }

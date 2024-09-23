@@ -4,6 +4,7 @@ import { ChemicalSetup, Configuration, DefaultConfiguration, OpentronsSetup } fr
 import { asList } from '../functions/functions'
 import { isILabware } from '../schemas/labware.schema'
 import { isChemicalSetup, isOpentronsSetup, isPartialConfiguration } from '../schemas/configuration.schema'
+import { sortSetupListByName } from '../functions/configuration.functions'
 
 interface OpentronsContextType {
     labwareList: ILabware[]
@@ -17,6 +18,9 @@ interface OpentronsContextType {
 
     chemicalSetupList: ChemicalSetup[]
     setChemicalSetupList: (action: ListAction, setup?: ChemicalSetup | ChemicalSetup[], index?: number) => void
+
+    selectedSlot: number | null
+    setSelectedSlot: (slot: number | null) => void
 }
 
 export const OpentronsContext = createContext<OpentronsContextType>({
@@ -26,11 +30,14 @@ export const OpentronsContext = createContext<OpentronsContextType>({
     currentConfig: DefaultConfiguration,
     setCurrentConfig: () => {},
 
-    opentronsSetupList: [], 
-    setOpentronsSetupList: () => {}, 
+    opentronsSetupList: [],
+    setOpentronsSetupList: () => {},
 
     chemicalSetupList: [],
-    setChemicalSetupList: () => {}
+    setChemicalSetupList: () => {},
+
+    selectedSlot: null,
+    setSelectedSlot: () => {},
 })
 
 export const OpentronsContextProvider = ({ children }: { children: ReactNode }) => {
@@ -38,6 +45,7 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
     const [currentConfig, setCurrentConfig] = useState<Configuration>(DefaultConfiguration)
     const [opentronsSetupList, setOpentronsSetupList] = useState<OpentronsSetup[]>([])
     const [chemicalSetupList, setChemicalSetupList] = useState<ChemicalSetup[]>([])
+    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
 
     const handleSetLabwareList = (action: ListAction, labware?: ILabware | ILabware[], loadName?: string) => {
         setLabwareList((prevList) => {
@@ -47,7 +55,9 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
                         const newList = [...prevList]
                         const labwareAsList = asList(labware)
                         for (const listItem of labwareAsList) {
-                            const existingLabwareIndex = labwareList.findIndex((lw) => lw.parameters.loadName === listItem.parameters.loadName)
+                            const existingLabwareIndex = labwareList.findIndex(
+                                (lw) => lw.parameters.loadName === listItem.parameters.loadName
+                            )
                             if (existingLabwareIndex === -1) {
                                 newList.push(listItem)
                             }
@@ -72,16 +82,11 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
     }
 
     const handleSetCurrentConfig = (config: Partial<Configuration>) => {
-        if (!isPartialConfiguration(config)) return;
-
-
+        if (!isPartialConfiguration(config)) return
 
         setCurrentConfig((prevConfig) => {
-            if (
-                !config.opentronsSetup &&
-                !config.chemicalSetup
-            ) {
-                return DefaultConfiguration;
+            if (!config.opentronsSetup && !config.chemicalSetup) {
+                return DefaultConfiguration
             } else {
                 return {
                     ...prevConfig,
@@ -94,18 +99,22 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
                         ...prevConfig.chemicalSetup,
                         ...config.chemicalSetup,
                     },
-                };
+                }
             }
-        });
-    };
+        })
+    }
 
-    const handleSetOpentronsSetupList = (action: ListAction, setup?: OpentronsSetup | OpentronsSetup[], index?: number) => {
+    const handleSetOpentronsSetupList = (
+        action: ListAction,
+        setup?: OpentronsSetup | OpentronsSetup[],
+        index?: number
+    ) => {
         setOpentronsSetupList((prevList) => {
             switch (action) {
                 case 'add':
                     if (isOpentronsSetup(setup)) {
                         const setupsAsList = asList(setup)
-                        return [...prevList, ...setupsAsList]
+                        return sortSetupListByName([...prevList, ...setupsAsList]) as OpentronsSetup[]
                     }
                     return prevList
                 case 'remove':
@@ -115,7 +124,20 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
                     return prevList
                 case 'replace':
                     if (isOpentronsSetup(setup)) {
-                        return asList(setup)
+                        return sortSetupListByName(asList(setup)) as OpentronsSetup[]
+                    }
+                    return prevList
+                case 'replaceIndex':
+                    if (
+                        isOpentronsSetup(setup) &&
+                        !Array.isArray(setup) &&
+                        typeof index === 'number' &&
+                        index >= 0 &&
+                        index < prevList.length
+                    ) {
+                        const newList = [...prevList]
+                        newList[index] = setup
+                        return newList
                     }
                     return prevList
                 default:
@@ -124,7 +146,11 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
         })
     }
 
-    const handleSetChemicalSetupList = (action: ListAction, setup?: ChemicalSetup | ChemicalSetup[], index?: number) => {
+    const handleSetChemicalSetupList = (
+        action: ListAction,
+        setup?: ChemicalSetup | ChemicalSetup[],
+        index?: number
+    ) => {
         setChemicalSetupList((prevList) => {
             switch (action) {
                 case 'add':
@@ -143,6 +169,19 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
                         return asList(setup)
                     }
                     return prevList
+                case 'replaceIndex':
+                    if (
+                        isChemicalSetup(setup) &&
+                        !Array.isArray(setup) &&
+                        typeof index === 'number' &&
+                        index >= 0 &&
+                        index < prevList.length
+                    ) {
+                        const newList = [...prevList]
+                        newList[index] = setup
+                        return newList
+                    }
+                    return prevList
                 default:
                     return prevList
             }
@@ -153,27 +192,31 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
         return (
             (!opentronsSetup.labware || opentronsSetup.labware.length === 0) &&
             (!opentronsSetup.pipettes || opentronsSetup.pipettes.length === 0)
-        );
-    };
-    
+        )
+    }
+
     const isChemicalSetupEmpty = (chemicalSetup: ChemicalSetup): boolean => {
         return (
             (!chemicalSetup.opentrons || chemicalSetup.opentrons.length === 0) &&
             (!chemicalSetup.arduino || chemicalSetup.arduino.length === 0)
-        );
-    };
+        )
+    }
 
     useEffect(() => {
         const isEmptyConfig =
-            isOpentronsSetupEmpty(currentConfig.opentronsSetup) &&
-            isChemicalSetupEmpty(currentConfig.chemicalSetup);
-    
+            isOpentronsSetupEmpty(currentConfig.opentronsSetup) && isChemicalSetupEmpty(currentConfig.chemicalSetup)
+
         if (isEmptyConfig) {
-            window.electron.ipcRenderer.send('config-empty');
+            window.electron.ipcRenderer.send('config-empty')
         } else {
-            window.electron.ipcRenderer.send('config-not-empty');
+            window.electron.ipcRenderer.send('config-not-empty')
         }
-    }, [currentConfig]);
+    }, [currentConfig])
+
+    const handleSetSelectedSlot = (slot: number | null) => {
+        if (slot === 0) return
+        setSelectedSlot(slot)
+    }
 
     return (
         <OpentronsContext.Provider
@@ -185,7 +228,9 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
                 opentronsSetupList,
                 setOpentronsSetupList: handleSetOpentronsSetupList,
                 chemicalSetupList,
-                setChemicalSetupList: handleSetChemicalSetupList
+                setChemicalSetupList: handleSetChemicalSetupList,
+                selectedSlot: selectedSlot,
+                setSelectedSlot: handleSetSelectedSlot
             }}
         >
             {children}
@@ -193,10 +238,6 @@ export const OpentronsContextProvider = ({ children }: { children: ReactNode }) 
     )
 }
 
-const listActions = [
-    'add',
-    'remove',
-    'replace'
-]
+const listActions = ['add', 'remove', 'replace', 'replaceIndex']
 
-type ListAction = typeof listActions[number]
+type ListAction = (typeof listActions)[number]

@@ -1,3 +1,18 @@
+export const getNamedDefaultConfig = (names: string[]) => {
+    return {
+        opentronsSetup: {
+            name: names[0],
+            labware: [],
+            pipettes: []
+        },
+        chemicalSetup: {
+            name: names[1],
+            opentrons: [],
+            arduino: []
+        }
+    }
+}
+
 export const DefaultConfiguration: Configuration = {
     opentronsSetup: {
         name: '',
@@ -17,7 +32,7 @@ export interface Configuration {
 }
 
 export interface OpentronsSetup {
-    name?: string
+    name: string
     labware: Labware[]
     pipettes?: Pipette[]
 }
@@ -38,7 +53,7 @@ interface Pipette {
 }
 
 export interface ChemicalSetup {
-    name?: string
+    name: string
     opentrons: Chemical[]
     arduino: Chemical[]
 }

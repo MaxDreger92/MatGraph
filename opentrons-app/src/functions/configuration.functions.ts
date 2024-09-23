@@ -1,6 +1,19 @@
 import { isChemicalSetup, isOpentronsSetup } from "../schemas/configuration.schema"
 import { ChemicalSetup, OpentronsSetup } from "../types/configuration.types"
 
+export const sortSetupListByName = (setupList: OpentronsSetup[] | ChemicalSetup[]) => {
+    const sortedSetupList = [...setupList].sort((setupA, setupB) => {
+
+        const nameA = setupA.name.toLowerCase()
+        const nameB = setupB.name.toLowerCase()
+
+        if (nameA < nameB) return -1
+        if (nameA > nameB) return 1
+        return 0
+    }) as OpentronsSetup[] | ChemicalSetup[]
+    return sortedSetupList
+}
+
 export const getOpentronsSetupData = (data: any, name: string): OpentronsSetup | null => {
     try {
         const parsedData = JSON.parse(data)
