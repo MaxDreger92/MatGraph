@@ -1,4 +1,6 @@
-import { Chemical } from "../types/configuration.types"
+import { useContext } from 'react'
+import { Chemical } from '../types/configuration.types'
+import { OpentronsContext } from '../context/OpentronsContext'
 
 interface ChemicalListProps {
     chemicals: Chemical[]
@@ -6,7 +8,11 @@ interface ChemicalListProps {
 }
 
 export default function ChemicalList(props: ChemicalListProps) {
-    const { chemicals, width, } = props
+    const { chemicals, width } = props
+
+    const { currentConfig, setCurrentConfig } = useContext(OpentronsContext)
+
+    // const addChemical = ()
 
     return (
         <div
@@ -58,7 +64,7 @@ export default function ChemicalList(props: ChemicalListProps) {
                     }}
                 >
                     {chemicals.map((chemical, index) => (
-                        <tr key={index} style={{height: 35}}>
+                        <tr key={index} style={{ height: 35 }}>
                             <td
                                 style={{
                                     // borderBottom: '1px solid #ccc',
@@ -81,6 +87,40 @@ export default function ChemicalList(props: ChemicalListProps) {
                             </td>
                         </tr>
                     ))}
+                    <tr>
+                        <td
+                            style={{
+                                height: 35,
+                                padding: '5px 0 5px 5px',
+                                fontWeight: 400,
+                                fontSize: 14,
+                                backgroundColor: '#f5f5f5',
+                                boxSizing: 'border-box',
+                            }}
+                        >
+                            <input
+                                type="text"
+                                placeholder=''
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    backgroundColor: 'inherit',
+                                    border: 'none',
+                                    outline: 'none'
+                                }}
+                            />
+                        </td>
+                        <td
+                            style={{
+                                height: 35,
+                                padding: '5px 0 5px 5px',
+                                fontWeight: 400,
+                                fontSize: 14,
+                                backgroundColor: '#f5f5f5',
+                                boxSizing: 'border-box',
+                            }}
+                        ></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

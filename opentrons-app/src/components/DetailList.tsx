@@ -12,10 +12,16 @@ export default function DetailList(props: DetailListProps) {
         value,
         width,
     } = props
+    const [capitalizedLabel, setCapitalizedLabel] = useState(label)
+
+    useEffect(() => {
+        const newCapitalized = label.charAt(0).toUpperCase() + label.slice(1)
+        setCapitalizedLabel(newCapitalized)
+    }, [label])
 
     return (
         <>
-            {label}
+            {capitalizedLabel}
             <div
                 style={{
                     position: 'relative',

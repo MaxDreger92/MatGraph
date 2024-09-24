@@ -351,13 +351,22 @@ export default function Menu(props: MenuProps) {
         setCurrentConfig(getNamedDefaultConfig([currentConfig.opentronsSetup.name, currentConfig.chemicalSetup.name]))
     }
 
+    const handleResetOpentronsSetup = () => {
+        setCurrentConfig({opentronsSetup: DefaultConfiguration.opentronsSetup})
+    }
+
+    const handleResetChemicalSetup = () => {
+        setCurrentConfig({chemicalSetup: DefaultConfiguration.chemicalSetup})
+    }
+
     const handleSetActiveSetup = (type: string, index: number) => {
         if (type === 'opentrons') {
             if (opentronsSetupList.length <= index) return
-            if (index === -1) {
-                setCurrentConfig({opentronsSetup: {name: '', labware: []}})
-                return
-            }
+
+            handleResetOpentronsSetup()
+
+            if (index === -1) return
+            
             setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
             setSelectedSlot(null)
         }
@@ -437,7 +446,7 @@ export default function Menu(props: MenuProps) {
     }
 
     const equipmentMenuAnimation = useSpring({
-        left: focusMode ? '-30%' : '0%',
+        left: focusMode ? `-${split}%` : '0%',
         config: focusMode ? { tension: 400, friction: 26 } : { tension: 170, friction: 26 },
     })
 
@@ -447,7 +456,7 @@ export default function Menu(props: MenuProps) {
     })
 
     const detailMenuAnimation = useSpring({
-        right: focusMode ? '-30%' : '0%',
+        right: focusMode ? `-${100 - split}%` : '0%',
         config: focusMode ? { tension: 400, friction: 26 } : { tension: 170, friction: 26 },
     })
 

@@ -12,27 +12,27 @@ interface DeckProps {
     focusMode: boolean
     setFocusMode: () => void
     split: number
+    isAnimated: boolean
 }
 
 export default function Deck(props: DeckProps) {
-    const { focusMode, setFocusMode, split } = props
+    const { focusMode, setFocusMode, split, isAnimated } = props
     const { opentronsSetupList, chemicalSetupList } = useContext(OpentronsContext)
     const [buttonHovered, setButtonHovered] = useState(false)
     const [buttonClicked, setButtonClicked] = useState(false)
 
     const deckAnimation = useSpring({
+        left: focusMode ? '25%' : `${split}%`,
         bottom: '2%',
         width: focusMode ? '55%' : '50%',
         config: { tension: 170, friction: 26 },
+        immediate: !isAnimated
     })
 
     return (
         <animated.div
             className='deck noselect'
-            style={{
-                ...deckAnimation,
-                left: focusMode ? '25%' : `${split}%`,
-            }}
+            style={deckAnimation}
         >
             <img className='img-deck' src={img_deck} alt='OT-2 Deck' />
             {/* Header */}
@@ -66,7 +66,6 @@ export default function Deck(props: DeckProps) {
                     setButtonHovered(false)
                     setButtonClicked(false)
                 }}
-
                 style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -94,9 +93,9 @@ export default function Deck(props: DeckProps) {
                     }}
                 ></div>
                 <div
-                                onMouseDown={() => setButtonClicked(true)}
-                                onMouseUp={() => setButtonClicked(false)}
-                                onClick={setFocusMode}
+                    onMouseDown={() => setButtonClicked(true)}
+                    onMouseUp={() => setButtonClicked(false)}
+                    onClick={setFocusMode}
                     style={{
                         position: 'absolute',
                         width: '100%',

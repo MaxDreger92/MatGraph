@@ -52,7 +52,6 @@ export default function Workspace(props: WorkspaceProps) {
             isDraggingRight.current = true
             return
         }
-
     }
 
     const handleRightClick = (event: React.MouseEvent) => {
@@ -60,11 +59,20 @@ export default function Workspace(props: WorkspaceProps) {
         setSplit(25)
     }
 
+    const isDeckAnimated = () => {
+        return !isDraggingLeft.current && !isDraggingRight.current
+    }
+
     return (
         <div className='workspace' ref={workspaceRef}>
             <OpentronsContextProvider>
                 <Menu focusMode={focusMode} split={split} />
-                <Deck focusMode={focusMode} setFocusMode={handleSetFocusMode} split={split} />
+                <Deck
+                    focusMode={focusMode}
+                    setFocusMode={handleSetFocusMode}
+                    split={split}
+                    isAnimated={isDeckAnimated()}
+                />
                 {!focusMode && (
                     <>
                         <div
