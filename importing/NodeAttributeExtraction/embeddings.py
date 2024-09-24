@@ -93,7 +93,7 @@ if __name__ == "__main__":
     directory = "./NodeAttributeExtraction/embedding_inputs/"
     #iterate over all csv files
     for file in os.listdir(directory):
-        if file.endswith("property_attributes_inputs.csv") or file.endswith("property_inputs.csv"):
+        if file.endswith("property_attribute_inputs.csv") or file.endswith("manufacturing_inputs.csv"):
             print(file)
             generator = EmbeddingGenerator(directory+file)
             df = generator.parse_data()

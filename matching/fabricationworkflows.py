@@ -250,14 +250,14 @@ class FabricationWorkflowMatcher(Matcher):
         UNWIND pathNodes AS pathNode
         CALL apoc.case([
         pathNode:Matter,
-        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Property)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info',
+        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PROPERTY]->(property:Property)-[:IS_A]->(property_label:EMMOQuantity) RETURN [pathNode.uid, property.value, onto.name + "_" + property.name] as node_info',
         pathNode:Process,
-        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Parameter)-[:IS_A]->(property_label:EMMOQuantity) RETURN DISTINCT [pathNode.uid, property.value, onto.name + "_" + property_label.name] as node_info'
+        'OPTIONAL MATCH (onto)<-[:IS_A]-(pathNode)-[node_p:HAS_PARAMETER]->(property:Parameter)-[:IS_A]->(property_label:EMMOQuantity) RETURN [pathNode.uid, property.value, onto.name + "_" + property_label.name + "_" + property.name] as node_info'
         ])
         YIELD value AS node_info
-        WITH DISTINCT collect(DISTINCT node_info['node_info']) AS node_info, combinations
+        WITH collect(node_info['node_info']) AS node_info, combinations
         RETURN DISTINCT apoc.coll.toSet(collect(DISTINCT combinations)) AS combinations,
-        apoc.coll.toSet(apoc.coll.flatten(collect(DISTINCT node_info))) AS metadata
+        apoc.coll.toSet(apoc.coll.flatten(collect(node_info))) AS metadata
         """
 
         # Assuming _build_single_path_query remains unchanged
