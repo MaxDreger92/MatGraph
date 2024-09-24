@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react"
 import { useMantineColorScheme } from "@mantine/core"
 
-import { IRelationship, Position } from "../../../types/canvas.types"
-import RelationshipContext from "./RelationshipContext"
+import { TRelationship, Position } from "../../../types/canvas.types"
+import RelationshipContext from "./RelationshipContextMenu"
 
 interface RelationshipProps {
-  relationship: IRelationship
+  relationship: TRelationship
   isSelected: boolean
-  handleRelationshipAction: (relationshipID: IRelationship["id"], action: string) => void
+  handleRelationshipAction: (relationshipID: TRelationship["id"], action: string) => void
 }
 
 interface TempRelationshipProps {
