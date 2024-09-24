@@ -4,24 +4,18 @@ from .fabricationworkflows import FabricationWorkflowMatcher
 import json
 from django.shortcuts import render
 
-@csrf_exempt  # This decorator allows for POST requests from all origins, not recommended in production environment.
-def workflow_matcher_view(request):
-    print("miau")
-    return render(request, 'index.html')
-
+@csrf_exempt
 def workflow_matcher(request):
     print("miau")
 
-    if request.method == 'GET':
-        # Retrieve the 'jsonData' from the GET query parameters instead of request body
-        string_data = request.GET.get('workflow', None)
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+        params = data["params"]
+        graph = params["graph"]
+        parsedGraph = json.loads(graph)
 
-        if not string_data:
-            return JsonResponse({'error': 'jsonData is required.'}, status=400)
-
-        data = json.loads(string_data)
-
-        matcher = FabricationWorkflowMatcher(data, force_report=True)
+        matcher = FabricationWorkflowMatcher(parsedGraph, force_report=True)
         matcher.run()
 
         # Convert the DataFrame to CSV and create an HTTP response with it
@@ -31,7 +25,7 @@ def workflow_matcher(request):
                                 headers = {'Content-Disposition': 'attachment; filename=workflows.csv'})
         return response
     else:
-        return JsonResponse({'error': 'Only GET method is allowed.'}, status=405)
+        return JsonResponse({'error': 'Only POST method is allowed.'}, status=405)
 
 
 
