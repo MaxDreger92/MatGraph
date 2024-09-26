@@ -11,6 +11,7 @@ class UserRepository {
     }
 
     static findByMail = async (email: string): Promise<IUser | null> => {
+        console.log('trying to get collection')
         const collection = await this.getCollection();
         return await collection.findOne({ email: email });
     }
