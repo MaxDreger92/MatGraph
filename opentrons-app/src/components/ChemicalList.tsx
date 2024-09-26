@@ -3,12 +3,13 @@ import { Chemical } from '../types/configuration.types'
 import { OpentronsContext } from '../context/OpentronsContext'
 
 interface ChemicalListProps {
+    wellVolume: number
     chemicals: Chemical[]
     width: number
 }
 
 export default function ChemicalList(props: ChemicalListProps) {
-    const { chemicals, width } = props
+    const { wellVolume, chemicals, width } = props
 
     const { currentConfig, setCurrentConfig } = useContext(OpentronsContext)
 
@@ -83,7 +84,7 @@ export default function ChemicalList(props: ChemicalListProps) {
                                     fontSize: 14,
                                 }}
                             >
-                                {chemical.volume.value} {chemical.volume.unit}
+                                {chemical.volume.value} {chemical.volume.unit} {(chemical.volume.value / wellVolume * 100).toFixed(2)}
                             </td>
                         </tr>
                     ))}

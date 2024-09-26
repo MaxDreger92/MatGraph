@@ -168,7 +168,7 @@ export default function Detail(props: DetailProps) {
                         <DetailList label={selectedWell} value={labware.wells[selectedWell]} width={itemSize.width} />
                     )}
                     {selectedWell && chemicalsInWell && ( // Selected Well Chemicals
-                        <ChemicalList chemicals={chemicalsInWell} width={itemSize.width}/>
+                        <ChemicalList wellVolume={} chemicals={chemicalsInWell} width={itemSize.width}/>
                     )}
                 </div>
             </div>

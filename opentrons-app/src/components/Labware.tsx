@@ -368,6 +368,7 @@ export default function Labware(props: LabwareProps) {
                                             size={wellSize}
                                             shape={wellShape}
                                             totalVolume={labware.wells['A1'].totalLiquidVolume}
+                                            inDetail={selectedWell !== undefined}
                                         />
                                     ) : (
                                         wellKey
