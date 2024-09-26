@@ -26,6 +26,7 @@ router.post('/api/users/login', async (req, res) => {
             })
         }
 
+        console.log('email: ', password)
         const user = await UserService.findByMail(email)
         if (!user) {
             return res.status(401).json({
