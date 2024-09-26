@@ -84,7 +84,7 @@ export default function ChemicalList(props: ChemicalListProps) {
                                     fontSize: 14,
                                 }}
                             >
-                                {chemical.volume.value} {chemical.volume.unit} {(chemical.volume.value / wellVolume * 100).toFixed(2)}
+                                {chemical.volume.value} {chemical.volume.unit} / {(chemical.volume.value / wellVolume * 100).toFixed(2)}%
                             </td>
                         </tr>
                     ))}
@@ -97,6 +97,7 @@ export default function ChemicalList(props: ChemicalListProps) {
                                 fontSize: 14,
                                 backgroundColor: '#f5f5f5',
                                 boxSizing: 'border-box',
+                                border: '2px dashed #DDD',
                             }}
                         >
                             <input
