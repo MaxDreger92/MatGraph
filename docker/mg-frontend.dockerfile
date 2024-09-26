@@ -12,8 +12,6 @@ RUN apt-get update && \
 RUN python -m ensurepip --upgrade && \
     python -m pip install --upgrade setuptools
 
-RUN python -m venv venv
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install gunicorn
