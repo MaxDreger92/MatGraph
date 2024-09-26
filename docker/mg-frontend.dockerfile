@@ -9,15 +9,14 @@ RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs
 
-RUN python -m ensurepip --upgrade && \
-    python -m pip install --upgrade setuptools
+RUN python3 -m pip install --upgrade pip setuptools
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-RUN pip install gunicorn
+RUN pip3 install gunicorn
 
 RUN chmod +x /app/deployDjango_docker.sh
 
-RUN python manage.py collectstatic --noinput
+RUN python3 manage.py collectstatic --noinput
 
 ENTRYPOINT ["/app/deployDjango_docker.sh"]
