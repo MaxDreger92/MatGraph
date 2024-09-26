@@ -6,9 +6,7 @@ RUN apt-get update && \
     apt-get install -y curl gnupg python3-venv && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    npm install -g pm2
-
-RUN python -m venv venv
+    npm install -g pm2 typescript
 
 COPY . /app
 
