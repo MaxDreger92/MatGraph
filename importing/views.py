@@ -46,7 +46,6 @@ class FileImportView(APIView):
 
         try:
             csv_table = request.POST["csvTable"]
-            user_token = request.user_token
 
             file_obj = request.FILES["file"]
             if not file_obj.name.endswith(".csv"):
@@ -62,16 +61,7 @@ class FileImportView(APIView):
                 "fileName": file_obj.name,
             }
         
-            response_data = await user_db_request(request_data, None, user_token, "post")
-            if "upload" in response_data:
-                return JsonResponse(
-                    {
-                        "upload": response_data.get("upload")
-                    },
-                    status = 201
-                )
-            else:
-                raise ValueError("No upload process was returned!")
+            return JsonResponse({},status = 200)
         
         except Exception as e:
             print(f"Exception occurred: {e}")

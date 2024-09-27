@@ -219,9 +219,7 @@ export default function WorkspaceButtons(props: WorkspaceButtonsProps) {
 
   return (
     <>
-      {renderHistoryIcon()}
       {renderJsonIcon()}
-      {uploadMode && renderTableIcon()}
     </>
   )
 }

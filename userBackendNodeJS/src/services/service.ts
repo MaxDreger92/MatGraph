@@ -5,11 +5,11 @@ import axios from 'axios'
 import nodemailer from 'nodemailer'
 import fs from 'fs'
 
-import UserRepository from '../repositories/user.repo'
 import WorkspaceRepository from '../repositories/workspace.repo'
 import { MDB_IUser as IUser } from '../types/user.type'
 import { Graph, Upload } from '../types/workspace.types'
 import { IGetUserAuthInfoRequest } from '../types/req'
+import UserRepository from '../repositories/user.repo'
 
 class UserService {
     // ################################## User
@@ -286,9 +286,8 @@ class UserService {
     // ##################################
     // ##################################
     static generateAccessToken = async (email: string, purpose: string = 'default-purpose') => {
-        const userId = await UserRepository.getUserID(email)
         const token = jwt.sign(
-            { userId: userId, purpose: purpose },
+            { userId: email, purpose: purpose },
             process.env.TOKEN_SECRET as string
         )
         return token
