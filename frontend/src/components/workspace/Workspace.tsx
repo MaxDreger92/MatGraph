@@ -503,36 +503,6 @@ export default function Workspace(props: WorkspaceProps) {
             </WorkspaceTableContext.Provider>
 
             <animated.div
-                className="workspace-history"
-                style={{
-                    height: springProps.canvasHeight,
-                    width: springProps.historyViewWidth,
-                    borderRight: historyView
-                        ? darkTheme
-                            ? '1px solid #333'
-                            : '1px solid #ced4da'
-                        : 'none',
-                    backgroundColor: darkTheme ? '#25262b' : '#fff',
-                    zIndex: 1,
-                }}
-                children={
-                    <WorkspaceHistory
-                        uploadMode={uploadMode}
-                        graph={graph}
-                        setNodes={setNodes}
-                        setRelationships={setRelationships}
-                        setNeedLayout={setNeedLayout}
-                        upload={upload}
-                        setUpload={setUpload}
-                        uploadProcessing={uploadProcessing}
-                        setUploadProcessing={setUploadProcessing}
-                        historyView={historyView}
-                        darkTheme={darkTheme}
-                    />
-                }
-            />
-
-            <animated.div
                 className="workspace-drawer-right"
                 style={{
                     height: springProps.canvasHeight,
@@ -558,62 +528,6 @@ export default function Workspace(props: WorkspaceProps) {
                     </>
                 }
             />
-
-            {uploadMode && (
-                <animated.div
-                    className="workspace-drawer-bottom"
-                    style={{
-                        height: drawerHandleActiveRef.current
-                            ? tableViewHeight
-                            : springProps.tableViewHeight,
-                        width: '100%',
-                        borderTop: tableView
-                            ? darkTheme
-                                ? '1px solid #333'
-                                : '1px solid #ced4da'
-                            : 'none',
-                        backgroundColor: darkTheme ? '#25262b' : '#fff',
-                        zIndex: 1,
-                        overflow: 'visible',
-                    }}
-                    children={
-                        <div
-                            className={`${drawerHandleActiveRef.current ? 'unselectable' : ''}`}
-                            style={{
-                                height: '100%',
-                            }}
-                        >
-                            <WorkspaceTableContext.Provider value={tableContextValue}>
-                                <WorkspaceDrawer
-                                    tableView={tableView}
-                                    tableViewHeight={tableViewHeight}
-                                    progress={progress}
-                                    setProgress={setProgress}
-                                    setNodes={setNodes}
-                                    setRelationships={setRelationships}
-                                    setNeedLayout={setNeedLayout}
-                                    graph={graph}
-                                    upload={upload}
-                                    uploadProcessing={uploadProcessing}
-                                    setUploadProcessing={setUploadProcessing}
-                                    setUpload={setUpload}
-                                    selectedNodes={selectedNodes}
-                                    rebuildIndexDictionary={rebuildIndexDictionary}
-                                    darkTheme={darkTheme}
-                                />
-                            </WorkspaceTableContext.Provider>
-                            {tableView && (
-                                <WorkspaceDrawerHandle
-                                    handleActive={drawerHandleActiveRef}
-                                    tableViewHeight={tableViewHeight}
-                                    setTableViewHeight={setTableViewHeight}
-                                    setTableView={setTableView}
-                                />
-                            )}
-                        </div>
-                    }
-                />
-            )}
             <div className="workspace-btn-wrap" style={{ zIndex: 1 }}>
                 <WorkspaceButtons
                     uploadMode={uploadMode}

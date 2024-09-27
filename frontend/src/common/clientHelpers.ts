@@ -1,6 +1,7 @@
 import client from '../client'
 import toast from 'react-hot-toast'
 import { UploadListItem, Graph, Upload, Dictionary } from '../types/workspace.types'
+import { AiOutlineSmallDash } from 'react-icons/ai'
 
 // ################################## Uploads
 // ##################################
@@ -151,7 +152,7 @@ export const requestFileUpload = async (
     file: File,
     csvTable: string
 ): Promise<Upload | void> => {
-    try {   
+    try {  
         const response = await client.requestFileUpload(file, csvTable)
         if (!response || !response.data.upload) {
             toast.error('File could not be uploaded!')

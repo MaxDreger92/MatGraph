@@ -608,20 +608,11 @@ class Client {
 
     async requestFileUpload(file: File, csvTable: string) {
         try {
-            const token = getCookie('token')
-            if (!token) {
-                throw new Error('Token could not be retrieved!')
-            }
-
             let formData = new FormData()
             formData.append('file', file)
             formData.append('csvTable', csvTable)
 
-            const response = await this.dataClient.post('import/file', formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+            const response = await this.dataClient.post('import/file', formData)
 
             if (!response) {
                 throw new Error()
