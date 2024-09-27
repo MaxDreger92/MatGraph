@@ -86,7 +86,6 @@ export default function Detail(props: DetailProps) {
                 display: selectedSlot ? 'flex' : 'none',
                 flexDirection: 'column',
                 alignItems: 'center',
-                overflow: 'hidden',
                 padding: 5,
             }}
         >
@@ -113,7 +112,6 @@ export default function Detail(props: DetailProps) {
                     flexDirection: 'column',
                     backgroundColor: '#EEE',
                     borderRadius: 5,
-                    overflow: 'hidden',
                     width: '100%',
                     height: '100%',
                     alignItems: 'center',
@@ -136,6 +134,7 @@ export default function Detail(props: DetailProps) {
                 </div>
 
                 <div // Info
+                    className='info'
                     style={{
                         position: 'relative',
                         width: '100%',
@@ -143,6 +142,7 @@ export default function Detail(props: DetailProps) {
                         display: 'flex',
                         flexDirection: 'column',
                         overflowY: 'auto',
+                        overflowX: 'hidden',
                     }}
                 >
                     {labware && // Labware Info

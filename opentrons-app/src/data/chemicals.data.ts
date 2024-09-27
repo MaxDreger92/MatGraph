@@ -1,4 +1,4 @@
-export const chemicalColors: { [key: string]: string } = {
+export const chemicalData: { [key: string]: string } = {
     "H2O": "#d8f4ff", // Blue
     "NaCl": "#fff", // Mint
 }

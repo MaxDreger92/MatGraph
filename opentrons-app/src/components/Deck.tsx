@@ -1,7 +1,7 @@
 import img_deck from '../img/deck-outline-no-button.png'
 import { deckSlotPositions } from '../data/opentrons.data'
 import Slot from './Slot'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { OpentronsContext } from '../context/OpentronsContext'
 import { useSpring, animated } from 'react-spring'
 import { RiFocus3Line } from 'react-icons/ri'
@@ -31,7 +31,7 @@ export default function Deck(props: DeckProps) {
 
     return (
         <animated.div
-            className='deck noselect'
+            className='deck'
             style={deckAnimation}
         >
             <img className='img-deck' src={img_deck} alt='OT-2 Deck' />
@@ -50,8 +50,10 @@ export default function Deck(props: DeckProps) {
                     alignSelf: 'flex-start',
                 }}
             >
-                OT-2 Deck
+                Header
             </span> */}
+
+            {/* Slots */}
             {deckSlotPositions.map((slotPosition) => (
                 <Slot
                     key={slotPosition.slot}
@@ -60,6 +62,8 @@ export default function Deck(props: DeckProps) {
                     left={slotPosition.left}
                 />
             ))}
+
+            {/* Shadowed Deck Button */}
             <div
                 onMouseEnter={() => setButtonHovered(true)}
                 onMouseLeave={() => {
@@ -76,12 +80,11 @@ export default function Deck(props: DeckProps) {
                     top: '90%',
                     backgroundColor: '#cfcfcf',
                     borderRadius: 40,
-
-                    // filter: 'drop-shadow(0 1px 3px #00000015)',
                     cursor: 'pointer',
                     color: '#555',
                 }}
             >
+                {/* Shadow */}
                 <div
                     style={{
                         top: '7%',
@@ -92,6 +95,7 @@ export default function Deck(props: DeckProps) {
                         backgroundColor: chroma('#cfcfcf').darken(0.5).hex(),
                     }}
                 ></div>
+                {/* Button */}
                 <div
                     onMouseDown={() => setButtonClicked(true)}
                     onMouseUp={() => setButtonClicked(false)}
@@ -105,25 +109,6 @@ export default function Deck(props: DeckProps) {
                         transform: buttonClicked ? 'translate(0, 2px)' : buttonHovered ? 'translate(0, -2px)' : 'none',
                     }}
                 ></div>
-                {/* {focusMode ? (
-                        <MdZoomInMap
-                            style={{
-                                height: '75%',
-                                width: '75%',
-                                color: buttonHovered ? '#AAA' : '#BBB',
-                            }}
-                        />
-                    ) : (
-                        <MdZoomOutMap
-                            style={{
-                                height: '75%',
-                                width: '75%',
-                                color: buttonHovered ? '#AAA' : '#BBB',
-                            }}
-                        />
-                    )
-                } */}
-                {/* {buttonHovered ? focusMode ? 'Deck View' : 'Setup View' : null} */}
             </div>
         </animated.div>
     )

@@ -23,13 +23,14 @@ export default function Slot(props: SlotProps) {
     useEffect(() => {
         if (isLabwareInSlot(currentConfig.opentronsSetup, slot)) {
             const labwareData = getLabwareDataFromList(slot, labwareList, currentConfig.opentronsSetup)
-            if (!labwareData) return
-            setComponentProps({ slot, labware: labwareData })
-            setRenderedComponent(() => Labware)
-        } else {
-            setComponentProps(null)
-            setRenderedComponent(null)
+            if (labwareData) {
+                setComponentProps({ slot, labware: labwareData })
+                setRenderedComponent(() => Labware)
+                return
+            }
         }
+        setComponentProps(null)
+        setRenderedComponent(null)
     }, [slot, currentConfig, labwareList])
 
     const [{ isOver }, drop] = useDrop({
@@ -54,7 +55,7 @@ export default function Slot(props: SlotProps) {
     })
 
     const handleMouseDown = (event: React.MouseEvent) => {
-        if (event.button === 1 && renderedComponent) {
+        if ((event.button === 1 || event.button === 2) && renderedComponent) {
             const currentLabwareSetup = currentConfig.opentronsSetup.labware
             const updatedLabwareSetup = currentLabwareSetup.filter((lw) => lw.slot !== slot)
 
@@ -91,9 +92,9 @@ export default function Slot(props: SlotProps) {
                 <div
                     style={{
                         position: 'absolute',
-                        width: '80%',
-                        height: '80%',
-                        borderRadius: '3%',
+                        width: '99%',
+                        height: '98%',
+                        borderRadius: '2% / 3.2%',
                         border: '2px solid #ff9519',
                     }}
                 ></div>

@@ -1,6 +1,6 @@
 import { Chemical } from '../types/configuration.types'
 import { Cell, Pie, PieChart } from 'recharts'
-import { chemicalColors, labelColors } from '../data/chemicals.data'
+import { chemicalData, labelColors } from '../data/chemicals.data'
 import { useRef, useState } from 'react'
 
 interface WellProps {
@@ -71,7 +71,7 @@ export default function Well(props: WellProps) {
         if (chemicalsVolume > totalVolume) return
 
         const colors: string[] = ['#888']
-        chemicals.forEach((chemical) => colors.push(chemicalColors[chemical.name]))
+        chemicals.forEach((chemical) => colors.push(chemicalData[chemical.name]))
 
         if (shape.shape === 'circular') {
             let adjustedEmptyVolume = totalVolume - chemicalsVolume

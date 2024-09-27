@@ -366,8 +366,14 @@ export default function Menu(props: MenuProps) {
             handleResetOpentronsSetup()
 
             if (index === -1) return
+
+            // setTimeout(() => {
+                setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
+            // }, 10)
+
+            console.log(opentronsSetupList[index])
             
-            setCurrentConfig({ opentronsSetup: opentronsSetupList[index] })
+            
             setSelectedSlot(null)
         }
         if (type === 'chemicals') {

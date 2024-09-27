@@ -36,3 +36,19 @@ declare global {
         }
     }
 }
+
+declare module 'react-icons/hi' {
+    export * from 'react-icons'
+}
+declare module 'react-icons/ri' {
+    export * from 'react-icons'
+}
+declare module 'react-icons/md' {
+    export * from 'react-icons'
+}
+declare module 'react-icons/io5' {
+    export * from 'react-icons'
+}
+declare module 'react-icons/vsc' {
+    export * from 'react-icons'
+}
