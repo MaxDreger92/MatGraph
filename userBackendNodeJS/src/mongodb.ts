@@ -4,24 +4,8 @@ import * as fs from 'fs'
 import * as tls from 'tls'
 
 const url = process.env.MONGODB_URI as string
-const tlsCertificateFilePath = (process.env.TLS_CERTIFICATE_FILE as string).replace(
-    '~',
-    os.homedir()
-)
-const tlsKeyFilePath = (process.env.TLS_KEY_FILE as string).replace('~', os.homedir())
-const tlsCAFilePath = (process.env.TLS_CA_FILE as string).replace('~', os.homedir())
 
-const tlsCertificateFile = fs.readFileSync(tlsCertificateFilePath)
-const tlsKeyFile = fs.readFileSync(tlsKeyFilePath)
-const tlsCAFile = fs.readFileSync(tlsCAFilePath)
-
-const secureContext = tls.createSecureContext({
-    ca: tlsCAFile,
-    cert: tlsCertificateFile,
-    key: tlsKeyFile,
-})
-
-const client = new MongoClient(url, { tls: true, tlsAllowInvalidCertificates: true, secureContext })
+const client = new MongoClient(url, { tls: true, tlsAllowInvalidCertificates: true })
 const dbName = 'reactgraphdb'
 let isConnected = false
 
