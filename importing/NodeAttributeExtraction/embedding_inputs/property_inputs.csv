@@ -1,4 +1,7 @@
-device property,Property,NodeLabelEmbedding,NodeLabel
+NOC 0.6 V,Property,NodeLabelEmbedding,NodeLabel
+WUP 0.6 V,Property,NodeLabelEmbedding,NodeLabel
+HOT OVC  0.6 V,Property,NodeLabelEmbedding,NodeLabel
+HOT 0.6 V,Property,NodeLabelEmbedding,NodeLabel
 material_property,Property,NodeLabelEmbedding,NodeLabel
 component_property,Property,NodeLabelEmbedding,NodeLabel
 device durability,Property,NodeLabelEmbedding,NodeLabel
