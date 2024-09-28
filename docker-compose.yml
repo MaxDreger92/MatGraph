@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: docker/mg-backend.dockerfile
     container_name: 'mg-backend'
-    image: python:3.10-bullseye
     volumes:
       - './:/app'
     ports:
@@ -18,7 +17,6 @@ services:
       context: .
       dockerfile: docker/mg-frontend.dockerfile
     container_name: 'mg-frontend'
-    image: python:3.10-bullseye
     volumes:
       - './:/app'
     environment:

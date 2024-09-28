@@ -1,15 +1,7 @@
-FROM python:3.10-bullseye AS intermediate
-
-WORKDIR /app
-
-RUN apt-get update && \
-    apt-get install -y curl gnupg python3-venv && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g pm2 typescript
-
-COPY . /app
-
-RUN chmod +x /app/deployUserBackend_docker.sh
-
-ENTRYPOINT ["/app/deployUserBackend_docker.sh"]
+FROM node:20-bullseye
+WORKDIR /app/userBackendNodeJS
+COPY userBackendNodeJS/ ./
+RUN npm install
+RUN npm run build
+EXPOSE 3000
+CMD ["node", "build/server.js"]
