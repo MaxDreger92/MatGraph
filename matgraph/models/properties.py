@@ -2,19 +2,20 @@ from neomodel import RelationshipTo, RelationshipFrom, StringProperty, FloatProp
 from matgraph.models.abstractclasses import CausalObject
 
 
-class PhysicalDimension(CausalObject):
+class PhysicalQuantity(CausalObject):
     """
     Class representing a physical dimension in the knowledge graph.
     """
     unit = StringProperty()
     value = FloatProperty()
     dataframe_json = JSONProperty()
+    is_a = RelationshipTo('matgraph.models.ontology.EMMOQuantity', "IS_A")
     class Meta:
         app_label = 'matgraph'
 
 
 
-class Property(PhysicalDimension):
+class Property(PhysicalQuantity):
     """
     Class representing a property in the knowledge graph.
     """
@@ -28,7 +29,7 @@ class Property(PhysicalDimension):
     pass
 
 
-class Parameter(PhysicalDimension):
+class Parameter(PhysicalQuantity):
     """
     Class representing a parameter in the knowledge graph.
     """

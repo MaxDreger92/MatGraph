@@ -90,6 +90,7 @@ class Measurement(Process):
                                        model=IsMeasurementInputRel, cardinality=ZeroOrMore)
     device_input = RelationshipFrom('matgraph.models.matter.Device', "IS_MEASUREMENT_INPUT",
                                     model=IsMeasurementInputRel, cardinality=ZeroOrMore)
+    material_output = RelationshipTo(Material, 'IS_MEASUREMENT_OUTPUT', model=HasMeasurementOutputRel)
 
 
 class Simulation(Process):

@@ -53,7 +53,8 @@ class OntologyManager:
         self.file_to_model = {
             "matter.owl": EMMOMatter,
             "quantities.owl": EMMOQuantity,
-            "manufacturing.owl": EMMOProcess}
+            "manufacturing.owl": EMMOProcess,
+            "NRCan_manufacturing.owl": EMMOProcess}
         # self.EXAMPLES = {
         #     "material.owl": MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
         #     "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES,
@@ -63,6 +64,7 @@ class OntologyManager:
             "material.owl": MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
             "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES,
             "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
+            "NRCan_manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_MESSAGES
         }
 
     def get_labels(self, class_name, setup_message, examples=None):
@@ -100,9 +102,7 @@ class OntologyManager:
             class onto_name(AnnotationProperty):
                 domain = [Thing]
                 range = [str]
-            class description_name(AnnotationProperty):
-                domain = [Thing]
-                range = str
+
             for cls in onto.classes():
                 if not cls.onto_name:
                     print(f"Need to update class: {cls.name}")
@@ -146,7 +146,8 @@ class OntologyManager:
             EMBEDDING_MODEL_MAPPER = {
                 "matter.owl": MatterEmbedding,
                 "quantities.owl": QuantityEmbedding,
-                "manufacturing.owl": ProcessEmbedding
+                "manufacturing.owl": ProcessEmbedding,
+                "NRCan_manufacturing.owl": ProcessEmbedding
             }
             try:
                 embedding_name = EMBEDDING_MODEL_MAPPER[ontology_file].nodes.get(input=class_name)
@@ -164,7 +165,7 @@ class OntologyManager:
                 cls_instance.model_embedding.connect(embedding_name)
                 vector_description = request_embedding(class_comment)
                 embedding_description = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector_description,
-                                                                              input=class_comment).save()
+                                                                              input=class_name).save()
                 cls_instance.model_embedding.connect(embedding_description)
             if cls.alternative_labels:
 
@@ -240,11 +241,11 @@ def main():
 
     ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")
-    ontology_manager.import_to_neo4j("quantities.owl")
+    # ontology_manager.import_to_neo4j("quantities.owl")
     # ontology_manager.update_ontology("matter.owl")
-    ontology_manager.import_to_neo4j("matter.owl")
-    # ontology_manager.update_ontology("manufacturing.owl")
-    ontology_manager.import_to_neo4j("manufacturing.owl")
+    # ontology_manager.import_to_neo4j("matter.owl")
+    ontology_manager.update_ontology("NRCan_manufacturing.owl")
+    ontology_manager.import_to_neo4j("NRCan_manufacturing.owl")
 
 
 

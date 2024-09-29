@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://www.example.com/manufacturing"
+         xmlns="http://www.example.com/manufacturing#">
+
+<owl:Ontology rdf:about="http://www.example.com/manufacturing"/>
+
+<owl:AnnotationProperty rdf:about="#alternative_label">
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:AnnotationProperty>
+
+<owl:AnnotationProperty rdf:about="#alternative_labels"/>
+
+<owl:AnnotationProperty rdf:about="#description_name">
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:AnnotationProperty>
+
+<owl:AnnotationProperty rdf:about="#onto_name">
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:AnnotationProperty>
+
+<owl:Class rdf:about="#Annealing">
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Heat Treatment', 'Thermal Treatment', 'Metal Softening', 'Material Toughening', 'Recrystallization Process']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A heat treatment process used to alter the physical and sometimes chemical properties of a material to increase its ductility and reduce its hardness.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Annealing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Manufacturing">
+  <rdfs:subClassOf rdf:resource="#Process"/>
+  <owl:disjointWith rdf:resource="#Measurement"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Production', 'Fabrication', 'Industrial Production', 'Manufacture', 'Assembly']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of producing goods from raw materials using various techniques and machinery.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufacturing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Process">
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Procedure', 'Operation', 'Method', 'Routine', 'Course of action']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A series of actions or steps taken to achieve a particular end.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Process</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Measurement">
+  <rdfs:subClassOf rdf:resource="#Process"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Quantification', 'Metric', 'Gauge', 'Assessment', 'Evaluation']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of obtaining the magnitude of a quantity relative to a defined standard.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Measurement</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Casting">
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Molding', 'Forming', 'Founding', 'Shaping', 'Moulding']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of shaping a material, often metal, by pouring it into a mold where it solidifies.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Casting</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Dosing">
+  <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dosage Administration', 'Medication Dosing', 'Drug Dosing', 'Dose Administration', 'Medication Dosage']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The administration of a precise amount of medication or substance to achieve a specific effect.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dosing</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Electronic_Resistivity_Measurement">
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electrical Resistivity Testing', 'Resistivity Measurement', 'Electronic Resistivity Testing', 'Electrical Resistivity Measurement', 'Resistivity Testing']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A scientific measurement technique used to determine the resistivity of a material using electronic methods.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electronic_Resistivity_Measurement</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Seebeck_Measurement">
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Thermoelectric Measurement', 'Seebeck Coefficient Measurement', 'Thermoelectric Effect Measurement', 'Seebeck Effect Measurement', 'Thermopower Measurement']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A scientific method for measuring the Seebeck coefficient, which quantifies the thermoelectric effect in a material.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seebeck_Measurement</onto_name>
+</owl:Class>
+
+<owl:Class rdf:about="#Thermal_Conductivity_Measurement">
+  <rdfs:subClassOf rdf:resource="#Measurement"/>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Heat Conductivity Measurement', 'Thermal Conductivity Test', 'Thermal Conductivity Assessment', 'Heat Transfer Measurement', 'Thermal Conductivity Evaluation']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A method or process used to determine the thermal conductivity of a material.</description_name>
+  <onto_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Thermal_Conductivity_Measurement</onto_name>
+</owl:Class>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Annealing"/>
+    <rdf:Description rdf:about="#Casting"/>
+    <rdf:Description rdf:about="#Dosing"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Electronic_Resistivity_Measurement"/>
+    <rdf:Description rdf:about="#Seebeck_Measurement"/>
+    <rdf:Description rdf:about="#Thermal_Conductivity_Measurement"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+
+</rdf:RDF>
