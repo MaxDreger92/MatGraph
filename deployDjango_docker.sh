@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Activate virtual environment
-source venv/bin/activate
 
 # Navigate to frontend directory
 cd frontend/
