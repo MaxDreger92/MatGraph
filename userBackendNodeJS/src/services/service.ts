@@ -288,7 +288,7 @@ class UserService {
     static generateAccessToken = async (email: string, purpose: string = 'default-purpose') => {
         const token = jwt.sign(
             { userId: email, purpose: purpose },
-            process.env.TOKEN_SECRET as string
+            'fake-secret'
         )
         return token
     }
@@ -311,7 +311,7 @@ class UserService {
         // decodes the token to userId
         jwt.verify(
             token,
-            process.env.TOKEN_SECRET as string,
+            'fake-secret',
             async (err: Error | null, payload: any) => {
                 if (err) {
                     return res.sendStatus(403)
