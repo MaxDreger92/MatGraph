@@ -1,7 +1,11 @@
-FROM node:20-bullseye
+FROM nikolaik/python-nodejs:python3.10-nodejs20
+
 WORKDIR /app/userBackendNodeJS
-COPY userBackendNodeJS/ ./
+
+COPY userBackendNodeJS/ /app
+
 RUN npm install
-RUN npm run build
-EXPOSE 3000
-CMD ["node", "build/server.js"]
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/deployUserBackend_docker.sh"]

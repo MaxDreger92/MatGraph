@@ -1,5 +1,5 @@
 import express from 'express'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { IGetUserAuthInfoRequest } from '../types/req'
 import { Response } from 'express'
 import { v2 as cloudinary } from 'cloudinary'
