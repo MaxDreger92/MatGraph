@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd userBackendNodeJS/
-
 rm -rf build/
 
 npm run build

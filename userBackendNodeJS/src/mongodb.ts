@@ -3,7 +3,7 @@ import os from 'os'
 import * as fs from 'fs'
 import * as tls from 'tls'
 
-const url = process.env.MONGODB_URI as string
+const url = 'mongodb+srv://username:password@database.whvg9oo.mongodb.net/?retryWrites=true&w=majority&appName=database'
 
 const client = new MongoClient(url, { tls: true, tlsAllowInvalidCertificates: true })
 const dbName = 'reactgraphdb'
