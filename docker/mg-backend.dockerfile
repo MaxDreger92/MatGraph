@@ -1,15 +1,13 @@
-FROM python:3.10-bullseye AS intermediate
+FROM nikolaik/python-nodejs:python3.10-nodejs20
 
-WORKDIR /app
+WORKDIR /app/userBackendNodeJS
+
+COPY userBackendNodeJS/ /app
 
 RUN apt-get update && \
-    apt-get install -y curl gnupg python3-venv && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g pm2 typescript
+    npm install && \
+    npm install -g pm2
 
-COPY . /app
-
-RUN chmod +x /app/deployUserBackend_docker.sh
+EXPOSE 8080
 
 ENTRYPOINT ["/app/deployUserBackend_docker.sh"]
