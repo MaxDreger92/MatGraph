@@ -4,10 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN apt-get update && \
-    apt-get install -y curl gnupg python3-venv && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
+RUN rm -rf /app/userBackendNodeJS /app/frontend /app/venv /app/sdl /app/opentrons-app
 
 RUN python3 -m pip install --upgrade pip setuptools
 

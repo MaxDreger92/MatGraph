@@ -1,55 +1,51 @@
-
 services:
-  mg-backend:
-    env_file:
-      - .env
-    build:
-      context: .
-      dockerfile: docker/mg-backend.dockerfile
-    container_name: 'mg-backend'
-    image: nikolaik/python-nodejs:python3.10-nodejs20
-    volumes:
-      - './:/app'
-    ports:
-      - "${BACKEND_PORT}:8080"
-  # mg-frontend:
-  #   env_file:
-  #     - .env
-  #   build:
-  #     context: .
-  #     dockerfile: docker/mg-frontend.dockerfile
-  #   container_name: 'mg-frontend'
-  #   image: python:3.10-bullseye
-  #   volumes:
-  #     - './:/app'
-  #   environment:
-  #     - NEOMODEL_NEO4J_BOLT_URL=bolt://mg-neo4j:neo4jpassword@neo4j:7687
-  #   depends_on:
-  #     - mg-backend
-  #     - mg-neo4j
-  #   ports:
-  #     - "${FRONTEND_PORT}:8000"
-  # mg-neo4j:
-  #   image: neo4j:5.11
-  #   container_name: mg_neo4j
-  #   environment:
-  #     - NEO4J_AUTH=neo4j/neo4jpassword
-  #   ports:
-  #     - 7474:7474
-  #     - 7687:7687
-  #   volumes:
-  #     - "./neo4j_data/:/data"
-  # mg-postgres:
-  #   restart: always
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #     POSTGRES_DB: ${POSTGRES_DB}
-  #   container_name: 'mg-postgres'
-  #   image: postgres:latest
-  #   ports:
-  #     - 5432:5432
-  #   volumes:
-  #     - './postgres_data/:/var/lib/postgresql/data'
+    mg-django:
+        image: python:3.10-bullseye
+        env_file:
+            - .env
+        build:
+            context: .
+            dockerfile: docker/mg-django.dockerfile
+        container_name: 'mg-django'
+        volumes:
+            - './:/app'
+        depends_on:
+            - mg-neo4j
+        networks:
+            - mg-network
+    mg-neo4j:
+        image: neo4j:5.11
+        container_name: mg-neo4j
+        environment:
+            - NEO4J_AUTH=neo4j/neo4jpassword
+        volumes:
+            - "./neo4j_data/:/data"
+        networks:
+            - mg-network
+    mg-postgres:
+        image: postgres:16
+        restart: always
+        env_file:
+            - .env
+        container_name: 'mg-postgres'
+        volumes:
+            - './postgres_data/:/var/lib/postgresql/data'
+        networks:
+            - mg-network
+    mg-nginx:
+        image: nginx:latest
+        container_name: mg-nginx
+        restart: always
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - mg-network
+        depends_on:
+            - mg-django
+networks:
+    mg-network:
+        name: mg-network
+        external: true
