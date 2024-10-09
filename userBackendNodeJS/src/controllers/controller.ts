@@ -26,6 +26,7 @@ router.post('/api/users/login', async (req, res) => {
             })
         }
 
+        console.log('email: ', password)
         const user = await UserService.findByMail(email)
         if (!user) {
             return res.status(401).json({
@@ -716,7 +717,7 @@ router.get(
 // ##################################
 // ##################################
 router.get(
-    '/api/users/uploads/list',
+    '/api/users/uploads',
     UserService.authenticateToken,
     async (req: IGetUserAuthInfoRequest, res: Response) => {
         try {
@@ -731,7 +732,8 @@ router.get(
 
             if (uploads.length === 0) {
                 return res.status(200).json({
-                    message: 'No upload processes found!'
+                    message: 'No upload processes found!',
+                    uploads: uploads,
                 })
             }
 

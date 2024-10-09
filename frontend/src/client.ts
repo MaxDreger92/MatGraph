@@ -359,7 +359,7 @@ class Client {
                 throw new Error('Token could not be retrieved!')
             }
 
-            const response = await this.userClient.get('users/uploads/list', {
+            const response = await this.userClient.get('users/uploads', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
