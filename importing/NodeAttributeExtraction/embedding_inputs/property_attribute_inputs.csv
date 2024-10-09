@@ -34,3 +34,9 @@
 "Property" : "Tensile Strength (MPa)",name,PropertyAttributeEmbedding,PropertyAttribute
 "Metric" : "Activity",name,PropertyAttributeEmbedding,PropertyAttribute
 "Metric" : "Performance",name,PropertyAttributeEmbedding,PropertyAttribute
+"Noc": "2", value,PropertyAttributeEmbedding,PropertyAttribute
+"WUP": "3", value,PropertyAttributeEmbedding,PropertyAttribute
+"HOT 0.6": "1", value,PropertyAttributeEmbedding,PropertyAttribute
+"HOT OCW": "2", value,PropertyAttributeEmbedding,PropertyAttribute
+"NOV V", value, PropertyAttributeEmbedding, PropertyAttribute
+"NOC 2.1 V": "2", value,PropertyAttributeEmbedding,PropertyAttribute
