@@ -11,6 +11,8 @@ build/
 static/
 /userBackendNodeJS/src/config.ts
 *.sh
+neo4j_data/
+postgres_data/
 
 # Byte-compiled / optimized / DLL files
 _pycache_/
