@@ -75,11 +75,24 @@ class OntologyMapper:
             for node_name in node['name']:
                 self._process_node(node, node_name)
 
+    # def _process_node(self, node, name):
+    #     label = node['label']
+    #     print(name, label, node)
+    #     if name['index'] == 'inferred' or name['value'] not in self.names:
+    #         self._append_mapping(name['value'], label)
+    #     elif label != 'metadata':
+    #         self._handle_table_mapping(name, label)
+            
     def _process_node(self, node, name):
         label = node['label']
         print(name, label, node)
-        if name['index'] == 'inferred' or name['value'] not in self.names:
-            self._append_mapping(name['value'], label)
+        
+        # Set 'index' to 'inferred' if it's missing
+        index_value = name.get('index', 'inferred')
+        value_value = name.get('value')
+        
+        if index_value == 'inferred' or value_value not in self.names:
+            self._append_mapping(value_value, label)
         elif label != 'metadata':
             self._handle_table_mapping(name, label)
 
