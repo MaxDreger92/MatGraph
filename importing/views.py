@@ -7,7 +7,6 @@ import asyncio
 import httpx
 from concurrent.futures import ThreadPoolExecutor
 
-from django.http import HttpResponseNotAllowed
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from neomodel import DateTimeProperty
@@ -66,16 +65,10 @@ class FileImportView(APIView):
             response_data = await user_db_request(
                 request_data, None, user_token, "post"
             )
-
-            response_data = await user_db_request(
-                request_data, None, user_token, "post"
-            )
             if "upload" in response_data:
-                return JsonResponse({"upload": response_data.get("upload")}, status=201)
                 return JsonResponse({"upload": response_data.get("upload")}, status=201)
             else:
                 raise ValueError("No upload process was returned!")
-
 
         except Exception as e:
             print(f"Exception occurred: {e}")
@@ -83,7 +76,6 @@ class FileImportView(APIView):
                 {
                     "error": f"Unexpected error occurred during file import: {e}",
                 },
-                status=500,
                 status=500,
             )
 
@@ -559,7 +551,6 @@ class GraphImportView(APIView):
         if response_data.get("updateSuccess") is False:
             return JsonResponse({"processing": False})
 
-        print("submitting task: import_graph")
         submit_task(
             upload_id,
             self.import_graph,
@@ -581,16 +572,12 @@ class GraphImportView(APIView):
         self, task, upload_id, context, file_id, user_token, graph
     ):
         try:
-            print("import_graph: begin")
-            print(file_id)
             file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-            print("import_graph: retrieve link")
             file_link = file_record.link
             importer = await sync_to_async(TableImporter)(graph, file_link, context)
             await sync_to_async(importer.run)()
 
             if task.is_cancelled():
-                print("canceling task")
                 print("canceling task")
                 return
 
@@ -600,7 +587,6 @@ class GraphImportView(APIView):
                 "progress": 6,
                 "processing": False,
             }
-            print("import_graph: update process in database")
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             import traceback
