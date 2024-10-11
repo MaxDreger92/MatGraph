@@ -74,6 +74,7 @@ action identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
 trial identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
 procedure identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
 operation identifier,Manufacturing,NodeLabelEmbedding,NodeLabel
+membrane electrode assembly fabrication,Manufacturing,NodeLabelEmbedding,NodeLabel
 
 
 

@@ -33,7 +33,6 @@ export const fetchUploads = async (): Promise<Upload[] | void> => {
             return
         }
 
-        if (!data.uploads) return []
         return data.uploads as Upload[]
     } catch (err: any) {
         toast.error(err.message)
