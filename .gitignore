@@ -13,6 +13,8 @@ static/
 *.sh
 !deployDjango_docker.sh
 !deployUserBackend_docker.sh
+neo4j_data/
+postgres_data/
 
 # Byte-compiled / optimized / DLL files
 _pycache_/

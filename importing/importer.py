@@ -348,9 +348,13 @@ class TableImporter(Importer):
         # Function to construct attribute value strings
         def format_attr_value(attr_value):
             print(attr_value)
-            if attr_value['index'] == 'inferred' or attr_value['index'] == "missing":
+            
+            index_value = attr_value.get('index', 'inferred')
+            
+            if index_value == 'inferred' or index_value == "missing":
                 return f"'{attr_value['value']}'"
-            return f"row[{int(attr_value['index'])}]"
+            return f"row[{int(index_value)}]"
+
 
         # Construct the query for adding ontology relations
         ontology_mapping = str(self.mapping).replace("':", ":").replace("{'", "{").replace(", '", ", ").replace("-", "_")

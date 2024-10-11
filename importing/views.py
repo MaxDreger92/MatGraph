@@ -61,25 +61,22 @@ class FileImportView(APIView):
                 "fileId": file_id,
                 "fileName": file_obj.name,
             }
-        
-            response_data = await user_db_request(request_data, None, user_token, "post")
+
+            response_data = await user_db_request(
+                request_data, None, user_token, "post"
+            )
             if "upload" in response_data:
-                return JsonResponse(
-                    {
-                        "upload": response_data.get("upload")
-                    },
-                    status = 201
-                )
+                return JsonResponse({"upload": response_data.get("upload")}, status=201)
             else:
                 raise ValueError("No upload process was returned!")
-        
+
         except Exception as e:
             print(f"Exception occurred: {e}")
             return JsonResponse(
                 {
                     "error": f"Unexpected error occurred during file import: {e}",
                 },
-                status = 500
+                status=500,
             )
 
     async def store_file(self, file_obj):
@@ -111,13 +108,13 @@ class LabelExtractView(APIView):
         cached = await self.try_cache(upload_id, user_token, file_id)
         if cached:
             return JsonResponse({"cached": True})
-        
+
         # Set upload process in user db to processing
         updates = {"processing": True, "context": context}
         response_data = await user_db_request(updates, upload_id, user_token)
         if response_data.get("updateSuccess") is False:
             return JsonResponse({"processing": False})
-    
+
         # Start asynchronous job execution
         submit_task(
             upload_id, self.extract_labels, upload_id, context, file_id, user_token
@@ -125,12 +122,10 @@ class LabelExtractView(APIView):
 
         return JsonResponse({"processing": True})
 
-
     def extract_labels(self, task, upload_id, context, file_id, user_token):
-        asyncio.run(
-            self.async_extract_labels(task, upload_id, context, file_id, user_token)
+        async_to_sync(self.async_extract_labels)(
+            task, upload_id, context, file_id, user_token
         )
-
 
     async def async_extract_labels(self, task, upload_id, context, file_id, user_token):
         try:
@@ -165,9 +160,7 @@ class LabelExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during label extraction: {e}", exc_info=True)
-            updates = {
-                "processing": False
-            }
+            updates = {"processing": False}
             await user_db_request(updates, upload_id, user_token)
 
     def sanitize_data(self, data):
@@ -258,10 +251,8 @@ class AttributeExtractView(APIView):
     def extract_attributes(
         self, task, upload_id, context, file_id, user_token, label_input
     ):
-        asyncio.run(
-            self.async_extract_attributes(
-                task, upload_id, context, file_id, user_token, label_input
-            )
+        async_to_sync(self.async_extract_attributes)(
+            task, upload_id, context, file_id, user_token, label_input
         )
 
     async def async_extract_attributes(
@@ -297,11 +288,8 @@ class AttributeExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during attribute extraction: {e}", exc_info=True)
-            updates = {
-                "processing": False
-            }
+            updates = {"processing": False}
             await user_db_request(updates, upload_id, user_token)
-            
 
     def prepare_data(self, labels):
         input_data = [
@@ -370,10 +358,8 @@ class NodeExtractView(APIView):
     def extract_nodes(
         self, task, upload_id, context, file_id, user_token, attribute_input
     ):
-        asyncio.run(
-            self.async_extract_nodes(
-                task, upload_id, context, file_id, user_token, attribute_input
-            )
+        async_to_sync(self.async_extract_nodes)(
+            task, upload_id, context, file_id, user_token, attribute_input
         )
 
     async def async_extract_nodes(
@@ -406,9 +392,7 @@ class NodeExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during node extraction: {e}", exc_info=True)
-            updates = {
-                "processing": False
-            }
+            updates = {"processing": False}
             await user_db_request(updates, upload_id, user_token)
 
     async def prepare_data(self, file_id, attributes):
@@ -489,10 +473,8 @@ class GraphExtractView(APIView):
     def extract_relationships(
         self, task, upload_id, context, user_token, graph, header, first_row
     ):
-        asyncio.run(
-            self.async_extract_relationships(
-                task, upload_id, context, user_token, graph, header, first_row
-            )
+        async_to_sync(self.async_extract_relationships)(
+            task, upload_id, context, user_token, graph, header, first_row
         )
 
     async def async_extract_relationships(
@@ -523,9 +505,7 @@ class GraphExtractView(APIView):
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
             print(f"Error during relationship extraction: {e}", exc_info=True)
-            updates = {
-                "processing": False
-            }
+            updates = {"processing": False}
             await user_db_request(updates, upload_id, user_token)
 
     async def prepare_data(self, file_id):
@@ -557,6 +537,8 @@ class GraphImportView(APIView):
         file_id = params["fileId"]
         graph = params["graph"]
         graph_str = json.dumps(graph)
+        if isinstance(graph, str):
+            graph = json.loads(graph)
 
         if not upload_id or not context or not file_id or not graph:
             return response.Response(
@@ -582,10 +564,8 @@ class GraphImportView(APIView):
         return JsonResponse({"processing": True})
 
     def import_graph(self, task, upload_id, context, file_id, user_token, graph):
-        asyncio.run(
-            self.async_import_graph(
-                task, upload_id, context, file_id, user_token, graph
-            )
+        async_to_sync(self.async_import_graph)(
+            task, upload_id, context, file_id, user_token, graph
         )
 
     async def async_import_graph(
@@ -594,13 +574,14 @@ class GraphImportView(APIView):
         try:
             file_record = await sync_to_async(File.nodes.get)(uid=file_id)
             file_link = file_record.link
-            importer = TableImporter(graph, file_link, context)
-            importer.run()
+            importer = await sync_to_async(TableImporter)(graph, file_link, context)
+            await sync_to_async(importer.run)()
 
             if task.is_cancelled():
+                print("canceling task")
                 return
 
-            FullTableCache.update(self.request.session.get("first_line"), graph)
+            await sync_to_async(FullTableCache.update)(self.request.session.get("first_line"), graph)
 
             updates = {
                 "progress": 6,
@@ -608,10 +589,11 @@ class GraphImportView(APIView):
             }
             await user_db_request(updates, upload_id, user_token)
         except Exception as e:
-            print(f"Error during graph import: {e}", exc_info=True)
-            updates = {
-                "processing": False
-            }
+            import traceback
+
+            print(f"Error during graph import: {e}")
+            traceback.print_exc()
+            updates = {"processing": False}
             await user_db_request(updates, upload_id, user_token)
 
 
