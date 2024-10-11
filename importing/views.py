@@ -66,10 +66,16 @@ class FileImportView(APIView):
             response_data = await user_db_request(
                 request_data, None, user_token, "post"
             )
+
+            response_data = await user_db_request(
+                request_data, None, user_token, "post"
+            )
             if "upload" in response_data:
+                return JsonResponse({"upload": response_data.get("upload")}, status=201)
                 return JsonResponse({"upload": response_data.get("upload")}, status=201)
             else:
                 raise ValueError("No upload process was returned!")
+
 
         except Exception as e:
             print(f"Exception occurred: {e}")
@@ -77,6 +83,7 @@ class FileImportView(APIView):
                 {
                     "error": f"Unexpected error occurred during file import: {e}",
                 },
+                status=500,
                 status=500,
             )
 
@@ -579,16 +586,14 @@ class GraphImportView(APIView):
             file_record = await sync_to_async(File.nodes.get)(uid=file_id)
             print("import_graph: retrieve link")
             file_link = file_record.link
-            print("import_graph: creating importer")
             importer = await sync_to_async(TableImporter)(graph, file_link, context)
-            print("import_graph: running importer")
             await sync_to_async(importer.run)()
 
             if task.is_cancelled():
                 print("canceling task")
+                print("canceling task")
                 return
 
-            print("import_graph: updating FullTableCache")
             await sync_to_async(FullTableCache.update)(self.request.session.get("first_line"), graph)
 
             updates = {
