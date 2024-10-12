@@ -1,206 +1,104 @@
-import csv
 import json
-import math
-import requests
 from io import StringIO
-import asyncio
-import httpx
-from concurrent.futures import ThreadPoolExecutor
+import uuid
+import logging
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from neomodel import DateTimeProperty
+from django.shortcuts import get_object_or_404
 from rest_framework import response, status
 from rest_framework.views import APIView
 from django.http import JsonResponse
-from asgiref.sync import sync_to_async, async_to_sync
+from django.http import Http404
 
-from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
-from importing.NodeExtraction.nodeExtractor import NodeExtractor
-from importing.NodeLabelClassification.labelClassifier import NodeClassifier
-from importing.RelationshipExtraction.completeRelExtractor import (
-    fullRelationshipsExtractor,
+from importing.models import FullTableCache, ImportProcess
+from importing.tasks import (
+    extract_labels,
+    extract_attributes,
+    extract_nodes,
+    extract_relationships,
+    import_graph,
 )
-from importing.importer import TableImporter
-from importing.models import FullTableCache
-from importing.utils.user_db_requests import user_db_request
+from importing.utils.file_processing import store_file
+from importing.utils.process_management import create_import_process
 from matgraph.models.metadata import File
 
 from .task_manager import submit_task, cancel_task
 
-
-@method_decorator(csrf_exempt, name="dispatch")
-class FileImportView(APIView):
-    def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request):
-        if "file" not in request.FILES:
-            return response.Response(
-                {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if "csvTable" not in request.POST:
-            return response.Response(
-                {"error": "No CSV Table provided"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            csv_table = request.POST["csvTable"]
-            user_token = request.user_token
-
-            file_obj = request.FILES["file"]
-            if not file_obj.name.endswith(".csv"):
-                return response.Response(
-                    {"error": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            file_record = await self.store_file(file_obj)
-            file_id = file_record.uid
-
-            request_data = {
-                "csvTable": csv_table,
-                "fileId": file_id,
-                "fileName": file_obj.name,
-            }
-
-            response_data = await user_db_request(
-                request_data, None, user_token, "post"
-            )
-            if "upload" in response_data:
-                return JsonResponse({"upload": response_data.get("upload")}, status=201)
-            else:
-                raise ValueError("No upload process was returned!")
-
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            return JsonResponse(
-                {
-                    "error": f"Unexpected error occurred during file import: {e}",
-                },
-                status=500,
-            )
-
-    async def store_file(self, file_obj):
-        """Store the uploaded file and return the file record."""
-        file_name = file_obj.name
-        file_record = File(
-            name=file_name, date_added=DateTimeProperty(default_now=True)
-        )
-        file_record.file = file_obj
-        await sync_to_async(file_record.save)()
-        return file_record
+logger = logging.getLogger(__name__)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class LabelExtractView(APIView):
-
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request, *args, **kwargs):
-        user_token = request.user_token
-        data = json.loads(request.body)
-        params = data["params"]
-
-        upload_id = params["uploadId"]
-        context = params["context"]
-        file_id = params["fileId"]
-
-        cached = await self.try_cache(upload_id, user_token, file_id)
-        if cached:
-            return JsonResponse({"cached": True})
-
-        # Set upload process in user db to processing
-        updates = {"processing": True, "context": context}
-        response_data = await user_db_request(updates, upload_id, user_token)
-        if response_data.get("updateSuccess") is False:
-            return JsonResponse({"processing": False})
-
-        # Start asynchronous job execution
-        submit_task(
-            upload_id, self.extract_labels, upload_id, context, file_id, user_token
-        )
-
-        return JsonResponse({"processing": True})
-
-    def extract_labels(self, task, upload_id, context, file_id, user_token):
-        async_to_sync(self.async_extract_labels)(
-            task, upload_id, context, file_id, user_token
-        )
-
-    async def async_extract_labels(self, task, upload_id, context, file_id, user_token):
-        try:
-            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-            file_obj_bytes = await sync_to_async(file_record.get_file)()
-            file_obj_str = file_obj_bytes.decode("utf-8")
-            file_obj = StringIO(file_obj_str)
-
-            node_classifier = NodeClassifier(
-                data=file_obj,
-                context=context,
-                file_link=file_record.link,
-                file_name=file_record.name,
+        if "userId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-            await sync_to_async(node_classifier.run)()
+        if "file" not in request.FILES:
+            return response.Response(
+                {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "context" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-            if task.is_cancelled():
-                return
-
-            labels = {
-                element["header"]: [element["1_label"], element["column_values"][0]]
-                for element in node_classifier.results
-            }
-            sanitized_labels = self.sanitize_data(labels)
-            sanitized_labels_str = json.dumps(sanitized_labels)
-
-            updates = {
-                "labelDict": sanitized_labels_str,
-                "progress": 2,
-                "processing": False,
-            }
-            await user_db_request(updates, upload_id, user_token)
+        file = request.FILES["file"]
+        if not file.name.endswith(".csv"):
+            return response.Response(
+                {"error": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            file_record = store_file(file)
         except Exception as e:
-            print(f"Error during label extraction: {e}", exc_info=True)
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
+            logger.error(f"Exception occurred while storing file: {e}", exc_info=True)
+            return response.Response(
+                {"error": "File storage failed"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
-    def sanitize_data(self, data):
-        if isinstance(data, dict):
-            i = 0
-            sanitized_dict = {}
-            for k, v in data.items():
-                i += 1
-                if isinstance(k, float) and (math.isnan(k) or math.isinf(k)):
-                    k = f"column_{str(i)}"  # Use an appropriate placeholder
-                sanitized_dict[k] = self.sanitize_data(v)
-            return sanitized_dict
-        elif isinstance(data, list):
-            return [self.sanitize_data(i) for i in data]
-        elif isinstance(data, float):
-            if math.isinf(data) or math.isnan(data):
-                return None  # or some other appropriate value
-            return data
-        return data
+        process_id = str(uuid.uuid4())
+        user_id = request.POST["userId"]
+        file_id = file_record.uid
+        context = request.POST["context"]
 
-    async def try_cache(self, upload_id, user_token, file_id):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_obj_bytes = await sync_to_async(file_record.get_file)()
+        # TODO
+        # cached = await self.try_cache(file_id)
+
+        try:
+            process = create_import_process(process_id, user_id, file_id, context)
+            submit_task(process_id, extract_labels, process)
+        except Exception as e:
+            logger.error(
+                f"Exception occurred while creating import process: {e}", exc_info=True
+            )
+            process.delete()
+            return response.Response(
+                {"error": "Failed to create import process"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return JsonResponse(
+            {"process_id": process_id, "status": process.status},
+            status=status.HTTP_201_CREATED,
+        )
+
+    def try_cache(self, file_id):
+        file_record = File.nodes.get(uid=file_id)
+        file_obj_bytes = file_record.get_file()
         file_obj_str = file_obj_bytes.decode("utf-8")
         file_obj = StringIO(file_obj_str)
         file_obj.seek(0)
         first_line = str(file_obj.readline().strip().lower())
 
-        cached = await sync_to_async(FullTableCache.fetch)(first_line)
+        cached = FullTableCache.fetch(first_line)
         if cached:
             cached = str(cached).replace("'", '"')
             sanitized_cached = self.sanitize_data(cached)
             sanitized_cached_str = json.dumps(sanitized_cached)
 
-            updates = {
-                "processing": False,
-                "graph": sanitized_cached_str,
-                "progress": 6,
-            }
-            await user_db_request(updates, upload_id, user_token)
+            # send back
             return True
         return False
 
@@ -209,425 +107,296 @@ class LabelExtractView(APIView):
 class AttributeExtractView(APIView):
 
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request, *args, **kwargs):
-        user_token = request.user_token
-        data = json.loads(request.body)
-        params = data["params"]
-
-        upload_id = params["uploadId"]
-        context = params["context"]
-        file_id = params["fileId"]
-        labels = params["labelDict"]
-        labels_str = json.dumps(labels)
-
-        if not upload_id or not context or not file_id or not labels:
+        if "userId" not in request.POST:
             return response.Response(
-                {"error": "Missing params"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        updates = {"processing": True, "context": context, "labelDict": labels_str}
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
 
-        response_data = await user_db_request(updates, upload_id, user_token)
-        if response_data.get("updateSuccess") is False:
-            return JsonResponse({"processing": False})
-
-        label_input = self.prepare_data(labels)
-
-        submit_task(
-            upload_id,
-            self.extract_attributes,
-            upload_id,
-            context,
-            file_id,
-            user_token,
-            label_input,
-        )
-
-        return JsonResponse({"processing": True})
-
-    def extract_attributes(
-        self, task, upload_id, context, file_id, user_token, label_input
-    ):
-        async_to_sync(self.async_extract_attributes)(
-            task, upload_id, context, file_id, user_token, label_input
-        )
-
-    async def async_extract_attributes(
-        self, task, upload_id, context, file_id, user_token, label_input
-    ):
         try:
-            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-            file_link = file_record.link
-            file_name = file_record.name
-
-            attribute_classifier = AttributeClassifier(
-                label_input, context=context, file_link=file_link, file_name=file_name
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
             )
-            await sync_to_async(attribute_classifier.run)()
+            if process.status is not "idle":
+                return JsonResponse({"status": process.status})
 
-            if task.is_cancelled():
-                return
+            if "labels" in request.POST:
+                labels = request.POST["labels"]
+                process.labels = labels
+            else:
+                labels = process.labels
 
-            attributes = {
-                element["header"]: {
-                    "Label": element["1_label"],
-                    "Attribute": element["1_attribute"],
-                }
-                for element in attribute_classifier.results
-            }
-            attributes_str = json.dumps(attributes)
+            process.status = "processing_attributes"
+            process.save()
 
-            updates = {
-                "attributeDict": attributes_str,
-                "progress": 3,
-                "processing": False,
-            }
-            await user_db_request(updates, upload_id, user_token)
+            submit_task(process_id, extract_attributes, process)
+
+            return JsonResponse({"status": process.status})
         except Exception as e:
-            print(f"Error during attribute extraction: {e}", exc_info=True)
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
-
-    def prepare_data(self, labels):
-        input_data = [
-            {"column_values": [value[1]], "header": key, "1_label": value[0]}
-            for key, value in labels.items()
-        ]
-        for index, item in enumerate(input_data):
-            item["index"] = index
-        return input_data
-
-    ATTRIBUTE_MAPPER = {
-        "Matter": ["name", "ratio", "concentration", "batch_number", "identifier"],
-        "Parameter": ["value", "unit", "average", "std", "error"],
-        "Measurement": ["name", "identifier"],
-        "Manufacturing": ["name", "identifier"],
-        "Metadata": ["name", "identifier"],
-    }
+            process.status = "error"
+            process.save()
+            logger.error(f"Error during task submission: {e}", exc_info=True)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class NodeExtractView(APIView):
 
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request):
-        user_token = request.user_token
-        data = json.loads(request.body)
-        params = data["params"]
-
-        upload_id = params["uploadId"]
-        context = params["context"]
-        file_id = params["fileId"]
-        attributes = params["attributeDict"]
-        attributes_str = json.dumps(attributes)
-
-        if not upload_id or not context or not file_id or not attributes:
+        if "userId" not in request.POST:
             return response.Response(
-                {"error:" "Missing params"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        updates = {
-            "processing": True,
-            "context": context,
-            "attributeDict": attributes_str,
-        }
-        response_data = await user_db_request(updates, upload_id, user_token)
-        if response_data.get("updateSuccess") is False:
-            return JsonResponse({"processing": False})
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
 
-        attribute_input = await self.prepare_data(file_id, attributes)
-
-        submit_task(
-            upload_id,
-            self.extract_nodes,
-            upload_id,
-            context,
-            file_id,
-            user_token,
-            attribute_input,
-        )
-
-        return JsonResponse({"processing": True})
-
-    def extract_nodes(
-        self, task, upload_id, context, file_id, user_token, attribute_input
-    ):
-        async_to_sync(self.async_extract_nodes)(
-            task, upload_id, context, file_id, user_token, attribute_input
-        )
-
-    async def async_extract_nodes(
-        self, task, upload_id, context, file_id, user_token, attribute_input
-    ):
         try:
-            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-            file_link = file_record.link
-            file_name = file_record.name
-
-            node_extractor = NodeExtractor(
-                context=context,
-                file_link=file_link,
-                file_name=file_name,
-                data=attribute_input,
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
             )
-            await sync_to_async(node_extractor.run)()
 
-            if task.is_cancelled():
-                return
+            if "attributes" in request.POST:
+                attributes = request.POST["attributes"]
+                process.attributes = attributes
+            else:
+                attributes = process.attributes
 
-            graph = str(node_extractor.results).replace("'", '"')
-            graph_str = json.dumps(graph)
+            process.status = "processing_nodes"
+            process.save()
 
-            updates = {
-                "graph": graph_str,
-                "progress": 4,
-                "processing": False,
-            }
-            await user_db_request(updates, upload_id, user_token)
+            submit_task(process_id, extract_nodes, process)
+
+            return JsonResponse({"status": process.status})
         except Exception as e:
-            print(f"Error during node extraction: {e}", exc_info=True)
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
-
-    async def prepare_data(self, file_id, attributes):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_obj_bytes = await sync_to_async(file_record.get_file)()
-        file_obj_str = file_obj_bytes.decode("utf-8")
-        file_obj = StringIO(file_obj_str)
-        csv_reader = csv.reader(file_obj)
-
-        first_row = next(csv_reader)
-        column_values = [[] for _ in range(len(first_row))]
-
-        for row in csv_reader:
-            for i, value in enumerate(row):
-                if value != "" and len(column_values[i]) < 4:
-                    column_values[i].append(value)
-
-        file_obj.seek(0)
-
-        first_line = file_obj.readline().strip()
-        first_line = first_line.split(",")
-        input = [
-            {
-                "index": i,
-                "column_values": column_values[i],
-                "header": header,
-                "1_label": attributes[header][0],
-                "1_attribute": attributes[header][1],
-            }
-            for i, header in enumerate(first_line)
-        ]
-        return input
+            process.status = "error"
+            process.save()
+            logger.error(f"Error during task submission: {e}", exc_info=True)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphExtractView(APIView):
 
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request):
-        user_token = request.user_token
-        data = json.loads(request.body)
-        params = data["params"]
-
-        upload_id = params["uploadId"]
-        context = params["context"]
-        file_id = params["fileId"]
-        graph = params["graph"]
-        graph_str = json.dumps(graph)
-
-        if not upload_id or not context or not file_id or not graph:
+        if "userId" not in request.POST:
             return response.Response(
-                {"error:" "Missing params"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        updates = {"processing": True, "context": context, "graph": graph_str}
-        response_data = await user_db_request(updates, upload_id, user_token)
-        if response_data.get("updateSuccess") is False:
-            return JsonResponse({"processing": False})
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
 
-        header, first_row = await self.prepare_data(file_id)
-
-        submit_task(
-            upload_id,
-            self.extract_relationships,
-            upload_id,
-            context,
-            user_token,
-            graph,
-            header,
-            first_row,
-        )
-
-        return JsonResponse({"processing": True})
-
-    def extract_relationships(
-        self, task, upload_id, context, user_token, graph, header, first_row
-    ):
-        async_to_sync(self.async_extract_relationships)(
-            task, upload_id, context, user_token, graph, header, first_row
-        )
-
-    async def async_extract_relationships(
-        self, task, upload_id, context, user_token, graph, header, first_row
-    ):
         try:
-            relationships_extractor = fullRelationshipsExtractor(
-                graph, context, header, first_row
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
             )
-            await sync_to_async(relationships_extractor.run)()
 
-            if task.is_cancelled():
-                return
+            if "graph" in request.POST:
+                graph = request.POST["graph"]
+                process.graph = graph
+            else:
+                graph = process.graph
 
-            graph = relationships_extractor.results
-            graph = (
-                str(graph)
-                .replace("'", '"')
-                .replace("has_manufacturing_output", "is_manufacturing_output")
-            )
-            graph_str = json.dumps(graph)
+            process.status = "processing_graph"
+            process.save()
 
-            updates = {
-                "graph": graph_str,
-                "progress": 5,
-                "processing": False,
-            }
-            await user_db_request(updates, upload_id, user_token)
+            submit_task(process_id, extract_relationships, process)
+
+            return JsonResponse({"status": process.status})
         except Exception as e:
-            print(f"Error during relationship extraction: {e}", exc_info=True)
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
-
-    async def prepare_data(self, file_id):
-        file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-        file_obj_bytes = await sync_to_async(file_record.get_file)()
-        file_obj_str = file_obj_bytes.decode("utf-8")
-        file_obj = StringIO(file_obj_str)
-        csv_reader = csv.reader(file_obj)
-
-        header = next(csv_reader)
-        first_row = next(csv_reader)
-
-        return header, first_row
+            process.status = "error"
+            process.save()
+            logger.error(f"Error during task submission: {e}", exc_info=True)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphImportView(APIView):
 
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
-
-    async def handle_post(self, request):
-        user_token = request.user_token
-        data = json.loads(request.body)
-        params = data["params"]
-
-        upload_id = params["uploadId"]
-        context = params["context"]
-        file_id = params["fileId"]
-        graph = params["graph"]
-        graph_str = json.dumps(graph)
-        if isinstance(graph, str):
-            graph = json.loads(graph)
-
-        if not upload_id or not context or not file_id or not graph:
+        if "userId" not in request.POST:
             return response.Response(
-                {"error:" "Missing params"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        updates = {"processing": True, "context": context, "graph": graph_str}
-        response_data = await user_db_request(updates, upload_id, user_token)
-        if response_data.get("updateSuccess") is False:
-            return JsonResponse({"processing": False})
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
 
-        submit_task(
-            upload_id,
-            self.import_graph,
-            upload_id,
-            context,
-            file_id,
-            user_token,
-            graph,
-        )
-
-        return JsonResponse({"processing": True})
-
-    def import_graph(self, task, upload_id, context, file_id, user_token, graph):
-        async_to_sync(self.async_import_graph)(
-            task, upload_id, context, file_id, user_token, graph
-        )
-
-    async def async_import_graph(
-        self, task, upload_id, context, file_id, user_token, graph
-    ):
         try:
-            file_record = await sync_to_async(File.nodes.get)(uid=file_id)
-            file_link = file_record.link
-            importer = await sync_to_async(TableImporter)(graph, file_link, context)
-            await sync_to_async(importer.run)()
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
+            )
 
-            if task.is_cancelled():
-                print("canceling task")
-                return
+            if "graph" not in request.POST:
+                graph = request.POST["graph"]
+                process.graph = graph
+            else:
+                graph = process.graph
 
-            await sync_to_async(FullTableCache.update)(self.request.session.get("first_line"), graph)
+            process.status = "processing_import"
+            process.save()
 
-            updates = {
-                "progress": 6,
-                "processing": False,
-            }
-            await user_db_request(updates, upload_id, user_token)
+            submit_task(process_id, import_graph, process)
+
+            return JsonResponse({"status": process.status})
         except Exception as e:
-            import traceback
-
-            print(f"Error during graph import: {e}")
-            traceback.print_exc()
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
+            process.status = "error"
+            process.save()
+            logger.error(f"Error during task submission: {e}", exc_info=True)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelTaskView(APIView):
 
     def post(self, request):
-        return async_to_sync(self.handle_post)(request)
+        if "userId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-    async def handle_post(self, request):
-        try:
-            user_token = request.user_token
-            data = json.loads(request.body)
-            params = data.get("params", {})
-            upload_id = params.get("uploadId")
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
 
-            if not upload_id:
-                return JsonResponse(
-                    {"cancelled": False, "error": "uploadId is required"}, status=400
-                )
-
-            success = cancel_task(upload_id)
-            updates = {"processing": False}
-            await user_db_request(updates, upload_id, user_token)
+        process = get_object_or_404(
+            ImportProcess, user_id=user_id, process_id=process_id
+        )
+        if process:
+            success = cancel_task(process_id)
             if success:
+                return JsonResponse({"status": ""})
+        else:
+            return JsonResponse(
+                {
+                    "cancelled": False,
+                    "error": "Task not found or already completed",
+                },
+                status=404,
+            )
 
-                return JsonResponse({"cancelled": True})
-            else:
-                return JsonResponse(
-                    {
-                        "cancelled": False,
-                        "error": "Task not found or already completed",
-                    },
-                    status=404,
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ProcessReportView(APIView):
+
+    def get(self, request):
+        if "userId" not in request.POST:
+            return response.Response(
+                {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "key" not in request.POST:
+            return response.Response(
+                {"error": "No key provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
+        key = request.POST["key"]
+
+        try:
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
+            )
+
+            key_to_field_map = {
+                "labels": "labels",
+                "attributes": "attributes",
+                "graph": "graph",
+                "import": "import"
+            }
+
+            if key not in key_to_field_map:
+                return response.Response(
+                    {"error": "Invalid key provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
+
+            process_status = process.status
+            response_data = {}
+
+            data_field = key_to_field_map[key]
+            data_value = getattr(process, data_field)
+            data_available = data_value is not None
+
+            if process_status == "error":
+                response_data["status"] = process_status
+                return response.Response(response_data, status=status.HTTP_200_OK)
+            elif process_status == f"processing_{key}":
+                response_data["status"] = "processing"
+                return response.Response(response_data, status=status.HTTP_200_OK)
+            elif process_status == "cancelled":
+                response_data["status"] = "cancelled"
+                return response.Response(response_data, status=status.HTTP_200_OK)
+            elif process_status == "idle" and data_available:
+                response_data["status"] = "success"
+                response_data[key] = getattr(process, data_field)
+                return response.Response(response_data, status=status.HTTP_200_OK)
+            else:
+                response_data["status"] = process_status
+                response_data["message"] = "Data not available yet"
+                return response.Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
-            return JsonResponse({"cancelled": False, "error": str(e)}, status=500)
+            logger.error(f"Error during writing report: {e}", exc_info=True)
+            return response.Response(
+                {f"error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ProcessDeleteView(APIView):
+
+    def post(self, request):
+        if "userId" not in request.POST:
+            return response.Response(
+                {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if "processId" not in request.POST:
+            return response.Response(
+                {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_id = request.POST["userId"]
+        process_id = request.POST["processId"]
+
+        try:
+            process = get_object_or_404(
+                ImportProcess, user_id=user_id, process_id=process_id
+            )
+            process.delete()
+            
+            return response.Response(
+                {"message": "Process deleted successfully"},
+                status=status.HTTP_200_OK,
+            )
+        except Http404:
+            return response.Response(
+                {"error": "Process not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            logger.error(f"Error during deleting process: {e}", exc_info=True)
+            return response.Response(
+                {f"error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -1,4 +1,5 @@
 import re
+import math
 
 def load_csv_to_dataframe(file_path):
     """
@@ -164,9 +165,23 @@ def get_true_node_label(csv_path, index_heading, row = 69):
 
     return dataframe.iloc[row, col]
 
-
-
-
+def sanitize_data(data):
+    if isinstance(data, dict):
+        i = 0
+        sanitized_dict = {}
+        for k, v in data.items():
+            i += 1
+            if isinstance(k, float) and (math.isnan(k) or math.isinf(k)):
+                k = f"column_{str(i)}"  # Use an appropriate placeholder
+            sanitized_dict[k] = sanitize_data(v)
+        return sanitized_dict
+    elif isinstance(data, list):
+        return [sanitize_data(i) for i in data]
+    elif isinstance(data, float):
+        if math.isinf(data) or math.isnan(data):
+            return None  # or some other appropriate value
+        return data
+    return data
 
 if __name__ == "__main__":
     # Sample CSV path and heading for demonstration

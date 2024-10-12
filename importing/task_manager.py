@@ -14,17 +14,17 @@ class Task:
     def is_cancelled(self):
         return self.cancelled.is_set()
 
-def submit_task(upload_id, func, *args):
+def submit_task(process_id, func, *args):
     task = Task()
     future = executor.submit(func, task, *args)
-    running_tasks[upload_id] = (future, task)
+    running_tasks[process_id] = (future, task)
     return future
 
 def cancel_task(upload_id):
     if upload_id in running_tasks:
         future, task = running_tasks[upload_id]
         task.cancel()
-        future.cancel()
+        # Note: future.cancel() will not cancel a running task in ThreadPoolExecutor
         del running_tasks[upload_id]
         return True
     return False

@@ -152,7 +152,7 @@ class fullRelationshipsExtractor:
         ) | build_results
         chain = chain.with_config({"run_name": "relationship-extraction"})
         self.relationships = chain.invoke({
-            'input': self.data,
+            'input': self.data["nodes"],
             'context': self.context,
             'header': self.header,
             'first_line': self.first_line
