@@ -7,8 +7,8 @@ services:
             context: .
             dockerfile: docker/mg-django.dockerfile
         container_name: 'mg-django'
-        volumes:
-            - './:/app'
+        # volumes: # in case specific dir should have live updates
+        #    - './specific_dir:/app/specific_dir'
         depends_on:
             - mg-neo4j
         networks:
