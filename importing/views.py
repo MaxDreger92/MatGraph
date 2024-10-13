@@ -123,7 +123,7 @@ class AttributeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status is not "idle":
+            if process.status != "idle":
                 return JsonResponse({"status": process.status})
 
             if "labels" in request.POST:

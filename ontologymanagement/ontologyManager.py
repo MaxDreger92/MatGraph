@@ -246,17 +246,7 @@ def main():
     # ontology_manager.update_ontology("manufacturing.owl")
     ontology_manager.import_to_neo4j("manufacturing.owl")
 
-
-
-
-
     # from emmopy import get_emmo
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
