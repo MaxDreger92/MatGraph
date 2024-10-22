@@ -161,6 +161,7 @@ API module providing data ingestion functionality, comprising the following endp
 ### Response
 - HTTP status code: `200`
 - `status` - `String`
+- `key` - Requested Data
 
 
 ## process-delete
