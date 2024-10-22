@@ -135,7 +135,6 @@ API module providing data ingestion functionality, comprising the following endp
 `PATCH`
 
 ### Headers
--   `Content-Type`: `multipart/form-data`
 -   `HTTP_API_KEY`: `your_api_key_here`
 
 ### Response
