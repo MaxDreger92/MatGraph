@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name="dispatch")
 class LabelExtractView(APIView):
     def post(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
-                {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "No user id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
         if "file" not in request.FILES:
             return response.Response(
@@ -59,7 +59,7 @@ class LabelExtractView(APIView):
             )
 
         process_id = str(uuid.uuid4())
-        user_id = request.POST["userId"]
+        user_id = request.GET["user_id"]
         file_id = file_record.uid
         context = request.POST["context"]
 
@@ -69,20 +69,19 @@ class LabelExtractView(APIView):
         try:
             process = create_import_process(process_id, user_id, file_id, context)
             submit_task(process_id, extract_labels, process)
+            return JsonResponse(
+                {"process_id": process_id, "status": process.status},
+                status=status.HTTP_201_CREATED,
+            )
         except Exception as e:
             logger.error(
                 f"Exception occurred while creating import process: {e}", exc_info=True
             )
             process.delete()
             return response.Response(
-                {"error": "Failed to create import process"},
+                {"error": "Label extraction failed"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        return JsonResponse(
-            {"process_id": process_id, "status": process.status},
-            status=status.HTTP_201_CREATED,
-        )
 
     def try_cache(self, file_id):
         file_record = File.nodes.get(uid=file_id)
@@ -107,17 +106,17 @@ class LabelExtractView(APIView):
 class AttributeExtractView(APIView):
 
     def post(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         try:
             process = get_object_or_404(
@@ -142,23 +141,24 @@ class AttributeExtractView(APIView):
             process.status = "error"
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
+            return JsonResponse({"error": "Attribute extraction failed"}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class NodeExtractView(APIView):
 
     def post(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         try:
             process = get_object_or_404(
@@ -181,23 +181,24 @@ class NodeExtractView(APIView):
             process.status = "error"
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
+            return JsonResponse({"error": "Node extraction failed"}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphExtractView(APIView):
 
     def post(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         try:
             process = get_object_or_404(
@@ -220,30 +221,31 @@ class GraphExtractView(APIView):
             process.status = "error"
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
+            return JsonResponse({"error": "Graph extraction failed"}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphImportView(APIView):
 
     def post(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         try:
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
 
-            if "graph" not in request.POST:
+            if "graph" in request.POST:
                 graph = request.POST["graph"]
                 process.graph = graph
             else:
@@ -259,23 +261,24 @@ class GraphImportView(APIView):
             process.status = "error"
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
+            return JsonResponse({"error": "Graph import failed"}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelTaskView(APIView):
 
-    def post(self, request):
-        if "userId" not in request.POST:
+    def patch(self, request):
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         process = get_object_or_404(
             ImportProcess, user_id=user_id, process_id=process_id
@@ -283,37 +286,35 @@ class CancelTaskView(APIView):
         if process:
             success = cancel_task(process_id)
             if success:
-                return JsonResponse({"status": ""})
+                return JsonResponse({"status": "cancelled"})
         else:
             return JsonResponse(
                 {
-                    "cancelled": False,
                     "error": "Task not found or already completed",
                 },
                 status=404,
             )
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class ProcessReportView(APIView):
 
     def get(self, request):
-        if "userId" not in request.POST:
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "key" not in request.POST:
+        if "key" not in request.GET:
             return response.Response(
                 {"error": "No key provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
-        key = request.POST["key"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
+        key = request.GET["key"]
 
         try:
             process = get_object_or_404(
@@ -324,7 +325,7 @@ class ProcessReportView(APIView):
                 "labels": "labels",
                 "attributes": "attributes",
                 "graph": "graph",
-                "import": "import"
+                "import": "import",
             }
 
             if key not in key_to_field_map:
@@ -335,26 +336,22 @@ class ProcessReportView(APIView):
 
             process_status = process.status
             response_data = {}
+            response_data["status"] = process_status
 
             data_field = key_to_field_map[key]
             data_value = getattr(process, data_field)
             data_available = data_value is not None
 
             if process_status == "error":
-                response_data["status"] = process_status
                 return response.Response(response_data, status=status.HTTP_200_OK)
             elif process_status == f"processing_{key}":
-                response_data["status"] = "processing"
                 return response.Response(response_data, status=status.HTTP_200_OK)
             elif process_status == "cancelled":
-                response_data["status"] = "cancelled"
                 return response.Response(response_data, status=status.HTTP_200_OK)
             elif process_status == "idle" and data_available:
-                response_data["status"] = "success"
-                response_data[key] = getattr(process, data_field)
+                response_data[key] = data_value
                 return response.Response(response_data, status=status.HTTP_200_OK)
             else:
-                response_data["status"] = process_status
                 response_data["message"] = "Data not available yet"
                 return response.Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
@@ -367,27 +364,27 @@ class ProcessReportView(APIView):
 @method_decorator(csrf_exempt, name="dispatch")
 class ProcessDeleteView(APIView):
 
-    def post(self, request):
-        if "userId" not in request.POST:
+    def delete(self, request):
+        if "user_id" not in request.GET:
             return response.Response(
                 {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if "processId" not in request.POST:
+        if "process_id" not in request.GET:
             return response.Response(
                 {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_id = request.POST["userId"]
-        process_id = request.POST["processId"]
+        user_id = request.GET["user_id"]
+        process_id = request.GET["process_id"]
 
         try:
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
             process.delete()
-            
+
             return response.Response(
-                {"message": "Process deleted successfully"},
+                {"status": "deleted"},
                 status=status.HTTP_200_OK,
             )
         except Http404:

@@ -38,7 +38,6 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 GITHUB_WEBHOOK_SECRET = config(os.getenv("GITHUB_WEBHOOK_SECRET"), default="")
 
-
 ALLOWED_HOSTS = [
     "134.94.199.247",
     "127.0.0.1",
@@ -118,7 +117,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "mat2devplatform.auth.middleware.APIKeyAuthenticationMiddleware",
+    "mat2devplatform.middleware.auth.APIKeyAuthenticationMiddleware",
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
