@@ -70,7 +70,7 @@ class LabelExtractView(APIView):
             process = create_import_process(process_id, user_id, file_id, context)
             submit_task(process_id, extract_labels, process)
             return JsonResponse(
-                {"process_id": process_id, "status": process.status},
+                {"process_id": process.process_id, "status": process.status},
                 status=status.HTTP_201_CREATED,
             )
         except Exception as e:
@@ -122,13 +122,15 @@ class AttributeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status != "idle":
-                return JsonResponse({"status": process.status})
+            if process.status not in ["idle", "cancelled"]:
+                return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "labels" in request.POST:
                 labels = request.POST["labels"]
                 process.labels = labels
             else:
+                if not process.labels:
+                    return JsonResponse({"error": "No labels provided"}, status=400)
                 labels = process.labels
 
             process.status = "processing_attributes"
@@ -164,11 +166,15 @@ class NodeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            if process.status not in ["idle", "cancelled"]:
+                return JsonResponse({"status": process.status})
 
             if "attributes" in request.POST:
                 attributes = request.POST["attributes"]
                 process.attributes = attributes
             else:
+                if not process.attributes:
+                    return JsonResponse({"error": "No attributes provided"}, status=400)
                 attributes = process.attributes
 
             process.status = "processing_nodes"
@@ -204,11 +210,15 @@ class GraphExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            if process.status not in ["idle", "cancelled"]:
+                return JsonResponse({"status": process.status})
 
             if "graph" in request.POST:
                 graph = request.POST["graph"]
                 process.graph = graph
             else:
+                if not process.graph:
+                    return JsonResponse({"error": "No graph provided"}, status=400)
                 graph = process.graph
 
             process.status = "processing_graph"
@@ -244,11 +254,15 @@ class GraphImportView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            if process.status not in ["idle", "cancelled"]:
+                return JsonResponse({"status": process.status})
 
             if "graph" in request.POST:
                 graph = request.POST["graph"]
                 process.graph = graph
             else:
+                if not process.graph:
+                    return JsonResponse({"error": "No graph provided"}, status=400)
                 graph = process.graph
 
             process.status = "processing_import"
@@ -295,6 +309,7 @@ class CancelTaskView(APIView):
                 status=404,
             )
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class ProcessReportView(APIView):
 
@@ -334,26 +349,33 @@ class ProcessReportView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            process_status = process.status
-            response_data = {}
-            response_data["status"] = process_status
-
             data_field = key_to_field_map[key]
             data_value = getattr(process, data_field)
             data_available = data_value is not None
 
-            if process_status == "error":
+            process_status = process.status
+            response_data = {}
+            response_data["status"] = process_status
+
+            if process_status in ["error", "cancelled"]:
+                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
+
+            elif process_status.startswith("processing_"):
+                if process_status == f"processing_{key}" or not data_available:
+                    response_data["message"] = "Data not available yet"
+                else:
+                    response_data[key] = data_value
+                    response_data["status"] = "ready"
                 return response.Response(response_data, status=status.HTTP_200_OK)
-            elif process_status == f"processing_{key}":
-                return response.Response(response_data, status=status.HTTP_200_OK)
-            elif process_status == "cancelled":
-                return response.Response(response_data, status=status.HTTP_200_OK)
+
             elif process_status == "idle" and data_available:
                 response_data[key] = data_value
+                response_data["status"] = "ready"
                 return response.Response(response_data, status=status.HTTP_200_OK)
-            else:
-                response_data["message"] = "Data not available yet"
-                return response.Response(response_data, status=status.HTTP_200_OK)
+
+            response_data["message"] = "Data not available yet"
+            return response.Response(response_data, status=status.HTTP_200_OK)
+
         except Exception as e:
             logger.error(f"Error during writing report: {e}", exc_info=True)
             return response.Response(

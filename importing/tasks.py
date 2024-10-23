@@ -63,19 +63,26 @@ def extract_labels(task, process):
         process.delete()
         logger.error(f"Error during label extraction: {e}", exc_info=True)
         
-def extract_attributes(self, task, process):
+def extract_attributes(task, process):
     try:
         if task.is_cancelled():
             task_cancelled(process)
             return
+        print('begin')
 
         file_id = process.file_id
         file_record = File.nodes.get(uid=file_id)
         file_link = file_record.link
         file_name = file_record.name
+        
+        print("got file")
 
-        labels = json.loads(process.labels)
-        label_input = prepare_attribute_data(labels)
+        # labels = json.loads(process.labels)
+        # print("labels")
+        # print(labels)
+        label_input = prepare_attribute_data(process.labels)
+        print("label input")
+        print(label_input)
 
         attribute_classifier = AttributeClassifier(
             label_input,
@@ -88,6 +95,7 @@ def extract_attributes(self, task, process):
             task_cancelled(process)
             return
 
+        print('run')
         attribute_classifier.run()
 
         if task.is_cancelled():
@@ -108,11 +116,11 @@ def extract_attributes(self, task, process):
         process.save()
 
     except Exception as e:
-        process.status = "error"
+        process.status = "idle"
         process.save()
         logger.error(f"Error during attribute extraction: {e}", exc_info=True)
 
-def extract_nodes(self, task, process):
+def extract_nodes(task, process):
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -227,7 +235,7 @@ def import_graph(self, task, process):
         process.save()
         logger.error(f"Error during graph import: {e}", exc_info=True)
         
-def prepare_attribute_data(self, labels):
+def prepare_attribute_data(labels):
     input_data = [
         {"column_values": [value[1]], "header": key, "1_label": value[0]}
         for key, value in labels.items()
