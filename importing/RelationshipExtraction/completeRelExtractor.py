@@ -126,7 +126,7 @@ class fullRelationshipsExtractor:
     def __init__(self, input_json, context, header, first_line, *args, **kwargs):
         self.header = header
         self.first_line = first_line
-        self._data = json.loads(input_json)
+        self._data = input_json
         self._context = context
 
     @property
@@ -157,7 +157,6 @@ class fullRelationshipsExtractor:
             'header': self.header,
             'first_line': self.first_line
         })
-
 
     @property
     def relationships(self):

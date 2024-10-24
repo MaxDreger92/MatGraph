@@ -122,16 +122,13 @@ class AttributeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status not in ["idle", "cancelled"]:
+            if process.status not in ["idle", "cancelled", "error"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "labels" in request.POST:
-                labels = request.POST["labels"]
-                process.labels = labels
-            else:
-                if not process.labels:
+                process.labels = request.POST["labels"]
+            elif not process.labels:
                     return JsonResponse({"error": "No labels provided"}, status=400)
-                labels = process.labels
 
             process.status = "processing_attributes"
             process.save()
@@ -166,16 +163,13 @@ class NodeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status not in ["idle", "cancelled"]:
-                return JsonResponse({"status": process.status})
+            if process.status not in ["idle", "cancelled", "error"]:
+                return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "attributes" in request.POST:
-                attributes = request.POST["attributes"]
-                process.attributes = attributes
-            else:
-                if not process.attributes:
+                process.attributes = request.POST["attributes"]
+            elif not process.attributes:
                     return JsonResponse({"error": "No attributes provided"}, status=400)
-                attributes = process.attributes
 
             process.status = "processing_nodes"
             process.save()
@@ -210,16 +204,13 @@ class GraphExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status not in ["idle", "cancelled"]:
-                return JsonResponse({"status": process.status})
+            if process.status not in ["idle", "cancelled", "error"]:
+                return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
-                graph = request.POST["graph"]
-                process.graph = graph
-            else:
-                if not process.graph:
+                process.graph = request.POST["graph"]
+            elif not process.graph:
                     return JsonResponse({"error": "No graph provided"}, status=400)
-                graph = process.graph
 
             process.status = "processing_graph"
             process.save()
@@ -254,22 +245,18 @@ class GraphImportView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
-            if process.status not in ["idle", "cancelled"]:
-                return JsonResponse({"status": process.status})
+            if process.status not in ["idle", "cancelled", "error"]:
+                return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
-                graph = request.POST["graph"]
-                process.graph = graph
-            else:
-                if not process.graph:
+                process.graph = request.POST["graph"]
+            elif not process.graph:
                     return JsonResponse({"error": "No graph provided"}, status=400)
-                graph = process.graph
 
             process.status = "processing_import"
             process.save()
 
-            submit_task(process_id, import_graph, process)
-
+            submit_task(process_id, import_graph, process, {"session": request.session.get("first_line")})
             return JsonResponse({"status": process.status})
         except Exception as e:
             process.status = "error"
@@ -335,10 +322,14 @@ class ProcessReportView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            process_status = process.status
+            if process_status in ["error", "cancelled"]:
+                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
 
             key_to_field_map = {
                 "labels": "labels",
                 "attributes": "attributes",
+                "nodes": "graph",
                 "graph": "graph",
                 "import": "import",
             }
@@ -349,33 +340,26 @@ class ProcessReportView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+
+            if key == "import":
+                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
+            
+            response_data = {}
+            response_data["status"] = process_status
+            
             data_field = key_to_field_map[key]
             data_value = getattr(process, data_field)
             data_available = data_value is not None
-
-            process_status = process.status
-            response_data = {}
-            response_data["status"] = process_status
-
-            if process_status in ["error", "cancelled"]:
-                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
-
-            elif process_status.startswith("processing_"):
-                if process_status == f"processing_{key}" or not data_available:
-                    response_data["message"] = "Data not available yet"
-                else:
-                    response_data[key] = data_value
-                    response_data["status"] = "ready"
+            
+            if process_status == f"processing_{key}" or not data_available:
+                response_data["message"] = "Data not available yet"
                 return response.Response(response_data, status=status.HTTP_200_OK)
 
-            elif process_status == "idle" and data_available:
-                response_data[key] = data_value
-                response_data["status"] = "ready"
-                return response.Response(response_data, status=status.HTTP_200_OK)
-
-            response_data["message"] = "Data not available yet"
+            if key == "nodes":
+                data_value["relationships"] = []
+            response_data[key] = data_value
+            response_data["status"] = "ready"
             return response.Response(response_data, status=status.HTTP_200_OK)
-
         except Exception as e:
             logger.error(f"Error during writing report: {e}", exc_info=True)
             return response.Response(
