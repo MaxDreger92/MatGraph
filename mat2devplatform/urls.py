@@ -13,17 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# from django.contrib import admin
-# from django.urls import include, path
-
-
-# urlpatterns = [
-#     path('', include('matgraph.urls')),
-#     path('', include('usermanagement.urls')),
-#     path('', include('matching.urls')),
-#     path('admin/', admin.site.urls),
-#     path('', include('importing.urls')),
-# ]
 
 from django.contrib import admin
 from django.urls import include, path
@@ -38,8 +27,6 @@ spa_view = never_cache(TemplateView.as_view(template_name='index.html'))
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('default.urls')),
-    #path('', include('matgraph.urls')),
-    #path('', include('usermanagement.urls')),
     path('', include('matching.urls')),
     path('', include('importing.urls')),
     # Catch-all for SPA

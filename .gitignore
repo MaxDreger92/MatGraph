@@ -11,6 +11,8 @@ build/
 static/
 /userBackendNodeJS/src/config.ts
 *.sh
+!deployDjango_docker.sh
+!deployUserBackend_docker.sh
 neo4j_data/
 postgres_data/
 

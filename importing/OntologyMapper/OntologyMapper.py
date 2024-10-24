@@ -71,13 +71,14 @@ class OntologyMapper:
 
     def map_on_ontology(self):
         for node in self.data['nodes']:
-            node['name'] = [node['name']] if not isinstance(node['name'], list) else node['name']
+            if node['label'] == 'metadata':
+                continue
+            node['name'] = [node['attributes']['name']] if not isinstance(node['attributes']['name'], list) else node['attributes']['name']
             for node_name in node['name']:
                 self._process_node(node, node_name)
             
     def _process_node(self, node, name):
         label = node['label']
-        print(name, label, node)
         
         index_value = name.get('index', 'inferred')
         value_value = name.get('value')
