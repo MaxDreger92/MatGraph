@@ -50,13 +50,12 @@ def extract_labels(task, process):
             for element in node_classifier.results
         }
         sanitized_labels = sanitize_data(labels)
-        sanitized_labels_str = json.dumps(sanitized_labels)
 
         if task.is_cancelled():
             task_cancelled(process)
             return
 
-        process.labels = sanitized_labels_str
+        process.labels = sanitized_labels
         process.status = "idle"
         process.save()
     except Exception as e:
@@ -68,21 +67,14 @@ def extract_attributes(task, process):
         if task.is_cancelled():
             task_cancelled(process)
             return
-        print('begin')
 
         file_id = process.file_id
         file_record = File.nodes.get(uid=file_id)
         file_link = file_record.link
         file_name = file_record.name
         
-        print("got file")
-
-        # labels = json.loads(process.labels)
-        # print("labels")
-        # print(labels)
-        label_input = prepare_attribute_data(process.labels)
-        print("label input")
-        print(label_input)
+        labels = process.labels
+        label_input = prepare_attribute_data(labels)
 
         attribute_classifier = AttributeClassifier(
             label_input,
@@ -95,7 +87,6 @@ def extract_attributes(task, process):
             task_cancelled(process)
             return
 
-        print('run')
         attribute_classifier.run()
 
         if task.is_cancelled():
@@ -109,14 +100,13 @@ def extract_attributes(task, process):
             }
             for element in attribute_classifier.results
         }
-        attributes_str = json.dumps(attributes)
 
-        process.attributes = attributes_str
+        process.attributes = attributes
         process.status = "idle"
         process.save()
 
     except Exception as e:
-        process.status = "idle"
+        process.status = "error"
         process.save()
         logger.error(f"Error during attribute extraction: {e}", exc_info=True)
 
@@ -131,7 +121,7 @@ def extract_nodes(task, process):
         file_link = file_record.link
         file_name = file_record.name
 
-        attributes = json.loads(process.attributes)
+        attributes = process.attributes
         attribute_input = prepare_node_data(file_id, attributes)
 
         node_extractor = NodeExtractor(
@@ -151,10 +141,9 @@ def extract_nodes(task, process):
             task_cancelled(process)
             return
 
-        graph = str(node_extractor.results).replace("'", '"')
-        graph_str = json.dumps(graph)
+        graph = json.loads(str(node_extractor.results).replace("'", '"'))
 
-        process.graph = graph_str
+        process.graph = graph
         process.status = "idle"
         process.save()
     except Exception as e:
@@ -162,13 +151,13 @@ def extract_nodes(task, process):
         process.save()
         logger.error(f"Error during node extraction: {e}", exc_info=True)
 
-def extract_relationships(self, task, process):
+def extract_relationships(task, process):
     try:
         if task.is_cancelled():
             task_cancelled(process)
             return
 
-        graph = json.loads(process.graph)
+        graph = process.graph
         context = process.context
         header, first_row = prepare_graph_data(process.file_id)
         relationships_extractor = fullRelationshipsExtractor(
@@ -180,20 +169,18 @@ def extract_relationships(self, task, process):
             return
 
         relationships_extractor.run()
-
         if task.is_cancelled():
             task_cancelled(process)
             return
 
         graph = relationships_extractor.results
-        graph = (
+        graph = json.loads(
             str(graph)
             .replace("'", '"')
             .replace("has_manufacturing_output", "is_manufacturing_output")
         )
-        graph_str = json.dumps(graph)
 
-        process.graph = graph_str
+        process.graph = graph
         process.status = "idle"
         process.save()
     except Exception as e:
@@ -201,8 +188,9 @@ def extract_relationships(self, task, process):
         process.save()
         logger.error(f"Error during graph extraction: {e}", exc_info=True)
 
-def import_graph(self, task, process):
+def import_graph(task, process, request_data):
     try:
+        print(0)
         if task.is_cancelled():
             task_cancelled(process)
             return
@@ -211,7 +199,7 @@ def import_graph(self, task, process):
         file_record = File.nodes.get(uid=file_id)
         file_link = file_record.link
 
-        graph = json.loads(process.graph)
+        graph = process.graph
         context = process.context
 
         importer = TableImporter(graph, file_link, context)
@@ -226,7 +214,7 @@ def import_graph(self, task, process):
             task_cancelled(process)
             return
 
-        FullTableCache.update(self.request.session.get("first_line"), graph)
+        FullTableCache.update(request_data["session"], graph)
         
         process.status = "imported"
         process.save()
@@ -244,7 +232,7 @@ def prepare_attribute_data(labels):
         item["index"] = index
     return input_data
 
-def prepare_node_data(self, file_id, attributes):
+def prepare_node_data(file_id, attributes):
     file_record = File.nodes.get(uid=file_id)
     file_obj_bytes = file_record.get_file()
     file_obj_str = file_obj_bytes.decode("utf-8")
@@ -268,14 +256,14 @@ def prepare_node_data(self, file_id, attributes):
             "index": i,
             "column_values": column_values[i],
             "header": header,
-            "1_label": attributes[header][0],
-            "1_attribute": attributes[header][1],
+            "1_label": attributes[header]['Label'],
+            "1_attribute": attributes[header]['Attribute']
         }
         for i, header in enumerate(first_line)
     ]
     return input
 
-def prepare_graph_data(self, file_id):
+def prepare_graph_data(file_id):
     file_record = File.nodes.get(uid=file_id)
     file_obj_bytes = file_record.get_file()
     file_obj_str = file_obj_bytes.decode("utf-8")
@@ -287,7 +275,7 @@ def prepare_graph_data(self, file_id):
 
     return header, first_row
 
-def task_cancelled(self, process):
+def task_cancelled(process):
     process.status = "cancelled"
     process.save()
     logger.info(f"Task {process.process_id} was cancelled.")

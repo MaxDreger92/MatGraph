@@ -334,7 +334,6 @@ class TableImporter(Importer):
                 column_values[i].add(value)
 
         data['column_values'] = [list(column_set) for column_set in column_values]
-
         self.ontology_mapper.run()
         self.mapping = self.ontology_mapper.mapping
 

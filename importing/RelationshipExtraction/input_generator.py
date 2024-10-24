@@ -70,12 +70,9 @@ def csv_to_json(file_name):
     return json.dumps({"nodes": combined_nodes, "headers": header}, indent=4)
 
 
-def extract_data(json_data_str, label):
-    json_data = json.loads(str(json_data_str).replace('\'', '"'))
-    # Parse the JSON data
-    nodes = json_data.get('nodes', [])
+def extract_data(input_json, label):
+    nodes = json.loads(str(input_json).replace('\'', '"'))
 
-    # Extract manufacturing data
     label_data = [node for node in nodes if node.get('label') == label]
 
     return label_data
@@ -148,9 +145,9 @@ def flatten_json(json_obj):
     return json_obj
 
 
-def prepare_lists(json_input, label1, label2):
-    label_one_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label1]
-    label_two_data = [flatten_json(remove_key(extract_data(json_input, label), "position")) for label in label2]
+def prepare_lists(input_json, label1, label2):
+    label_one_data = [flatten_json(remove_key(extract_data(input_json, label), "position")) for label in label1]
+    label_two_data = [flatten_json(remove_key(extract_data(input_json, label), "position")) for label in label2]
 
     label_two_data = [item for sublist in label_two_data for item in sublist]
     label_one_data = [item for sublist in label_one_data for item in sublist]
