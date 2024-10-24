@@ -126,7 +126,7 @@ class AttributeExtractView(APIView):
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "labels" in request.POST:
-                process.labels = request.POST["labels"]
+                process.labels = json.loads(request.POST["labels"])
             elif not process.labels:
                     return JsonResponse({"error": "No labels provided"}, status=400)
 
@@ -167,7 +167,7 @@ class NodeExtractView(APIView):
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "attributes" in request.POST:
-                process.attributes = request.POST["attributes"]
+                process.attributes = json.loads(request.POST["attributes"])
             elif not process.attributes:
                     return JsonResponse({"error": "No attributes provided"}, status=400)
 
@@ -208,7 +208,7 @@ class GraphExtractView(APIView):
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
-                process.graph = request.POST["graph"]
+                process.graph = json.loads(request.POST["graph"])
             elif not process.graph:
                     return JsonResponse({"error": "No graph provided"}, status=400)
 
@@ -249,7 +249,7 @@ class GraphImportView(APIView):
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
-                process.graph = request.POST["graph"]
+                process.graph = json.loads(request.POST["graph"])
             elif not process.graph:
                     return JsonResponse({"error": "No graph provided"}, status=400)
 
