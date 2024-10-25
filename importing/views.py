@@ -187,7 +187,7 @@ class LabelExtractView(APIView):
         file_obj_str = file_obj_bytes.decode("utf-8")
         file_obj = StringIO(file_obj_str)
         file_obj.seek(0)
-        first_line = str(file_obj.readline().strip().lower())
+        first_line = str(file_obj.readline().strip().lstrip("\ufeff").lower())
 
         cached = await sync_to_async(FullTableCache.fetch)(first_line)
         if cached:
@@ -412,7 +412,7 @@ class NodeExtractView(APIView):
 
         file_obj.seek(0)
 
-        first_line = file_obj.readline().strip()
+        first_line = file_obj.readline().strip().lstrip("\ufeff")
         first_line = first_line.split(",")
         input = [
             {
