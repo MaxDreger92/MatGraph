@@ -8,7 +8,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `process_id` and `status`
 
 ### URI
-`/api/import/label-extract/?user_id=your_user_id_here`
+`/api/import/label-extract?user_id=your_user_id_here`
 
 ### Method
 `POST`
@@ -34,7 +34,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`/api/import/attribute-extract/?user_id=your_user_id_here&process_id=your_process_id_here`
+`/api/import/attribute-extract?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `POST`
@@ -58,7 +58,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`/api/import/node-extract/?user_id=your_user_id_here&process_id=your_process_id_here`
+`/api/import/node-extract?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `POST`
@@ -82,7 +82,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`/api/import/graph-extract/?user_id=your_user_id_here&process_id=your_process_id_here`
+`/api/import/graph-extract?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `POST`
@@ -106,7 +106,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`/api/import/graph-import/?user_id=your_user_id_here&process_id=your_process_id_here`
+`/api/import/graph-import?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `POST`
@@ -129,7 +129,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`api/import/cancel/?user_id=your_user_id_here&process_id=your_process_id_here`
+`api/import/cancel?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `PATCH`
@@ -149,7 +149,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status` and data as `key` if possible
 
 ### URI
-`/api/import/report/?user_id=your_user_id_here&process_id=your_process_id_here&key=your_key_here`
+`/api/import/report?user_id=your_user_id_here&process_id=your_process_id_here&key=your_key_here`
 
 ### Method
 `GET`
@@ -169,7 +169,7 @@ API module providing data ingestion functionality, comprising the following endp
 - Return `status`
 
 ### URI
-`/api/import/delete/?user_id=your_user_id_here&process_id=your_process_id_here`
+`/api/import/delete?user_id=your_user_id_here&process_id=your_process_id_here`
 
 ### Method
 `DELETE`
