@@ -2,8 +2,36 @@ import os
 from dotenv import load_dotenv
 from django.http import JsonResponse
 import jwt
+import hashlib
 
 load_dotenv() 
+
+class APIKeyAuthenticationMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        protected_path = '/api/'
+
+        if request.path.startswith(protected_path):
+            api_key = request.META.get('HTTP_API_KEY', '')
+
+            if api_key:
+                if self.validate_api_key(api_key):
+                    return self.get_response(request)
+                else:
+                    return self.get_response(request)
+                    # return JsonResponse({'error': 'Invalid API key'}, status=403)
+            else:
+                return self.get_response(request)
+                # return JsonResponse({'error': 'API key is missing'}, status=401)
+
+        response = self.get_response(request)
+        return response
+
+    def validate_api_key(self, api_key):
+        stored_hash = hashlib.sha256(b'secret_key_example').hexdigest()
+        return hashlib.sha256(api_key.encode()).hexdigest() == stored_hash
 
 class TokenAuthenticationMiddleware:
     def __init__(self, get_response):
