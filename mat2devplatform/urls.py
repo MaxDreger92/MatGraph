@@ -25,12 +25,14 @@ from django.views.decorators.cache import never_cache
 spa_view = never_cache(TemplateView.as_view(template_name='index.html'))
 
 urlpatterns = [
+    path('schema_ingestion/', include('schema_ingestion.urls')),
     path('admin/', admin.site.urls),
     path('', include('default.urls')),
     path('', include('matching.urls')),
     path('', include('importing.urls')),
     # Catch-all for SPA
     path('', spa_view, name='app'),
+
 ]
 
 # Serve static files in development
