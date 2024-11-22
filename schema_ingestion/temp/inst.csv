@@ -1,0 +1,2 @@
+ExperimentID;Instrument;MicroscopeBrand;AccelerationVoltage/kV;Magnification;Cathode;WorkingDistance/mm;Probe;Detector;ImagingTechnique;Signal;TimeLapse/s;RawData;DataAdquisitionRate
+1;Electron Microscope;Zeiss Gemini Ultra plus;20;250;LaB6;8.5;Electron beam;InLens;Brightfield;Secondary electrons;30;electron images;-

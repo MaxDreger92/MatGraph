@@ -1,0 +1,6 @@
+ExperimentID;Step;Precursor;Amount;Technique;Condition;Target;Amount
+1;1;MEA;5 wt%,;Fix;-;SPInt1;
+1;1;Sampleholder (Plano GmbH);1.2 cm,;Fix;-;SPInt1;
+1;1;Tape (Plano GmbH);;Fix;-;SPInt1;
+1;2;SPInt1;;Deposition;-;Sample;
+1;2;Au;;Deposition;-;Sample;
