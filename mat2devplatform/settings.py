@@ -155,7 +155,7 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-
+print(NEOMODEL_NEO4J_BOLT_URL)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

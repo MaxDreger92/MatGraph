@@ -1,6 +1,12 @@
-ExperimentID;Step;Precursor;Amount;Technique;Condition;Target;Amount
-1;1;MEA;5 wt%,;Fix;-;SPInt1;
-1;1;Sampleholder (Plano GmbH);1.2 cm,;Fix;-;SPInt1;
-1;1;Tape (Plano GmbH);;Fix;-;SPInt1;
-1;2;SPInt1;;Deposition;-;Sample;
-1;2;Au;;Deposition;-;Sample;
+ExperimentID;Step;Precursor;AmountPrecursor;Technique;Condition;Target;AmountTarget
+5;1;MEA;;Cut;Size = 25 cm2;SPInt1;
+5;2;SPInt1;;Embedded;-;SPInt2;
+5;2;Terosion Teromix PU6700;;Embedded;-;SPInt2;
+5;3;SPInt2;;Curated;"Temperature = 25 °C
+Time = 24 h";SPInt3;
+5;4;SPInt3;;Microtome cut;"Microtome = Leitz
+Thickness = 2 mm";SPInt4;
+5;5;SPInt4;;Fix;-;Sample;
+5;5;Double sided adhesive tape;;Fix;-;Sample;
+5;5;AFM sample disc;;Fix;"Disc size = 12 mm
+Disc brand = Plano";Sample;

@@ -6,28 +6,50 @@ from mat2devplatform.settings import BASE_DIR
 
 
 def get_query(file_path):
+    # Add BASE_DIR to the file path
+    file_path = file_path.replace("\\", "/")
     return [f"""
     // Step 1: Load the initial CSV and create nodes
     LOAD CSV WITH HEADERS FROM 'file:///{file_path}/org.csv' AS row FIELDTERMINATOR ';'
     WITH row, SPLIT(row.Author,"\n") AS authors, SPLIT(row.ORCID,"\n") AS orcids, SPLIT(row.Email,"\n") AS emails
     
-    MERGE (HIP:FoundingBody  {{name:row.FoundingBody, grant_number:546546}})
-    CREATE (test_exp:Experiment  {{title:row.ExperimentTitle, pida:row.ExperimentID, date_added:row.UploadDate }})
+    MERGE (HIP:Metadata:FoundingBody  {{name:row.FoundingBody, grant_number:546546}})
+    ON CREATE SET HIP.uid = RandomUUID()
+    MERGE (test_exp:Process:Experiment  {{pida:row.ExperimentID, date_added:row.UploadDate }})
+    ON CREATE set test_exp.uid = RandomUUID()
     MERGE (test_exp) -[:HAS_FOUNDER]-> (HIP)
-    MERGE (ForschungszentrumJülich:Institution  {{name:row.Institution, center_id:555, acronym:'FZJ',wikipedia_link:'link', center_type:'Research Centre'}})
-    MERGE (test_exp)-[:PUBLISHED_BY]->(ForschungszentrumJülich)
-    MERGE (Germany:Country {{name:row.Country}})
-    MERGE (ForschungszentrumJülich)-[:IN]->(Germany)
-    MERGE (RSC:Publication  {{title:row.Publication, published:row.Published, doi:row.DOI, journal:row.Journal,volume: row.Volume, issue: row.Issue, pages: row.Pages, publishing_date: row.PublicationDate}})
+    MERGE (ForschungszentrumJuelich:Metadata:Institution  {{name:row.Institution, center_id:555, acronym:'FZJ',wikipedia_link:'link', center_type:'Research Centre'}})
+    ON CREATE SET ForschungszentrumJuelich.uid = RandomUUID()
+    MERGE (test_exp)-[:PUBLISHED_BY]->(ForschungszentrumJuelich)
+    MERGE (Germany:Metadata:Country {{name:row.Country}})
+    ON CREATE SET Germany.uid = RandomUUID()
+    MERGE (ForschungszentrumJuelich)-[:IN]->(Germany)
+    MERGE (RSC:Metadata:Publication  {{title:row.Publication, published:row.Published, doi:row.DOI, journal:row.Journal,volume: row.Volume, issue: row.Issue, pages: row.Pages, publishing_date: row.PublicationDate}})
+    ON CREATE SET RSC.uid = RandomUUID()
     MERGE (test_exp)-[:PUBLISHED_IN]->(RSC)
     
-    CREATE (tags_exp:Tags {{topic: row.Topic, device:row.Device, component: row.Component, granularity:row.Granularity}})
+    MERGE (tags_exp:Metadata:Tags {{topic: row.Topic, device:row.Device}})
+    ON CREATE SET tags_exp.uid = RandomUUID()
     MERGE (test_exp)-[:TAGGED_AS]->(tags_exp)
-    MERGE (exp_pics:File  {{name:row.FileName, format:row.Format, link:row.Link, file_size:row.FileSize, dimension_x:row.DimensionX, dimension_y:row.DimensionY, dimension_z:row.DimensionZ, px_per_metric: row.PixelPerMetric, mask_exist:row.MaskExist, mask_link:row.MaskLink}})
+    MERGE (exp_pics:Metadata:File {{name: row.FileName}})
+    ON CREATE SET exp_pics.uid = RandomUUID()
+    SET exp_pics += apoc.map.clean({{
+        format: row.Format,
+        link: row.Link,
+        file_size: row.FileSize,
+        dimension_x: row.DimensionX,
+        dimension_y: row.DimensionY,
+        dimension_z: row.DimensionZ,
+        px_per_metric: row.PixelPerMetric,
+        mask_exist: row.MaskExist,
+        mask_link: row.MaskLink
+    }}, [], [null])    
     CREATE (test_exp)-[:HAS]->(exp_pics)
-    CREATE (sample_preparation_process:Manufacturing  {{name: 'SamplePreparation', exp_id:row.ExperimentID}})
-    CREATE (test_exp)-[:HAS_PROCESS]->(sample_preparation_process)
-    CREATE (synthesis_process:Manufacturing  {{name: 'Synthesis', exp_id:row.ExperimentID}})
+    MERGE (sample_preparation_process:Manufacturing  {{name: 'SamplePreparation', exp_id:row.ExperimentID}})
+    ON CREATE SET sample_preparation_process.uid = RandomUUID()
+    MERGE (test_exp)-[:HAS_PROCESS]->(sample_preparation_process)
+    MERGE (synthesis_process:Manufacturing  {{name: 'Synthesis', exp_id:row.ExperimentID}})
+    ON CREATE SET synthesis_process.uid = RandomUUID()
     MERGE (test_exp)-[:HAS_PROCESS]->(synthesis_process)
     
     WITH row,test_exp, RSC, authors, orcids, emails, sample_preparation_process
@@ -37,6 +59,7 @@ def get_query(file_path):
     // Create or merge the Author nodes with corresponding ORCID properties 
     MERGE (a:Author  {{name: author}}) 
     ON CREATE SET a.orcid = orcid
+    ON CREATE SET a.uid = RandomUUID() 
     ON CREATE SET a.email = email
     MERGE (a)-[:IS_AUTHOR]->(RSC)
     MERGE (a)-[:CONDUCTED]->(test_exp)
@@ -50,12 +73,15 @@ def get_query(file_path):
     
     // Create or merge nodes for subprocess, component, target, and condition
     MERGE (subprocess1:Manufacturing  {{name: row1.Technique, exp_id: row1.ExperimentID, step: toInteger(row1.Step)}})
+    ON CREATE SET subprocess1.uid = RandomUUID()
     MERGE (component1:Matter  {{name: row1.Precursor, exp_id: row1.ExperimentID}})
     ON CREATE SET 
+        component1.uid = RandomUUID(),
         component1.Amount = apoc.number.parseFloat(precursorAmountParts[0]),
         component1.Unit = CASE WHEN size(precursorAmountParts) > 1 THEN precursorAmountParts[1] ELSE NULL END
     MERGE (target1:Matter  {{name: row1.Target, exp_id: row1.ExperimentID}})
     ON CREATE SET 
+        target1.uid= RandomUUID(),
         target1.amount = apoc.number.parseFloat(targetAmountParts[0]),
         target1.unit = CASE WHEN size(targetAmountParts) > 1 THEN targetAmountParts[1] ELSE NULL END
     
@@ -113,13 +139,17 @@ def get_query(file_path):
     
     // Create or merge nodes for subprocess, component, target, and condition
     MERGE (synthesis_process:Manufacturing  {{name: 'Synthesis', exp_id:row2.ExperimentID}})
+    ON CREATE SET synthesis_process.uid = RandomUUID() 
     MERGE (subprocess2:Manufacturing  {{name: row2.Technique, exp_id: row2.ExperimentID, step: toInteger(row2.Step)}})
+    ON CREATE SET subprocess2.uid = RandomUUID() 
     MERGE (component2:Matter  {{name: row2.Precursor, exp_id: row2.ExperimentID}})
     ON CREATE SET 
+        component2.uid = RandomUUID() ,
         component2.Amount = apoc.number.parseFloat(precursorAmountParts[0]),
         component2.Unit = CASE WHEN size(precursorAmountParts) > 1 THEN precursorAmountParts[1] ELSE NULL END
     MERGE (target2:Matter  {{name: row2.Target, exp_id: row2.ExperimentID}})
     ON CREATE SET 
+        target2.uid = RandomUUID(), 
         target2.amount = apoc.number.parseFloat(targetAmountParts[0]),
         target2.unit = CASE WHEN size(targetAmountParts) > 1 THEN targetAmountParts[1] ELSE NULL END
     
@@ -176,30 +206,43 @@ def get_query(file_path):
     WITH row3
     ORDER BY toInteger(row3.Step) // Ensure rows are processed in order of steps
     MERGE (test_exp:Experiment  {{pida:row3.ExperimentID }})
-    CREATE (characterization:Measurement {{method:row3.MeasurementMethod,measurement_type:row3.MeasurementType, specimen:row3.Specimen, exp_id:row3.ExperimentID}})
+    ON CREATE SET 
+    test_exp.uid = RandomUUID() 
+    MERGE (characterization:Measurement {{method:row3.MeasurementMethod,measurement_type:row3.MeasurementType, specimen:row3.Specimen, exp_id:row3.ExperimentID}})
+    ON CREATE SET characterization.uid = RandomUUID()
     CREATE (test_exp)-[:HAS_PROCESS]->(characterization)
     MERGE (Sample:Matter {{name:'Sample',exp_id:row3.ExperimentID}})
-    CREATE (Sample)-[:IS_MEASUREMENT_INPUT]->(characterization)
-    CREATE (temperature2:Parameter {{name:'Temperature',value:row3.Temperature, unit:row3.TemperatureUnit}})
-    CREATE (humidity:Parameter {{name:'Humidity', value:row3.Humidity, unit:row3.HumidityUnit}})
-    CREATE (atmosphere:Parameter {{name:'Atmosphere', value:row3.Atmosphere, unit:row3.AtmosphereUnit}})
-    CREATE (pressure:Parameter {{name:'Pressure',value:row3.Pressure, unit:row3.PressureUnit}})
-    CREATE (characterization)-[:HAS_PARAMETER]->(temperature2)
-    CREATE (characterization)-[:HAS_PARAMETER]->(humidity)
-    CREATE (characterization)-[:HAS_PARAMETER]->(atmosphere)
-    CREATE (characterization)-[:HAS_PARAMETER]->(pressure)
+    ON CREATE SET Sample.uid = RandomUUID()
+    MERGE (Sample)-[:IS_MEASUREMENT_INPUT]->(characterization)
+    MERGE (temperature2:Parameter {{name:'Temperature',value:row3.Temperature, unit:row3.TemperatureUnit}})
+    ON CREATE SET temperature2.uid = RandomUUID()
+    MERGE (humidity:Parameter {{name:'Humidity', value:row3.Humidity, unit:row3.HumidityUnit}})
+    ON CREATE SET humidity.uid = RandomUUID()
+    MERGE (atmosphere:Parameter {{name:'Atmosphere', value:row3.Atmosphere, unit:row3.AtmosphereUnit}})
+    ON CREATE SET atmosphere.uid = RandomUUID()
+    MERGE (pressure:Parameter {{name:'Pressure',value:row3.Pressure, unit:row3.PressureUnit}})
+    ON CREATE SET pressure.uid = RandomUUID()
+    MERGE (characterization)-[:HAS_PARAMETER]->(temperature2)
+    MERGE (characterization)-[:HAS_PARAMETER]->(humidity)
+    MERGE (characterization)-[:HAS_PARAMETER]->(atmosphere)
+    MERGE (characterization)-[:HAS_PARAMETER]->(pressure)
     
-    CREATE (calibration:Parameter {{name:'Calibration',steps:row3.Calibration}})
-    CREATE (characterization)-[:HAS_PARAMETER]->(calibration)
-    CREATE (raw_data:Data {{name:'RawData',exp_id:row3.ExperimentID,link:'link'}})
-    CREATE (characterization)-[:HAS_MEASUREMENT_OUTPUT]->(raw_data);
+    MERGE (calibration:Parameter {{name:'Calibration',steps:row3.Calibration}})
+    ON CREATE SET calibration.uid = RandomUUID()
+    MERGE (characterization)-[:HAS_PARAMETER]->(calibration)
+    ON CREATE SET characterization.uid = RandomUUID()
+    MERGE (raw_data:Data {{name:'RawData',exp_id:row3.ExperimentID,link:'link'}})
+    ON CREATE SET raw_data.uid = RandomUUID()
+    MERGE (characterization)-[:HAS_MEASUREMENT_OUTPUT]->(raw_data);
     """,
     f"""    
     // Load the instrument and measurement details
     LOAD CSV WITH HEADERS FROM 'file:///{file_path}/inst.csv' AS row FIELDTERMINATOR ';'
     CALL apoc.create.node(['Instrument'], apoc.map.fromPairs([key IN keys(row) | [key, row[key]]])) YIELD node
     MERGE (characterization:Measurement  {{exp_id:row.ExperimentID}})
-    MERGE (instrument:Instrument {{ExperimentID:row.ExperimentID}})
+    ON CREATE SET
+    characterization.uid = RandomUUID()
+    CREATE (instrument:Instrument {{uid:RandomUUID()}})
     MERGE (characterization)-[:BY_INSTRUMENT]->(instrument);
     """,
     f"""    
@@ -210,16 +253,23 @@ def get_query(file_path):
     ORDER BY toInteger(row2.Step) // Ensure rows are processed in order of steps
     
     MERGE (test_exp:Experiment  {{pida:row2.ExperimentID }})
+    ON CREATE SET 
+    test_exp.uid = RandomUUID()
     MERGE (preprocessing:DataProcessing {{name:"DataPreprocessing", exp_id:row2.ExperimentID}})
+    ON CREATE SET
+    preprocessing.uid = RandomUUID()
     MERGE (test_exp)-[:HAS_PROCESS]->(preprocessing)
     // Create or merge nodes for subprocess, component, target, and condition
     MERGE (subprocess2:DataProcessing  {{name: row2.Technique, exp_id: row2.ExperimentID, step: toInteger(row2.Step)}})
+    ON CREATE SET subprocess2.uid = RandomUUID()
     MERGE (component2:Data  {{name: row2.Precursor, exp_id: row2.ExperimentID}})
     ON CREATE SET 
+        component2.uid = RandomUUID(),
         component2.Amount = apoc.number.parseFloat(precursorAmountParts[0]),
         component2.Unit = CASE WHEN size(precursorAmountParts) > 1 THEN precursorAmountParts[1] ELSE NULL END
     MERGE (target2:Data  {{name: row2.Target, exp_id: row2.ExperimentID}})
     ON CREATE SET 
+        target2.uid = RandomUUID(),
         target2.amount = apoc.number.parseFloat(targetAmountParts[0]),
         target2.unit = CASE WHEN size(targetAmountParts) > 1 THEN targetAmountParts[1] ELSE NULL END
     

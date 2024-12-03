@@ -1,2 +1,2 @@
-ExperimentID;Instrument;MicroscopeBrand;AccelerationVoltage/kV;Magnification;Cathode;WorkingDistance/mm;Probe;Detector;ImagingTechnique;Signal;TimeLapse/s;RawData;DataAdquisitionRate
-1;Electron Microscope;Zeiss Gemini Ultra plus;20;250;LaB6;8.5;Electron beam;InLens;Brightfield;Secondary electrons;30;electron images;-
+ExperimentID;Instrument;Mode;Tip;NominalRadius;NominalRadiusUnit;Look-inAmplifier;Sensitivity;SensitivityUnit;MeasuringSize;MeasuringSizeUnit;ScanSpeed;ScanSpeedUnit;Resolution;ResolutionUnit;Raw data;DataAdquisitionRate;DataAdquisitionRateUnit
+5;Bruker multimode 8 AFM;Conductive tapping;DLC SHR150, Nanosensors;True;nm;PF-TUNA module, Bruker;True;fA;True;um2;0.488;Hz;0.5;mm;electron images;1024;px
