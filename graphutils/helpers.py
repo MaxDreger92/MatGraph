@@ -4,7 +4,7 @@ from uuid import UUID
 
 from django_neomodel import NeoNodeSet
 from neomodel import StringProperty, db, NodeSet
-from neomodel.match import QueryBuilder
+from neomodel.match import QueryBuilder, process_filter_args, _UNARY_OPERATORS
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -160,6 +160,9 @@ class NeoPaginator:
         setattr(node_set, 'limit', self.limit)
         setattr(node_set, 'skip', self.start)
 
+from neomodel.match_q import Q as NeomodelQ
+from django.db.models.query_utils import Q as QBase
+
 
 class FixedQueryBuilder(QueryBuilder):
 
@@ -189,6 +192,31 @@ class FixedQueryBuilder(QueryBuilder):
 
         return super().build_query()
 
+    def _parse_q_filters(self, ident, q, source_class):
+        target = []
+        for child in q.children:
+            if isinstance(child, QBase) or isinstance(child, NeomodelQ):
+                q_childs = self._parse_q_filters(ident, child, source_class)
+                if child.connector == QBase.OR or child.connector == NeomodelQ.OR:
+                    q_childs = "(" + q_childs + ")"
+                target.append(q_childs)
+            else:
+                kwargs = {child[0]: child[1]}
+                filters = process_filter_args(source_class, kwargs)
+                for prop, op_and_val in filters.items():
+                    operator, val = op_and_val
+                    if operator in _UNARY_OPERATORS:
+                        # unary operators do not have a parameter
+                        statement = f"{ident}.{prop} {operator}"
+                    else:
+                        place_holder = self._register_place_holder(ident + "_" + prop)
+                        statement = f"{ident}.{prop} {operator} ${place_holder}"
+                        self._query_params[place_holder] = val
+                    target.append(statement)
+        ret = f" {q.connector} ".join(target)
+        if q.negated:
+            ret = f"NOT ({ret})"
+        return ret
 
 
 # make sure FixedQueryBuilder is used by default

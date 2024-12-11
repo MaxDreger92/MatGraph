@@ -2,7 +2,7 @@ from neomodel import RelationshipTo, RelationshipFrom, StringProperty, FloatProp
 from matgraph.models.abstractclasses import CausalObject
 
 
-class PhysicalDimension(CausalObject):
+class PhysicalQuantity(CausalObject):
     """
     Class representing a physical dimension in the knowledge graph.
     """
@@ -12,9 +12,11 @@ class PhysicalDimension(CausalObject):
     class Meta:
         app_label = 'matgraph'
 
+    __abstract_node__ = True
 
 
-class Property(PhysicalDimension):
+
+class Property(PhysicalQuantity):
     """
     Class representing a property in the knowledge graph.
     """
@@ -28,7 +30,7 @@ class Property(PhysicalDimension):
     pass
 
 
-class Parameter(PhysicalDimension):
+class Parameter(PhysicalQuantity):
     """
     Class representing a parameter in the knowledge graph.
     """
