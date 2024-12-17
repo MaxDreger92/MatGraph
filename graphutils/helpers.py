@@ -4,7 +4,7 @@ from uuid import UUID
 
 from django_neomodel import NeoNodeSet
 from neomodel import StringProperty, db, NodeSet
-from neomodel.match import QueryBuilder, process_filter_args, _UNARY_OPERATORS
+from neomodel.match import QueryBuilder, process_filter_args, unary_ops
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -186,6 +186,7 @@ class FixedQueryBuilder(QueryBuilder):
     def build_query(self):
 
         if hasattr(db, '_session'):
+            # noinspection PyProtectedMember
             if hasattr(db._session, "_connection_access_mode"):
                 if db._session._connection_access_mode != "WRITE":
                     return "CYPHER runtime = parallel " + super().build_query()
@@ -205,7 +206,7 @@ class FixedQueryBuilder(QueryBuilder):
                 filters = process_filter_args(source_class, kwargs)
                 for prop, op_and_val in filters.items():
                     operator, val = op_and_val
-                    if operator in _UNARY_OPERATORS:
+                    if operator in unary_ops:
                         # unary operators do not have a parameter
                         statement = f"{ident}.{prop} {operator}"
                     else:

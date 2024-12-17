@@ -28,13 +28,13 @@ class Arduino:
         The robot assumes that relays are used both for pumps and ultrasonic
         sensors.
         The robot assumes that cartridge 0 is connected to the first ultrasound
-        relay and so on; eg. cartridge 0 is connected to ultrasonic relay 6,
+        relay and so on; e.g. cartridge 0 is connected to ultrasonic relay 6,
         while cartridge 1 is connected to ultrasonic relay 7.
 
         The pump calibration is done by a linear calibration, by the following
         equation: volume = pump_slope * relay_time_on + pump_intercept
         It can be measured by running the pump while measuring the weight
-        dispensed, at eg. 0.5 seconds, 1 seconds, 2 seconds, 5 seconds,
+        dispensed, at e.g. 0.5 seconds, 1 seconds, 2 seconds, 5 seconds,
         10 seconds, 20 seconds.
 
         Args:
@@ -88,7 +88,7 @@ class Arduino:
         """Measure the temeprature of the temperature sensor 0
 
         Returns:
-            float: The measured temperature of the system in degree celsius.
+            float: The measured temperature of the system in degree Celsius.
         """
         LOGGER.info("Reading sample temperature sensor 0")
         self.connection.write("<read_temp0>".encode())
@@ -99,7 +99,7 @@ class Arduino:
         """Measure the ambient temperature of the temperature sensor 0
 
         Returns:
-            float: The measured temperature of the system in degree celsius.
+            float: The measured temperature of the system in degree Celsius.
         """
 
         LOGGER.info("Reading ambient temperature sensor 0")
@@ -111,7 +111,7 @@ class Arduino:
         """Measure the temeprature of the temperature sensor 1
 
         Returns:
-            float: The measured temperature of the system in degree celsius.
+            float: The measured temperature of the system in degree Celsius.
         """
 
         LOGGER.info("Reading sample temperature sensor 1")
@@ -123,7 +123,7 @@ class Arduino:
         """Measure the ambient temperature of the temperature sensor 1
 
         Returns:
-            float: The measured temperature of the system in degree celsius.
+            float: The measured temperature of the system in degree Celsius.
         """
 
         LOGGER.info("Reading ambient temperature sensor 1")
@@ -135,7 +135,7 @@ class Arduino:
         """Read the temperature from the arduino.
 
         Returns:
-            float: The measured temperature of the system in degree celsius.
+            float: The measured temperature of the system in degree Celsius.
         """
 
         received_response = False
@@ -158,13 +158,13 @@ class Arduino:
 
         Args:
             cartridge (int): Cartridge number
-            temperature (float): Setpoint of the temperature in degree celsius.
+            temperature (float): Setpoint of the temperature in degree Celsius.
         """
         temperature = round(
             temperature, 1
         )  # PID only take temperature upto 1 decimal place.
         # The input for PID controllers should be rid of decimals.
-        # However the last digit is read as a decimal point.
+        # However, the last digit is read as a decimal point.
 
         temp = temperature * 10
 
@@ -248,7 +248,7 @@ class Arduino:
 
         Args:
             cartridge (int): Cartridge number
-            time (float): Time in seconds which ultrasound should turned on.
+            time (float): Time in seconds which ultrasound should turn on.
         """
         self._check_number_of_cartridges(cartridge)
 
@@ -267,7 +267,7 @@ class Arduino:
 
         Args:
             pump (int): Pump number
-            time (float): Time in seconds which pump should turned on.
+            time (float): Time in seconds which pump should turn on.
         """
         self._check_pump_number(pump)
 
@@ -348,7 +348,7 @@ class Arduino:
 
         Args:
             relay_num (int): Number of the relay.
-            time_on (float): Time in seconds which relay should turned on.
+            time_on (float): Time in seconds which relay should turn on.
         """
         LOGGER.info(f"Switching relay {relay_num} on for {time_on} seconds")
         time_ms = round(time_on * 1000, 0)

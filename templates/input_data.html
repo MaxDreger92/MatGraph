@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Data</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Input Data</h1>
+
+    <!-- Synthesis Steps Added So Far -->
+    <h3>Current Synthesis Steps</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Technique</th>
+            <th>Precursor Materials</th>
+            <th>Metadata</th>
+            <th>Parameters</th>
+            <th>Target Materials</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for step in synthesis_steps %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ step.technique }}</td>
+            <td>
+                {% for material in step.precursor_materials.all %}
+                {{ material.name }} ({{ material.amount }} {{ material.unit }})<br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for metadata in step.metadata.all %}
+                {{ metadata.key }}: {{ metadata.value }}<br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for parameter in step.parameter.all %}
+                {{ parameter.key }}: {{ parameter.value }}<br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for material in step.target_materials.all %}
+                {{ material.name }} ({{ material.amount }} {{ material.unit }})<br>
+                {% endfor %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No steps added yet.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Add or Edit a Synthesis Step -->
+    <h3>Add or Edit a Synthesis Step</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ step_form.as_p }}
+        <h4>Precursor Materials</h4>
+        {{ material_form.as_p }}
+        <h4>Metadata</h4>
+        {{ metadata_form.as_p }}
+        <button type="submit" class="btn btn-success mt-3">Save Step</button>
+    </form>
+</div>
+</body>
+</html>

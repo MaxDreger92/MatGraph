@@ -110,17 +110,18 @@ def get_query(file_path):
     subprocess1.isNew IS NOT NULL,
     '
     // Create the Parameter node
-    CREATE (param:Parameter  {{uid:RandomUUID()}})
     
     // Conditionally set the key-value property if the value is numeric
     FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NOT NULL THEN [1] ELSE [] END |
+        CREATE (param:Parameter  {{uid:RandomUUID()}})
         SET param.name = key,param.value = number,param.unit = unit
     
     )
     
     // Conditionally set the key-value property if the value is not numeric
     FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NULL THEN [1] ELSE [] END |
-        SET param.name = key, param.value = value 
+        CREATE (param:Metadata  {{uid:RandomUUID()}})
+        SET param.name = key + " " + value 
     )
     
     MERGE (subprocess1)-[:HAS_PARAMETER]->(param)
@@ -195,14 +196,16 @@ def get_query(file_path):
     FOREACH (_ IN CASE WHEN subprocess2.isNew THEN [1] ELSE [] END |
       
       // Create the Parameter node
-      CREATE (param:Parameter {{name: key, uid: RandomUUID()}})
+      
       
       // Conditionally set properties
       FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NOT NULL THEN [1] ELSE [] END |
+        CREATE (param:Parameter {{name: key, uid: RandomUUID()}})
         SET param.value = number,
             param.unit = unit
       )
       FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NULL THEN [1] ELSE [] END |
+        CREATE (param:Metadata {{name: key, uid: RandomUUID()}})
         SET param.value = value
       )
 
@@ -251,10 +254,10 @@ CREATE (sample:Matter {{name: 'Sample', identifier: row3.ExperimentID, uid: Rand
 MERGE (sample)-[:IS_MEASUREMENT_INPUT]->(characterization)
 
                                         // Create the parameter nodes
-CREATE (temperature2:Parameter {{uid: RandomUUID(), name: 'Temperature', value: row3.Temperature, unit: row3.TemperatureUnit}})
-CREATE (humidity:Parameter {{uid: RandomUUID(), name: 'Humidity', value: row3.Humidity, unit: row3.HumidityUnit}})
-CREATE (atmosphere:Parameter {{uid: RandomUUID(), name: 'Atmosphere', value: row3.Atmosphere, unit: row3.AtmosphereUnit}})
-CREATE (pressure:Parameter {{uid: RandomUUID(), name: 'Pressure', value: row3.Pressure, unit: row3.PressureUnit}})
+CREATE (temperature2:Parameter {{uid: RandomUUID(), name: 'Temperature', value: toFloat(row3.Temperature), unit: row3.TemperatureUnit}})
+CREATE (humidity:Parameter {{uid: RandomUUID(), name: 'Humidity', value: toFloat(row3.Humidity), unit: row3.HumidityUnit}})
+CREATE (atmosphere:Metadata {{uid: RandomUUID(), name: row3.Atmosphere}})
+CREATE (pressure:Parameter {{uid: RandomUUID(), name: 'Pressure', value: toFloat(row3.Pressure), unit: row3.PressureUnit}})
 
 // Create relationships between characterization and parameter nodes
 CREATE (characterization)-[:HAS_PARAMETER]->(temperature2)
@@ -263,7 +266,7 @@ CREATE (characterization)-[:HAS_PARAMETER]->(atmosphere)
 CREATE (characterization)-[:HAS_PARAMETER]->(pressure)
 
                                             // Create the calibration parameter
-CREATE (calibration:Parameter {{uid: RandomUUID(), name: 'Calibration', value: row3.Calibration}})
+CREATE (calibration:Metadata {{uid: RandomUUID(), name: 'Calibration' + row3.Calibration}})
 CREATE (characterization)-[:HAS_PARAMETER]->(calibration)
 
                                             // Create the raw data node and relationship
@@ -376,16 +379,18 @@ CALL apoc.do.when(
     // Create the Parameter node
     MATCH (sp)
     WHERE id(sp) = $subprocess2Id
-    CREATE(param:Parameter {{uid: RandomUUID()}}    
+        
     // Conditionally set the key-value property if the value is numeric
-    FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NOT NULL THEN [1] ELSE [] END |
+    FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) THEN [1] ELSE [] END |
+        CREATE(param:Parameter {{uid: RandomUUID()}}
         SET param.name = key,param.value = number,param.unit = unit
     
     )
     
     // Conditionally set the key-value property if the value is not numeric
-    FOREACH (ignore IN CASE WHEN apoc.number.parseFloat(number) IS NULL THEN [1] ELSE [] END |
-        SET param.Technique = key, param.Value = value 
+    FOREACH (ignore IN CASE WHEN IS NOT apoc.number.parseFloat(number) THEN [1] ELSE [] END |
+        CREATE(param:Metadata {{uid: RandomUUID()}}
+        SET param.name = key + " " + value 
     )
     MERGE (subprocess2)-[:HAS_PARAMETER]->(param)
     ',
@@ -509,16 +514,17 @@ WITH row2, subprocess2, target2, preprocessing, key, value, number, unit,
    END AS parsed_unit
 
 // Create the Parameter node
-CREATE (param:Parameter {{uid: randomUUID()}})
 
 // Conditionally set the key-value property if the value is numeric
 FOREACH (_ IN CASE WHEN apoc.number.parseFloat(number) IS NOT NULL THEN [1] ELSE [] END |
+CREATE (param:Parameter {{uid: randomUUID()}})
 SET param.name = key, param.value = parsed_value, param.unit = parsed_unit
 )
 
 // Conditionally set the key-value property if the value is not numeric
 FOREACH (_ IN CASE WHEN apoc.number.parseFloat(number) IS NULL THEN [1] ELSE [] END |
-SET param.name = key, param.value = value
+CREATE (param:Metadata {{uid: randomUUID()}})
+SET param.name = key + " " + value
 )
 
 // Create the relationship

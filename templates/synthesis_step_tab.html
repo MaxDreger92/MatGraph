@@ -1,0 +1,110 @@
+<div class="container mt-5">
+  <h1>Modular Tabs Example</h1>
+
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">
+        Synthesis Step
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content mt-3" id="myTabContent">
+    <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+      <form method="post" action="/schema_ingestion/lab_book/">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="tab1">
+
+        <h3>Synthesis Step</h3>
+        <hr>
+
+        <h4>Precursor Materials</h4>
+        <!-- Management form is rendered here -->
+        {{ precursor_formset.management_form }}
+
+        <div id="precursor-forms-container">
+          {% for form in precursor_formset %}
+          <div class="precursor-block d-flex gap-2 align-items-start mb-2">
+            <div class="flex-grow-1">{{ form.as_p }}</div>
+            <button type="button" class="btn btn-danger remove-precursor-form">Remove</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary mt-2" id="add-precursor-form">Add Another Precursor</button>
+
+        <!-- Hidden template containing the empty form -->
+        <div id="precursor-empty-form" class="d-none">
+          {{ precursor_formset.empty_form.as_p }}
+        </div>
+
+        <hr>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function reindexForms(container, prefix) {
+      const forms = container.querySelectorAll('.' + prefix + '-block');
+      forms.forEach((form, i) => {
+          const inputs = form.querySelectorAll('input, select, textarea, label');
+          inputs.forEach(input => {
+              ['name', 'id', 'for'].forEach(attr => {
+                  if (input.hasAttribute(attr) && input.getAttribute(attr).indexOf(prefix) !== -1) {
+                      input.setAttribute(attr, input.getAttribute(attr).replace(/-\d+-/, '-' + i + '-'));
+                  }
+              });
+          });
+      });
+      const totalFormsInput = document.querySelector(`[name="${prefix}-TOTAL_FORMS"]`);
+      if (totalFormsInput) {
+          totalFormsInput.value = forms.length;
+      } else {
+          console.error(`Total forms input not found for prefix: ${prefix}`);
+      }
+  }
+      function addForm(buttonId, containerId, emptyFormId, formsetPrefix) {
+          const addButton = document.getElementById(buttonId);
+          const container = document.getElementById(containerId);
+          const emptyForm = document.getElementById(emptyFormId);
+
+          if (!addButton || !container || !emptyForm) {
+              console.error(`Missing element: buttonId=${buttonId}, containerId=${containerId}, emptyFormId=${emptyFormId}`);
+              return;
+          }
+
+          addButton.addEventListener('click', function () {
+              const totalFormsInput = document.querySelector(`[name="${formsetPrefix}-TOTAL_FORMS"]`);
+              if (!totalFormsInput) {
+                  console.error(`Total forms input not found for prefix: ${formsetPrefix}`);
+                  return;
+              }
+
+              const totalForms = parseInt(totalFormsInput.value || 0);
+              const newFormHtml = emptyForm.innerHTML.replace(/__prefix__/g, totalForms);
+
+              const formBlock = document.createElement('div');
+              formBlock.classList.add(`${formsetPrefix}-block`, 'd-flex', 'gap-2', 'align-items-start', 'mb-2');
+              formBlock.innerHTML = `
+                  <div class="flex-grow-1">${newFormHtml}</div>
+                  <button type="button" class="btn btn-danger remove-${formsetPrefix}-form">Remove</button>
+              `;
+
+              container.appendChild(formBlock);
+              totalFormsInput.value = totalForms + 1;
+          });
+
+          container.addEventListener('click', function (e) {
+              if (e.target && e.target.classList.contains('remove-' + formsetPrefix + '-form')) {
+                  e.target.closest('.' + formsetPrefix + '-block').remove();
+                  reindexForms(container, formsetPrefix);
+              }
+          });
+      }
+
+      // Initialize the dynamic formset for precursor materials
+      addForm('add-precursor-form', 'precursor-forms-container', 'precursor-empty-form', 'precursor');
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
