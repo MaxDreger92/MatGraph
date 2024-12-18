@@ -138,7 +138,7 @@ class SamplePreparationStep(Step, Neo4jFabricationWorkflowHandler):
     target_materials = models.ManyToManyField(Material, related_name="sp_targets")
     metadata = models.ManyToManyField(Metadata, related_name="sp_metadata")
 
-class SamplePreparation(UUIDModel):
+class SamplePreparation(UUIDModel, Neo4jFabricationWorkflowHandler):
     sample_preparation_steps = models.ManyToManyField(SamplePreparationStep)
 
     def save(self, *args, **kwargs):
