@@ -48,29 +48,29 @@ class TechniqueAdmin(admin.ModelAdmin):
 
 
 class SynthesisStepAdmin(admin.ModelAdmin):
-    list_display = ('id', 'technique')
+    list_display = ('uid', 'technique')
     filter_horizontal = ('precursor_materials', 'parameter', 'target_materials', 'metadata')
     search_fields = ('technique__name',)
 
 
 class SynthesisAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('uid',)
     filter_horizontal = ('synthesis_steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
-    search_fields = ('id',)
+    search_fields = ('uid',)
 
 
 class SamplePreparationStepAdmin(admin.ModelAdmin):
-    list_display = ('id', 'technique')
+    list_display = ('uid', 'technique')
     filter_horizontal = ('precursor_materials', 'parameter', 'target_materials', 'metadata')
     search_fields = ('technique__name',)
 
 
 class SamplePreparationAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('uid',)
     filter_horizontal = ('sample_preparation_steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
-    search_fields = ('id',)
+    search_fields = ('uid',)
 
 
 class DataAdmin(admin.ModelAdmin):
@@ -79,29 +79,29 @@ class DataAdmin(admin.ModelAdmin):
 
 
 class AnalysisStepAdmin(admin.ModelAdmin):
-    list_display = ('id', 'technique')
+    list_display = ('uid', 'technique')
     filter_horizontal = ('data_inputs', 'quantity_inputs', 'metadata', 'parameter', 'data_results', 'quantity_results')
     search_fields = ('technique',)
 
 
 class PreprocessingStepAdmin(admin.ModelAdmin):
-    list_display = ('id', 'technique')
+    list_display = ('uid', 'technique')
     filter_horizontal = ('data_inputs', 'quantity_inputs', 'metadata', 'parameter', 'data_results', 'quantity_results')
     search_fields = ('technique',)
 
 
 class PreprocessingAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('uid',)
     filter_horizontal = ('preprocessing_steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
-    search_fields = ('id',)
+    search_fields = ('uid',)
 
 
 class AnalysisAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('uid',)
     filter_horizontal = ('analysis_steps',)
     # Even if not strictly required by ExperimentAdmin, having search_fields is good practice
-    search_fields = ('id',)
+    search_fields = ('uid',)
 
 
 class CharacterizationAdmin(admin.ModelAdmin):

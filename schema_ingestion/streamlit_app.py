@@ -179,14 +179,14 @@ def create_synthesis_and_steps(synthesis_data):
         return
 
     synthesis, _ = Synthesis.objects.get_or_create(experiment=experiment)
-
-    for step in synthesis_data:
+    for i, step in enumerate(synthesis_data):
+        print("SYNTHESIS STEP", i, step)
         technique = Technique.objects.create(
             name=step.get("technique_name", ""),
             description=step.get("technique_description", "")
         )
 
-        synthesis_step = SynthesisStep.objects.create(technique=technique)
+        synthesis_step = SynthesisStep.objects.create(technique=technique, order = i+1)
         for precursor in step.get("precursors", []):
             material = Material.objects.create(
                 name=precursor["name"],
@@ -204,9 +204,12 @@ def create_synthesis_and_steps(synthesis_data):
                 lot_number=target["lot_number"]
             )
             synthesis_step.target_materials.add(material)
+        print(synthesis_step.order)
 
         # Add synthesis_step to synthesis
+        synthesis_step.save()
         synthesis.synthesis_steps.add(synthesis_step)
+    synthesis.save()
     experiment.synthesis = synthesis
     experiment.save()
     st.success(f"Synthesis with {len(synthesis_data)} steps added to Experiment '{st.session_state['experiment_id']}' successfully!")
