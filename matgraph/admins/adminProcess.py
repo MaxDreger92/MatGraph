@@ -8,30 +8,10 @@ Contains:
     ManufacturingAdmin(NodeModelAdmin)
 """
 from django.contrib import admin as dj_admin
-from neomodel import NodeSet
 
 from graphutils.admin import NodeModelAdmin
-from graphutils.helpers import FixedQueryBuilder
-from graphutils.models import UIDDjangoNode
 from matgraph.forms.formsProcess import SimulationAdminForm, DataProcessingAdminForm
 from matgraph.models.processes import Measurement, Manufacturing, DataProcessing, Simulation
-
-
-
-class TestNode(UIDDjangoNode):
-    """
-    TestNode is a class that is used to test the NodeModelAdmin class. It inherits from the UUIDNode class.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-    pass
-
-@dj_admin.register(TestNode)
-class TestNodeAdmin(NodeModelAdmin):
-    """
-    TestNodeAdmin registers the TestNode model to the Django Admin page.
-    """
-    list_display = ("uid",)
 
 
 class ProcessAdmin(NodeModelAdmin):

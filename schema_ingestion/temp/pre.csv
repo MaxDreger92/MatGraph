@@ -1,0 +1,3 @@
+ExperimentID;Step;Precursor;AmountPrecursor;Technique;Condition;Software;Target;AmountTarget
+5;1;RawData;-;Contrast adjustment;Contrast factor = 1;-;PPInt1;
+5;2;PPInt1;-;Brightness adjustment;Brightness factor = 1;-;Post-processed image;

@@ -10,7 +10,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
-from graphutils.models import AlternativeLabel
+# from graphutils.models import AlternativeLabel
 from importing.OntologyMapper.setupMessages import PARAMETER_SETUP_MESSAGE, MEASUREMENT_SETUP_MESSAGE, \
     MANUFACTURING_SETUP_MESSAGE, MATTER_SETUP_MESSAGE, PROPERTY_SETUP_MESSAGE
 from importing.utils.openai import chat_with_gpt3
@@ -146,8 +146,6 @@ class OntologyGenerator:
         Save an ontology node with the option to add labels, create embeddings, and connect to the ontology.
 
         :param node: The ontology node to save.
-        :param add_labels_create_embeddings: Flag to add labels and create embeddings.
-        :param connect_to_ontology: Flag to connect the node to the ontology.
         """
         node.save()  # Assuming node has a save method for basic saving operations
         self.add_labels_create_embeddings(node)
@@ -216,9 +214,7 @@ class OntologyGenerator:
         ONTOLOGY_CONNECTOR = {
             'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
             'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
             'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES
         }
 
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
@@ -249,8 +245,8 @@ class OntologyGenerator:
         ontology_class = ontology_manager.get_labels(node.name, SETUP_MAPPER_MESSAGES[self.label],
                                                      examples=SETUP_MAPPER_EXAMPLES[self.label])
         for label in ontology_class.alternative_labels:
-            alternative_label_node = AlternativeLabel(label=label).save()
-            node.alternative_label.connect(alternative_label_node)
+            # alternative_label_node = AlternativeLabel(label=label).save()
+            # node.alternative_label.connect(alternative_label_node)
             embedding = request_embedding(label)
             embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector=embedding, input=label).save()
             node.model_embedding.connect(embedding_node)

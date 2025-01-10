@@ -1,0 +1,2 @@
+ExperimentID;Instrument;Mode;Tip;NominalRadius;NominalRadiusUnit;Look-inAmplifier;Sensitivity;SensitivityUnit;MeasuringSize;MeasuringSizeUnit;ScanSpeed;ScanSpeedUnit;Resolution;ResolutionUnit;Raw data;DataAdquisitionRate;DataAdquisitionRateUnit
+5;Bruker multimode 8 AFM;Conductive tapping;DLC SHR150, Nanosensors;True;nm;PF-TUNA module, Bruker;True;fA;True;um2;0.488;Hz;0.5;mm;electron images;1024;px

@@ -36,7 +36,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DEBUG = True
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
-GITHUB_WEBHOOK_SECRET = config(os.getenv("GITHUB_WEBHOOK_SECRET"), default="")
 
 ALLOWED_HOSTS = [
     "134.94.199.247",
@@ -67,6 +66,7 @@ INSTALLED_APPS = [
     "dal",
     "dal_select2",
     "mat2devplatform",
+    "schema_ingestion",
     "matching",
     "importing",
     "matgraph",
@@ -156,7 +156,7 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-
+print(NEOMODEL_NEO4J_BOLT_URL)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

@@ -147,7 +147,6 @@ class UniqueNode(DjangoNode):
 
     uid: A unique identifier property.
     """
-    uid = UniqueIdProperty()
     __abstract_node__ = True
 
     @classmethod
@@ -229,9 +228,4 @@ class AlternativeLabel(DjangoNode):
     primary = BooleanProperty(default=False)
     type = StringProperty(required=False)
     language = StringProperty(required=False)
-
-
-
-from django.db import models
-from neo4j import GraphDatabase
 

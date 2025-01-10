@@ -33,9 +33,7 @@ def get_field_type(field):
     return None
 
 
-
-
-
+# noinspection PyProtectedMember
 def generate_schema_from_class(cls):
     schema = {"properties": {}, "relationships": {}}
     print(list(reversed(cls.__mro__)))

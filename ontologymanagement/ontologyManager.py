@@ -118,7 +118,6 @@ class OntologyManager:
             onto.save(ontology_path1, format="rdfxml")
 
     def import_to_neo4j(self, ontology_file):
-        print("Import to Neo4j", ontology_file)
 
         ontology_path = os.path.join(self.ontology_folder, ontology_file)
         onto = get_ontology(ontology_path).load()
@@ -236,7 +235,8 @@ def main():
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
     api_key = settings.OPENAI_API_KEY
-    ontology_folder = "/home/mdreger/Documents/MatGraphAI/Ontology/"
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ontology_folder = BASE_DIR + "/Ontology/"
 
     ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")

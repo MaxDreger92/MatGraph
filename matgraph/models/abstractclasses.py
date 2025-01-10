@@ -5,8 +5,7 @@ UIDDjangoNode is an abstract base class that provides a unique identifier (uid) 
 DjangoNode instances. It also includes an alias property to handle the Django primary key (pk) field,
 which is commonly used in Django applications.
 
-UniqueNode is another abstract base class for unique nodes in a Django-Neo4j graph, which also includes
-a uid as a unique identifier.
+UniqueNode is another abstract base class for unique nodes in a Django-Neo4j graph, which also includes uid as a unique identifier.
 
 CausalObject is an abstract base class representing causal objects in the knowledge graph. It inherits
 from UIDDjangoNode and contains properties for the name and the date the object was added to the knowledge graph.

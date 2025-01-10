@@ -1,0 +1,3 @@
+ExperimentID;MeasurementMethod;MeasurementType;Specimen;Characterization environment;Temperature;TemperatureUnit;Humidity;HumidityUnit;Atmosphere;AtmosphereUnit;Pressure;PressureUnit;Calibration
+5;AFM;ex-situ;homogeneous powder;;23;C;80;%;air;-;True;atm;"adjusting lenses and apertures
+adjusting the voltage"

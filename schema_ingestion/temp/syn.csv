@@ -1,0 +1,7 @@
+ExperimentID;Step;Precursor;AmountPrecursor;Technique;Condition;Target;AmountTarget
+5;1;Pd/C;5 wt%;Buy;"Manufacturer = SigmaAldrich
+Loot number = 205680
+CAS-number = 7440-05-3";SInt1;
+5;2;SInt1;;Sieve;sieve size = 75 um;SInt2;
+5;3;SInt2;;Dry;"Temperature = 100 °C
+Time = 10 h";MEA;

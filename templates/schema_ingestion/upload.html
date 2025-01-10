@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Excel File</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Basic Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+        }
+
+        h2 {
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        /* Container for Centering Form */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Drag-and-drop area */
+        .dropzone {
+            border: 2px dashed #ddd;
+            padding: 40px;
+            text-align: center;
+            color: #ddd;
+            transition: 0.3s;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dropzone.hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px;
+            background: #4caf50;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #43a047;
+        }
+
+        /* Hidden file input */
+        #id_file {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Upload an Excel File</h2>
+    <form id="file-upload-form" action="{% url 'schema_ingestion:upload_file' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="dropzone" id="dropzone">
+            Drag and drop your Excel file here or click to browse
+        </div>
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('id_file');
+
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('hover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('hover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('hover');
+        fileInput.files = e.dataTransfer.files;
+    });
+
+    dropzone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            dropzone.textContent = fileInput.files[0].name;
+        }
+    });
+</script>
+</body>
+</html>

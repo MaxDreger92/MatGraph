@@ -1,0 +1,5 @@
+ExperimentID;Measurement-ID;UploadDate;MeasurementDate;Institution;FoundingBody;Country;Author;ORCID;Email;Published;Publication;DOI;Journal;Volume;Issue;Pages;PublicationDate;Topic;Device;Component ;Subcomponent;Granularity Level;Format;FileSize;FileSizeUnit;FileName;DimensionX;DimensionY;DimensionZ;PixelPerMetric;Link;MaskExist;MaskLink
+5;Run derived DOI;2023-10-11 00:00:00;;DLR;HIP;Germany;"Tobias Morawitz
+André Colliard Granero";"123-465-7777
+321-321-3211";"tobi.mora@dlr.de
+andyhuebsch@gmail.mx";True;Quantitative in Situ Analysis of Ionomer Structure in Fuel Cell catalytic layer;https://doi.org/10.3390/afm38383;PCCP;8;78;789-987;2012-11-28 00:00:00;Fuel cell;PEMFC;MEA;Catalyst layer;Microstructure;tiff;258;MB;afm_rawdata.tif;256;256;0;8.1;link;yes;link
