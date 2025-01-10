@@ -14,14 +14,14 @@ from .models import (
     PreprocessingStep,
     Preprocessing,
     Analysis,
-    Characterization,
+    Measurement,
     Experiment,
 )
 
 
 class OrganizationalDataAdmin(admin.ModelAdmin):
     list_display = (
-        'experiment_title', 'experiment_id', 'measurement_id', 'upload_date', 'institution', 'published'
+        'experiment_title', 'external_experiment_id', 'measurement_id', 'upload_date', 'institution', 'published'
     )
     search_fields = ('experiment_title', 'experiment_id', 'institution', 'publication', 'doi', 'journal')
     list_filter = ('institution', 'published', 'country', 'format')
@@ -55,7 +55,7 @@ class SynthesisStepAdmin(admin.ModelAdmin):
 
 class SynthesisAdmin(admin.ModelAdmin):
     list_display = ('uid',)
-    filter_horizontal = ('synthesis_steps',)
+    filter_horizontal = ('steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
     search_fields = ('uid',)
 
@@ -68,7 +68,7 @@ class SamplePreparationStepAdmin(admin.ModelAdmin):
 
 class SamplePreparationAdmin(admin.ModelAdmin):
     list_display = ('uid',)
-    filter_horizontal = ('sample_preparation_steps',)
+    filter_horizontal = ('steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
     search_fields = ('uid',)
 
@@ -92,14 +92,14 @@ class PreprocessingStepAdmin(admin.ModelAdmin):
 
 class PreprocessingAdmin(admin.ModelAdmin):
     list_display = ('uid',)
-    filter_horizontal = ('preprocessing_steps',)
+    filter_horizontal = ('steps',)
     # Add search_fields to enable autocomplete in ExperimentAdmin
     search_fields = ('uid',)
 
 
 class AnalysisAdmin(admin.ModelAdmin):
     list_display = ('uid',)
-    filter_horizontal = ('analysis_steps',)
+    filter_horizontal = ('steps',)
     # Even if not strictly required by ExperimentAdmin, having search_fields is good practice
     search_fields = ('uid',)
 
@@ -137,5 +137,5 @@ admin.site.register(AnalysisStep, AnalysisStepAdmin)
 admin.site.register(PreprocessingStep, PreprocessingStepAdmin)
 admin.site.register(Preprocessing, PreprocessingAdmin)
 admin.site.register(Analysis, AnalysisAdmin)
-admin.site.register(Characterization, CharacterizationAdmin)
+admin.site.register(Measurement, CharacterizationAdmin)
 admin.site.register(Experiment, ExperimentAdmin)

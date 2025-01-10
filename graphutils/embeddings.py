@@ -3,7 +3,6 @@ from typing import List
 
 from openai import OpenAI
 
-client = OpenAI()
 from tenacity import wait_random_exponential, retry, stop_after_attempt
 
 from graphutils.config import EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
@@ -25,6 +24,8 @@ def request_embedding(text: str) -> List[float]:
         List[float]: A list of floating-point numbers representing the embedding.
     """
     # Replace newlines in the input text with spaces, as they can negatively affect performance.
+    client = OpenAI()
+
     text = str(text).replace("\n", " ").strip().replace("'", "")
     # Call the OpenAI Embedding API to create an embedding for the input text.
     # The API response contains the embedding data in a nested structure.

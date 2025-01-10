@@ -2,6 +2,7 @@ import csv
 import json
 import re
 from collections import defaultdict
+from pprint import pprint
 
 
 def csv_to_json(file_name):
@@ -70,13 +71,15 @@ def csv_to_json(file_name):
     return json.dumps({"nodes": combined_nodes, "headers": header}, indent=4)
 
 
-def extract_data(input_json, label):
-    nodes = json.loads(str(input_json).replace('\'', '"'))
+def extract_data(json_data_str, label):
+    json_data = json.loads(str(json_data_str).replace('\'', '"'))
+    # Parse the JSON data
+    nodes = json_data.get('nodes', [])
 
+    # Extract manufacturing data
     label_data = [node for node in nodes if node.get('label') == label]
 
     return label_data
-
 
 def generate_strings(label_one_data, label_two_data, label_one, label_two, rel):
     if not label_one_data or not label_two_data:

@@ -1,31 +1,32 @@
+import base64
 import sys
 import os
+import tempfile
 import uuid
+import zipfile
 from datetime import date
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import setup_django
+
+from neo4j_handlers import Neo4jDataRetrievalHandler, SearchHandler
 
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
-import setup_django
 import streamlit as st
 from schema_ingestion.models import SynthesisStep, Material, Technique, Synthesis, Experiment, OrganizationalData, \
     SamplePreparationStep, SamplePreparation, Data, Quantity, PreprocessingStep, Preprocessing
 
 import sys
 import os
-from datetime import date
 
-# Add the project root to the Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
-import setup_django
-import streamlit as st
-from schema_ingestion.models import (
-    SynthesisStep, Material, Technique, Synthesis, Experiment, OrganizationalData,
-    SamplePreparation, SamplePreparationStep, Characterization
-)
+
+
+
 
 import sys
 import os
@@ -35,21 +36,179 @@ from datetime import date
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
-import setup_django
 import streamlit as st
 from schema_ingestion.models import (
     SynthesisStep, Material, Technique, Synthesis, Experiment, OrganizationalData,
-    SamplePreparation, SamplePreparationStep, Characterization, Metadata,
+    SamplePreparation, SamplePreparationStep, Measurement, Metadata,
     Analysis, AnalysisStep,
     # Data, Quantity # If these models exist, import them as needed.
 )
 
+def advanced_search_tab_ui():
+    st.subheader("Advanced Search with Multiple Criteria")
+
+    # We store the user's input in session_state to allow them to add more fields dynamically
+    if "materials" not in st.session_state:
+        st.session_state["materials"] = []
+    if "techniques" not in st.session_state:
+        st.session_state["techniques"] = []
+    if "parameters" not in st.session_state:
+        st.session_state["parameters"] = []
+    if "properties" not in st.session_state:
+        st.session_state["properties"] = []
+    if "metadata" not in st.session_state:
+        st.session_state["metadata"] = []
+
+    # Buttons to add a new search item
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        if st.button("Add Material Filter"):
+            st.session_state["materials"].append("")
+    with col2:
+        if st.button("Add Technique Filter"):
+            st.session_state["techniques"].append("")
+    with col3:
+        if st.button("Add Parameter Filter"):
+            st.session_state["parameters"].append("")
+    with col4:
+        if st.button("Add Property Filter"):
+            st.session_state["properties"].append("")
+    with col5:
+        if st.button("Add Metadata Filter"):
+            st.session_state["metadata"].append({"key": "", "value": ""})
+
+    # Render the dynamic lists
+    st.markdown("### Materials")
+    for i, mat in enumerate(st.session_state["materials"]):
+        st.session_state["materials"][i] = st.text_input(
+            f"Material Filter #{i+1}",
+            value=mat,
+            key=f"material_filter_{i}"
+        )
+
+    st.markdown("### Techniques")
+    for i, tech in enumerate(st.session_state["techniques"]):
+        st.session_state["techniques"][i] = st.text_input(
+            f"Technique Filter #{i+1}",
+            value=tech,
+            key=f"tech_filter_{i}"
+        )
+
+    st.markdown("### Parameters")
+    for i, param in enumerate(st.session_state["parameters"]):
+        st.session_state["parameters"][i] = st.text_input(
+            f"Parameter Filter #{i+1}",
+            value=param,
+            key=f"param_filter_{i}"
+        )
+
+    st.markdown("### Properties")
+    for i, prop in enumerate(st.session_state["properties"]):
+        st.session_state["properties"][i] = st.text_input(
+            f"Property Filter #{i+1}",
+            value=prop,
+            key=f"prop_filter_{i}"
+        )
+
+    st.markdown("### Metadata")
+    for i, md in enumerate(st.session_state["metadata"]):
+        col_key, col_value = st.columns(2)
+        with col_key:
+            st.session_state["metadata"][i]["key"] = st.text_input(
+                f"Metadata Key #{i+1}",
+                value=md["key"],
+                key=f"meta_key_{i}"
+            )
+        with col_value:
+            st.session_state["metadata"][i]["value"] = st.text_input(
+                f"Metadata Value #{i+1}",
+                value=md["value"],
+                key=f"meta_value_{i}"
+            )
+
+    # Output format
+    adv_output_format = st.selectbox("Choose output format", ["json", "csv"], key="adv_output_format")
+
+    if st.button("Run Advanced Search"):
+        # Build the search_instructions dict
+        search_instructions = {
+            "materials": [m for m in st.session_state["materials"] if m.strip()],
+            "techniques": [t for t in st.session_state["techniques"] if t.strip()],
+            "parameters": [p for p in st.session_state["parameters"] if p.strip()],
+            "properties": [p for p in st.session_state["properties"] if p.strip()],
+            "metadata": [
+                {"key": md["key"], "value": md["value"]}
+                for md in st.session_state["metadata"]
+                if md["key"].strip() or md["value"].strip()
+            ]
+        }
+        print("SEARCH INSTRUCTIONS", search_instructions)
+
+        # Use the SearchHandler to find matching experiments
+        sh = SearchHandler()
+        experiments = sh.search_experiments(search_instructions)
+
+        if not experiments:
+            st.warning("No experiments found matching your criteria.")
+        else:
+            st.success(f"Found {len(experiments)} experiment(s).")
+            selected_experiment = st.selectbox(
+                "Select an experiment to retrieve data from:",
+                options=experiments,
+                format_func=lambda e: f"{e.experiment_id} (UID: {e.uid})"
+            )
+
+            if st.button("Retrieve Data", key="retrieve_adv"):
+                retrieval_handler = Neo4jDataRetrievalHandler()
+                experiment_uid = str(selected_experiment.uid)
+
+                # JSON
+                if adv_output_format == "json":
+                    try:
+                        result_str = retrieval_handler.get_experiment_data(
+                            experiment_uid=experiment_uid,
+                            output_format='json'
+                        )
+                        st.download_button(
+                            label="Download as JSON",
+                            data=result_str,
+                            file_name=f"experiment_{selected_experiment.experiment_id}.json",
+                            mime="application/json"
+                        )
+                        st.json(result_str)
+                    except Exception as e:
+                        st.error(f"Error retrieving JSON data: {e}")
+
+                else:  # CSV
+                    try:
+                        with tempfile.TemporaryDirectory() as tmpdir:
+                            result_files = retrieval_handler.get_experiment_data(
+                                experiment_uid=experiment_uid,
+                                output_format='csv',
+                                base_path=tmpdir
+                            )
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip_file:
+                                with zipfile.ZipFile(tmp_zip_file.name, 'w') as zipf:
+                                    for label, filepath in result_files.items():
+                                        arcname = os.path.basename(filepath)
+                                        zipf.write(filepath, arcname=arcname)
+
+                                zip_bytes = tmp_zip_file.read()
+
+                            b64_zip = base64.b64encode(zip_bytes).decode()
+                            href = (
+                                f'<a href="data:application/zip;base64,{b64_zip}" '
+                                f'download="experiment_{selected_experiment.experiment_id}.zip">Download CSV ZIP</a>'
+                            )
+                            st.markdown(href, unsafe_allow_html=True)
+                    except Exception as e:
+                        st.error(f"Error retrieving CSV data: {e}")
 
 def define_organizational_data_form():
     st.subheader("Organizational Data")
     experiment_title = st.text_input("Experiment Title", value="Default Experiment Title", max_chars=255,
                                      help="Enter the title of the experiment.", key="experiment_title")
-    experiment_id = st.text_input("Experiment ID", value="EXP-001", max_chars=50,
+    external_experiment_id = st.text_input("Experiment ID", value="EXP-001", max_chars=50,
                                   help="Enter the unique ID for the experiment.", key="exp_id")
     measurement_id = st.text_input("Measurement ID", value="MEAS-001", max_chars=50,
                                    help="Enter the unique ID for the measurement.", key="measurement_id")
@@ -125,12 +284,12 @@ def define_organizational_data_form():
 
 
     if submit_experiment:
-        if not experiment_id:
+        if not external_experiment_id:
             st.error("Experiment ID is required!")
         else:
             organizational_data_dict = {
                 "experiment_title": experiment_title,
-                "experiment_id": experiment_id,
+                "external_experiment_id": external_experiment_id,
                 "measurement_id": measurement_id,
                 "upload_date": upload_date,
                 "measurement_date": measurement_date,
@@ -166,9 +325,12 @@ def define_organizational_data_form():
                 "mask_link": mask_link,
             }
             # Create and save the Experiment organizational data
-            organizational_data = OrganizationalData.objects.create(**organizational_data_dict)
-            experiment = Experiment.objects.create(organizational_data=organizational_data)
-            st.success(f"Experiment '{organizational_data.experiment_id}' created successfully!")
+            experiment = Experiment.objects.create()
+            experiment.save()
+            organizational_data = OrganizationalData.objects.create(**organizational_data_dict, experiment=experiment)
+            experiment.organizational_data=organizational_data
+            experiment.save()
+            st.success(f"Experiment '{organizational_data.external_experiment_id}' created successfully!")
             st.session_state["experiment_id"] = experiment.experiment_id
 
 
@@ -204,11 +366,10 @@ def create_synthesis_and_steps(synthesis_data):
                 lot_number=target["lot_number"]
             )
             synthesis_step.target_materials.add(material)
-        print(synthesis_step.order)
 
         # Add synthesis_step to synthesis
         synthesis_step.save()
-        synthesis.synthesis_steps.add(synthesis_step)
+        synthesis.steps.add(synthesis_step)
     synthesis.save()
     experiment.synthesis = synthesis
     experiment.save()
@@ -249,7 +410,7 @@ def create_sample_preparation_and_steps(sp_data):
             )
             sp_step.target_materials.add(material)
 
-        sample_preparation.sample_preparation_steps.add(sp_step)
+        sample_preparation.steps.add(sp_step)
     experiment.sample_preparation = sample_preparation
     experiment.save()
     st.success(f"Sample Preparation with {len(sp_data)} steps added to Experiment '{st.session_state['experiment_id']}' successfully!")
@@ -274,7 +435,7 @@ def create_sample_characterization():
 
         submit_characterization = st.form_submit_button("Submit Characterization")
         if submit_characterization:
-            characterization = Characterization.objects.create(
+            characterization = Measurement.objects.create(
                 experiment=experiment,
                 measurement_method=measurement_method,
                 measurement_type=measurement_type,
@@ -286,6 +447,7 @@ def create_sample_characterization():
                 atmosphere=atmosphere
             )
             experiment.characterization = characterization
+            characterization.save()
             experiment.save()
             st.success("Characterization data has been recorded successfully!")
 
@@ -692,7 +854,7 @@ def create_analysis_and_steps(analysis_data):
             )
             analysis_step.quantity_results.add(qty)
 
-        analysis.analysis_steps.add(analysis_step)
+        analysis.steps.add(analysis_step)
     experiment.analysis = analysis
     experiment.save()
     st.success(f"Analysis with {len(analysis_data)} steps added successfully!")
@@ -774,6 +936,7 @@ def render_preprocessing_quantity_item_form(item, label_prefix):
     item["value"] = st.number_input(f"{label_prefix} Value", value=item.get("value", 0.0), step=0.1, key=str(uuid.uuid4()))
     item["error"] = st.number_input(f"{label_prefix} Error", value=item.get("error", 0.0), step=0.1, key=str(uuid.uuid4()))
     item["unit"] = st.text_input(f"{label_prefix} Unit", value=item.get("unit", "unit"), key = str(uuid.uuid4()))
+    item["name"] = st.text_input(f"{label_prefix} Name", value=item.get("name", "name"), key = str(uuid.uuid4()))
 
 def render_preprocessing_step_form(step_index):
     step_data = st.session_state.preprocessing_steps_data[step_index]
@@ -800,8 +963,10 @@ def render_preprocessing_step_form(step_index):
     # Parameters
     st.markdown(f"**Parameters (Preprocessing Step {step_index+1})**")
     for i, param in enumerate(step_data["parameters"]):
-        step_data["parameters"][i]["key"] = st.text_input(f"Parameter {i+1} Key", value=param["key"], key=f"preprocess_parameter_key_{step_index}_{i}")
+        step_data["parameters"][i]["name"] = st.text_input(f"Parameter {i+1} Key", value=param["key"], key=f"preprocess_parameter_key_{step_index}_{i}")
         step_data["parameters"][i]["value"] = st.text_input(f"Parameter {i+1} Value", value=param["value"], key=f"preprocess_parameter_value_{step_index}_{i}")
+        step_data["parameters"][i]["unit"] = st.text_input(f"Parameter {i+1} Value", value=param["value"], key=f"preprocess_parameter_unit_{step_index}_{i}")
+        step_data["parameters"][i]["error"] = st.text_input(f"Parameter {i+1} Value", value=param["value"], key=f"preprocess_parameter_error_{step_index}_{i}")
 
     # Data Outputs
     st.markdown(f"**Data Outputs (Preprocessing Step {step_index+1})**")
@@ -826,7 +991,9 @@ def create_preprocessing_and_steps(preprocessing_data):
 
     # We assume Preprocessing and PreprocessingStep have the same structure as Analysis and AnalysisStep
     # and are imported models.
-    preprocessing, _ = Preprocessing.objects.get_or_create()
+    preprocessing, _ = Preprocessing.objects.get_or_create(
+        experiment=experiment
+    )
 
     from django.core.files.base import ContentFile
 
@@ -862,7 +1029,8 @@ def create_preprocessing_and_steps(preprocessing_data):
             qty = Quantity.objects.create(
                 value=q_inp["value"],
                 error=q_inp["error"],
-                unit=q_inp["unit"]
+                unit=q_inp["unit"],
+                name=q_inp["name"]
             )
             preprocessing_step.quantity_inputs.add(qty)
 
@@ -887,11 +1055,13 @@ def create_preprocessing_and_steps(preprocessing_data):
             qty = Quantity.objects.create(
                 value=q_out["value"],
                 error=q_out["error"],
-                unit=q_out["unit"]
+                unit=q_out["unit"],
+                name=q_out["name"]
             )
             preprocessing_step.quantity_results.add(qty)
 
-        preprocessing.preprocessing_steps.add(preprocessing_step)
+        preprocessing.steps.add(preprocessing_step)
+    preprocessing.save()
     experiment.preprocessing = preprocessing
     experiment.save()
 
@@ -900,7 +1070,7 @@ def create_preprocessing_and_steps(preprocessing_data):
 
 
 # Streamlit App
-menu = ["Add Experiment", "View Experiments"]
+menu = ["Add Experiment", "View Experiments", "Search Experiments"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 if choice == "Add Experiment":
@@ -1111,7 +1281,7 @@ elif choice == "View Experiments":
             print(experiment.synthesis)
             if experiment.synthesis is not None:
                 for synthesis in experiment.synthesis.all():
-                    for step in synthesis.synthesis_steps.all():
+                    for step in synthesis.steps.all():
                         st.write(f"  - Technique: {step.technique.name}")
                         st.write("    Description:", step.technique.description)
                         st.write("    Precursor Materials:")
@@ -1125,7 +1295,7 @@ elif choice == "View Experiments":
             st.write("Sample Preparation Steps:")
             if experiment.sample_preparation is not None:
                 for sp in experiment.sample_preparation.all():
-                    for step in sp.sample_preparation_steps.all():
+                    for step in sp.steps.all():
                         st.write(f"  - Technique: {step.technique.name}")
                         st.write("    Description:", step.technique.description)
                         st.write("    Precursor Materials:")
@@ -1139,7 +1309,7 @@ elif choice == "View Experiments":
             st.write("Analysis Steps:")
             # If Analysis is not linked directly to Experiment, adjust as needed.
             if experiment.analysis is not None:
-                for step in experiment.analysis.analysis_steps.all():
+                for step in experiment.analysis.steps.all():
                     st.write(f"  Step {step.order + 1}:")
                     st.write(f"**Technique:** {step.technique}" if step.technique else "**Technique:** Not specified")
 
@@ -1198,3 +1368,119 @@ elif choice == "View Experiments":
 
     else:
         st.info("No experiments available.")
+elif choice == "Search Experiments":
+    st.header("Search for an Experiment by Different IDs")
+    tab_ids, tab_advanced = st.tabs(["Search by ID", "Advanced Search"])
+    with tab_ids:
+        # 1) Provide a dropdown to choose which ID type we want to search
+        search_option = st.selectbox(
+            "Search By:",
+            ["Experiment ID", "Measurement ID", "Synthesis ID", "Analysis ID", "Preprocessing ID"]
+        )
+
+        # 2) Based on the user’s choice, ask for the relevant ID value
+        search_value = st.text_input(f"Enter the {search_option} to search for:")
+
+        # 3) User chooses output format for retrieval
+        output_format = st.selectbox("Choose output format", ["json", "csv"])
+
+        # 4) Clicking this button triggers the search
+        if st.button("Search"):
+            if not search_value.strip():
+                st.warning(f"Please provide a valid {search_option}.")
+            else:
+                # Attempt to find the Experiment based on user choice
+                experiment = None
+
+                if search_option == "Experiment ID":
+                    experiment = Experiment.objects.filter(experiment_id=search_value).first()
+
+                elif search_option == "Measurement ID":
+                    measurement = Measurement.objects.filter(uid=search_value).first()
+                    if measurement:
+                        experiment = measurement.experiment  # Adjust if your FK is named differently
+
+                elif search_option == "Synthesis ID":
+                    synthesis = Synthesis.objects.filter(uid=search_value).first()
+                    if synthesis:
+                        experiment = synthesis.experiment
+
+                elif search_option == "Analysis ID":
+                    analysis = Analysis.objects.filter(uid=search_value).first()
+                    if analysis:
+                        # If you store experiment on the analysis object
+                        # or if it's a ManyToMany, adjust as needed
+                        experiment = analysis.experiment
+
+                elif search_option == "Preprocessing ID":
+                    preprocessing = Preprocessing.objects.filter(uid=search_value).first()
+                    if preprocessing:
+                        experiment = preprocessing.experiment
+
+                # 5) Now that we (hopefully) have an Experiment, we can retrieve from Neo4j
+                if experiment:
+                    # If your Neo4j uses experiment.uid as the unique identifier,
+                    # pass that to the retrieval handler:
+                    experiment_uid = str(experiment.uid)  # or however you store it in the model
+
+                    # Instantiate your retrieval handler
+                    retrieval_handler = Neo4jDataRetrievalHandler()
+
+                    # JSON
+                    if output_format == "json":
+                        try:
+                            result_str = retrieval_handler.get_experiment_data(
+                                experiment_uid=experiment_uid,
+                                output_format='json'
+                            )
+                            # Provide a download button for JSON
+                            st.download_button(
+                                label=f"Download {search_value} as JSON",
+                                data=result_str,
+                                file_name=f"experiment_{search_value}.json",
+                                mime="application/json"
+                            )
+
+                            # Optionally display JSON content:
+                            st.json(result_str)
+
+                        except Exception as e:
+                            st.error(f"Error retrieving JSON data: {e}")
+
+                    # CSV
+                    else:
+                        try:
+                            with tempfile.TemporaryDirectory() as tmpdir:
+                                # The handler’s CSV mode writes multiple CSVs into `tmpdir`
+                                result_files = retrieval_handler.get_experiment_data(
+                                    experiment_uid=experiment_uid,
+                                    output_format='csv',
+                                    base_path=tmpdir
+                                )
+                                # `result_files` is presumably a dict: { "experiment": /path/to/file, ... }
+
+                                # Zip them up
+                                with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip_file:
+                                    with zipfile.ZipFile(tmp_zip_file.name, 'w') as zipf:
+                                        for label, filepath in result_files.items():
+                                            arcname = os.path.basename(filepath)
+                                            zipf.write(filepath, arcname=arcname)
+
+                                    # Read ZIP content into memory
+                                    zip_bytes = tmp_zip_file.read()
+
+                                # Create a base64-encoded download link
+                                b64_zip = base64.b64encode(zip_bytes).decode()
+                                href = (
+                                    f'<a href="data:application/zip;base64,{b64_zip}" '
+                                    f'download="experiment_{search_value}.zip">Download CSV ZIP</a>'
+                                )
+                                st.markdown(href, unsafe_allow_html=True)
+
+                        except Exception as e:
+                            st.error(f"Error retrieving CSV data: {e}")
+
+                else:
+                    st.warning(f"No experiment found for {search_option}: {search_value}")
+    with tab_advanced:
+        advanced_search_tab_ui()

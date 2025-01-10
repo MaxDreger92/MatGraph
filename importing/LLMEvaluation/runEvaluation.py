@@ -53,9 +53,9 @@ if __name__ == "__main__":
     # has_property_evaluation = HasPropertyEvaluator()
     # has_property_results = has_property_evaluation.run_evaluation()
 
-    # has_manufacturing_data_set = "Has_Manufacturing_Extraction"
-    # has_manufacturing = HasManufacturingEvaluator()
-    # has_manufacturing_results = has_manufacturing.run_evaluation()
+    has_manufacturing_data_set = "Has_Manufacturing_Extraction"
+    has_manufacturing = HasManufacturingEvaluator()
+    has_manufacturing_results = has_manufacturing.run_evaluation()
 
     # has_measurement_data_set = "Has_Measurement_Extraction"
     # has_measurement = HasMeasurementEvaluator()
@@ -65,9 +65,9 @@ if __name__ == "__main__":
     # has_part_matter = HasPartMatterEvaluator()
     # has_part_matter_results = has_part_matter.run_evaluation()
 
-    has_metadata_data_set = "Has_Metadata_Extraction"
-    has_metadata = HasMetadataEvaluator()
-    has_metadata_results = has_metadata.run_evaluation()
+    # has_metadata_data_set = "Has_Metadata_Extraction"
+    # has_metadata = HasMetadataEvaluator()
+    # has_metadata_results = has_metadata.run_evaluation()
 
 
 

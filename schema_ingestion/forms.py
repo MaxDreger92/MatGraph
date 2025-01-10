@@ -12,7 +12,7 @@ class OrganizationalForm(forms.ModelForm):
     class Meta:
         model = OrganizationalData
         fields = [
-            'experiment_title', 'experiment_id', 'measurement_id', 'upload_date', 'measurement_date', 'institution',
+            'experiment_title', 'external_experiment_id', 'measurement_id', 'upload_date', 'measurement_date', 'institution',
             'founding_body', 'country', 'author', 'orcid', 'email', 'published', 'publication', 'doi', 'journal',
             'volume', 'issue', 'pages', 'publication_date', 'topic', 'device', 'component', 'subcomponent',
             'granularity_level', 'format', 'file_size', 'file_size_unit', 'file_name', 'dimension_x', 'dimension_y',

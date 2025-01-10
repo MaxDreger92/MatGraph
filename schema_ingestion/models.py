@@ -8,14 +8,19 @@ from django.views.generic import TemplateView
 from django.db import models
 from neomodel import db
 
-from schema_ingestion.neo4j_handlers import Neo4jFabricationWorkflowHandler
+from schema_ingestion.neo4j_handlers import Neo4jFabricationWorkflowHandler, Neo4jDataHandler, \
+    Neo4jOrganizationalDataHandler, Neo4jMeasurementHandler
 
 
 class UUIDModel(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+
+
     class Meta:
         abstract = True  # Ensure this is set to make it an abstract base class
+
+
         
 # Models
 class Step(UUIDModel):
@@ -32,9 +37,16 @@ class Step(UUIDModel):
         # This method should be overridden by child models
         return "Technique Not Defined"
 
-class OrganizationalData(UUIDModel):
+class OrganizationalData(UUIDModel, Neo4jOrganizationalDataHandler):
+    experiment = models.ForeignKey(
+        'schema_ingestion.Experiment',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='organizational_data_experiment'
+    )
     experiment_title = models.CharField(max_length=255)
-    experiment_id = models.CharField(max_length=50)
+    external_experiment_id = models.CharField(max_length=50, blank=True, null=True)  # Renamed to avoid clash
     measurement_id = models.CharField(max_length=50)
     upload_date = models.DateField()
     measurement_date = models.DateField(null=True, blank=True)
@@ -68,6 +80,14 @@ class OrganizationalData(UUIDModel):
     link = models.URLField(null=True, blank=True)
     mask_exist = models.BooleanField(default=False)
     mask_link = models.URLField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        print("Saving instance to Neo4j")
+        # Save the instance to the Django database first
+        super().save(*args, **kwargs)
+
+        # After saving, prepare data for Neo4j
+        self._save_to_neo4j()
 
 class Quantity(UUIDModel):
     value = models.FloatField()
@@ -108,7 +128,7 @@ class SynthesisStep(Step):
 
 
 class Synthesis(UUIDModel, Neo4jFabricationWorkflowHandler):
-    synthesis_steps = models.ManyToManyField(SynthesisStep, related_name="steps")
+    steps = models.ManyToManyField(SynthesisStep, related_name="steps")
     experiment = models.ForeignKey(
         'schema_ingestion.Experiment',
         on_delete=models.CASCADE,
@@ -139,14 +159,22 @@ class SamplePreparationStep(Step, Neo4jFabricationWorkflowHandler):
     metadata = models.ManyToManyField(Metadata, related_name="sp_metadata")
 
 class SamplePreparation(UUIDModel, Neo4jFabricationWorkflowHandler):
-    sample_preparation_steps = models.ManyToManyField(SamplePreparationStep)
+    steps = models.ManyToManyField(SamplePreparationStep)
+    experiment = models.ForeignKey(
+        'schema_ingestion.Experiment',
+        on_delete=models.CASCADE,
+        blank=True,
+        default=None,
+        related_name='sample_preparation_experiment'  # Changed from default to 'syntheses'
+    )
+
 
     def save(self, *args, **kwargs):
-        # Save the instance to the Django database first
-        super().save(*args, **kwargs)
+            # Save the instance to the Django database first
+            super().save(*args, **kwargs)
 
-        # After saving, prepare data for Neo4j
-        self._save_to_neo4j()
+            # After saving, prepare data for Neo4j
+            self._save_to_neo4j()
 
 
 class Data(UUIDModel):
@@ -173,8 +201,35 @@ class PreprocessingStep(Step):
     data_results = models.ManyToManyField(Data, related_name="pp_results_as_data", blank=True)
     quantity_results = models.ManyToManyField(Quantity, related_name="pp_results_as_quantity", blank=True)
 
-class Preprocessing(UUIDModel):
-    preprocessing_steps = models.ManyToManyField(PreprocessingStep)
+class Preprocessing(UUIDModel, Neo4jDataHandler):
+    steps = models.ManyToManyField(PreprocessingStep)
+    experiment = models.ForeignKey(
+        'schema_ingestion.Experiment',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,  # Add null=True to allow NULL values in the database
+        default=None,
+        related_name='preprocessing_experiment'
+    )
+
+    def save(self, *args, **kwargs):
+        print("Saving instance to Neo4j")
+        # Save the instance to the Django database first
+        super().save(*args, **kwargs)
+
+        # After saving, prepare data for Neo4j
+        self._save_to_neo4j()
+
+
+class Analysis(UUIDModel, Neo4jDataHandler):
+    steps = models.ManyToManyField(AnalysisStep, related_name="a_steps")
+    experiment = models.ForeignKey(
+        'schema_ingestion.Experiment',
+        on_delete=models.CASCADE,
+        blank=True,
+        default=None,
+        null=True,
+        related_name='analysis_experiment')
 
     def save(self, *args, **kwargs):
         # Save the instance to the Django database first
@@ -183,317 +238,103 @@ class Preprocessing(UUIDModel):
         # After saving, prepare data for Neo4j
         self._save_to_neo4j()
 
-    def _save_to_neo4j(self):
-        cypher_query = """
-        MERGE (pp:Preprocessing {uid: $pp_uid})
-        
-        // Create or merge related PreprocessingSteps
-        UNWIND $steps AS step
-            MERGE (pps:PreprocessingStep {uid: step.uid})
-            SET pps.order = step.order
-            SET pps.technique = step.technique
-            
-            // Associate Data Inputs
-            UNWIND step.data_inputs AS data_in
-                MERGE (d_in:Data {uid: data_in.uid})
-                SET d_in.data_type = data_in.data_type
-                SET d_in.data_format = data_in.data_format
-                SET d_in.link = data_in.link
-                MERGE (pps)-[:USES_DATA_INPUT]->(d_in)
-            
-            // Associate Quantity Inputs
-            UNWIND step.quantity_inputs AS qty_in
-                MERGE (q_in:Quantity {uid: qty_in.uid})
-                SET q_in.name = qty_in.name
-                SET q_in.value = qty_in.value
-                SET q_in.unit = qty_in.unit
-                SET q_in.error = qty_in.error
-                MERGE (pps)-[:USES_QUANTITY_INPUT]->(q_in)
-            
-            // Associate Parameters
-            UNWIND step.parameters AS param
-                MERGE (meta:Quantity {uid: param.uid})  // Assuming parameters are Quantity
-                SET meta.name = param.name
-                SET meta.value = param.value
-                SET meta.unit = param.unit
-                SET meta.error = param.error
-                MERGE (pps)-[:HAS_PARAMETER]->(meta)
-            
-            // Associate Data Results
-            UNWIND step.data_results AS data_res
-                MERGE (d_res:Data {uid: data_res.uid})
-                SET d_res.data_type = data_res.data_type
-                SET d_res.data_format = data_res.data_format
-                SET d_res.link = data_res.link
-                MERGE (pps)-[:GENERATES_DATA]->(d_res)
-            
-            // Associate Quantity Results
-            UNWIND step.quantity_results AS qty_res
-                MERGE (q_res:Quantity {uid: qty_res.uid})
-                SET q_res.name = qty_res.name
-                SET q_res.value = qty_res.value
-                SET q_res.unit = qty_res.unit
-                SET q_res.error = qty_res.error
-                MERGE (pps)-[:GENERATES_QUANTITY]->(q_res)
-            
-            // Associate Metadata
-            UNWIND step.metadatas AS meta
-                MERGE (md:Metadata {uid: meta.uid})
-                SET md.key = meta.key
-                SET md.value = meta.value
-                MERGE (pps)-[:HAS_METADATA]->(md)
-        
-            // Link Preprocessing to PreprocessingStep
-            MERGE (pp)-[:HAS_STEP]->(pps)
-        
-        // Create ordered relationships between steps
-        WITH pp, $steps AS steps
-        UNWIND range(0, size(steps)-2) AS idx
-            MATCH (current:PreprocessingStep {uid: steps[idx].uid})
-            MATCH (next:PreprocessingStep {uid: steps[idx + 1].uid})
-            MERGE (current)-[:FOLLOWED_BY]->(next)
-        """
-        # Prepare parameters
-        steps_queryset = self.preprocessing_steps.all().order_by('order')
-        steps_data = []
-        for step in steps_queryset:
-            step_data = {
-                "uid": str(step.uid),
-                "order": step.order,
-                "technique": step.technique,
-                "data_inputs": [
-                    {
-                        "uid": str(data.uid),
-                        "data_type": data.data_type,
-                        "data_format": data.data_format,
-                        "link": data.link
-                    }
-                    for data in step.data_inputs.all()
-                ],
-                "quantity_inputs": [
-                    {
-                        "uid": str(qty.uid),
-                        "name": qty.name,
-                        "value": qty.value,
-                        "unit": qty.unit,
-                        "error": qty.error
-                    }
-                    for qty in step.quantity_inputs.all()
-                ],
-                "parameters": [
-                    {
-                        "uid": str(param.uid),
-                        "name": param.name,
-                        "value": param.value,
-                        "unit": param.unit,
-                        "error": param.error
-                    }
-                    for param in step.parameter.all()
-                ],
-                "data_results": [
-                    {
-                        "uid": str(data.uid),
-                        "data_type": data.data_type,
-                        "data_format": data.data_format,
-                        "link": data.link
-                    }
-                    for data in step.data_results.all()
-                ],
-                "quantity_results": [
-                    {
-                        "uid": str(qty.uid),
-                        "name": qty.name,
-                        "value": qty.value,
-                        "unit": qty.unit,
-                        "error": qty.error
-                    }
-                    for qty in step.quantity_results.all()
-                ],
-                "metadatas": [
-                    {
-                        "uid": str(meta.uid),
-                        "key": meta.key,
-                        "value": meta.value
-                    }
-                    for meta in step.metadata.all()
-                ],
-            }
-            steps_data.append(step_data)
-        parameters = {
-            "pp_uid": str(self.uid),
-            "steps": steps_data,
-        }
-        db.cypher_query(cypher_query, params=parameters)
 
-class Analysis(UUIDModel):
-    analysis_steps = models.ManyToManyField(AnalysisStep, related_name="a_steps")
+
+class Measurement(UUIDModel, Neo4jMeasurementHandler):
+    experiment = models.ForeignKey(
+        'schema_ingestion.Experiment',  # Update the app label if different
+        on_delete=models.CASCADE,
+        related_name='measurements',
+        null=True,
+        blank=True,
+    )
+
+    measurement_method = models.CharField(
+        max_length=255,
+        help_text="Method used for the measurement (e.g., X-Ray Diffraction, Spectroscopy)."
+    )
+    measurement_type = models.CharField(
+        max_length=255,
+        help_text="Type of measurement conducted (e.g., Structural, Thermal)."
+    )
+    specimen = models.CharField(
+        max_length=255,
+        help_text="Description or identifier of the specimen being measured."
+    )
+    temperature = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Temperature at which the measurement was conducted."
+    )
+    temperature_unit = models.CharField(
+        max_length=10,
+        null=True,
+        blank=True,
+        choices=[
+            ('C', 'Celsius'),
+            ('F', 'Fahrenheit'),
+            ('K', 'Kelvin'),
+            # Add more units as needed
+        ],
+        help_text="Unit of temperature."
+    )
+    pressure = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Pressure at which the measurement was conducted."
+    )
+    pressure_unit = models.CharField(
+        max_length=10,
+        null=True,
+        blank=True,
+        choices=[
+            ('atm', 'Atmospheres'),
+            ('bar', 'Bar'),
+            ('psi', 'Pounds per Square Inch'),
+            # Add more units as needed
+        ],
+        help_text="Unit of pressure."
+    )
+    atmosphere = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Atmospheric conditions during the measurement (e.g., Vacuum, Air)."
+    )
+
+    # Timestamp Fields
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp when the measurement was created.")
+    updated_at = models.DateTimeField(auto_now=True, help_text="Timestamp when the measurement was last updated.")
+
+    def __str__(self):
+        return f"Measurement {self.uid} - {self.measurement_method} ({self.measurement_type})"
+
+    class Meta:
+        verbose_name = "Measurement"
+        verbose_name_plural = "Measurements"
+        ordering = ['-created_at']  # Orders measurements by most recent first
 
     def save(self, *args, **kwargs):
+        print("Saving instance to Neo4j")
         # Save the instance to the Django database first
         super().save(*args, **kwargs)
 
         # After saving, prepare data for Neo4j
         self._save_to_neo4j()
-
-    def _save_to_neo4j(self):
-        cypher_query = """
-        MERGE (a:Analysis {uid: $analysis_uid})
-        
-        // Create or merge related AnalysisSteps
-        UNWIND $steps AS step
-            MERGE (as:AnalysisStep {uid: step.uid})
-            SET as.order = step.order
-            SET as.technique = step.technique
-            
-            // Associate Data Inputs
-            UNWIND step.data_inputs AS data_in
-                MERGE (d_in:Data {uid: data_in.uid})
-                SET d_in.data_type = data_in.data_type
-                SET d_in.data_format = data_in.data_format
-                SET d_in.link = data_in.link
-                MERGE (as)-[:USES_DATA_INPUT]->(d_in)
-            
-            // Associate Quantity Inputs
-            UNWIND step.quantity_inputs AS qty_in
-                MERGE (q_in:Quantity {uid: qty_in.uid})
-                SET q_in.name = qty_in.name
-                SET q_in.value = qty_in.value
-                SET q_in.unit = qty_in.unit
-                SET q_in.error = qty_in.error
-                MERGE (as)-[:USES_QUANTITY_INPUT]->(q_in)
-            
-            // Associate Parameters
-            UNWIND step.parameters AS param
-                MERGE (q:Quantity {uid: param.uid})
-                SET q.name = param.name
-                SET q.value = param.value
-                SET q.unit = param.unit
-                SET q.error = param.error
-                MERGE (as)-[:HAS_PARAMETER]->(q)
-            
-            // Associate Data Results
-            UNWIND step.data_results AS data_res
-                MERGE (d_res:Data {uid: data_res.uid})
-                SET d_res.data_type = data_res.data_type
-                SET d_res.data_format = data_res.data_format
-                SET d_res.link = data_res.link
-                MERGE (as)-[:GENERATES_DATA]->(d_res)
-            
-            // Associate Quantity Results
-            UNWIND step.quantity_results AS qty_res
-                MERGE (q_res:Quantity {uid: qty_res.uid})
-                SET q_res.name = qty_res.name
-                SET q_res.value = qty_res.value
-                SET q_res.unit = qty_res.unit
-                SET q_res.error = qty_res.error
-                MERGE (as)-[:GENERATES_QUANTITY]->(q_res)
-            
-            // Associate Metadata
-            UNWIND step.metadatas AS meta
-                MERGE (md:Metadata {uid: meta.uid})
-                SET md.key = meta.key
-                SET md.value = meta.value
-                MERGE (as)-[:HAS_METADATA]->(md)
-        
-            // Link Analysis to AnalysisStep
-            MERGE (a)-[:HAS_STEP]->(as)
-        
-        // Create ordered relationships between steps
-        WITH a, $steps AS steps
-        UNWIND range(0, size(steps)-2) AS idx
-            MATCH (current:AnalysisStep {uid: steps[idx].uid})
-            MATCH (next:AnalysisStep {uid: steps[idx + 1].uid})
-            MERGE (current)-[:FOLLOWED_BY]->(next)
-        """
-        # Prepare parameters
-        steps_queryset = self.analysis_steps.all().order_by('order')
-        steps_data = []
-        for step in steps_queryset:
-            step_data = {
-                "uid": str(step.uid),
-                "order": step.order,
-                "technique": step.technique,
-                "data_inputs": [
-                    {
-                        "uid": str(data.uid),
-                        "data_type": data.data_type,
-                        "data_format": data.data_format,
-                        "link": data.link
-                    }
-                    for data in step.data_inputs.all()
-                ],
-                "quantity_inputs": [
-                    {
-                        "uid": str(qty.uid),
-                        "name": qty.name,
-                        "value": qty.value,
-                        "unit": qty.unit,
-                        "error": qty.error
-                    }
-                    for qty in step.quantity_inputs.all()
-                ],
-                "parameters": [
-                    {
-                        "uid": str(param.uid),
-                        "name": param.name,
-                        "value": param.value,
-                        "unit": param.unit,
-                        "error": param.error
-                    }
-                    for param in step.parameter.all()
-                ],
-                "data_results": [
-                    {
-                        "uid": str(data.uid),
-                        "data_type": data.data_type,
-                        "data_format": data.data_format,
-                        "link": data.link
-                    }
-                    for data in step.data_results.all()
-                ],
-                "quantity_results": [
-                    {
-                        "uid": str(qty.uid),
-                        "name": qty.name,
-                        "value": qty.value,
-                        "unit": qty.unit,
-                        "error": qty.error
-                    }
-                    for qty in step.quantity_results.all()
-                ],
-                "metadatas": [
-                    {
-                        "uid": str(meta.uid),
-                        "key": meta.key,
-                        "value": meta.value
-                    }
-                    for meta in step.metadata.all()
-                ],
-            }
-            steps_data.append(step_data)
-        parameters = {
-            "analysis_uid": str(self.uid),
-            "steps": steps_data,
-        }
-        db.cypher_query(cypher_query, params=parameters)
-
-class Characterization(UUIDModel):
-    measurement_method = models.CharField(max_length=100)
-    measurement_type = models.CharField(max_length=100)
-    specimen = models.CharField(max_length=100)
-    temperature = models.FloatField()
-    temperature_unit = models.CharField(max_length=10)
-    pressure = models.FloatField()
-    pressure_unit = models.CharField(max_length=10)
-    atmosphere = models.CharField(max_length=100)
 
 
 class Experiment(UUIDModel):
-    experiment_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, editable=False)
-    organizational_data = models.ForeignKey(OrganizationalData, on_delete=models.CASCADE, null=True, blank=True)
+    experiment_id = models.CharField(max_length=50, unique=True, blank=True, null=True, default=uuid.uuid4, editable=False)
+    measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_measurement')
+    organizational_data = models.ForeignKey(OrganizationalData, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_organizational_data')
     synthesis = models.ForeignKey(Synthesis, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_synthesis')
-    sample_preparation = models.ForeignKey(SamplePreparation, on_delete=models.CASCADE, null=True, blank=True)
-    preprocessing = models.ForeignKey(Preprocessing, on_delete=models.CASCADE, null=True, blank=True)
-    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE, null=True, blank=True)
-    characterization = models.ForeignKey(Characterization, on_delete=models.CASCADE, null=True, blank=True)
+    sample_preparation = models.ForeignKey(SamplePreparation, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_sample_preparation')
+    preprocessing = models.ForeignKey(Preprocessing, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_preprocessing')
+    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_analysis')
+    characterization = models.ForeignKey(Measurement, on_delete=models.CASCADE, null=True, blank=True, related_name='experiments_characterization')
 
+    def __str__(self):
+        return f"Experiment {self.experiment_id}"
+
+    def _save_to_neo4j(self):
+        return True
