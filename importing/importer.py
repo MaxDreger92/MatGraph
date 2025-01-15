@@ -18,6 +18,7 @@ from importing.models import ImportingReport, LabelClassificationReport
 from importing.utils.openai import chat_with_gpt4, chat_with_gpt3
 from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
+from schema_ingestion.neo4j_handlers import OntologyPipeline
 
 
 class Importer:
@@ -299,7 +300,7 @@ class TableImporter(Importer):
             paginator: Paginator instance to apply pagination on query result.
             force_report (bool): Flag to determine whether to generate report or not.
         """
-        self.ontology_mapper = OntologyMapper(data, file_link, context)
+        self.ontology_mapper = OntologyPipeline(data, file_link, context)
         self.paginator = paginator
         self.generate_report = force_report
         self.report = ''
