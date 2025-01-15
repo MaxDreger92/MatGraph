@@ -1,5 +1,4 @@
 import csv
-import csv
 import os
 from io import StringIO
 
@@ -11,23 +10,45 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
 # from graphutils.models import AlternativeLabel
-from importing.OntologyMapper.setupMessages import PARAMETER_SETUP_MESSAGE, MEASUREMENT_SETUP_MESSAGE, \
-    MANUFACTURING_SETUP_MESSAGE, MATTER_SETUP_MESSAGE, PROPERTY_SETUP_MESSAGE
+from importing.OntologyMapper.setupMessages import (
+    PARAMETER_SETUP_MESSAGE,
+    MEASUREMENT_SETUP_MESSAGE,
+    MANUFACTURING_SETUP_MESSAGE,
+    MATTER_SETUP_MESSAGE,
+    PROPERTY_SETUP_MESSAGE
+)
 from importing.utils.openai import chat_with_gpt3
 from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
 from matgraph.models.metadata import File
 from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
-from ontologymanagement.examples import MATTER_ONTOLOGY_CANDIDATES_EXAMPLES, PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES, \
-    QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES, MATTER_ONTOLOGY_ASSISTANT_EXAMPLES, PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES, \
+from ontologymanagement.examples import (
+    MATTER_ONTOLOGY_CANDIDATES_EXAMPLES,
+    PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
+    QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES,
+    MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
+    PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
     QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES
+)
 from ontologymanagement.ontologyManager import OntologyManager
 from ontologymanagement.schema import Response, ChildClass, ClassList
-from ontologymanagement.setupMessages import MATTER_ONTOLOGY_CANDIDATES_MESSAGES, PROCESS_ONTOLOGY_CANDIDATES_MESSAGES, \
-    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES, MATTER_ONTOLOGY_CONNECTOR_MESSAGES, PROCESS_ONTOLOGY_CONNECTOR_MESSAGES, \
-    QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES, MATTER_ONTOLOGY_ASSISTANT_MESSAGES, PROCESS_ONTOLOGY_ASSISTANT_MESSAGES, \
+from ontologymanagement.setupMessages import (
+    MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
+    PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
+    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES,
+    MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
+    PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
+    QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
+    MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
+    PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
     QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
+)
 
-ONTOLOGY_MAPPER = {
+
+##############################################################################
+# 1) GLOBAL HELPERS & CONSTANTS
+##############################################################################
+
+ONTOLOGY_CLASS_MAP = {
     'matter': EMMOMatter,
     'manufacturing': EMMOProcess,
     'measurement': EMMOProcess,
@@ -43,7 +64,7 @@ SETUP_MESSAGES = {
     'property': PROPERTY_SETUP_MESSAGE
 }
 
-EMBEDDING_MODEL_MAPPER = {
+EMBEDDING_MODEL_MAP = {
     'matter': MatterEmbedding,
     'manufacturing': ProcessEmbedding,
     'measurement': ProcessEmbedding,
@@ -52,301 +73,186 @@ EMBEDDING_MODEL_MAPPER = {
 }
 
 
-class OntologyMapper:
+##############################################################################
+# 2) DATAPARSER
+##############################################################################
+
+class DataParser:
     """
-    Class to map given data nodes to corresponding ontology entities.
-    It processes nodes, checks if they exist in the ontology, and creates or connects them as needed.
+    Class to parse CSV data and extract name/label information from the input data.
+    This class does NOT do any ontology mapping; it only gathers the raw items
+    that need to be mapped.
     """
 
-    def __init__(self, data, file_link, context):
+    def __init__(self, data, file_link):
         """
-        Initialize an OntologyMapper instance.
+        Initialize a DataParser instance.
 
         Args:
-            data (dict): Data containing nodes and their attributes to be mapped.
-            file_link (str): Link to a file containing table data in CSV format.
-            context (str): Contextual information used during ontology mapping.
+            data (dict): Graph data containing nodes and their attributes.
+            file_link (str): Link to a CSV file containing additional info.
         """
         self.data = data
         self.file_link = file_link
-        self.context = context
-        self._mapping = []
-        self.names = []
-        self._table = self._load_table(file_link)
+        self._table = self._load_table()
+        self._rows_to_map = []  # Will store (label, name_value) pairs
 
-    def _load_table(self, file_link):
+    def _load_table(self):
         """
-        Load CSV data from a file and transpose rows to columns.
-
-        Args:
-            file_link (str): Link to the CSV file.
+        Load CSV data from a file node, decode, parse, and transpose.
 
         Returns:
-            list: A list of columns with non-empty values from the CSV.
+            list[list[str]]: Transposed columns of CSV data.
         """
-        file = File.nodes.get(link=file_link)
-        file_content = file.get_file().decode('utf-8')
+        file_node = File.nodes.get(link=self.file_link)
+        file_content = file_node.get_file().decode('utf-8')
         csv_reader = csv.reader(StringIO(file_content))
-        columns = list(zip(*csv_reader))  # Transpose rows to columns
-        return [list(filter(None, col)) for col in columns]  # Remove empty values
+        columns = list(zip(*csv_reader))
+        # Remove empty values:
+        return [list(filter(None, col)) for col in columns]
 
-    def map_on_ontology(self):
+    def parse_data(self):
         """
-        Iterate over nodes in the data and map each node onto the ontology.
-        Skips nodes labeled as 'metadata'.
+        Go through each node in the data and extract (label, name_value) pairs.
+        Skips 'metadata' label. If a node references a table index, collect
+        all column values as well.
         """
-        for node in self.data['nodes']:
-            if node['label'] == 'metadata':
+        for node in self.data.get('nodes', []):
+            if node.get('label') == 'metadata':
                 continue
-            # Ensure 'name' attribute is a list
-            node['name'] = [node['attributes']['name']] if not isinstance(node['attributes']['name'], list) else node['attributes']['name']
-            for node_name in node['name']:
-                self._process_node(node, node_name)
 
-    def _process_node(self, node, name):
-        """
-        Process an individual node, either appending mapping directly or handling table-based mapping.
+            label = node['label']
+            names_field = node['attributes']['name']
+            name_list = names_field if isinstance(names_field, list) else [names_field]
 
-        Args:
-            node (dict): The node data to be processed.
-            name (dict or str): The name or structured name of the node.
-        """
-        label = node['label']
+            for name_item in name_list:
+                index_value = name_item.get('index', 'inferred')
+                string_value = name_item.get('value')
 
-        index_value = name.get('index', 'inferred')
-        value_value = name.get('value')
-
-        if index_value == 'inferred' or value_value not in self.names:
-            self._append_mapping(value_value, label)
-        elif label != 'metadata':
-            self._handle_table_mapping(name, label)
-
-    def _handle_table_mapping(self, name, label):
-        """
-        Handle mapping for nodes referencing table data.
-
-        Args:
-            name (dict): A dictionary containing index and value information.
-            label (str): The label of the node.
-        """
-        for col_value in self.table[int(name['index'])]:
-            if col_value not in self.names:
-                self._append_mapping(col_value, label)
-
-    def _append_mapping(self, name_value, label):
-        """
-        Append a new mapping for a node and generate an ontology node if necessary.
-
-        Args:
-            name_value (str): The value of the node's name.
-            label (str): The label/category of the node.
-        """
-        print(name_value, label)
-        if label == 'metadata':
-            return
-        ontology_generator = OntologyGenerator(self.context, name_value, label, ONTOLOGY_MAPPER[label])
-        if name_value not in [mapping['name'] for mapping in self._mapping]:
-            node_uid = ontology_generator.get_or_create(name_value, label).uid
-            self._mapping.append({'name': name_value,
-                                  'id': node_uid,
-                                  'ontology_label': ONTOLOGY_MAPPER[label].__name__,
-                                  'label': label.upper()})
-            self.names.append(name_value)
+                # If "inferred" or no table index is provided
+                if index_value == 'inferred':
+                    self._rows_to_map.append((label, string_value))
+                else:
+                    # Pull entire column from the CSV table
+                    col_index = int(index_value)
+                    for col_value in self._table[col_index]:
+                        self._rows_to_map.append((label, col_value))
 
     @property
-    def table(self):
+    def rows_to_map(self):
         """
-        Property to access the loaded table data.
-
         Returns:
-            list: The table data loaded from CSV.
+            list[tuple(str, str)]: A list of (label, name_value) pairs
+                                   extracted from the data.
         """
-        return self._table
-
-    @property
-    def mapping(self):
-        """
-        Property to access the current mapping list.
-
-        Returns:
-            list: A list of mappings that have been created.
-        """
-        return self._mapping
-
-    def run(self):
-        """
-        Execute the ontology mapping process for all nodes in the data.
-        """
-        self.map_on_ontology()
+        return self._rows_to_map
 
 
-class OntologyGenerator:
+##############################################################################
+# 3) ONTOLOGY MAPPER
+##############################################################################
+
+class OntologyMapper:
     """
-    Class responsible for generating or retrieving ontology nodes based on provided input.
-    It also handles connecting nodes, finding candidates and connections within the ontology,
-    and adding labels or embeddings.
+    Class responsible for taking a single name (plus context, label, and the
+    corresponding ontology class) and mapping it to the ontology.
     """
 
-    def __init__(self, context, name, label, ontology_class):
+    def __init__(self, context, label, ontology_class):
         """
-        Initialize an OntologyGenerator instance.
-
         Args:
-            context (str): Contextual information for ontology generation.
-            name (str): The name of the entity to be generated or retrieved.
-            label (str): The category label (e.g., 'matter', 'parameter') of the entity.
-            ontology_class (class): The ontology class corresponding to the label.
+            context (str): Context to use when generating or connecting nodes.
+            label (str): Category label for the name (e.g., 'matter', 'property').
+            ontology_class (class): The corresponding Ontology class (e.g., EMMOMatter).
         """
         self.context = context
-        self.name = name
         self.label = label
         self.ontology_class = ontology_class
 
-    def get_or_create(self, input, label):
+    def map_name(self, name_value):
         """
-        Retrieve an existing ontology node that matches the input, or create a new one if none exists.
+        Map a single name_value to the ontology, retrieving or creating a node.
 
         Args:
-            input (str): The input string to search for in the ontology.
-            label (str): The label/category for the ontology search.
+            name_value (str): The raw name to map.
 
         Returns:
-            object: An ontology node either retrieved from the database or newly created.
+            object: The ontology node that represents this name.
         """
-        ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input.replace("_", " "), limit=15,
-                                                              include_similarity=True)
-        if ontology[0][1] < 0.97:
-            output = self.create_synonym(input, ontology, label)
-            nodes = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=output, limit=15, include_similarity=True)
-            if nodes[0][1] < 0.97:
-                ontology_node = ONTOLOGY_MAPPER[label](name=output)
-                self.save_ontology_node(ontology_node)
+        # Attempt to find similar nodes
+        found_nodes = self.ontology_class.nodes.get_by_string(
+            string=name_value.replace("_", " "),
+            limit=15,
+            include_similarity=True
+        )
+        # If no node is sufficiently similar, try to create a synonym or new node
+        if not found_nodes or found_nodes[0][1] < 0.97:
+            # Let's propose a synonym
+            new_name = self._create_synonym(name_value, found_nodes)
+            new_search = self.ontology_class.nodes.get_by_string(
+                string=new_name, limit=15, include_similarity=True
+            )
+            if not new_search or new_search[0][1] < 0.97:
+                # Create a brand new node
+                ontology_node = self.ontology_class(name=new_name)
+                self._save_node(ontology_node)
                 return ontology_node
             else:
-                return nodes[0][0]
+                return new_search[0][0]
         else:
-            return ontology[0][0]
+            return found_nodes[0][0]
 
-    def save_ontology_node(self, node):
+    def _save_node(self, node):
         """
-        Save an ontology node with the option to add labels, create embeddings, and connect to the ontology.
+        Save a newly created node, add embeddings, and connect it in the ontology.
 
         Args:
-            node (object): The ontology node to save.
+            node (object): An instance of the ontology node (e.g., EMMOMatter).
         """
-        node.save()  # Assuming node has a save method for basic saving operations
-        self.add_labels_create_embeddings(node)
-        self.connect_to_ontology(node)
+        node.save()
+        self._add_labels_create_embeddings(node)
+        self._connect_to_ontology(node)
 
-    def connect_to_ontology(self, node):
+    def _create_synonym(self, input_text, found_nodes):
         """
-        Connect a new node to the ontology by finding candidate superclasses or subclasses
-        and linking them accordingly.
+        Use an LLM to propose a synonym for input_text if existing nodes are not sufficiently similar.
 
         Args:
-            node (object): The ontology node to connect.
-        """
-        # Check if the node is already connected in the ontology
-        if not node.emmo_subclass and not node.emmo_parentclass:
-            candidates = self.find_candidates(node)
-            connection_names = self.find_connection(candidates)
-            previous_node = None
-            for name in connection_names:
-                # Search for the node by name, with similarity consideration
-                search_results = node.nodes.get_by_string(string=name, limit=8, include_similarity=True)
-                if search_results and search_results[0][1] > 0.98:
-                    # A similar node is found
-                    current_node = search_results[0][0]
-                else:
-                    # No similar node found, or similarity is too low; create a new node
-                    current_node = self.ontology_class(name=name)
-                    current_node.save()
-                # Connect the current node to the previous one in the chain, if applicable
-                if previous_node and previous_node != current_node:
-                    previous_node.emmo_parentclass.connect(current_node)
-
-                previous_node = current_node
-        else:
-            print(f"Connected node? {node.name} {node.emmo_sublcass}, {node.emmo_parentclass} ")
-
-    def find_candidates(self, node):
-        """
-        Find candidate ontology nodes that could be related to the given node.
-
-        Args:
-            node (object): The ontology node for which to find candidates.
+            input_text (str): The text needing a synonym.
+            found_nodes (list): Nodes returned by the ontology query (with similarity scores).
 
         Returns:
-            list: A list of candidate ontology nodes or related classes based on LLM advice.
+            str: A synonym or refined label from the LLM.
         """
-        ONTOLOGY_CANDIDATES = {
-            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
-        }
+        prompt = self._ontology_extension_prompt(input_text, found_nodes)
+        # Use your existing chat_with_gpt3 function
+        output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[self.label])
+        return output
 
-        ONTOLOGY_CANDIDATES_EXAMPLES = {
-            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_EXAMPLES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES
-        }
-        nodes = self.ontology_class.nodes.get_by_string(string=node.name, limit=8, include_similarity=False)
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
-        setup_message = ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name]
-        prompt = ChatPromptTemplate.from_messages(setup_message)
-        query = f"""Input: {node.name}\nCandidates: {", ".join([el.name for el in nodes if el.name != node.name])} \nContext: {self.context}"""
-        if examples := ONTOLOGY_CANDIDATES_EXAMPLES[self.ontology_class._meta.object_name]:
-            example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
-            few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
-            prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
-
-        chain = create_structured_output_runnable(Response, llm, prompt).with_config(
-            {"run_name": f"{node.name}-generation"})
-        ontology_advice = chain.invoke({"input": query})
-        if (chosen_candidate := ontology_advice.answer) is None:
-            uids = list(dict.fromkeys([node.uid for node in nodes if node.name != self.name]))
-            return node.get_superclasses(uids)
-        elif isinstance(ontology_advice.answer, ChildClass):
-            candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.child_name)].uid
-            return node.get_subclasses([candidate_uid])
-        else:
-            candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.parent_name)].uid
-            return node.get_superclasses([candidate_uid])
-
-    @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
-    def find_connection(self, candidates):
+    def _ontology_extension_prompt(self, input_text, ontology_list):
         """
-        Given candidate nodes, find a connection path using LLM and return a list of class names
-        to connect.
+        Format a prompt describing the context and candidate ontology nodes for the LLM.
 
         Args:
-            candidates (list): List of candidate ontology nodes.
+            input_text (str): The raw text to be extended/refined.
+            ontology_list (list): List of found ontology nodes with similarities.
 
         Returns:
-            list: A list of class names that form a connection chain.
+            str: Formatted prompt text.
         """
-        ONTOLOGY_CONNECTOR = {
-            'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
-        }
+        candidate_names = ", ".join([n[0].name for n in ontology_list])
+        return (
+            f"Input: {input_text}\n"
+            f"Context: {self.context}\n"
+            f"Candidates: {candidate_names}"
+        )
 
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
-        setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
-        query = f"""Input: {self.name}, candidates: {', '.join([el[1] for el in candidates])}"""
-        prompt = ChatPromptTemplate.from_messages(setup_message)
-        chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
-            {"run_name": f"{self.name}-connection"})
-        response = chain.invoke({"input": query})
-        return [el.name for el in response.classes]
-
-    def add_labels_create_embeddings(self, node):
+    def _add_labels_create_embeddings(self, node):
         """
-        For the given node, add alternative labels, create embeddings for each label,
-        and connect these embeddings to the node.
+        Add alternative labels and embeddings to a node after it is created.
 
         Args:
-            node (object): The ontology node to enhance with labels and embeddings.
+            node (object): The newly created node.
         """
         SETUP_MAPPER_EXAMPLES = {
             'matter': MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
@@ -363,65 +269,215 @@ class OntologyGenerator:
             'parameter': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
         }
         ontology_manager = OntologyManager()
-        ontology_class = ontology_manager.get_labels(node.name, SETUP_MAPPER_MESSAGES[self.label],
-                                                     examples=SETUP_MAPPER_EXAMPLES[self.label])
-        for label in ontology_class.alternative_labels:
-            # alternative_label_node = AlternativeLabel(label=label).save()
-            # node.alternative_label.connect(alternative_label_node)
-            embedding = request_embedding(label)
-            embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector=embedding, input=label).save()
+        label_info = ontology_manager.get_labels(
+            node.name,
+            SETUP_MAPPER_MESSAGES[self.label],
+            examples=SETUP_MAPPER_EXAMPLES[self.label]
+        )
+
+        # Attach each alternative label
+        for alt_label in label_info.alternative_labels:
+            embedding_vec = request_embedding(alt_label)
+            embedding_node = EMBEDDING_MODEL_MAP[self.label](
+                vector=embedding_vec,
+                input=alt_label
+            ).save()
             node.model_embedding.connect(embedding_node)
-        embedding_node = EMBEDDING_MODEL_MAPPER[self.label](vector=request_embedding(node.name), input=node.name).save()
-        node.model_embedding.connect(embedding_node)
 
-    def ontology_extension_prompt(self, input, ontology):
+        # Also embed the main name
+        main_embedding = request_embedding(node.name)
+        main_embedding_node = EMBEDDING_MODEL_MAP[self.label](
+            vector=main_embedding,
+            input=node.name
+        ).save()
+        node.model_embedding.connect(main_embedding_node)
+
+    def _connect_to_ontology(self, node):
         """
-        Create a prompt string for extending the ontology based on input and current ontology candidates.
+        Attempts to connect a node in the ontology by finding super-/subclass candidates.
 
         Args:
-            input (str): The input string for which to extend the ontology.
-            ontology (list): List of ontology candidates.
-
-        Returns:
-            str: A formatted prompt string.
+            node (object): The newly created or retrieved node.
         """
-        return f"Input: {input}\nContext: {self.context}\nCandidates: {', '.join([ont[0].name for ont in ontology])}"
+        if not node.emmo_subclass and not node.emmo_parentclass:
+            candidates = self._find_candidates(node)
+            connection_names = self._find_connection(candidates)
+            previous_node = None
+            for cname in connection_names:
+                # Check if there is an existing node with that name
+                search_res = node.nodes.get_by_string(
+                    string=cname,
+                    limit=8,
+                    include_similarity=True
+                )
+                if search_res and search_res[0][1] > 0.98:
+                    current_node = search_res[0][0]
+                else:
+                    current_node = self.ontology_class(name=cname)
+                    current_node.save()
 
-    def create_synonym(self, input, ontology, label):
+                if previous_node and previous_node != current_node:
+                    previous_node.emmo_parentclass.connect(current_node)
+                previous_node = current_node
+        else:
+            print(f"Node already connected: {node.name} -> {node.emmo_parentclass}, {node.emmo_subclass}")
+
+    def _find_candidates(self, node):
         """
-        Use an LLM to create a synonym for a given input that doesn't closely match existing ontology nodes.
+        Use an LLM to suggest parent or child candidates for the node in the ontology.
 
         Args:
-            input (str): The input string for which to create a synonym.
-            ontology (list): List of ontology nodes or candidates.
-            label (str): The label/category of the input.
+            node (object): The node needing candidates.
 
         Returns:
-            str: A synonym or adjusted string suggested by the LLM.
+            list: A list of candidate nodes or classes for linking.
         """
-        prompt = self.ontology_extension_prompt(input, ontology)
-        output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[label])
-        return output
+        ONTOLOGY_CANDIDATES = {
+            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
+            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
+            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
+        }
 
-    def extend_ontology(self, input, ontology, label):
+        ONTOLOGY_CANDIDATES_EXAMPLES = {
+            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_EXAMPLES,
+            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
+            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES
+        }
+
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
+        setup_message = ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name]
+        prompt = ChatPromptTemplate.from_messages(setup_message)
+
+        # Potential matches:
+        raw_candidates = self.ontology_class.nodes.get_by_string(
+            string=node.name, limit=8, include_similarity=False
+        )
+        candidate_names = ", ".join([c.name for c in raw_candidates if c.name != node.name])
+        query = f"Input: {node.name}\nCandidates: {candidate_names}\nContext: {self.context}"
+
+        # Add few-shot examples if available
+        if examples := ONTOLOGY_CANDIDATES_EXAMPLES[self.ontology_class._meta.object_name]:
+            example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
+            few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
+            prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
+
+        chain = create_structured_output_runnable(Response, llm, prompt).with_config(
+            {"run_name": f"{node.name}-generation"}
+        )
+        ontology_advice = chain.invoke({"input": query})
+
+        chosen_candidate = ontology_advice.answer
+        if chosen_candidate is None:
+            # No suggestion from LLM, gather superclasses for all potential matches
+            uids = list(dict.fromkeys([c.uid for c in raw_candidates if c.name != node.name]))
+            return node.get_superclasses(uids)
+        elif isinstance(chosen_candidate, ChildClass):
+            # LLM suggests a child
+            target_uid = raw_candidates[[c.name for c in raw_candidates].index(chosen_candidate.child_name)].uid
+            return node.get_subclasses([target_uid])
+        else:
+            # LLM suggests a parent
+            target_uid = raw_candidates[[c.name for c in raw_candidates].index(chosen_candidate.parent_name)].uid
+            return node.get_superclasses([target_uid])
+
+    @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
+    def _find_connection(self, candidates):
         """
-        Extend the ontology by creating and saving a new ontology node.
+        Given a list of candidate classes, use an LLM to find the connection chain.
 
         Args:
-            input (str): The name for the new ontology node.
-            ontology (list): A list of related ontology candidates (unused in the method).
-            label (str): The label/category of the new node.
+            candidates (list): Candidate classes or nodes.
 
         Returns:
-            object: The newly created ontology node.
+            list[str]: Class names in the order they should be connected.
         """
-        ontology_node = ONTOLOGY_MAPPER[label](name=input)
-        self.save_ontology_node(ontology_node)
-        return ontology_node
+        ONTOLOGY_CONNECTOR = {
+            'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
+            'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
+            'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
+        }
+
+        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
+        setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
+        names_for_prompt = ", ".join([c[1] for c in candidates])
+        query = f"Input: {self.label}, candidates: {names_for_prompt}"
+
+        prompt = ChatPromptTemplate.from_messages(setup_message)
+        chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
+            {"run_name": f"{self.label}-connection"}
+        )
+        response = chain.invoke({"input": query})
+        return [cls.name for cls in response.classes]
+
+
+##############################################################################
+# 4) PIPELINE CLASS
+##############################################################################
+
+class OntologyPipeline:
+    """
+    Single-step pipeline class that:
+      1. Parses the provided data & CSV using DataParser.
+      2. Maps each name to the ontology using OntologyMapper.
+      3. Collects and returns the results.
+    """
+
+    def __init__(self, data, file_link, context):
+        """
+        Args:
+            data (dict): Input data (including nodes, attributes).
+            file_link (str): Link to the CSV file containing columns.
+            context (str): Context string used during ontology mapping.
+        """
+        self.data = data
+        self.file_link = file_link
+        self.context = context
+        self._results = []  # Will hold {'name': str, 'label': str, 'uid': ...}
 
     def run(self):
         """
-        Placeholder run method. Currently attempts to call a non-existent method `map_on_ontology`.
-        This likely needs implementation or correction.
+        Run the pipeline: parse data and map each (label, name_value) to an ontology node.
         """
-        self.map_on_ontology()
+        # 1) Parse the data
+        parser = DataParser(self.data, self.file_link)
+        parser.parse_data()
+
+        # 2) For each (label, name_value) pair, map to ontology
+        seen_pairs = set()  # Avoid re-mapping duplicates
+        for label, name_value in parser.rows_to_map:
+            if (label, name_value) in seen_pairs:
+                continue
+
+            seen_pairs.add((label, name_value))
+            # Skip metadata, just in case
+            if label == 'metadata':
+                continue
+
+            if label in ONTOLOGY_CLASS_MAP:
+                ontology_class = ONTOLOGY_CLASS_MAP[label]
+                mapper = OntologyMapper(self.context, label, ontology_class)
+                node = mapper.map_name(name_value)
+                # Store result
+                self._results.append({
+                    'name': name_value,
+                    'label': label,
+                    'uid': node.uid,
+                    'ontology_class': ontology_class.__name__
+                })
+            else:
+                print(f"Unknown label: {label}. Skipping...")
+
+    @property
+    def results(self):
+        """
+        Returns:
+            list[dict]: A list of mappings with fields:
+                          - name (str)
+                          - label (str)
+                          - uid (str)
+                          - ontology_class (str)
+        """
+        return self._results
+
+
+

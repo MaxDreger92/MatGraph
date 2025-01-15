@@ -1,483 +1,1022 @@
-import csv
-import os
-from io import StringIO
+import uuid
+from datetime import date, datetime
 
-from langchain_community.chains.ernie_functions.base import create_structured_output_runnable
-from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from langchain_openai import ChatOpenAI
-from tenacity import retry, stop_after_attempt, wait_fixed
-
-from graphutils.config import CHAT_GPT_MODEL
-from graphutils.embeddings import request_embedding
-# from graphutils.models import AlternativeLabel
-from importing.OntologyMapper.setupMessages import (
-    PARAMETER_SETUP_MESSAGE,
-    MEASUREMENT_SETUP_MESSAGE,
-    MANUFACTURING_SETUP_MESSAGE,
-    MATTER_SETUP_MESSAGE,
-    PROPERTY_SETUP_MESSAGE
-)
-from importing.utils.openai import chat_with_gpt3
-from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
-from matgraph.models.metadata import File
-from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
-from ontologymanagement.examples import (
-    MATTER_ONTOLOGY_CANDIDATES_EXAMPLES,
-    PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
-    QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES,
-    MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
-    PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
-    QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES
-)
-from ontologymanagement.ontologyManager import OntologyManager
-from ontologymanagement.schema import Response, ChildClass, ClassList
-from ontologymanagement.setupMessages import (
-    MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
-    PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
-    QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES,
-    MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
-    PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-    QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
-    MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
-    PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
-    QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
-)
+from neo4j.time import Date
+from neomodel import DateTimeProperty, DateProperty
 
 
-##############################################################################
-# 1) GLOBAL HELPERS & CONSTANTS
-##############################################################################
+class Neo4JHandler:
+    pass
 
-ONTOLOGY_CLASS_MAP = {
-    'matter': EMMOMatter,
-    'manufacturing': EMMOProcess,
-    'measurement': EMMOProcess,
-    'parameter': EMMOQuantity,
-    'property': EMMOQuantity
-}
+class Neo4jOrganizationalDataHandler(Neo4JHandler):
+    def _save_to_neo4j(self):
+        # Ensure the OrganizationalData instance is linked to an Experiment
+        if not self.experiment:
+            print("No associated Experiment found. Skipping Neo4j synchronization.")
+            return
 
-SETUP_MESSAGES = {
-    'matter': MATTER_SETUP_MESSAGE,
-    'manufacturing': MANUFACTURING_SETUP_MESSAGE,
-    'measurement': MEASUREMENT_SETUP_MESSAGE,
-    'parameter': PARAMETER_SETUP_MESSAGE,
-    'property': PROPERTY_SETUP_MESSAGE
-}
+        experiment_uid = str(self.experiment.uid)
+        organizational_data_uid = str(self.uid)
 
-EMBEDDING_MODEL_MAP = {
-    'matter': MatterEmbedding,
-    'manufacturing': ProcessEmbedding,
-    'measurement': ProcessEmbedding,
-    'parameter': QuantityEmbedding,
-    'property': QuantityEmbedding
-}
+        # Parse fields that may contain multiple entries
+        authors = self.author.split('\n') if self.author else []
+        authors = [author.strip() for author in authors if author.strip()]
 
+        # Handle publication fields
+        publications = []
+        if self.publication:
+            publications.append({
+                "uid": str(uuid.uuid4()),
+                "key": "publication",
+                "value": self.publication,
+                "specific_label": "Publication"
+            })
 
-##############################################################################
-# 2) DATAPARSER
-##############################################################################
+        # Handle authors as separate metadata entries
+        author_entries = []
+        for author in authors:
+            author_entries.append({
+                "uid": str(uuid.uuid4()),
+                "key": "author",
+                "value": author,
+                "specific_label": "Author"
+            })
 
-class DataParser:
-    """
-    Class to parse CSV data and extract name/label information from the input data.
-    This class does NOT do any ontology mapping; it only gathers the raw items
-    that need to be mapped.
-    """
+        # Handle other metadata fields with their specific labels
+        metadata_entries = []
 
-    def __init__(self, data, file_link):
-        """
-        Initialize a DataParser instance.
+        # Institution
+        if self.institution:
+            metadata_entries.append({
+                "uid": str(uuid.uuid4()),
+                "key": "institution",
+                "value": self.institution,
+                "specific_label": "Institution"
+            })
 
-        Args:
-            data (dict): Graph data containing nodes and their attributes.
-            file_link (str): Link to a CSV file containing additional info.
-        """
-        self.data = data
-        self.file_link = file_link
-        self._table = self._load_table()
-        self._rows_to_map = []  # Will store (label, name_value) pairs
+        # Founding Body
+        if self.founding_body:
+            metadata_entries.append({
+                "uid": str(uuid.uuid4()),
+                "key": "founding_body",
+                "value": self.founding_body,
+                "specific_label": "FoundingBody"
+            })
 
-    def _load_table(self):
-        """
-        Load CSV data from a file node, decode, parse, and transpose.
+        # Additional Metadata with specific labels
+        additional_metadata = {
+            "country": "Country",
+            "topic": "Topic",
+            "device": "Device",
+            "component": "Component",
+            "subcomponent": "Subcomponent",
+            "granularity_level": "GranularityLevel",
+            "format": "Format",
+            "file_size": "FileSize",
+            "file_size_unit": "FileSizeUnit",
+            "file_name": "File",
+            "dimension_x": "DimensionX",
+            "dimension_y": "DimensionY",
+            "dimension_z": "DimensionZ",
+            "pixel_per_metric": "PixelPerMetric",
+            "link": "Link",
+            "mask_exist": "MaskExist",
+            "mask_link": "MaskLink",
+            "doi": "DOI",
+            "journal": "Journal",
+            "volume": "Volume",
+            "issue": "Issue",
+            "pages": "Pages",
+            "publication_date": "PublicationDate",
+            "orcid": "ORCID",
+            "email": "Email",
+            "published": "Published",
+            # Add other fields as necessary
+        }
 
-        Returns:
-            list[list[str]]: Transposed columns of CSV data.
-        """
-        file_node = File.nodes.get(link=self.file_link)
-        file_content = file_node.get_file().decode('utf-8')
-        csv_reader = csv.reader(StringIO(file_content))
-        columns = list(zip(*csv_reader))
-        # Remove empty values:
-        return [list(filter(None, col)) for col in columns]
-
-    def parse_data(self):
-        """
-        Go through each node in the data and extract (label, name_value) pairs.
-        Skips 'metadata' label. If a node references a table index, collect
-        all column values as well.
-        """
-        for node in self.data.get('nodes', []):
-            if node.get('label') == 'metadata':
-                continue
-
-            label = node['label']
-            names_field = node['attributes']['name']
-            name_list = names_field if isinstance(names_field, list) else [names_field]
-
-            for name_item in name_list:
-                index_value = name_item.get('index', 'inferred')
-                string_value = name_item.get('value')
-
-                # If "inferred" or no table index is provided
-                if index_value == 'inferred':
-                    self._rows_to_map.append((label, string_value))
+        for key, label in additional_metadata.items():
+            value = getattr(self, key, None)
+            if value:
+                if isinstance(value, list):
+                    for item in value:
+                        metadata_entries.append({
+                            "uid": str(uuid.uuid4()),
+                            "key": key,
+                            "value": item,
+                            "specific_label": label
+                        })
                 else:
-                    # Pull entire column from the CSV table
-                    col_index = int(index_value)
-                    for col_value in self._table[col_index]:
-                        self._rows_to_map.append((label, col_value))
+                    metadata_entries.append({
+                        "uid": str(uuid.uuid4()),
+                        "key": key,
+                        "value": value,
+                        "specific_label": label
+                    })
 
-    @property
-    def rows_to_map(self):
-        """
-        Returns:
-            list[tuple(str, str)]: A list of (label, name_value) pairs
-                                   extracted from the data.
-        """
-        return self._rows_to_map
+        # Combine all metadata entries
+        all_metadata = publications + author_entries + metadata_entries
 
+        # Prepare the Cypher query
+        cypher_query = """
+        // Merge the Experiment node
+        MERGE (e:Experiment {uid: $experiment_uid})
+        WITH *
+        // Iterate over each metadata entry
+        UNWIND $metadata_entries AS meta
+        CALL {
+            WITH e, meta
+            // Create the Metadata node with the base label
+            MERGE (m:Metadata {uid: meta.uid})
+            SET m.value = meta.value
+            WITH *
 
-##############################################################################
-# 3) ONTOLOGY MAPPER
-##############################################################################
-
-class OntologyMapper:
-    """
-    Class responsible for taking a single name (plus context, label, and the
-    corresponding ontology class) and mapping it to the ontology.
-    """
-
-    def __init__(self, context, label, ontology_class):
-        """
-        Args:
-            context (str): Context to use when generating or connecting nodes.
-            label (str): Category label for the name (e.g., 'matter', 'property').
-            ontology_class (class): The corresponding Ontology class (e.g., EMMOMatter).
-        """
-        self.context = context
-        self.label = label
-        self.ontology_class = ontology_class
-
-    def map_name(self, name_value):
-        """
-        Map a single name_value to the ontology, retrieving or creating a node.
-
-        Args:
-            name_value (str): The raw name to map.
-
-        Returns:
-            object: The ontology node that represents this name.
-        """
-        # Attempt to find similar nodes
-        found_nodes = self.ontology_class.nodes.get_by_string(
-            string=name_value.replace("_", " "),
-            limit=15,
-            include_similarity=True
-        )
-        # If no node is sufficiently similar, try to create a synonym or new node
-        if not found_nodes or found_nodes[0][1] < 0.97:
-            # Let's propose a synonym
-            new_name = self._create_synonym(name_value, found_nodes)
-            new_search = self.ontology_class.nodes.get_by_string(
-                string=new_name, limit=15, include_similarity=True
-            )
-            if not new_search or new_search[0][1] < 0.97:
-                # Create a brand new node
-                ontology_node = self.ontology_class(name=new_name)
-                self._save_node(ontology_node)
-                return ontology_node
-            else:
-                return new_search[0][0]
-        else:
-            return found_nodes[0][0]
-
-    def _save_node(self, node):
-        """
-        Save a newly created node, add embeddings, and connect it in the ontology.
-
-        Args:
-            node (object): An instance of the ontology node (e.g., EMMOMatter).
-        """
-        node.save()
-        self._add_labels_create_embeddings(node)
-        self._connect_to_ontology(node)
-
-    def _create_synonym(self, input_text, found_nodes):
-        """
-        Use an LLM to propose a synonym for input_text if existing nodes are not sufficiently similar.
-
-        Args:
-            input_text (str): The text needing a synonym.
-            found_nodes (list): Nodes returned by the ontology query (with similarity scores).
-
-        Returns:
-            str: A synonym or refined label from the LLM.
-        """
-        prompt = self._ontology_extension_prompt(input_text, found_nodes)
-        # Use your existing chat_with_gpt3 function
-        output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[self.label])
-        return output
-
-    def _ontology_extension_prompt(self, input_text, ontology_list):
-        """
-        Format a prompt describing the context and candidate ontology nodes for the LLM.
-
-        Args:
-            input_text (str): The raw text to be extended/refined.
-            ontology_list (list): List of found ontology nodes with similarities.
-
-        Returns:
-            str: Formatted prompt text.
-        """
-        candidate_names = ", ".join([n[0].name for n in ontology_list])
-        return (
-            f"Input: {input_text}\n"
-            f"Context: {self.context}\n"
-            f"Candidates: {candidate_names}"
-        )
-
-    def _add_labels_create_embeddings(self, node):
-        """
-        Add alternative labels and embeddings to a node after it is created.
-
-        Args:
-            node (object): The newly created node.
-        """
-        SETUP_MAPPER_EXAMPLES = {
-            'matter': MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
-            'manufacturing': PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
-            'measurement': PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
-            'property': QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES,
-            'parameter': QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES
+            // Dynamically add the specific label based on meta.key
+            CALL apoc.create.addLabels(m, [meta.specific_label]) YIELD node
+            MERGE (e)-[:HAS_METADATA]->(m)
+            RETURN node
         }
-        SETUP_MAPPER_MESSAGES = {
-            'matter': MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
-            'manufacturing': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
-            'measurement': PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
-            'property': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES,
-            'parameter': QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES
+        RETURN True
+        
+        """
+
+        parameters = {
+            "experiment_uid": experiment_uid,
+            "metadata_entries": all_metadata,
         }
-        ontology_manager = OntologyManager()
-        label_info = ontology_manager.get_labels(
-            node.name,
-            SETUP_MAPPER_MESSAGES[self.label],
-            examples=SETUP_MAPPER_EXAMPLES[self.label]
-        )
 
-        # Attach each alternative label
-        for alt_label in label_info.alternative_labels:
-            embedding_vec = request_embedding(alt_label)
-            embedding_node = EMBEDDING_MODEL_MAP[self.label](
-                vector=embedding_vec,
-                input=alt_label
-            ).save()
-            node.model_embedding.connect(embedding_node)
+        # Execute the Cypher query
+        try:
+            output, meta = db.cypher_query(cypher_query, params=parameters)
+            print("Neo4j OrganizationalData Query Output:", output)
+        except Exception as e:
+            print("Error executing Neo4j OrganizationalData query:", e)
 
-        # Also embed the main name
-        main_embedding = request_embedding(node.name)
-        main_embedding_node = EMBEDDING_MODEL_MAP[self.label](
-            vector=main_embedding,
-            input=node.name
-        ).save()
-        node.model_embedding.connect(main_embedding_node)
 
-    def _connect_to_ontology(self, node):
-        """
-        Attempts to connect a node in the ontology by finding super-/subclass candidates.
-
-        Args:
-            node (object): The newly created or retrieved node.
-        """
-        if not node.emmo_subclass and not node.emmo_parentclass:
-            candidates = self._find_candidates(node)
-            connection_names = self._find_connection(candidates)
-            previous_node = None
-            for cname in connection_names:
-                # Check if there is an existing node with that name
-                search_res = node.nodes.get_by_string(
-                    string=cname,
-                    limit=8,
-                    include_similarity=True
+class Neo4jFabricationWorkflowHandler(Neo4JHandler):
+    def _save_to_neo4j(self):
+        # Cypher query to merge Synthesis and its Steps, including ordered relationships
+        cypher_query = """
+    // Merge the Synthesis node
+    MERGE (e:Experiment:Process {uid: $experiment_uid})
+    MERGE (s:Manufacturing:Process {uid: $uid, type: $type})
+    MERGE (e)-[:HAS_PART]->(s)
+    WITH s, $steps AS steps, $experiment_uid AS experiment_uid
+    
+    // Iterate over each step
+    UNWIND steps AS step
+    CALL {
+        // Create or merge Manufacturing node
+        WITH step, experiment_uid, s
+        CREATE (ss:Manufacturing {uid: step.uid})
+        MERGE (s)-[:HAS_PART]->(ss)
+        SET ss.name = step.technique, ss.order = step.order
+        WITH *
+    
+        // Associate Precursor Materials
+        CALL {
+            WITH ss, step, experiment_uid
+            UNWIND step.precursor_materials AS precursor
+                MERGE (mp:Matter {name: precursor.name, experiment_uid: experiment_uid})
+                ON CREATE SET mp.uid = precursor.uid
+                FOREACH(ignore IN CASE WHEN precursor.amount IS NOT NULL AND precursor.unit IS NOT NULL THEN [1] ELSE [] END |
+                    CREATE (p:Property {value: precursor.amount, unit: precursor.unit, uid: apoc.create.uuid()})
+                    MERGE (mp)-[:HAS_AMOUNT]->(p)
                 )
-                if search_res and search_res[0][1] > 0.98:
-                    current_node = search_res[0][0]
-                else:
-                    current_node = self.ontology_class(name=cname)
-                    current_node.save()
+                MERGE (mp)-[:IS_MANUFACTURING_INPUT]->(ss)
+        }
+    
+        // Associate Target Materials
+        CALL {
+            WITH ss, step, experiment_uid
+            UNWIND step.target_materials AS target
+                MERGE (mt:Matter {name: target.name, experiment_uid: experiment_uid})
+                ON CREATE SET mt.uid = target.uid
+                FOREACH(ignore IN CASE WHEN target.amount IS NOT NULL AND target.unit IS NOT NULL THEN [1] ELSE [] END |
+                    CREATE (p:Property {value: target.amount, unit: target.unit, uid: apoc.create.uuid()})
+                    MERGE (mt)-[:HAS_AMOUNT]->(p)
+                )
+                MERGE (ss)-[:HAS_MANUFACTURING_OUTPUT]->(mt)
+        }
+    
+        // Associate Parameters
+        CALL {
+            WITH ss, step
+            UNWIND step.parameters AS param
+                CREATE (pa:Parameter {uid: param.uid})
+                SET pa.name = param.name, pa.value = param.value, pa.unit = param.unit
+                FOREACH(ignore IN CASE WHEN param.error IS NOT NULL THEN [1] ELSE [] END |
+                    SET pa.error = param.error
+                )
+                MERGE (ss)-[:HAS_PARAMETER]->(pa)
+        }
+    
+        // Associate Metadata
+        CALL {
+            WITH ss, step
+            UNWIND step.metadatas AS meta
+                CREATE (md:Metadata {uid: meta.uid})
+                SET md.key = meta.key, md.value = meta.value
+                MERGE (ss)-[:HAS_METADATA]->(md)
+        }
+        }
+    
+    // After processing all steps, create ordered relationships between them
+    WITH steps
+    UNWIND range(0, size(steps) - 2) AS idx
+        MATCH (current:Manufacturing {uid: steps[idx].uid})
+        MATCH (next:Manufacturing {uid: steps[idx + 1].uid})
+        MERGE (current)-[:FOLLOWED_BY]->(next)
+    
+            """
+        # Prepare parameters
+        steps_queryset = self.steps.all().order_by('order')
+        steps_data = []
+        for step in steps_queryset:
+            step_data = {
 
-                if previous_node and previous_node != current_node:
-                    previous_node.emmo_parentclass.connect(current_node)
-                previous_node = current_node
-        else:
-            print(f"Node already connected: {node.name} -> {node.emmo_parentclass}, {node.emmo_subclass}")
+                "uid": str(step.uid),  # Convert UUID to string
+                "order": step.order,
+                "technique_id": str(step.technique.uid) if step.technique else None,  # Convert UUID to string
+                'technique': step.technique.name if step.technique else None,
+                "precursor_materials": [
+                    {
+                        "uid": str(material['uid']),
+                        "name": material['name'],
+                        "amount": material['amount'],
+                        "unit": material['unit']
+                    }
+                    for material in step.precursor_materials.all().values('uid', 'name', 'amount', 'unit')
+                ],
+                "target_materials": [
+                    {
+                        "uid": str(material['uid']),
+                        "name": material['name'],
+                        "amount": material['amount'],
+                        "unit": material['unit']
+                    }
+                    for material in step.target_materials.all().values('uid', 'name', 'amount', 'unit')
+                ],
+                "parameters": [
+                    {
+                        "uid": str(param['uid']),
+                        "name": param['name'],
+                        "value": param['value'],
+                        "unit": param['unit'],
+                        "error": param['error']
+                    }
+                    for param in step.parameter.all().values('uid', 'name', 'value', 'unit', 'error')
+                ],
+                "metadatas": [
+                    {
+                        "uid": str(meta['uid']),
+                        "key": meta['key'],
+                        "value": meta['value']
+                    }
+                    for meta in step.metadata.all().values('uid', 'key', 'value')
+                ],
+            }
+            steps_data.append(step_data)
+        parameters = {
+            "step_number": len(steps_data),
+            "experiment_uid": str(self.experiment.uid),
+            "uid": str(self.uid),
+            "steps": steps_data,
+            "type": self.__class__.__name__,
+        }
+        output = db.cypher_query(cypher_query, params=parameters)
 
-    def _find_candidates(self, node):
-        """
-        Use an LLM to suggest parent or child candidates for the node in the ontology.
 
-        Args:
-            node (object): The node needing candidates.
+class Neo4jDataHandler(Neo4JHandler):
+    def _save_to_neo4j(self):
+        # Cypher query to merge Analysis and its Steps, including ordered relationships
+        cypher_query = """
+            // Merge the Analysis node
+            MERGE (e:Experiment:Process {uid: $experiment_uid})
+            MERGE (a:Process:DataProcessing {uid: $uid, type: $type})
+            MERGE (e)-[:HAS_PART]->(a)
+            WITH a, $steps AS steps, $experiment_uid AS experiment_uid
+            
+            // Iterate over each step
+            UNWIND steps AS step
+            CALL {
+                // Create or merge AnalysisStep node
+                WITH step, experiment_uid, a
+                MERGE (as:DataProcessing {uid: step.uid})
+                MERGE (a)-[:HAS_PART]->(as)
+                SET as.technique = step.technique, as.order = step.order
+                WITH as, step, experiment_uid
+    
+                // Associate Data Inputs
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.data_inputs AS data_in
+                    MERGE (di:Data {uid: data_in.uid})
+                    SET di.data_type = data_in.data_type,
+                        di.data_format = data_in.data_format,
+                        di.link = data_in.link
+                    MERGE (di)-[:IS_DATA_PROCESSING_INPUT]->(as)
+                }
+                WITH as, step, experiment_uid
+    
+                // Associate Quantity Inputs
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.quantity_inputs AS qty_in
+                    MERGE (qi:Property {uid: qty_in.uid})
+                    SET qi.name = qty_in.name,
+                        qi.value = qty_in.value,
+                        qi.unit = qty_in.unit,
+                        qi.error = qty_in.error
+                    MERGE (qi)-[:IS_DATA_PROCESSING_INPUT]->(as)
+                }
+                WITH as, step, experiment_uid
+    
+                // Associate Parameters
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.parameters AS param
+                    MERGE (p:Quantity {uid: param.uid})
+                    SET p.name = param.name,
+                        p.value = param.value,
+                        p.unit = param.unit,
+                        p.error = param.error
+                    MERGE (as)-[:HAS_PARAMETER]->(p)
+                }
+                WITH as, step, experiment_uid
+    
+                // Associate Data Results
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.data_results AS data_res
+                    MERGE (dr:Data {uid: data_res.uid})
+                    SET dr.data_type = data_res.data_type,
+                        dr.data_format = data_res.data_format,
+                        dr.link = data_res.link
+                    MERGE (as)-[:GENERATES_DATA]->(dr)
+                    }
+                WITH as, step, experiment_uid
+    
+                // Associate Quantity Results
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.quantity_results AS qty_res
+                    MERGE (qr:Quantity {uid: qty_res.uid})
+                    SET qr.name = qty_res.name,
+                        qr.value = qty_res.value,
+                        qr.unit = qty_res.unit,
+                        qr.error = qty_res.error
+                    MERGE (as)-[:GENERATES_QUANTITY]->(qr)
+                }
+                WITH as, step, experiment_uid
+    
+                // Associate Metadata
+                CALL {
+                WITH as, step, experiment_uid
+                UNWIND step.metadatas AS meta
+                    MERGE (m:Metadata {uid: meta.uid})
+                    SET m.key = meta.key,
+                        m.value = meta.value
+                    MERGE (as)-[:HAS_METADATA]->(m)
+                    }
+            }
+            
+            // After processing all steps, create ordered relationships between them
+            WITH steps
+            UNWIND range(0, size(steps) - 2) AS idx
+                MATCH (current:AnalysisStep {uid: steps[idx].uid})
+                MATCH (next:AnalysisStep {uid: steps[idx + 1].uid})
+                MERGE (current)-[:FOLLOWED_BY]->(next)
+            """
 
-        Returns:
-            list: A list of candidate nodes or classes for linking.
-        """
-        ONTOLOGY_CANDIDATES = {
-            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES
+        # Prepare parameters
+        steps_queryset = self.steps.all().order_by('order')
+        steps_data = []
+        for step in steps_queryset:
+            step_data = {
+                "uid": str(step.uid),  # Convert UUID to string
+                "order": step.order,
+                "technique": step.technique if step.technique else "",
+                "data_inputs": [
+                    {
+                        "uid": str(data.uid),
+                        "data_type": data.data_type,
+                        "data_format": data.data_format,
+                        "link": data.link
+                    }
+                    for data in step.data_inputs.all()
+                ],
+                "quantity_inputs": [
+                    {
+                        "uid": str(qty.uid),
+                        "name": qty.name,
+                        "value": qty.value,
+                        "unit": qty.unit,
+                        "error": qty.error
+                    }
+                    for qty in step.quantity_inputs.all()
+                ],
+                "parameters": [
+                    {
+                        "uid": str(param.uid),
+                        "name": param.name,
+                        "value": param.value,
+                        "unit": param.unit,
+                        "error": param.error
+                    }
+                    for param in step.parameter.all()
+                ],
+                "data_results": [
+                    {
+                        "uid": str(data.uid),
+                        "data_type": data.data_type,
+                        "data_format": data.data_format,
+                        "link": data.link
+                    }
+                    for data in step.data_results.all()
+                ],
+                "quantity_results": [
+                    {
+                        "uid": str(qty.uid),
+                        "name": qty.name,
+                        "value": qty.value,
+                        "unit": qty.unit,
+                        "error": qty.error
+                    }
+                    for qty in step.quantity_results.all()
+                ],
+                "metadatas": [
+                    {
+                        "uid": str(meta.uid),
+                        "key": meta.key,
+                        "value": meta.value
+                    }
+                    for meta in step.metadata.all()
+                ],
+            }
+            steps_data.append(step_data)
+
+        parameters = {
+            "uid": str(self.uid),
+            "experiment_uid": str(self.experiment.uid) if self.experiment else "",
+            "steps": steps_data,
+            "type": self.__class__.__name__,
         }
 
-        ONTOLOGY_CANDIDATES_EXAMPLES = {
-            'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_EXAMPLES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_EXAMPLES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CANDIDATES_EXAMPLES
+        # Execute the Cypher query
+        try:
+            output, meta = db.cypher_query(cypher_query, params=parameters)
+            print("Neo4j Analysis Query Output:", output)
+        except Exception as e:
+            print("Error executing Neo4j Analysis query:", e)
+
+class Neo4jMeasurementHandler(Neo4JHandler):
+    def _save_to_neo4j(self):
+        # Ensure the Measurement instance is linked to an Experiment
+        if not self.experiment:
+            print("No associated Experiment found. Skipping Neo4j synchronization.")
+            return
+
+        experiment_uid = str(self.experiment.uid)
+        measurement_uid = str(self.uid)
+
+        # Prepare the Cypher query
+        cypher_query = """
+        // Merge the Experiment node
+        MERGE (e:Experiment {uid: $experiment_uid})
+        
+        // Merge the Measurement node
+        MERGE (m:Measurement {uid: $measurement_uid})
+        SET m.measurement_method = $measurement_method,
+            m.measurement_type = $measurement_type,
+            m.specimen = $specimen,
+            m.temperature = $temperature,
+            m.temperature_unit = $temperature_unit,
+            m.pressure = $pressure,
+            m.pressure_unit = $pressure_unit,
+            m.atmosphere = $atmosphere,
+            m.created_at = $created_at,
+            m.updated_at = $updated_at
+        MERGE (e)-[:HAS_MEASUREMENT]->(m)
+        
+        // Link Measurement to Experiment
+        MERGE (e)-[:HAS_PART]->(m)
+        """
+
+        # Prepare parameters
+        parameters = {
+            "experiment_uid": experiment_uid,
+            "measurement_uid": measurement_uid,
+            "measurement_method": self.measurement_method,
+            "measurement_type": self.measurement_type,
+            "specimen": self.specimen,
+            "temperature": self.temperature,
+            "temperature_unit": self.temperature_unit,
+            "pressure": self.pressure,
+            "pressure_unit": self.pressure_unit,
+            "atmosphere": self.atmosphere,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
-        setup_message = ONTOLOGY_CANDIDATES[self.ontology_class._meta.object_name]
-        prompt = ChatPromptTemplate.from_messages(setup_message)
-
-        # Potential matches:
-        raw_candidates = self.ontology_class.nodes.get_by_string(
-            string=node.name, limit=8, include_similarity=False
-        )
-        candidate_names = ", ".join([c.name for c in raw_candidates if c.name != node.name])
-        query = f"Input: {node.name}\nCandidates: {candidate_names}\nContext: {self.context}"
-
-        # Add few-shot examples if available
-        if examples := ONTOLOGY_CANDIDATES_EXAMPLES[self.ontology_class._meta.object_name]:
-            example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
-            few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
-            prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
-
-        chain = create_structured_output_runnable(Response, llm, prompt).with_config(
-            {"run_name": f"{node.name}-generation"}
-        )
-        ontology_advice = chain.invoke({"input": query})
-
-        chosen_candidate = ontology_advice.answer
-        if chosen_candidate is None:
-            # No suggestion from LLM, gather superclasses for all potential matches
-            uids = list(dict.fromkeys([c.uid for c in raw_candidates if c.name != node.name]))
-            return node.get_superclasses(uids)
-        elif isinstance(chosen_candidate, ChildClass):
-            # LLM suggests a child
-            target_uid = raw_candidates[[c.name for c in raw_candidates].index(chosen_candidate.child_name)].uid
-            return node.get_subclasses([target_uid])
-        else:
-            # LLM suggests a parent
-            target_uid = raw_candidates[[c.name for c in raw_candidates].index(chosen_candidate.parent_name)].uid
-            return node.get_superclasses([target_uid])
-
-    @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
-    def _find_connection(self, candidates):
-        """
-        Given a list of candidate classes, use an LLM to find the connection chain.
-
-        Args:
-            candidates (list): Candidate classes or nodes.
-
-        Returns:
-            list[str]: Class names in the order they should be connected.
-        """
-        ONTOLOGY_CONNECTOR = {
-            'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
-            'EMMOQuantity': QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES,
-        }
-
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
-        setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
-        names_for_prompt = ", ".join([c[1] for c in candidates])
-        query = f"Input: {self.label}, candidates: {names_for_prompt}"
-
-        prompt = ChatPromptTemplate.from_messages(setup_message)
-        chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
-            {"run_name": f"{self.label}-connection"}
-        )
-        response = chain.invoke({"input": query})
-        return [cls.name for cls in response.classes]
+        # Execute the Cypher query
+        try:
+            output, meta = db.cypher_query(cypher_query, params=parameters)
+            print("Neo4j Measurement Query Output:", output)
+        except Exception as e:
+            print("Error executing Neo4j Measurement query:", e)
 
 
-##############################################################################
-# 4) PIPELINE CLASS
-##############################################################################
 
-class OntologyPipeline:
+import os
+import json
+import csv
+from neomodel import db
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        print("DEBUG type:", type(obj))  # For debugging
+        if isinstance(obj, (date, datetime, DateTimeProperty, DateProperty, Date)):
+            print("DEBUG type:", type(obj))  # For debugging
+            return obj.isoformat()
+        return super().default(obj)
+
+class Neo4jDataRetrievalHandler:
     """
-    Single-step pipeline class that:
-      1. Parses the provided data & CSV using DataParser.
-      2. Maps each name to the ontology using OntologyMapper.
-      3. Collects and returns the results.
+    A handler that retrieves all data related to a given Experiment from Neo4j.
+    It can return the data in JSON format or write CSV files to disk.
     """
 
-    def __init__(self, data, file_link, context):
+    def get_experiment_data(self, experiment_uid, output_format='json', base_path='.'):
         """
-        Args:
-            data (dict): Input data (including nodes, attributes).
-            file_link (str): Link to the CSV file containing columns.
-            context (str): Context string used during ontology mapping.
+        Main entry point to retrieve data for a given experiment UID.
+
+        :param experiment_uid: (str) The UID of the Experiment node.
+        :param output_format: (str) 'json' or 'csv'
+        :param base_path: (str) Path where CSV files will be saved if output_format='csv'.
+        :return:
+            - If 'json', returns a JSON string with the entire data.
+            - If 'csv', writes multiple CSV files to `base_path` and returns a
+              dict describing the written files.
         """
-        self.data = data
-        self.file_link = file_link
-        self.context = context
-        self._results = []  # Will hold {'name': str, 'label': str, 'uid': ...}
+        # 1) Retrieve basic experiment node info
+        print("Fetching experiment data...")
+        experiment_data = self._fetch_experiment(experiment_uid)
+        print("Experiment data:", experiment_data)
 
-    def run(self):
+        # 2) Retrieve organizational data (Metadata attached directly to experiment)
+        organizational_data = self._fetch_organizational_data(experiment_uid)
+
+        # 3) Retrieve measurement data
+        measurement_data = self._fetch_measurements(experiment_uid)
+
+        # 4) Retrieve manufacturing (synthesis) data
+        synthesis_data = self._fetch_synthesis(experiment_uid)
+
+        # 5) Retrieve data processing (analysis, etc.) steps
+        analysis_data = self._fetch_data_processing(experiment_uid)
+
+        # Combine everything in a single Python dictionary
+        result = {
+            "experiment": experiment_data,              # Basic experiment node
+            "organizational_data": organizational_data, # List of metadata nodes
+            "measurements": measurement_data,           # List of measurement nodes
+            "fabrication_workflow": synthesis_data,     # Synthesis steps
+            "data_processing": analysis_data            # Analysis steps
+        }
+
+        if output_format == 'json':
+            return json.dumps(result, cls= DateTimeEncoder, indent=2)
+        elif output_format == 'csv':
+            return self._write_csv_files(result, base_path)
+        else:
+            raise ValueError("Output format must be either 'json' or 'csv'.")
+
+    # --------------------------------------------------------------------------
+    #                             INTERNAL METHODS
+    # --------------------------------------------------------------------------
+
+    def _fetch_experiment(self, experiment_uid):
         """
-        Run the pipeline: parse data and map each (label, name_value) to an ontology node.
+        Fetches basic info of the Experiment node.
+        Adjust the return structure to your liking (e.g., collecting more properties).
         """
-        # 1) Parse the data
-        parser = DataParser(self.data, self.file_link)
-        parser.parse_data()
+        query = """
+        MATCH (e:Experiment {uid: $uid})
+        RETURN e.uid AS uid
+        """
+        results, meta = db.cypher_query(query, {"uid": experiment_uid})
+        print("res",results)
+        if not results:
+            return {}
+        row = results[0]
+        return {
+            "uid": row[0]
+        }
 
-        # 2) For each (label, name_value) pair, map to ontology
-        seen_pairs = set()  # Avoid re-mapping duplicates
-        for label, name_value in parser.rows_to_map:
-            if (label, name_value) in seen_pairs:
-                continue
+    def _fetch_organizational_data(self, experiment_uid):
+        """
+        Fetch all `Metadata` nodes attached directly to the Experiment.
+        This corresponds to your organizational data (authors, publication, etc.).
+        """
+        query = """
+        MATCH (e:Experiment {uid: $uid})-[:HAS_METADATA]->(m:Metadata)
+        RETURN m.uid AS uid, m.value AS value, labels(m) AS labels
+        ORDER BY m.uid
+        """
+        results, meta = db.cypher_query(query, {"uid": experiment_uid})
+        data = []
+        for row in results:
+            data.append({
+                "uid": row[0],
+                "value": row[1],
+                "labels": row[2]  # e.g. ["Metadata","Author"] or ["Metadata","Publication"], etc.
+            })
+        return data
 
-            seen_pairs.add((label, name_value))
-            # Skip metadata, just in case
-            if label == 'metadata':
-                continue
+    def _fetch_measurements(self, experiment_uid):
+        """
+        Fetch `Measurement` nodes attached to the Experiment.
+        """
+        query = """
+        MATCH (e:Experiment {uid: $uid})-[:HAS_MEASUREMENT]->(m:Measurement)
+        RETURN m.uid AS uid,
+               m.measurement_method AS measurement_method,
+               m.measurement_type AS measurement_type,
+               m.specimen AS specimen,
+               m.temperature AS temperature,
+               m.temperature_unit AS temperature_unit,
+               m.pressure AS pressure,
+               m.pressure_unit AS pressure_unit,
+               m.atmosphere AS atmosphere,
+               m.created_at AS created_at,
+               m.updated_at AS updated_at
+        ORDER BY m.uid
+        """
+        results, meta = db.cypher_query(query, {"uid": experiment_uid})
+        data = []
+        for row in results:
+            data.append({
+                "uid": row[0],
+                "measurement_method": row[1],
+                "measurement_type": row[2],
+                "specimen": row[3],
+                "temperature": row[4],
+                "temperature_unit": row[5],
+                "pressure": row[6],
+                "pressure_unit": row[7],
+                "atmosphere": row[8],
+                "created_at": row[9],
+                "updated_at": row[10],
+            })
+        return data
 
-            if label in ONTOLOGY_CLASS_MAP:
-                ontology_class = ONTOLOGY_CLASS_MAP[label]
-                mapper = OntologyMapper(self.context, label, ontology_class)
-                node = mapper.map_name(name_value)
-                # Store result
-                self._results.append({
-                    'name': name_value,
-                    'label': label,
-                    'uid': node.uid,
-                    'ontology_class': ontology_class.__name__
+    def _fetch_synthesis(self, experiment_uid):
+        """
+        Retrieve the manufacturing processes (FabricationWorkflow).
+        This can be as detailed as you like, e.g. also fetch step details, parameters, etc.
+        Below is a simplified example returning nodes and basic relationship structure.
+        """
+        query = """
+        // For top-level Synthesis processes
+        MATCH (e:Experiment {uid: $uid})-[:HAS_PART]->(s:Manufacturing:Process)
+        RETURN s.uid AS synthesis_uid, s.type AS type
+        """
+        results, meta = db.cypher_query(query, {"uid": experiment_uid})
+        synthesis_list = []
+        for row in results:
+            synthesis_uid = row[0]
+            synthesis_list.append({
+                "uid": synthesis_uid,
+                "type": row[1],
+                "steps": self._fetch_synthesis_steps(synthesis_uid)
+            })
+        return synthesis_list
+
+    def _fetch_synthesis_steps(self, synthesis_uid):
+        """
+        Example of retrieving child steps from a Synthesis node.
+        """
+        query = """
+        MATCH (s:Manufacturing:Process {uid: $uid})-[:HAS_PART]->(step:Manufacturing)
+        OPTIONAL MATCH (step)-[:HAS_PARAMETER]->(param:Parameter)
+        RETURN step.uid AS step_uid,
+               step.name AS step_name,
+               step.order AS step_order,
+               collect(distinct param) AS parameters
+        ORDER BY step.order
+        """
+        results, meta = db.cypher_query(query, {"uid": synthesis_uid})
+        step_data = []
+        for row in results:
+            step_params = []
+            if row[3]:  # param objects
+                for param_node in row[3]:
+                    param_dict = {
+                        "uid": param_node["uid"],
+                        "name": param_node.get("name"),
+                        "value": param_node.get("value"),
+                        "unit": param_node.get("unit"),
+                        "error": param_node.get("error")
+                    }
+                    step_params.append(param_dict)
+
+            step_data.append({
+                "uid": row[0],
+                "name": row[1],
+                "order": row[2],
+                "parameters": step_params
+            })
+        return step_data
+
+    def _fetch_data_processing(self, experiment_uid):
+        """
+        Retrieves data/analysis steps (DataProcessing).
+        """
+        query = """
+        MATCH (e:Experiment {uid: $uid})-[:HAS_PART]->(dp:DataProcessing)
+        RETURN dp.uid AS dp_uid, dp.type AS type
+        """
+        results, meta = db.cypher_query(query, {"uid": experiment_uid})
+        data_processes = []
+        for row in results:
+            dp_uid = row[0]
+            data_processes.append({
+                "uid": dp_uid,
+                "type": row[1],
+                "steps": self._fetch_data_processing_steps(dp_uid)
+            })
+        return data_processes
+
+    def _fetch_data_processing_steps(self, dp_uid):
+        """
+        Example of retrieving child steps for a data/analysis process.
+        You can expand this to fetch data inputs, data outputs, parameters, etc.
+        """
+        query = """
+        MATCH (dp:DataProcessing {uid: $uid})-[:HAS_PART]->(child:DataProcessing)
+        OPTIONAL MATCH (child)-[:HAS_PARAMETER]->(param:Quantity)
+        RETURN child.uid AS step_uid,
+               child.technique AS step_technique,
+               child.order AS step_order,
+               collect(distinct param) AS parameters
+        ORDER BY child.order
+        """
+        results, meta = db.cypher_query(query, {"uid": dp_uid})
+        step_data = []
+        for row in results:
+            params = []
+            if row[3]:
+                for param_node in row[3]:
+                    params.append({
+                        "uid": param_node["uid"],
+                        "name": param_node.get("name"),
+                        "value": param_node.get("value"),
+                        "unit": param_node.get("unit"),
+                        "error": param_node.get("error")
+                    })
+            step_data.append({
+                "uid": row[0],
+                "technique": row[1],
+                "order": row[2],
+                "parameters": params
+            })
+        return step_data
+
+    # --------------------------------------------------------------------------
+    #                      CSV WRITING LOGIC (SEPARATE FILES)
+    # --------------------------------------------------------------------------
+    def _write_csv_files(self, data_dict, base_path):
+        """
+        Writes separate CSV files for each major section of data in `data_dict`.
+        Returns a dict containing the file paths that were generated.
+
+        :param data_dict: The combined dictionary of experiment data.
+        :param base_path: Directory where CSV files should be saved.
+        :return: A dict with file labels -> paths (str).
+        """
+
+        # Ensure the base_path directory exists
+        if not os.path.isdir(base_path):
+            os.makedirs(base_path, exist_ok=True)
+
+        output_files = {}
+
+        # 1) Experiment data to experiment.csv
+        exp_file = os.path.join(base_path, 'experiment.csv')
+        self._write_experiment_csv(exp_file, data_dict["experiment"])
+        output_files["experiment"] = exp_file
+
+        # 2) Organizational data to organizational_data.csv
+        org_file = os.path.join(base_path, 'organizational_data.csv')
+        self._write_organizational_data_csv(org_file, data_dict["organizational_data"])
+        output_files["organizational_data"] = org_file
+
+        # 3) Measurements to measurements.csv
+        meas_file = os.path.join(base_path, 'measurements.csv')
+        self._write_measurements_csv(meas_file, data_dict["measurements"])
+        output_files["measurements"] = meas_file
+
+        # 4) Fabrication workflow (synthesis) to fabrication_workflow.csv
+        #    and separate steps to fabrication_steps.csv
+        fab_file = os.path.join(base_path, 'fabrication_workflow.csv')
+        fab_steps_file = os.path.join(base_path, 'fabrication_steps.csv')
+        self._write_fabrication_csv(fab_file, fab_steps_file, data_dict["fabrication_workflow"])
+        output_files["fabrication_workflow"] = fab_file
+        output_files["fabrication_steps"] = fab_steps_file
+
+        # 5) Data processing to data_processing.csv
+        #    and separate steps to data_processing_steps.csv
+        dp_file = os.path.join(base_path, 'data_processing.csv')
+        dp_steps_file = os.path.join(base_path, 'data_processing_steps.csv')
+        self._write_data_processing_csv(dp_file, dp_steps_file, data_dict["data_processing"])
+        output_files["data_processing"] = dp_file
+        output_files["data_processing_steps"] = dp_steps_file
+
+        return output_files
+
+    def _write_experiment_csv(self, filepath, experiment_data):
+        """
+        Writes the top-level Experiment data to CSV.
+        """
+        fieldnames = ["uid"]
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            # If experiment_data is empty, do nothing
+            if experiment_data:
+                writer.writerow(experiment_data)
+
+    def _write_organizational_data_csv(self, filepath, org_data):
+        """
+        Writes organizational (metadata) entries to CSV.
+        """
+        fieldnames = ["uid", "value", "labels"]
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in org_data:
+                # Convert labels list to a string or join them with commas
+                row = {
+                    "uid": item["uid"],
+                    "value": item["value"],
+                    "labels": ",".join(item["labels"]) if item["labels"] else ""
+                }
+                writer.writerow(row)
+
+    def _write_measurements_csv(self, filepath, measurements):
+        """
+        Writes measurement data to CSV.
+        """
+        fieldnames = [
+            "uid",
+            "measurement_method",
+            "measurement_type",
+            "specimen",
+            "temperature",
+            "temperature_unit",
+            "pressure",
+            "pressure_unit",
+            "atmosphere",
+            "created_at",
+            "updated_at"
+        ]
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in measurements:
+                writer.writerow(item)
+
+    def _write_fabrication_csv(self, fab_file, fab_steps_file, fabrication_data):
+        """
+        Writes top-level fabrication workflow CSV and steps to a separate file.
+        """
+        # Write top-level data
+        fab_fieldnames = ["uid", "type"]
+        with open(fab_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fab_fieldnames)
+            writer.writeheader()
+            for fab_item in fabrication_data:
+                writer.writerow({
+                    "uid": fab_item["uid"],
+                    "type": fab_item["type"],
                 })
-            else:
-                print(f"Unknown label: {label}. Skipping...")
 
-    @property
-    def results(self):
+        # Write steps (flatten each "steps" list for each top-level item)
+        fab_steps_fieldnames = ["parent_uid", "step_uid", "step_name", "step_order", "param_uid", "param_name", "param_value", "param_unit", "param_error"]
+        with open(fab_steps_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fab_steps_fieldnames)
+            writer.writeheader()
+
+            for fab_item in fabrication_data:
+                parent_uid = fab_item["uid"]
+                for step in fab_item["steps"]:
+                    if not step["parameters"]:
+                        # If no parameters, still write one row indicating the step
+                        writer.writerow({
+                            "parent_uid": parent_uid,
+                            "step_uid": step["uid"],
+                            "step_name": step["name"],
+                            "step_order": step["order"],
+                            "param_uid": "",
+                            "param_name": "",
+                            "param_value": "",
+                            "param_unit": "",
+                            "param_error": ""
+                        })
+                    else:
+                        # If there are parameters, write one row per parameter
+                        for param in step["parameters"]:
+                            writer.writerow({
+                                "parent_uid": parent_uid,
+                                "step_uid": step["uid"],
+                                "step_name": step["name"],
+                                "step_order": step["order"],
+                                "param_uid": param["uid"],
+                                "param_name": param["name"],
+                                "param_value": param["value"],
+                                "param_unit": param["unit"],
+                                "param_error": param["error"]
+                            })
+
+    def _write_data_processing_csv(self, dp_file, dp_steps_file, data_processing_data):
         """
-        Returns:
-            list[dict]: A list of mappings with fields:
-                          - name (str)
-                          - label (str)
-                          - uid (str)
-                          - ontology_class (str)
+        Writes top-level data processing CSV and steps to a separate file.
         """
-        return self._results
+        # Write top-level data
+        dp_fieldnames = ["uid", "type"]
+        with open(dp_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=dp_fieldnames)
+            writer.writeheader()
+            for dp_item in data_processing_data:
+                writer.writerow({
+                    "uid": dp_item["uid"],
+                    "type": dp_item["type"],
+                })
+
+        # Write child steps
+        dp_steps_fieldnames = ["parent_uid", "step_uid", "technique", "order", "param_uid", "param_name", "param_value", "param_unit", "param_error"]
+        with open(dp_steps_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=dp_steps_fieldnames)
+            writer.writeheader()
+
+            for dp_item in data_processing_data:
+                parent_uid = dp_item["uid"]
+                for step in dp_item["steps"]:
+                    if not step["parameters"]:
+                        # If no parameters, still write one row indicating the step
+                        writer.writerow({
+                            "parent_uid": parent_uid,
+                            "step_uid": step["uid"],
+                            "technique": step["technique"],
+                            "order": step["order"],
+                            "param_uid": "",
+                            "param_name": "",
+                            "param_value": "",
+                            "param_unit": "",
+                            "param_error": ""
+                        })
+                    else:
+                        # If there are parameters, write one row per parameter
+                        for param in step["parameters"]:
+                            writer.writerow({
+                                "parent_uid": parent_uid,
+                                "step_uid": step["uid"],
+                                "technique": step["technique"],
+                                "order": step["order"],
+                                "param_uid": param["uid"],
+                                "param_name": param["name"],
+                                "param_value": param["value"],
+                                "param_unit": param["unit"],
+                                "param_error": param["error"]
+                            })
 
 
+class SearchHandler:
+    """
+    A class that handles advanced experiment filtering logic
+    by multiple criteria: materials, techniques, parameters, properties, metadata, etc.
 
+    Example search_instructions dict structure:
+    {
+        "materials": ["MaterialA", "MaterialB"],
+        "techniques": ["Technique1", "Technique2"],
+        "parameters": ["ParamName1", "ParamName2"],
+        "properties": ["PropertyName1", "PropertyName2"],
+        "metadata": [
+            {"key": "some_key", "value": "some_value"},
+            ...
+        ]
+        // Potentially other fields
+    }
+    """
+
+    def search_experiments(self, search_instructions: dict) -> list:
+        """
+        Takes a dictionary of search instructions and returns
+        a list of matching Experiment objects.
+
+        You can define the logic to combine multiple criteria with either 'AND' or 'OR' logic.
+        Below is an example that uses 'AND' across categories, but 'OR' within each category.
+        """
+
+        return []
