@@ -1,11 +1,11 @@
 from typing import List, Optional
 
 from langchain_core.load import Serializable
-from langchain_core.pydantic_v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator
 
 
 class Node(Serializable):
-    attributes: dict = Field(default_factory=dict, description='node properties')
+    attributes: dict =  Field(default=dict, description='node properties')
 
 
 class StringAttribute(BaseModel):

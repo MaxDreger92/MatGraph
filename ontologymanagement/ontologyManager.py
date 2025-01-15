@@ -1,10 +1,8 @@
-import ast
 from json import JSONDecodeError
 
 from django.conf import settings
 from dotenv import load_dotenv
-from langchain.chains.ernie_functions import create_structured_output_runnable
-from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain_core.prompts import FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 from owlready2 import *
 from owlready2 import get_ontology, Thing
@@ -59,35 +57,50 @@ class OntologyManager:
         #     "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES,
         #     "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
         # }
+        self.EMBEDDING_MODEL_MAPPER = {
+            "matter.owl":  MatterEmbedding,   # or MatterEmbedding
+            "quantities.owl": QuantityEmbedding,
+            "manufacturing.owl": ProcessEmbedding
+        }
         self.SETUP_MESSAGE = {
             "material.owl": MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
             "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES,
             "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
         }
 
+
     def get_labels(self, class_name, setup_message, examples=None):
         """Performs the initial extraction of relationships using GPT-4."""
+        llm = ChatOpenAI(
+            model_name=CHAT_GPT_MODEL,
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            temperature=1
+        )
 
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
-        setup_message = setup_message
-        prompt = ChatPromptTemplate.from_messages(setup_message)
 
+
+        # Define a template with a placeholder for the class name
+        from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+        template = "Please process the following class: {classname}"
+        human_message = HumanMessagePromptTemplate.from_template(template)
+
+        # Create a ChatPromptTemplate (can include other system/assistant messages as needed)
+        prompt = ChatPromptTemplate.from_messages([human_message])
         if examples:
-            print("Examples provided")
-            print(examples)
             example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
             few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
             prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
 
-        chain = create_structured_output_runnable(OntologyClass, llm, prompt).with_config(
-            {"run_name": f"{label}-generation"})
-        ontology_class = chain.invoke({"input": class_name})
+        # Format the prompt messages with the actual class name
+        messages = prompt.format_messages(classname=class_name)
+
+        # Create a chain with structured output
+        chain = llm.with_structured_output(OntologyClass)
+        ontology_class = chain.invoke(messages)
+
         return ontology_class
 
     def update_ontology(self, ontology_file):
-        if ontology_file == "matter.owl":
-            return
-
 
         ontology_path1 = os.path.join(self.ontology_folder, ontology_file)
         ontology_path = os.path.join(self.ontology_folder, ontology_file)
@@ -100,9 +113,6 @@ class OntologyManager:
             class onto_name(AnnotationProperty):
                 domain = [Thing]
                 range = [str]
-            class description_name(AnnotationProperty):
-                domain = [Thing]
-                range = str
             for cls in onto.classes():
                 if not cls.onto_name:
                     print(f"Need to update class: {cls.name}")
@@ -118,7 +128,9 @@ class OntologyManager:
             onto.save(ontology_path1, format="rdfxml")
 
     def import_to_neo4j(self, ontology_file):
-
+        """
+        Main entry point to import an ontology into Neo4j.
+        """
         ontology_path = os.path.join(self.ontology_folder, ontology_file)
         onto = get_ontology(ontology_path).load()
 
@@ -126,88 +138,170 @@ class OntologyManager:
             pass
 
         for cls in onto.classes():
+            self._process_ontology_class(cls, ontology_file)
 
-            class_name = str(cls.name).title()
-            class_uri = str(cls.iri)
-            class_comment = str(cls.comment).replace("'","").replace("[","").replace("]","") if cls.comment else None
-            print(cls.name)
+    def _process_ontology_class(self, cls, ontology_file, parent_instance=None):
+        """
+        Recursively processes a single ontology class:
+         - Creates/updates its node
+         - Creates/updates alternative labels (and their embeddings)
+         - Creates/updates embeddings for the class name and comment
+         - Recursively processes its subclasses
+        """
+        # 1. Create or update the current class node in Neo4j
+        cls_instance = self._create_or_update_class(cls, ontology_file)
+
+        # 2. Handle alternative labels (including embedding creation for each label)
+        self._handle_alternative_labels(cls, cls_instance, ontology_file)
+
+        # 3. Handle embeddings for this class (name + comment)
+        self._handle_embeddings(cls_instance, cls, ontology_file)
+
+        # 4. Connect to parent if any
+        if parent_instance and not cls_instance.emmo_subclass.is_connected(parent_instance):
+            cls_instance.emmo_subclass.connect(parent_instance)
+
+        # 5. Recursively handle subclasses
+        for subclass in cls.subclasses():
+            self._process_ontology_class(subclass, ontology_file, cls_instance)
+
+    def _create_or_update_class(self, cls, ontology_file):
+        """
+        Creates or updates a class node in Neo4j based on the OWL class.
+        Uses get_or_none to avoid duplicates.
+        """
+        ModelClass = self.file_to_model[ontology_file]
+
+        class_name = str(cls.name).title()
+        class_uri = str(cls.iri)
+        class_comment = (
+            str(cls.comment).replace("'", "").replace("[", "").replace("]", "")
+            if cls.comment
+            else None
+        )
+
+        print(f"Processing class: {cls.name}")
+
+        # Attempt to find an existing node by URI
+        cls_instance = ModelClass.nodes.get_or_none(uri=class_uri)
+        if cls_instance:
+            # Update existing node
+            cls_instance.name = class_name
+            cls_instance.description = class_comment
+            cls_instance.validated_labels = True
+            cls_instance.validated_ontology = True
+            cls_instance.save()
+        else:
+            # Create a new node
+            cls_instance = ModelClass(
+                uri=class_uri,
+                name=class_name,
+                description=class_comment,
+                validated_labels=True,
+                validated_ontology=True
+            )
+            cls_instance.save()
+
+        return cls_instance
+
+    def _handle_alternative_labels(self, cls, cls_instance, ontology_file):
+        """
+        Safely parses and connects alternative labels for the class node.
+        Also creates embeddings for each alternative label.
+        """
+        if not cls.alternative_labels:
+            print(f"No alternative labels for class: {cls_instance.name}")
+            return
+
+        raw_labels = cls.alternative_labels[0]
+        labels = self._parse_labels(raw_labels) or [raw_labels]
+
+        for label in labels:
+            alt_label_str = str(label)
+            print(f"Alternative label: {alt_label_str}")
+
+            # 1) Create/find AlternativeLabel node
             try:
-                cls_instance = self.file_to_model[ontology_file].nodes.get(uri=class_uri)
-                cls_instance.name = class_name.title()
-                cls_instance.validated_labels = True
-                cls_instance.validated_ontology = True
-                cls_instance.description = class_comment
-                cls_instance.save()
-            except:
-                cls_instance = self.file_to_model[ontology_file](uri=class_uri, name=class_name,
-                                                                 description=class_comment)
-                cls_instance.save()
-            EMBEDDING_MODEL_MAPPER = {
-                "matter.owl": MatterEmbedding,
-                "quantities.owl": QuantityEmbedding,
-                "manufacturing.owl": ProcessEmbedding
-            }
-            try:
-                embedding_name = EMBEDDING_MODEL_MAPPER[ontology_file].nodes.get(input=class_name)
-                embedding_description = EMBEDDING_MODEL_MAPPER[ontology_file].nodes.get(input=class_comment)
-                if not cls_instance.is_connected(embedding_node):
-                    secondary_embedding_name = EMBEDDING_MODEL_MAPPER[ontology_file](input=embedding_name.input,
-                                                                                      vector=embedding_name.vector)
-                    secondary_embedding_description = EMBEDDING_MODEL_MAPPER[ontology_file](input=embedding_description.input,
-                                                                                             vector=embedding_description.vector)
-                    cls_instance.model_embedding.connect(secondary_embedding_name)
-                    cls_instance.model_embedding.connect(secondary_embedding_description)
-            except:
-                vector_name = request_embedding(class_name)
-                embedding_name = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector_name, input=class_name).save()
-                cls_instance.model_embedding.connect(embedding_name)
-                vector_description = request_embedding(class_comment)
-                embedding_description = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector_description,
-                                                                              input=class_comment).save()
-                cls_instance.model_embedding.connect(embedding_description)
-            if cls.alternative_labels:
+                alternative_label_node = AlternativeLabel.nodes.get(label=alt_label_str)
+            except AlternativeLabel.DoesNotExist:
+                alternative_label_node = AlternativeLabel(label=alt_label_str)
+                alternative_label_node.save()
 
-                for label in ast.literal_eval(cls.alternative_labels[0]):
-                    alt_label = str(label)
-                    label = label.title()
-                    try:
-                        alternative_label_node = AlternativeLabel.nodes.get(label=alt_label)
-                        if not cls_instance.alternative_label.is_connected(alternative_label_node):
-                            secondary_label_node = AlternativeLabel(label=alt_label)
-                            secondary_label_node.save()
-                            cls_instance.alternative_label.connect(secondary_label_node)
-                    except:
-                        alternative_label_node = AlternativeLabel(label=alt_label)
-                        alternative_label_node.save()
-                        cls_instance.alternative_label.connect(alternative_label_node)
-                    try:
-                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](input=label)
-                        if not cls_instance.is_connected(embedding_node):
-                            secondary_embedding_node =EMBEDDING_MODEL_MAPPER[ontology_file](input= embedding_node.input, vector=embedding_node.vector)
-                            cls_instance.model_embedding.connect(secondary_embedding_node)
-                    except:
-                        vector = request_embedding(label)
-                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector, input=label).save()
-                        cls_instance.model_embedding.connect(embedding_node)
+            # 2) Connect the AlternativeLabel if not already connected
+            if not cls_instance.alternative_label.is_connected(alternative_label_node):
+                cls_instance.alternative_label.connect(alternative_label_node)
 
-            # Add subclass relationships
-            for subclass in cls.subclasses():
-                subclass_name = str(subclass.name)
-                subclass_uri = str(subclass.iri)
-                subclass_comment = str(subclass.comment) if subclass.comment else None
-                # print(f"Creating subclass_instance with kwargs: {subclass_name=}, {subclass_comment=}, {subclass_uri=}")
-                try:
-                    subclass_instance = self.file_to_model[ontology_file].nodes.get(uri=subclass_uri)
-                    subclass_instance.name = subclass_name
-                    subclass_instance.description = subclass_comment
-                    subclass_instance.save()
-                    subclass_instance.emmo_subclass.connect(cls_instance)
+            # 3) (Optional) Create/find embedding node for this alternative label
+            EmbeddingModel = self.EMBEDDING_MODEL_MAPPER.get(ontology_file)
+            if EmbeddingModel:  # If we have a valid embedding class
+                alt_embedding_node = EmbeddingModel.nodes.get_or_none(input=alt_label_str)
+                if alt_embedding_node is None:
+                    vector_alt_label = request_embedding(alt_label_str)
+                    alt_embedding_node = EmbeddingModel(input=alt_label_str,
+                                                        vector=vector_alt_label).save()
 
-                except:
-                    subclass_instance = self.file_to_model[ontology_file](uri=subclass_uri, name=subclass_name,
-                                                                          description=subclass_comment)
-                    subclass_instance.save()
-                    subclass_instance.emmo_subclass.connect(cls_instance)
+                # Connect if not already connected
+                if not cls_instance.model_embedding.is_connected(alt_embedding_node):
+                    cls_instance.model_embedding.connect(alt_embedding_node)
+
+    def _parse_labels(self, raw_labels_str):
+        """
+        Tries to parse raw labels from either a Python literal or JSON.
+        Returns a list of labels or an empty list if parsing fails.
+        """
+        import ast
+        import json
+
+        try:
+            labels = ast.literal_eval(raw_labels_str)
+            if not isinstance(labels, list):
+                labels = [labels]
+            return labels
+        except Exception as e:
+            print(f"Error evaluating alternative labels via literal_eval: {e}")
+
+        try:
+            labels = json.loads(raw_labels_str)
+            if not isinstance(labels, list):
+                labels = [labels]
+            return labels
+        except Exception as json_e:
+            print(f"JSON parsing failed as well: {json_e}")
+
+        return []
+
+    def _handle_embeddings(self, cls_instance, cls, ontology_file):
+        """
+        Creates/gets and connects embedding nodes for class name and comment.
+        """
+        class_name = str(cls.name)
+        class_comment = str(cls.comment) if cls.comment else ""
+
+        EmbeddingModel = self.EMBEDDING_MODEL_MAPPER.get(ontology_file)
+        if not EmbeddingModel:
+            # If no embedding model is mapped for this file, skip
+            return
+
+        # --- Embedding for class name ---
+        embedding_node_name = EmbeddingModel.nodes.get_or_none(input=class_name)
+        if embedding_node_name is None:
+            vector_name = request_embedding(class_name)
+            embedding_node_name = EmbeddingModel(input=class_name,
+                                                 vector=vector_name).save()
+
+        if not cls_instance.model_embedding.is_connected(embedding_node_name):
+            cls_instance.model_embedding.connect(embedding_node_name)
+
+        # --- Embedding for class comment ---
+        if class_comment:
+            embedding_node_comment = EmbeddingModel.nodes.get_or_none(input=class_comment)
+            if embedding_node_comment is None:
+                vector_comment = request_embedding(class_comment)
+                embedding_node_comment = EmbeddingModel(input=class_comment,
+                                                        vector=vector_comment).save()
+
+            if not cls_instance.model_embedding.is_connected(embedding_node_comment):
+                cls_instance.model_embedding.connect(embedding_node_comment)
 
     def update_all_ontologies(self):
         ontologies = [f for f in os.listdir(self.ontology_folder) if f.endswith(".owl")]
@@ -240,11 +334,14 @@ def main():
 
     ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")
-    ontology_manager.import_to_neo4j("quantities.owl")
+    # ontology_manager.update_ontology("quantities.owl")
     # ontology_manager.update_ontology("matter.owl")
-    ontology_manager.import_to_neo4j("matter.owl")
+    # ontology_manager.update_ontology("matter.owl")
+    # ontology_manager.update_ontology("manufacturing.owl")
     # ontology_manager.update_ontology("manufacturing.owl")
     ontology_manager.import_to_neo4j("manufacturing.owl")
+    ontology_manager.import_to_neo4j("matter.owl")
+    ontology_manager.import_to_neo4j("quantities.owl")
 
     # from emmopy import get_emmo
 

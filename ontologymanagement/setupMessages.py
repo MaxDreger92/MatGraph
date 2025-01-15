@@ -1,4 +1,4 @@
-MATTER_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
+MATTER_ONTOLOGY_ASSISTANT_MESSAGES = [("user",
                                        """You are a world-class algorithm for ontology management. You are given ontology classes and suggest alternative labels for them. 
                                         The alternative labels you supply always have to be synonyms of the class name they never 
             describe a different concept. 
@@ -11,7 +11,7 @@ MATTER_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
                                       ("user","""Generate labels and description for the following class: {input}"""),
                                       ("user","""Make sure you follow the correct format.""")]
 
-QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
+QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("user",
 """You are a world-class algorithm for ontology management. You are given ontology classes and suggest alternative labels for them. 
                                         The alternative labels you supply always have to be synonyms of the class name they never 
             describe a different concept.
@@ -24,7 +24,7 @@ QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
                                         ("user","""Make sure you follow the correct format.""")]
 
 
-PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
+PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("user",
                                         """You are a world-class algorithm for ontology management. You are given ontology classes and suggest alternative labels for them. 
                                         The alternative labels you supply always have to be synonyms of the class name they never 
             describe a different concept.
@@ -37,7 +37,7 @@ PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
                                        ("user","""Make sure you follow the correct format.""")]
 
 
-MATTER_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
+MATTER_ONTOLOGY_CANDIDATES_MESSAGES = [("user",
                                         """You are a worldclass ontology generating algorinthm.
 You are given:
 -input class (classname)
@@ -49,7 +49,7 @@ Your output always follows the given format!
                                        ("user","""Give the correct response for the following input: {input}"""),
                                        ("user","""Make sure you followed the correct format and you extract return the exact candidate name within the answer.""")]
 
-QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
+QUANTITY_ONTOLOGY_CANDIDATES_MESSAGES = [("user",
                                           """
 You are a worldclass ontology generating algorinthm.
 You are given:
@@ -63,7 +63,7 @@ Your output always follows the given format!
                                          ("user","""Make sure you followed the correct format and you extract return the exact candidate name within the answer.""")]
 
 
-PROCESS_ONTOLOGY_CANDIDATES_MESSAGES = [("system",
+PROCESS_ONTOLOGY_CANDIDATES_MESSAGES = [("user",
                                          """You are a worldclass ontology generating algorinthm.
 You are given:
 -input class (classname)
@@ -77,7 +77,7 @@ Your output always follows the given format!
 
 
 
-MATTER_ONTOLOGY_CONNECTOR_MESSAGES = [("system",
+MATTER_ONTOLOGY_CONNECTOR_MESSAGES = [("user",
                                        """Your are a knowledgeable and useful assistant to construct ontologies in the field of materials science. Your task is to connect a class that is given to you as an input to the best fit among a list of candidates. 
                                        Please follow these steps:
                                           1. Identify the closest parent class of the input among the candidates
@@ -88,7 +88,7 @@ MATTER_ONTOLOGY_CONNECTOR_MESSAGES = [("system",
                                       ("user","""Find the correct connection with the following input and candidates: {input}""")]
 
 
-PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [("system",
+PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [("user",
      """Your are a knowledgeable and useful assistant to construct ontologies in the field of materials science. Your task is to connect a class that is given to you as an input to the best fit among a list of candidates. 
      Please follow these steps:
         1. Identify the closest parent class of the input among the candidates
@@ -99,7 +99,7 @@ PROCESS_ONTOLOGY_CONNECTOR_MESSAGES = [("system",
                                        ("user","""Find the correct connection with the following input and candidates: {input}""")]
 
 
-QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES = [("system",
+QUANTITY_ONTOLOGY_CONNECTOR_MESSAGES = [("user",
      """Your are a knowledgeable and useful assistant to construct ontologies in the field of materials science. Your task is to connect a class that is given to you as an input to the best fit among a list of candidates. 
      Please follow these steps:
         1. Identify the closest parent class of the input among the candidates

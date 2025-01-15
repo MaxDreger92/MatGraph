@@ -33,8 +33,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen storage process</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen compression process</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A series of actions or steps taken in order to achieve a particular end.</description_name>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Procedure', 'Operation', 'Sequence of actions', 'Course of action', 'Method']</alternative_labels>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Procedure', 'Method', 'Operation', 'Mechanism', 'System']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A series of actions or steps taken to achieve a particular end.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Manufacturing">
@@ -47,8 +47,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Manufacturing Processes</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen component Manufacturing</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of converting raw materials, components, or parts into finished goods that meet a customers expectations or specifications.</description_name>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Production', 'Fabrication', 'Assembly', 'Industrial production', 'Mass production']</alternative_labels>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Production', 'Fabrication', 'Assembly', 'Industrial processing', 'Manufacturing operation']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of converting raw materials into finished goods through mechanical, chemical, or biological means in factories or production facilities.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#additive manufacturing">
@@ -61,8 +61,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">additive processes</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">additive techniques</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating in materials science involves the application of a substance over a material to protect or enhance its surface properties. It is commonly used for corrosion resistance, wear resistance, thermal protection, and aesthetic improvements.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['3D printing', 'layered manufacturing', 'additive fabrication', 'additive layer manufacturing', 'direct digital manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A process of making three dimensional solid objects from a digital file by successively adding material layer by layer.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['3D Printing', 'Additive Fabrication', 'Layered Manufacturing', 'Additive Construction', 'Rapid Prototyping']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Additive Manufacturing is a process of joining materials to make objects from 3D model data, layer by layer.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#component manufacturing">
@@ -75,8 +75,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">component assembly</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">component machining</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['part fabrication', 'component production', 'unit manufacturing', 'element construction', 'piece making']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial process of creating components that are used in the assembly of products.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Part Production', 'Component Fabrication', 'Part Manufacturing', 'Piece Production', 'Component Assembly']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial process of creating distinct parts that are assembled into a whole product or system.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#cathode catalyst layer manufacturing">
@@ -88,8 +88,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">copper clad substrate manufacturing</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">copper clad board manufacturing</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a surface to enhance its properties, such as corrosion resistance, wear resistance, and appearance. It is important in materials science for surface protection, functionalization, and decoration.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['cathode catalytic layer production', 'cathode catalyst coating fabrication', 'cathode catalyst film formation', 'manufacture of cathode catalyst layers', 'cathode catalytic coating production']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of creating the catalytic layer used at the cathode side of electrochemical cells, such as fuel cells or electrolyzers.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['CCL Manufacturing', 'Cathode Catalyst Production', 'Cathode Layer Fabrication', 'Fuel Cell Cathode Coating', 'Catalyst Layer Processing']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cathode catalyst layer manufacturing involves processes that create a thin layer containing catalyst particles on a cathode in fuel cells.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#fuel cell assembly">
@@ -102,8 +102,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fuel cell pack</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fuel cell unit</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its properties such as corrosion resistance, wear resistance, and aesthetics. It is commonly used in materials science for surface protection, functionalization, and decorative purposes.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['fuel cell stack', 'fuel cell unit', 'fuel cell system', 'electrochemical cell assembly', 'energy conversion device']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A fuel cell assembly is a combination of individual fuel cells arranged in a series or parallel configuration to produce electricity through electrochemical reactions.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell System', 'Fuel Cell Stack Assembly', 'Fuel Cell Unit', 'Fuel Cell Module', 'Fuel Cell Array']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Fuel Cell Assembly is a configuration of components including a stack of fuel cells, designed to efficiently convert chemical energy from a fuel into electricity through a chemical reaction with oxygen.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#MEAManufacturing">
@@ -115,8 +115,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">proton exchange membrane assembly manufacturing</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PEMAssemblyProduction</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its surface properties, such as corrosion resistance, wear resistance, electrical conductivity, and aesthetic appeal. It is used in various industries, including automotive, aerospace, electronics, and construction.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Smart Manufacturing', 'Intelligent Manufacturing', 'Industry 4.0 Manufacturing', 'Digital Manufacturing', 'Cyber-Physical Manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAManufacturing refers to the process of producing goods through mechanical, electronic, and algorithmic means.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Mechanical Electrical Automation Manufacturing', 'Integrated Manufacturing Systems', 'Electro-Mechanical Manufacturing', 'Multi-Disciplinary Manufacturing', 'Complex Systems Manufacturing']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Focuses on the production and assembly of mechanical, electrical, and automation systems within the manufacturing industry.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#CCMManufacturing">
@@ -128,8 +128,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FuelCellCCMManufacturing</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ion conducting membrane coating</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its properties or functionalities. It is used in various sectors, including automotive, aerospace, electronics, and construction, to provide corrosion resistance, wear protection, electrical insulation, and decorative finishes.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Ceramic Matrix Composites Manufacturing', 'CMC Production', 'Ceramic Composites Fabrication', 'Ceramic Matrix Composites Fabrication', 'CMC Manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CCMManufacturing refers to the production process of ceramic matrix composites.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Continuous Casting Manufacturing', 'CCM Method Production', 'Continuous Cast Manufacturing', 'CCM Processing', 'Continuous Casting Process']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of producing goods through the Continuous Casting Method, which involves solidifying molten metal into a semi-finished billet, bloom, or slab for subsequent rolling in the finishing mills.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#5LayerMEAManufacturing">
@@ -141,8 +141,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAwithFiveLayers</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5LayeredFuelCellMembraneElectrodeAssemblyManufacturing</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Five-Layer Membrane Electrode Assembly Fabrication', '5-Layer MEA Production', 'Quintuple-Layer MEA Manufacturing', '5-Layer Membrane Electrode Assembly Production Process', '5-Tier Membrane Electrode Assembly Manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A manufacturing process specifically for producing five-layer membrane electrode assemblies (MEAs) used in fuel cells.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['5-layer MEA production', 'Five-layer MEA fabrication', 'MEA 5-layer construction', '5-stratum MEA assembly', 'Quintuple-layer MEA development']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A process involving the production of Membrane Electrode Assemblies (MEA) with five distinct layers for fuel cell applications.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#device manufacturing">
@@ -155,8 +155,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">device fabrication</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">device assembly</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Device Fabrication', 'Equipment Production', 'Gadget Manufacturing', 'Instrument Production', 'Apparatus Construction']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial process of designing and constructing devices.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Electronics Manufacturing', 'Gadget Production', 'Device Fabrication', 'Hardware Assembly', 'Instrument Manufacturing']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial process of designing, producing, and assembling electronic or mechanical devices for a given purpose.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#fuel cell manufacturing">
@@ -168,8 +168,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fuel cell manufacturingProcess</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fuel cell stack assembly</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its properties such as corrosion resistance, wear resistance, electrical conductivity, or aesthetic appeal. It is widely used across industries including automotive, aerospace, electronics, and construction.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['fuel cell production', 'fuel cell fabrication', 'fuel cell assembly', 'hydrogen cell manufacturing', 'energy cell manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial process of producing fuel cells which convert chemical energy into electrical energy.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fuel Cell Production', 'Fuel Cell Assembly', 'Fuel Cell Fabrication', 'Fuel Cell Manufacturing Process', 'Fuel Cell Construction']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The industrial production process of assembling and creating fuel cells for energy conversion applications.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#materials manufacturing">
@@ -181,8 +181,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">materials processing</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">materials production</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a substance over a material to protect, enhance, or add specific properties such as corrosion resistance, decorative appearance, or improved adhesion. It is widely used in various industries from automotive to electronics.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['materials fabrication', 'materials production', 'industrial materials creation', 'materials processing', 'materials construction']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of producing items from raw or semi-finished materials.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Material Production', 'Manufacturing Process', 'Fabrication of Materials', 'Material Processing', 'Material Fabrication']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of transforming raw materials into finished products through various techniques and methodologies.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#catalyst ink manufacturing">
@@ -194,8 +194,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MEAInkManufacturing</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">catalyst coating manufacturing</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating involves the application of a substance over a material to protect or enhance its surface properties. It's crucial in various industries for improving corrosion resistance, wear resistance, electrical conductivity, and aesthetic appeal of materials.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['catalytic ink production', 'catalyst ink formulation', 'catalyst-infused ink creation', 'reactive ink manufacturing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of producing ink formulations that include a catalyst to initiate or enhance chemical reactions.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Catalytic Ink Production', 'Catalyst-Based Ink Formulation', 'Manufacturing of Catalyst Inks', 'Catalyst Ink Development']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A process involved in crafting specialized inks used primarily for catalytic applications in various industries.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#sample preparation">
@@ -208,8 +208,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sample conditioning</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sample analysis preparation</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Specimen Preparation', 'Sample Processing', 'Sample Treatment', 'Specimen Processing', 'Analytical Sample Preparation']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process by which a sample is treated to ready it for analysis.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Sample Handling', 'Sample Processing', 'Pre-treatment of Samples', 'Sample Conditioning', 'Specimen Preparation']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of treating and handling a sample prior to its analysis or evaluation to ensure accurate, representative, and reliable results.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Measurement">
@@ -222,8 +222,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">experimental analysis</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">data acquisition</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the process of covering a substrate with a layer of material to enhance its surface properties such as corrosion resistance, wear resistance, electrical conductivity, or aesthetic appearance. It is widely employed in various industries including automotive, aerospace, electronics, and construction.</rdfs:comment>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A quantitative determination of the size, magnitude, amount, or degree of something.</description_name>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Quantification', 'Assessment', 'Evaluation', 'Gauging', 'Metrology']</alternative_labels>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Quantification', 'Metric', 'Evaluation', 'Assessment', 'Gauging']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of obtaining the magnitude of a quantity relative to an agreed standard.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#BETMethod">
@@ -234,8 +234,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETSurfaceAreaMeasurement</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BETGasAdsorptionMethod</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its properties, such as corrosion resistance, electrical conductivity, or aesthetic appearance. It is used in various industries, including automotive, aerospace, electronics, and construction.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['BET Surface Area Analysis', 'Brunauer-Emmett-Teller Method', 'Nitrogen Adsorption Isotherm Technique', 'BET Adsorption Technique']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A scientific method used for the calculation of the surface area of materials by nitrogen adsorption measurement.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Brunauer-Emmett-Teller Method', 'Gas Adsorption Method', 'BET Surface Area Analysis', 'Nitrogen Adsorption Technique']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A scientific technique used to measure the specific surface area of materials by nitrogen adsorption.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Gravimetry">
@@ -247,8 +247,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">weight analysis</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">adsorption gravimetry</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gravimetry is a technique of measuring the strength of a gravitational field.</description_name>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gravity measurement', 'Gravitational surveying', 'Gravitational field measurement', 'Gravimetric analysis', 'Gravimetric method']</alternative_labels>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Gravitational Measurement', 'Gravity Survey', 'Gravimetric Analysis', 'Gravity Measurement', 'Gravity Studies']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gravimetry is the science of measuring the Earths gravitational field to study the structure and dynamical processes of the Earth.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#dynamic vapor sorption measurement">
@@ -261,8 +261,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">moisture sorption analysis</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">gravimetric moisture sorption analysis</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate for protection, functionalization, or decoration. It encompasses techniques like painting, plating, and thermal spraying, and is crucial for enhancing corrosion resistance, wear resistance, and aesthetic appearance.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['DVS analysis', 'dynamic vapor sorption analysis', 'vapor sorption kinetics', 'moisture sorption analysis', 'humidity sorption measurement']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A method to determine the amount and rate of moisture absorption and desorption of a material by exposing it to varying levels of humidity.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dynamic Moisture Analysis', 'Humidity-Controlled Vapor Sorption', 'DVS Analysis', 'Dynamic Vapor Sorption Testing', 'Dynamic Water Vapor Sorption Measurement']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique used to analyze moisture absorption and desorption characteristics of a sample by controlling humidity levels in a surrounding chamber.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#catalyst layer dynamic vapor sorption measurement">
@@ -274,8 +274,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">dynamic vapor sorption analysisofCatalystLayers</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">catalyst layer water uptake measurement</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating involves the application of a layer of material onto a surface to impart specific properties such as protection, aesthetics, or functionality. It is widely used in sectors like automotive, aerospace, electronics, and construction.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['dynamic vapor sorption analysis for catalyst layers', 'catalyst coating vapor sorption dynamics measurement', 'dynamic sorption testing of catalyst films', 'catalyst layer sorptometry under dynamic conditions', 'vapor sorption kinetics in catalyst layers']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique used to measure the amount of vapor a catalyst layer absorbs or desorbs over time under dynamic conditions.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dynamic Vapor Sorption of Catalyst Layer', 'Catalyst Layer Vapor Sorption Analysis', 'Vapor Sorption Testing in Catalyst Layers', 'Evaluation of Catalyst Layer Moisture Dynamics']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique used to evaluate the water uptake and evaporation characteristics of catalyst layers in various environments.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#powder dynamic vapor sorption measurement">
@@ -287,8 +287,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">powder water uptake measurement</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">powder water adsorption measurement</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['powdered material moisture sorption analysis', 'dynamic vapor sorption analysis for powders', 'powder DVS measurement', 'grain dynamic vapor absorption measurement', 'powder hygroscopicity testing']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique used to measure the amount of vapor that a powdered material can adsorb or desorb over time.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dynamic Vapor Sorption of Powders', 'DVS Analysis of Powders', 'Moisture Sorption Testing for Powders', 'Powder Vapor Sorption Analysis', 'DVS Measurement for Powdered Materials']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique to assess moisture sorption properties of finely divided solid substances by exposing them to a controlled flow of vapor over time.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Imaging">
@@ -301,8 +301,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">morphology analysis</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">material characterization</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating in materials science refers to the application of a substance over a surface to enhance its properties, such as corrosion resistance, aesthetics, or surface hardness. It includes techniques like painting, plating, and thermal spraying.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Image capturing', 'Photography', 'Scanning', 'Picture taking', 'Visual recording']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The technique or process of producing images of objects, typically using a camera or scanner.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Diagnostic Imaging', 'Medical Imaging', 'Image Processing', 'Radiographic Imaging', 'Visual Imaging']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An interdisciplinary field focusing on capturing and analyzing visual data through various techniques and modalities.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Microscopy">
@@ -315,8 +315,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">microscale imaging</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">microstructural analysis</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Microscopics', 'Microscope Analysis', 'Microscopic Examination', 'Microscopic Imaging']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Microscopy is the technical field of using microscopes to view objects and areas of objects that cannot be seen with the naked eye.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Microscopic examination', 'Microanalysis', 'Optical microscopy', 'Electron microscopy', 'Imaging microscopy']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Microscopy encompasses techniques and methods to observe small objects and specimens too small for the naked eye.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#electron microscopy">
@@ -329,8 +329,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEM</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEM</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to impart specific properties, such as protection from environmental factors, improved appearance, or enhanced surface characteristics. It is a crucial process in various industries, including automotive, aerospace, electronics, and consumer goods.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['electron micrography', 'EM imaging', 'transmission electron microscopy', 'scanning electron microscopy', 'electron microscopic analysis']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electron microscopy is a technique for obtaining high resolution images of biological and non-biological specimens using a beam of electrons.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['EM', 'Electron Imaging', 'Electron Beam Microscopy', 'Electron Micrography', 'Transmission Microscopy']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Electron microscopy is a technique using electron beams to obtain high-resolution images of specimens, enabling detailed study of surfaces and structures at the atomic level.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#SEMImaging">
@@ -343,8 +343,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">electron microscopy imaging</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMMicroscopy</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to protect or enhance its properties. In materials science, it includes techniques like painting, plating, and thin-film deposition, which are essential for improving corrosion resistance, wear resistance, electrical conductivity, and aesthetic appeal.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['SEM Photography', 'Scanning Electron Microscopy Imaging', 'Electron Micrography', 'SEM Micrography', 'Electron Microscopy Imaging']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEMImaging refers to the process of capturing images using a scanning electron microscope.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Scanning Electron Microscopy', 'Electron Beam Imaging', 'Surface Electron Microscopy', 'SEM Analysis', 'Electron Scanning Imaging']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SEM imaging involves using a Scanning Electron Microscope to create detailed images of sample surfaces by scanning them with an electron beam.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#TEMImaging">
@@ -357,8 +357,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMMicroscopy</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEMAnalysis</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to enhance its properties, such as corrosion resistance, wear resistance, electrical conductivity, or aesthetic appeal. It is used in various industries, from automotive to electronics, and can involve processes like painting, anodizing, and vapor deposition.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Transmission Electron Microscopy Imaging', 'TEM Microscopy', 'Transmission Electron Micrography', 'Electron Transmission Microscopy', 'Transmission EM Imaging']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A microscopy technique that uses a transmission electron microscope to visualize specimens at a very high resolution.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Transmission Electron Microscopy', 'Electron Transmission Microscopy', 'TEM Visualization', 'TEM Analysis', 'Atomic Structure Imaging']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique that uses a transmission electron microscope to visualize the internal structure of samples at the atomic level.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#Scattering">
@@ -373,8 +373,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">WAXS</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">powder diffraction</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a substance over a material to provide protection or to give specific surface properties such as corrosion resistance, wear resistance, or aesthetic appeal. It is widely used in various industries, from automotive to electronics.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Diffusion', 'Dispersal', 'Diffraction', 'Reflection', 'Deflection']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scattering refers to the broad range of physical processes where particles, energy, or radiation are deflected or spread out as a result of interactions with other particles or wave packets.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Dispersion', 'Diffusion', 'Deflection', 'Scattering Process', 'Wave Scattering']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scattering is the deviation or redirection of particles or waves from their original path due to local inhomogeneities or interactions in a medium.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#dynamic light scattering">
@@ -387,8 +387,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">QELS</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nanoparticle sizing</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to applying a layer or film onto a surface to protect or improve its function. In materials science, it is critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics, used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['photon correlation spectroscopy', 'quasi-elastic light scattering', 'laser light scattering']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dynamic light scattering is a technique in physics that can be used to determine the size distribution profile of small particles in suspension or polymers in solution.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Photon Correlation Spectroscopy', 'Quasi-Elastic Light Scattering', 'Laser Light Scattering', 'PCS', 'QELS']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dynamic Light Scattering is a technique used to determine the size distribution of small particles in suspension by analyzing the scattered light intensity fluctuations.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#method of standard porosimetry">
@@ -400,8 +400,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">pore size distribution measurement</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">pore volume measurement</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a substrate to provide protection, enhance properties, or add functionality. It is used in various industries for corrosion resistance, wear protection, aesthetic purposes, and to impart special surface characteristics.</rdfs:comment>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique used to determine the pore size distribution and porosity of a material.</description_name>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['standard porosimetry technique', 'conventional porosimetry method', 'regular porosimetry procedure', 'standard pore size analysis', 'traditional porosimetry approach']</alternative_labels>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Standard Porosimetry Method', 'Porosimetrical Analysis', 'Standard Liquid Displacement Method', 'Porosity Measurement Technique', 'Capillary Porosimetry Method']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A technique for measuring the porosity of materials by determining pore size distribution using a standard liquid displacement method.</description_name>
 </owl:Class>
 
 <owl:Class rdf:about="#viscosity measurement">
@@ -415,8 +415,8 @@
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">capillary viscometry</alternative_label>
   <alternative_label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">oscillatory rheometry</alternative_label>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coating refers to the application of a layer or film onto a surface to protect or improve its function. In materials science, coatings are critical for enhancing surface properties such as corrosion resistance, wear resistance, and aesthetics. They are used extensively in applications like paints, thin films, and surface treatments.</rdfs:comment>
-  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['viscometry', 'rheometry', 'viscosity testing', 'viscosity assessment', 'viscosity gauging']</alternative_labels>
-  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of determining the viscosity, or resistance to flow, of a fluid or semi-fluid substance.</description_name>
+  <alternative_labels rdf:datatype="http://www.w3.org/2001/XMLSchema#string">['Fluid Viscosity Testing', 'Viscosity Assessment', 'Flow Resistance Analysis', 'Fluidity Testing', 'Viscometric Measurement']</alternative_labels>
+  <description_name rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The process of determining the flow resistance of a fluid.</description_name>
 </owl:Class>
 
 

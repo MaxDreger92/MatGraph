@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 
-from langchain.chains import create_structured_output_runnable
+from langchain_community.chains.ernie_functions import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_core.runnables import chain, RunnableParallel
 from langchain_openai import ChatOpenAI

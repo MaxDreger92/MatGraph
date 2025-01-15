@@ -1,6 +1,7 @@
 import os
 
 from langchain.chains.structured_output import create_structured_output_runnable
+
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed

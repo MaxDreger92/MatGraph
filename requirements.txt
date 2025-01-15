@@ -61,13 +61,8 @@ jsonpointer==2.4
 jsonschema==4.22.0
 jsonschema-specifications==2023.12.1
 kombu==5.3.7
-langchain==0.1.14
-langchain-community==0.0.31
-langchain-core==0.1.40
-langchain-openai==0.1.1
-langchain-text-splitters==0.0.1
+langchain==0.3.14
 langcodes==3.3.0
-langsmith==0.1.49
 MarkupSafe==2.1.5
 marshmallow==3.21.1
 more-itertools==10.2.0

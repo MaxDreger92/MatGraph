@@ -3,7 +3,7 @@ import csv
 import os
 from io import StringIO
 
-from langchain.chains.ernie_functions import create_structured_output_runnable
+from langchain_community.chains.ernie_functions.base import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
