@@ -53,8 +53,20 @@ EMBEDDING_MODEL_MAPPER = {
 
 
 class OntologyMapper:
+    """
+    Class to map given data nodes to corresponding ontology entities.
+    It processes nodes, checks if they exist in the ontology, and creates or connects them as needed.
+    """
 
     def __init__(self, data, file_link, context):
+        """
+        Initialize an OntologyMapper instance.
+
+        Args:
+            data (dict): Data containing nodes and their attributes to be mapped.
+            file_link (str): Link to a file containing table data in CSV format.
+            context (str): Contextual information used during ontology mapping.
+        """
         self.data = data
         self.file_link = file_link
         self.context = context
@@ -63,6 +75,15 @@ class OntologyMapper:
         self._table = self._load_table(file_link)
 
     def _load_table(self, file_link):
+        """
+        Load CSV data from a file and transpose rows to columns.
+
+        Args:
+            file_link (str): Link to the CSV file.
+
+        Returns:
+            list: A list of columns with non-empty values from the CSV.
+        """
         file = File.nodes.get(link=file_link)
         file_content = file.get_file().decode('utf-8')
         csv_reader = csv.reader(StringIO(file_content))
@@ -70,30 +91,56 @@ class OntologyMapper:
         return [list(filter(None, col)) for col in columns]  # Remove empty values
 
     def map_on_ontology(self):
+        """
+        Iterate over nodes in the data and map each node onto the ontology.
+        Skips nodes labeled as 'metadata'.
+        """
         for node in self.data['nodes']:
             if node['label'] == 'metadata':
                 continue
+            # Ensure 'name' attribute is a list
             node['name'] = [node['attributes']['name']] if not isinstance(node['attributes']['name'], list) else node['attributes']['name']
             for node_name in node['name']:
                 self._process_node(node, node_name)
-            
+
     def _process_node(self, node, name):
+        """
+        Process an individual node, either appending mapping directly or handling table-based mapping.
+
+        Args:
+            node (dict): The node data to be processed.
+            name (dict or str): The name or structured name of the node.
+        """
         label = node['label']
-        
+
         index_value = name.get('index', 'inferred')
         value_value = name.get('value')
-        
+
         if index_value == 'inferred' or value_value not in self.names:
             self._append_mapping(value_value, label)
         elif label != 'metadata':
             self._handle_table_mapping(name, label)
 
     def _handle_table_mapping(self, name, label):
+        """
+        Handle mapping for nodes referencing table data.
+
+        Args:
+            name (dict): A dictionary containing index and value information.
+            label (str): The label of the node.
+        """
         for col_value in self.table[int(name['index'])]:
             if col_value not in self.names:
                 self._append_mapping(col_value, label)
 
     def _append_mapping(self, name_value, label):
+        """
+        Append a new mapping for a node and generate an ontology node if necessary.
+
+        Args:
+            name_value (str): The value of the node's name.
+            label (str): The label/category of the node.
+        """
         print(name_value, label)
         if label == 'metadata':
             return
@@ -108,25 +155,64 @@ class OntologyMapper:
 
     @property
     def table(self):
+        """
+        Property to access the loaded table data.
+
+        Returns:
+            list: The table data loaded from CSV.
+        """
         return self._table
 
     @property
     def mapping(self):
+        """
+        Property to access the current mapping list.
+
+        Returns:
+            list: A list of mappings that have been created.
+        """
         return self._mapping
 
     def run(self):
+        """
+        Execute the ontology mapping process for all nodes in the data.
+        """
         self.map_on_ontology()
 
 
 class OntologyGenerator:
+    """
+    Class responsible for generating or retrieving ontology nodes based on provided input.
+    It also handles connecting nodes, finding candidates and connections within the ontology,
+    and adding labels or embeddings.
+    """
 
     def __init__(self, context, name, label, ontology_class):
+        """
+        Initialize an OntologyGenerator instance.
+
+        Args:
+            context (str): Contextual information for ontology generation.
+            name (str): The name of the entity to be generated or retrieved.
+            label (str): The category label (e.g., 'matter', 'parameter') of the entity.
+            ontology_class (class): The ontology class corresponding to the label.
+        """
         self.context = context
         self.name = name
         self.label = label
         self.ontology_class = ontology_class
 
     def get_or_create(self, input, label):
+        """
+        Retrieve an existing ontology node that matches the input, or create a new one if none exists.
+
+        Args:
+            input (str): The input string to search for in the ontology.
+            label (str): The label/category for the ontology search.
+
+        Returns:
+            object: An ontology node either retrieved from the database or newly created.
+        """
         ontology = ONTOLOGY_MAPPER[label].nodes.get_by_string(string=input.replace("_", " "), limit=15,
                                                               include_similarity=True)
         if ontology[0][1] < 0.97:
@@ -145,13 +231,21 @@ class OntologyGenerator:
         """
         Save an ontology node with the option to add labels, create embeddings, and connect to the ontology.
 
-        :param node: The ontology node to save.
+        Args:
+            node (object): The ontology node to save.
         """
         node.save()  # Assuming node has a save method for basic saving operations
         self.add_labels_create_embeddings(node)
         self.connect_to_ontology(node)
 
     def connect_to_ontology(self, node):
+        """
+        Connect a new node to the ontology by finding candidate superclasses or subclasses
+        and linking them accordingly.
+
+        Args:
+            node (object): The ontology node to connect.
+        """
         # Check if the node is already connected in the ontology
         if not node.emmo_subclass and not node.emmo_parentclass:
             candidates = self.find_candidates(node)
@@ -176,6 +270,15 @@ class OntologyGenerator:
             print(f"Connected node? {node.name} {node.emmo_sublcass}, {node.emmo_parentclass} ")
 
     def find_candidates(self, node):
+        """
+        Find candidate ontology nodes that could be related to the given node.
+
+        Args:
+            node (object): The ontology node for which to find candidates.
+
+        Returns:
+            list: A list of candidate ontology nodes or related classes based on LLM advice.
+        """
         ONTOLOGY_CANDIDATES = {
             'EMMOMatter': MATTER_ONTOLOGY_CANDIDATES_MESSAGES,
             'EMMOProcess': PROCESS_ONTOLOGY_CANDIDATES_MESSAGES,
@@ -209,8 +312,19 @@ class OntologyGenerator:
         else:
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.parent_name)].uid
             return node.get_superclasses([candidate_uid])
+
     @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
     def find_connection(self, candidates):
+        """
+        Given candidate nodes, find a connection path using LLM and return a list of class names
+        to connect.
+
+        Args:
+            candidates (list): List of candidate ontology nodes.
+
+        Returns:
+            list: A list of class names that form a connection chain.
+        """
         ONTOLOGY_CONNECTOR = {
             'EMMOMatter': MATTER_ONTOLOGY_CONNECTOR_MESSAGES,
             'EMMOProcess': PROCESS_ONTOLOGY_CONNECTOR_MESSAGES,
@@ -227,6 +341,13 @@ class OntologyGenerator:
         return [el.name for el in response.classes]
 
     def add_labels_create_embeddings(self, node):
+        """
+        For the given node, add alternative labels, create embeddings for each label,
+        and connect these embeddings to the node.
+
+        Args:
+            node (object): The ontology node to enhance with labels and embeddings.
+        """
         SETUP_MAPPER_EXAMPLES = {
             'matter': MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
             'manufacturing': PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
@@ -254,17 +375,53 @@ class OntologyGenerator:
         node.model_embedding.connect(embedding_node)
 
     def ontology_extension_prompt(self, input, ontology):
+        """
+        Create a prompt string for extending the ontology based on input and current ontology candidates.
+
+        Args:
+            input (str): The input string for which to extend the ontology.
+            ontology (list): List of ontology candidates.
+
+        Returns:
+            str: A formatted prompt string.
+        """
         return f"Input: {input}\nContext: {self.context}\nCandidates: {', '.join([ont[0].name for ont in ontology])}"
 
     def create_synonym(self, input, ontology, label):
+        """
+        Use an LLM to create a synonym for a given input that doesn't closely match existing ontology nodes.
+
+        Args:
+            input (str): The input string for which to create a synonym.
+            ontology (list): List of ontology nodes or candidates.
+            label (str): The label/category of the input.
+
+        Returns:
+            str: A synonym or adjusted string suggested by the LLM.
+        """
         prompt = self.ontology_extension_prompt(input, ontology)
         output = chat_with_gpt3(prompt=prompt, setup_message=SETUP_MESSAGES[label])
         return output
 
     def extend_ontology(self, input, ontology, label):
+        """
+        Extend the ontology by creating and saving a new ontology node.
+
+        Args:
+            input (str): The name for the new ontology node.
+            ontology (list): A list of related ontology candidates (unused in the method).
+            label (str): The label/category of the new node.
+
+        Returns:
+            object: The newly created ontology node.
+        """
         ontology_node = ONTOLOGY_MAPPER[label](name=input)
         self.save_ontology_node(ontology_node)
         return ontology_node
 
     def run(self):
+        """
+        Placeholder run method. Currently attempts to call a non-existent method `map_on_ontology`.
+        This likely needs implementation or correction.
+        """
         self.map_on_ontology()
