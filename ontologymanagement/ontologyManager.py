@@ -2,7 +2,8 @@ from json import JSONDecodeError
 
 from django.conf import settings
 from dotenv import load_dotenv
-from langchain_core.prompts import FewShotChatMessagePromptTemplate
+from langchain_core.prompts import FewShotChatMessagePromptTemplate, AIMessagePromptTemplate, \
+    SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from owlready2 import *
 from owlready2 import get_ontology, Thing
@@ -77,27 +78,45 @@ class OntologyManager:
             temperature=1
         )
 
+        # Step 1: Convert each (role, text) in `setup_message` to a MessagePromptTemplate
+        prompt_templates = []
+        for role, text in setup_message:
+            if role == "system":
+                prompt_templates.append(SystemMessagePromptTemplate.from_template(text))
+            elif role == "assistant":
+                prompt_templates.append(AIMessagePromptTemplate.from_template(text))
+            else:  # treat everything else as a 'user' prompt
+                prompt_templates.append(HumanMessagePromptTemplate.from_template(text))
 
 
-        # Define a template with a placeholder for the class name
-        from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-        template = "Please process the following class: {classname}"
-        human_message = HumanMessagePromptTemplate.from_template(template)
 
-        # Create a ChatPromptTemplate (can include other system/assistant messages as needed)
-        prompt = ChatPromptTemplate.from_messages([human_message])
+        # Step 3: If you have few-shot examples with "input" and "output":
         if examples:
-            example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
-            few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
-            prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
+            # examples should be a list of dicts like:
+            # [{"input": "Example user prompt", "output": "Ideal example answer"}, ...]
+            print("EXAMLES", examples)
+            example_prompt = ChatPromptTemplate.from_messages([
+                HumanMessagePromptTemplate.from_template("{input}"),
+                AIMessagePromptTemplate.from_template("{output}")
+            ])
+            few_shot_prompt = FewShotChatMessagePromptTemplate(
+                example_prompt=example_prompt,
+                examples=examples,
+            )
 
-        # Format the prompt messages with the actual class name
-        messages = prompt.format_messages(classname=class_name)
+            # Optionally insert the few-shot prompt before the final user request
+            # so that the model sees the examples first:
+            prompt_templates.insert(len(prompt_templates) - 2, few_shot_prompt)
+        # Step 4: Build the overall ChatPromptTemplate from all pieces
+        prompt = ChatPromptTemplate.from_messages(prompt_templates)
 
-        # Create a chain with structured output
+        # Step 5: Format the prompt messages with class_name
+        messages = prompt.format_messages(input=class_name)
+
+        # Step 6: Run the chain with structured output
         chain = llm.with_structured_output(OntologyClass)
         ontology_class = chain.invoke(messages)
-
+        print(ontology_class)
         return ontology_class
 
     def update_ontology(self, ontology_file):

@@ -186,6 +186,7 @@ class OntologyMapper:
             include_similarity=True
         )
         # If no node is sufficiently similar, try to create a synonym or new node
+        print(f"Found nodes for {name_value}: {found_nodes}")
         if not found_nodes or found_nodes[0][1] < 0.97:
             # Let's propose a synonym
             new_name = self._create_synonym(name_value, found_nodes)

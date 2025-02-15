@@ -4,16 +4,119 @@ from datetime import date, datetime
 from neo4j.time import Date
 from neomodel import DateTimeProperty, DateProperty
 
+from importing.OntologyMapper.OntologyMapper import OntologyMapper
+from matgraph.models.ontology import EMMOMatter, EMMOProcess, EMMOQuantity
+
 
 class Neo4JHandler:
-    pass
+    def __init__(self):
+        self.ontology_list = None
+
+    def add_to_ontology(self):
+        """
+        Takes the list of dictionaries returned by _save_to_neo4j and uses OntologyMapper
+        to create or match them in the ontology. Then connects them (via is_a or parent/child
+        relationships) and stores the original uid on each ontology node.
+
+        :param data_list: A list of dicts in the format:
+            [
+                {
+                    "class": "EMMOMatter" | "EMMOProcess" | "EMMOQuantity",
+                    "uid": "some-neo4j-generated-uuid",
+                    "name": "the-node-name-or-value"
+                },
+                ...
+            ]
+        :return: A list of dicts with details about how each item was mapped, e.g.:
+            [
+                {
+                    "neo4j_uid": "the-uuid-from-neo4j",
+                    "mapped_node_name": "Name in Ontology",
+                    "mapped_node_uid": "UID or IRI from Ontology",
+                    "class": "EMMOMatter" (etc.)
+                },
+                ...
+            ]
+        """
+        # 1) We need to map "EMMOMatter", "EMMOProcess", "EMMOQuantity"
+        #    to the actual classes or their python wrappers.
+        #    Below is a hypothetical mapping to your EMMO python classes:
+        class_map = {
+            "EMMOMatter": (EMMOMatter),
+            "EMMOProcess": (EMMOProcess, "manufacturing"),
+            "EMMOQuantity": (EMMOQuantity, "property")
+        }
+
+        mapped_results = []
+
+        for item in self.ontology_list:
+            class_type = item.get("class", "")
+            neo4j_uid  = item.get("uid", "")
+            name_value = item.get("name", "")
+
+            if not class_type or not neo4j_uid or not name_value:
+                # Skip entries missing essential info
+                continue
+
+            # 2) Determine which ontology class & label to use.
+            #    "label" is what you pass to OntologyMapper.__init__(...)
+            #    If "EMMOProcess" can also mean "measurement", "fabrication", etc.,
+            #    add logic to decide the label.
+            if class_type not in class_map:
+                # Not recognized—skip or handle error
+                continue
+
+            ontology_class, mapper_label = class_map[class_type]
+
+            # 3) Instantiate the OntologyMapper
+            #    The "context" argument might be your domain context or provenance info.
+            #    "label" is the category label for the name (e.g. 'matter', 'property').
+            mapper = OntologyMapper(
+                context="",
+                label=mapper_label,
+                ontology_class=ontology_class
+            )
+
+            # 4) Map the name_value to an ontology node. If needed, the mapper
+            #    will create a new node or find an existing match.
+            ontology_node = mapper.map_name(name_value)
+
+            # 5) Store the Neo4j uid on the ontology node for round-tripping.
+            #    Adjust the property name as needed (e.g., 'onto_uid', 'neo4j_uid', etc.).
+            query = f"""
+            MATCH (n:{ontology_class.__label__} {{uid: '{ontology_node.uid}'}})
+            MATCH (m {{uid: '{neo4j_uid}'}})
+            MERGE (m)-[:IS_A]->(n)
+            """
+            db.cypher_query(query)
+
+            # 6) The OntologyMapper internally calls _connect_to_ontology for
+            #    parent/child linking. If you need custom linking here (like an explicit
+            #    is_a connection to an anchor node in your ontology), do it below:
+            #
+            #    anchor_node = EMMOMatter.get(name="Material")  # Example
+            #    if anchor_node:
+            #        ontology_node.is_a.connect(anchor_node)
+
+            # 7) Collect the result so you can see which node was created or matched.
+            mapped_results.append({
+                "neo4j_uid": neo4j_uid,
+                "mapped_node_name": ontology_node.name,
+                "mapped_node_uid": getattr(ontology_node, "onto_uid", None)
+                                   or getattr(ontology_node, "uid", None),
+                "class": class_type
+            })
+
+        return mapped_results
+
+
 
 class Neo4jOrganizationalDataHandler(Neo4JHandler):
     def _save_to_neo4j(self):
         # Ensure the OrganizationalData instance is linked to an Experiment
         if not self.experiment:
             print("No associated Experiment found. Skipping Neo4j synchronization.")
-            return
+            return []
 
         experiment_uid = str(self.experiment.uid)
         organizational_data_uid = str(self.uid)
@@ -136,7 +239,6 @@ class Neo4jOrganizationalDataHandler(Neo4JHandler):
             RETURN node
         }
         RETURN True
-        
         """
 
         parameters = {
@@ -147,97 +249,132 @@ class Neo4jOrganizationalDataHandler(Neo4JHandler):
         # Execute the Cypher query
         try:
             output, meta = db.cypher_query(cypher_query, params=parameters)
-            print("Neo4j OrganizationalData Query Output:", output)
         except Exception as e:
             print("Error executing Neo4j OrganizationalData query:", e)
+
+        # ---------------------------------------------------------------------
+        # Additional query to fetch the desired nodes (Matter, Manufacturing,
+        # Measurement, Parameter, Property) and return them in the requested format
+        # ---------------------------------------------------------------------
+        result_query = """
+        MATCH (n)
+        WHERE n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property
+        RETURN 
+            CASE 
+                WHEN n:Matter THEN 'EMMOMatter'
+                WHEN n:Manufacturing THEN 'EMMOProcess'
+                WHEN n:Measurement THEN 'EMMOProcess'
+                WHEN n:Parameter THEN 'EMMOQuantity'
+                WHEN n:Property THEN 'EMMOQuantity'
+            END AS class,
+            n.uid AS uid,
+            CASE
+                WHEN n.name IS NOT NULL THEN n.name
+                WHEN n.value IS NOT NULL THEN toString(n.value)
+                ELSE "N/A"
+            END AS name
+        """
+
+        results, meta = db.cypher_query(result_query)
+
+        output_list = []
+        for row in results:
+            output_list.append({
+                "class": row[0],
+                "uid": row[1],
+                "name": row[2],
+            })
+
+        self.ontology_list = output_list
+        self.add_to_ontology()
+
 
 
 class Neo4jFabricationWorkflowHandler(Neo4JHandler):
     def _save_to_neo4j(self):
         # Cypher query to merge Synthesis and its Steps, including ordered relationships
         cypher_query = """
-    // Merge the Synthesis node
-    MERGE (e:Experiment:Process {uid: $experiment_uid})
-    MERGE (s:Manufacturing:Process {uid: $uid, type: $type})
-    MERGE (e)-[:HAS_PART]->(s)
-    WITH s, $steps AS steps, $experiment_uid AS experiment_uid
-    
-    // Iterate over each step
-    UNWIND steps AS step
-    CALL {
-        // Create or merge Manufacturing node
-        WITH step, experiment_uid, s
-        CREATE (ss:Manufacturing {uid: step.uid})
-        MERGE (s)-[:HAS_PART]->(ss)
-        SET ss.name = step.technique, ss.order = step.order
-        WITH *
-    
-        // Associate Precursor Materials
+        // Merge the Synthesis node
+        MERGE (e:Experiment:Process {uid: $experiment_uid})
+        MERGE (s:Manufacturing:Process {uid: $uid, type: $type})
+        MERGE (e)-[:HAS_PART]->(s)
+        WITH s, $steps AS steps, $experiment_uid AS experiment_uid
+        
+        // Iterate over each step
+        UNWIND steps AS step
         CALL {
+            // Create or merge Manufacturing node
+            WITH step, experiment_uid, s
+            CREATE (ss:Manufacturing {uid: step.uid})
+            MERGE (s)-[:HAS_PART]->(ss)
+            SET ss.name = step.technique, ss.order = step.order
             WITH ss, step, experiment_uid
-            UNWIND step.precursor_materials AS precursor
-                MERGE (mp:Matter {name: precursor.name, experiment_uid: experiment_uid})
-                ON CREATE SET mp.uid = precursor.uid
-                FOREACH(ignore IN CASE WHEN precursor.amount IS NOT NULL AND precursor.unit IS NOT NULL THEN [1] ELSE [] END |
-                    CREATE (p:Property {value: precursor.amount, unit: precursor.unit, uid: apoc.create.uuid()})
-                    MERGE (mp)-[:HAS_AMOUNT]->(p)
-                )
-                MERGE (mp)-[:IS_MANUFACTURING_INPUT]->(ss)
+        
+            // Associate Precursor Materials
+            CALL {
+                WITH ss, step, experiment_uid
+                UNWIND step.precursor_materials AS precursor
+                    MERGE (mp:Matter {name: precursor.name, experiment_uid: experiment_uid})
+                    ON CREATE SET mp.uid = precursor.uid
+                    FOREACH(ignore IN CASE WHEN precursor.amount IS NOT NULL AND precursor.unit IS NOT NULL THEN [1] ELSE [] END |
+                        CREATE (p:Property {value: precursor.amount, unit: precursor.unit, uid: apoc.create.uuid()})
+                        MERGE (mp)-[:HAS_AMOUNT]->(p)
+                    )
+                    MERGE (mp)-[:IS_MANUFACTURING_INPUT]->(ss)
+            }
+        
+            // Associate Target Materials
+            CALL {
+                WITH ss, step, experiment_uid
+                UNWIND step.target_materials AS target
+                    MERGE (mt:Matter {name: target.name, experiment_uid: experiment_uid})
+                    ON CREATE SET mt.uid = target.uid
+                    FOREACH(ignore IN CASE WHEN target.amount IS NOT NULL AND target.unit IS NOT NULL THEN [1] ELSE [] END |
+                        CREATE (p:Property {value: target.amount, unit: target.unit, uid: apoc.create.uuid()})
+                        MERGE (mt)-[:HAS_AMOUNT]->(p)
+                    )
+                    MERGE (ss)-[:HAS_MANUFACTURING_OUTPUT]->(mt)
+            }
+        
+            // Associate Parameters
+            CALL {
+                WITH ss, step
+                UNWIND step.parameters AS param
+                    CREATE (pa:Parameter {uid: param.uid})
+                    SET pa.name = param.name, pa.value = param.value, pa.unit = param.unit
+                    FOREACH(ignore IN CASE WHEN param.error IS NOT NULL THEN [1] ELSE [] END |
+                        SET pa.error = param.error
+                    )
+                    MERGE (ss)-[:HAS_PARAMETER]->(pa)
+            }
+        
+            // Associate Metadata
+            CALL {
+                WITH ss, step
+                UNWIND step.metadatas AS meta
+                    CREATE (md:Metadata {uid: meta.uid})
+                    SET md.key = meta.key, md.value = meta.value
+                    MERGE (ss)-[:HAS_METADATA]->(md)
+            }
         }
-    
-        // Associate Target Materials
-        CALL {
-            WITH ss, step, experiment_uid
-            UNWIND step.target_materials AS target
-                MERGE (mt:Matter {name: target.name, experiment_uid: experiment_uid})
-                ON CREATE SET mt.uid = target.uid
-                FOREACH(ignore IN CASE WHEN target.amount IS NOT NULL AND target.unit IS NOT NULL THEN [1] ELSE [] END |
-                    CREATE (p:Property {value: target.amount, unit: target.unit, uid: apoc.create.uuid()})
-                    MERGE (mt)-[:HAS_AMOUNT]->(p)
-                )
-                MERGE (ss)-[:HAS_MANUFACTURING_OUTPUT]->(mt)
-        }
-    
-        // Associate Parameters
-        CALL {
-            WITH ss, step
-            UNWIND step.parameters AS param
-                CREATE (pa:Parameter {uid: param.uid})
-                SET pa.name = param.name, pa.value = param.value, pa.unit = param.unit
-                FOREACH(ignore IN CASE WHEN param.error IS NOT NULL THEN [1] ELSE [] END |
-                    SET pa.error = param.error
-                )
-                MERGE (ss)-[:HAS_PARAMETER]->(pa)
-        }
-    
-        // Associate Metadata
-        CALL {
-            WITH ss, step
-            UNWIND step.metadatas AS meta
-                CREATE (md:Metadata {uid: meta.uid})
-                SET md.key = meta.key, md.value = meta.value
-                MERGE (ss)-[:HAS_METADATA]->(md)
-        }
-        }
-    
-    // After processing all steps, create ordered relationships between them
-    WITH steps
-    UNWIND range(0, size(steps) - 2) AS idx
-        MATCH (current:Manufacturing {uid: steps[idx].uid})
-        MATCH (next:Manufacturing {uid: steps[idx + 1].uid})
-        MERGE (current)-[:FOLLOWED_BY]->(next)
-    
-            """
+        
+        // After processing all steps, create ordered relationships between them
+        WITH steps
+        UNWIND range(0, size(steps) - 2) AS idx
+            MATCH (current:Manufacturing {uid: steps[idx].uid})
+            MATCH (next:Manufacturing {uid: steps[idx + 1].uid})
+            MERGE (current)-[:FOLLOWED_BY]->(next)
+        """
+
         # Prepare parameters
         steps_queryset = self.steps.all().order_by('order')
         steps_data = []
         for step in steps_queryset:
             step_data = {
-
                 "uid": str(step.uid),  # Convert UUID to string
                 "order": step.order,
                 "technique_id": str(step.technique.uid) if step.technique else None,  # Convert UUID to string
-                'technique': step.technique.name if step.technique else None,
+                "technique": step.technique.name if step.technique else None,
                 "precursor_materials": [
                     {
                         "uid": str(material['uid']),
@@ -276,6 +413,7 @@ class Neo4jFabricationWorkflowHandler(Neo4JHandler):
                 ],
             }
             steps_data.append(step_data)
+
         parameters = {
             "step_number": len(steps_data),
             "experiment_uid": str(self.experiment.uid),
@@ -283,7 +421,49 @@ class Neo4jFabricationWorkflowHandler(Neo4JHandler):
             "steps": steps_data,
             "type": self.__class__.__name__,
         }
-        output = db.cypher_query(cypher_query, params=parameters)
+
+        # Execute the Cypher query
+        try:
+            output, meta = db.cypher_query(cypher_query, params=parameters)
+            print("Neo4j FabricationWorkflow Query Output:", output)
+        except Exception as e:
+            print("Error executing Neo4j FabricationWorkflow query:", e)
+
+        # ---------------------------------------------------------------------
+        # Additional query to fetch the desired nodes and return them in the requested format
+        # ---------------------------------------------------------------------
+        result_query = """
+        MATCH (n)
+        WHERE n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property
+        RETURN 
+            CASE 
+                WHEN n:Matter THEN 'EMMOMatter'
+                WHEN n:Manufacturing THEN 'EMMOProcess'
+                WHEN n:Measurement THEN 'EMMOProcess'
+                WHEN n:Parameter THEN 'EMMOQuantity'
+                WHEN n:Property THEN 'EMMOQuantity'
+            END AS class,
+            n.uid AS uid,
+            CASE
+                WHEN n.name IS NOT NULL THEN n.name
+                WHEN n.value IS NOT NULL THEN toString(n.value)
+                ELSE "N/A"
+            END AS name
+        """
+
+        results, meta = db.cypher_query(result_query)
+
+        output_list = []
+        for row in results:
+            output_list.append({
+                "class": row[0],
+                "uid": row[1],
+                "name": row[2],
+            })
+
+        self.ontology_list = output_list
+        self.add_to_ontology()
+
 
 
 class Neo4jDataHandler(Neo4JHandler):
@@ -353,7 +533,7 @@ class Neo4jDataHandler(Neo4JHandler):
                         dr.data_format = data_res.data_format,
                         dr.link = data_res.link
                     MERGE (as)-[:GENERATES_DATA]->(dr)
-                    }
+                }
                 WITH as, step, experiment_uid
     
                 // Associate Quantity Results
@@ -377,7 +557,7 @@ class Neo4jDataHandler(Neo4JHandler):
                     SET m.key = meta.key,
                         m.value = meta.value
                     MERGE (as)-[:HAS_METADATA]->(m)
-                    }
+                }
             }
             
             // After processing all steps, create ordered relationships between them
@@ -386,7 +566,7 @@ class Neo4jDataHandler(Neo4JHandler):
                 MATCH (current:AnalysisStep {uid: steps[idx].uid})
                 MATCH (next:AnalysisStep {uid: steps[idx + 1].uid})
                 MERGE (current)-[:FOLLOWED_BY]->(next)
-            """
+        """
 
         # Prepare parameters
         steps_queryset = self.steps.all().order_by('order')
@@ -465,16 +645,52 @@ class Neo4jDataHandler(Neo4JHandler):
         # Execute the Cypher query
         try:
             output, meta = db.cypher_query(cypher_query, params=parameters)
-            print("Neo4j Analysis Query Output:", output)
+            print("Neo4j DataHandler (Analysis) Query Output:", output)
         except Exception as e:
             print("Error executing Neo4j Analysis query:", e)
+
+        # ---------------------------------------------------------------------
+        # Additional query to fetch the desired nodes and return them in the requested format
+        # ---------------------------------------------------------------------
+        result_query = """
+        MATCH (n)
+        WHERE n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property
+        RETURN 
+            CASE 
+                WHEN n:Matter THEN 'EMMOMatter'
+                WHEN n:Manufacturing THEN 'EMMOProcess'
+                WHEN n:Measurement THEN 'EMMOProcess'
+                WHEN n:Parameter THEN 'EMMOQuantity'
+                WHEN n:Property THEN 'EMMOQuantity'
+            END AS class,
+            n.uid AS uid,
+            CASE
+                WHEN n.name IS NOT NULL THEN n.name
+                WHEN n.value IS NOT NULL THEN toString(n.value)
+                ELSE "N/A"
+            END AS name
+        """
+
+        results, meta = db.cypher_query(result_query)
+
+        output_list = []
+        for row in results:
+            output_list.append({
+                "class": row[0],
+                "uid": row[1],
+                "name": row[2],
+            })
+
+        self.ontology_list = output_list
+        self.add_to_ontology()
+
 
 class Neo4jMeasurementHandler(Neo4JHandler):
     def _save_to_neo4j(self):
         # Ensure the Measurement instance is linked to an Experiment
         if not self.experiment:
             print("No associated Experiment found. Skipping Neo4j synchronization.")
-            return
+            return []
 
         experiment_uid = str(self.experiment.uid)
         measurement_uid = str(self.uid)
@@ -485,24 +701,22 @@ class Neo4jMeasurementHandler(Neo4JHandler):
         MERGE (e:Experiment {uid: $experiment_uid})
         
         // Merge the Measurement node
-        MERGE (m:Measurement {uid: $measurement_uid})
+        MERGE (m:Measurement {uid: $measurement_uid, name: $measurement_method})
+        MERGE (m)-[:HAS_PARAMETER]->(p1:Parameter {uid: apoc.create.uuid(), name: "temperature", value: $temperature, unit: $temperature_unit})
+        MERGE (m)-[:HAS_PARAMETER]->(p2:Parameter {uid: apoc.create.uuid(), name: "pressure", value: $pressure, unit: $pressure_unit})
+        MERGE (m)-[:HAS_METADATA]->(meta1:Metadata {uid: apoc.create.uuid(), type: "atmosphere", value: $atmosphere})
+        MERGE (m)-[:HAS_METADATA]->(meta2:Metadata {uid: apoc.create.uuid(), type: "specimen", value: $specimen})
+        MERGE (m)-[:HAS_METADATA]->(meta3:Metadata {uid: apoc.create.uuid(), type: "measurement_type", value: $measurement_type})
+        
         SET m.measurement_method = $measurement_method,
-            m.measurement_type = $measurement_type,
-            m.specimen = $specimen,
-            m.temperature = $temperature,
-            m.temperature_unit = $temperature_unit,
-            m.pressure = $pressure,
-            m.pressure_unit = $pressure_unit,
-            m.atmosphere = $atmosphere,
             m.created_at = $created_at,
             m.updated_at = $updated_at
-        MERGE (e)-[:HAS_MEASUREMENT]->(m)
         
-        // Link Measurement to Experiment
+        MERGE (e)-[:HAS_MEASUREMENT]->(m)
         MERGE (e)-[:HAS_PART]->(m)
+        RETURN m
         """
 
-        # Prepare parameters
         parameters = {
             "experiment_uid": experiment_uid,
             "measurement_uid": measurement_uid,
@@ -518,12 +732,46 @@ class Neo4jMeasurementHandler(Neo4JHandler):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-        # Execute the Cypher query
         try:
             output, meta = db.cypher_query(cypher_query, params=parameters)
             print("Neo4j Measurement Query Output:", output)
         except Exception as e:
             print("Error executing Neo4j Measurement query:", e)
+
+        # ---------------------------------------------------------------------
+        # Additional query to fetch the desired nodes and return them in the requested format
+        # ---------------------------------------------------------------------
+        result_query = """
+        MATCH (n)
+        WHERE n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property
+        RETURN 
+            CASE 
+                WHEN n:Matter THEN 'EMMOMatter'
+                WHEN n:Manufacturing THEN 'EMMOProcess'
+                WHEN n:Measurement THEN 'EMMOProcess'
+                WHEN n:Parameter THEN 'EMMOQuantity'
+                WHEN n:Property THEN 'EMMOQuantity'
+            END AS class,
+            n.uid AS uid,
+            CASE
+                WHEN n.name IS NOT NULL THEN n.name
+                WHEN n.value IS NOT NULL THEN toString(n.value)
+                ELSE "N/A"
+            END AS name
+        """
+
+        results, meta = db.cypher_query(result_query)
+
+        output_list = []
+        for row in results:
+            output_list.append({
+                "class": row[0],
+                "uid": row[1],
+                "name": row[2],
+            })
+
+        self.ontology_list = output_list
+        self.add_to_ontology()
 
 
 
@@ -534,9 +782,7 @@ from neomodel import db
 
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
-        print("DEBUG type:", type(obj))  # For debugging
         if isinstance(obj, (date, datetime, DateTimeProperty, DateProperty, Date)):
-            print("DEBUG type:", type(obj))  # For debugging
             return obj.isoformat()
         return super().default(obj)
 
@@ -998,7 +1244,7 @@ class SearchHandler:
 
     Example search_instructions dict structure:
     {
-        "materials": ["MaterialA", "MaterialB"],
+        "materials": ["A", "B"],
         "techniques": ["Technique1", "Technique2"],
         "parameters": ["ParamName1", "ParamName2"],
         "properties": ["PropertyName1", "PropertyName2"],

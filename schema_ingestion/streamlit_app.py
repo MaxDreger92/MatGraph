@@ -5,6 +5,10 @@ import tempfile
 import uuid
 import zipfile
 from datetime import date
+
+import numpy as np
+from matplotlib import pyplot as plt
+
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -43,6 +47,33 @@ from schema_ingestion.models import (
     Analysis, AnalysisStep,
     # Data, Quantity # If these models exist, import them as needed.
 )
+
+x = np.linspace(0, 10, 200)
+a = np.sin(x) + 2
+b = np.cos(x) + 1
+sigma_a = 0.2 + 0.1*np.abs(np.sin(x))
+sigma_b = 0.2 + 0.1*np.abs(np.cos(x))
+f = a + b
+sigma_f = np.sqrt(sigma_a**2 + sigma_b**2)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.plot(x, a, label='Component a', color='skyblue')
+ax.fill_between(x, a - sigma_a, a + sigma_a, color='skyblue', alpha=0.3)
+
+ax.plot(x, b, label='Component b', color='lightgreen')
+ax.fill_between(x, b - sigma_b, b + sigma_b, color='lightgreen', alpha=0.3)
+
+ax.plot(x, f, label='Total f(x)', color='darkred', linewidth=2)
+ax.fill_between(x, f - sigma_f, f + sigma_f, color='darkred', alpha=0.2)
+
+ax.set_xlabel('x')
+ax.set_ylabel('Value')
+ax.set_title('Continuous Components with Uncertainty Bands')
+ax.legend()
+
+
+plt.savefig("stacked_components.png")
+
 
 def advanced_search_tab_ui():
     st.subheader("Advanced Search with Multiple Criteria")
@@ -142,7 +173,6 @@ def advanced_search_tab_ui():
                 if md["key"].strip() or md["value"].strip()
             ]
         }
-        print("SEARCH INSTRUCTIONS", search_instructions)
 
         # Use the SearchHandler to find matching experiments
         sh = SearchHandler()
