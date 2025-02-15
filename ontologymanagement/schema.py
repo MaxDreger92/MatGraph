@@ -1,8 +1,6 @@
 from typing import List, Optional
 
-from langchain_core.pydantic_v1 import BaseModel, Field, validator
-
-
+from pydantic import BaseModel, Field
 
 
 class OntologyClass(BaseModel):
@@ -14,7 +12,7 @@ class OntologyClass(BaseModel):
     """
     name: str = Field(description="Name of the class")
     description: str = Field(description="Short scientific one sentence description of the class")
-    alternative_labels: List[str] = Field([], description="Alternative labels/synonymns of the class")
+    alternative_labels: List[str] = Field(default_factory=list, description="Alternative labels/synonymns of the class")
 
 
 class ChildClass(BaseModel):
@@ -54,4 +52,4 @@ class ClassList(BaseModel):
     List of classes going from the parent to class to the input class
     - classes: List of classes
     """
-    classes: List[OntoClass] = Field([], description="List of classes")
+    classes: List[OntoClass] = Field(default_factory=list, description="List of classes")

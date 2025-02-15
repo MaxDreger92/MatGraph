@@ -2,15 +2,14 @@ import io
 import os
 
 import requests
-from django.db import models, IntegrityError
-from neomodel import classproperty, RelationshipFrom, ZeroOrMore
+from django.db import models
+from neomodel import RelationshipFrom, ZeroOrMore
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
+from neomodel.util import classproperty
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
 from matgraph.models.embeddings import ModelEmbedding
-from django.contrib.postgres.fields import JSONField
-
 
 
 class ImportingReport(models.Model):

@@ -1,8 +1,0 @@
-{
-  "ip": "100.66.91.63",
-  "user": "max",
-  "port": 31950,
-  "headers": {
-    "opentrons-version": "3"
-  }
-}

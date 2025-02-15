@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from langchain_core.load import Serializable
-from langchain_core.pydantic_v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator
 
 
 class Node(Serializable):
