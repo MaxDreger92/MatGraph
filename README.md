@@ -2,29 +2,7 @@ matGraph
 
 matGraph is a graph database that leverages Large Language Models (LLMs), deep embeddings, and a standardized ontology to speed up and semantically enrich materials science workflows for data storage and retrieval. With native support for LangSmith, you can easily import shared datasets and integrate them into your own analysis pipelines.
 
-Importing Shared Datasets into LangSmith
 
-The shared datasets provided below are hosted on LangSmith and can be imported into your own LangSmith account. To do so:
-
-    Access the Dataset: Click on the public link for the dataset.
-    Import into LangSmith: In your LangSmith account, use the Import Dataset feature to add the dataset to your workspace.
-    Utilize the Data: Once imported, the datasets can be used to run evaluations, track experiments, or integrate into your custom workflows.
-
-Node Extraction Evaluation Datasets
-
-    Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
-    Parameter Dataset: https://smith.langchain.com/public/05aefa65-873f-4945-8ca5-dd0b65b30998/d
-    Matter Dataset: https://smith.langchain.com/public/91045cc2-7c62-4395-bd55-9e21927e8ae4/d
-    Manufacturing Dataset: https://smith.langchain.com/public/d3a20d4a-2551-4731-bf6a-315006b2b024/d
-    Measurement Dataset: https://smith.langchain.com/public/50aa343a-92e2-4352-86ad-809f8da4ae26/d
-
-Relationship Extraction Evaluation Datasets
-
-    Has_Manufacturing Dataset: https://smith.langchain.com/public/4229b14a-da62-48c4-8c74-5dddc223b4ae/d
-    Has_Measurement Dataset: https://smith.langchain.com/public/a9735b40-2dae-4e2c-8f06-ad29a8b6d9f9/d
-    Has_Parameter Dataset: https://smith.langchain.com/public/f840de1a-a438-4eac-bc5a-a2987788a5f5/d
-    Has_Property Dataset: https://smith.langchain.com/public/8957cd02-3e81-469d-9f93-75d0f993552d/d
-    Has_Metadata Dataset: https://smith.langchain.com/public/888d221a-de63-42a2-8236-14a60858f6c9/d
 
 Installation
 
@@ -183,9 +161,49 @@ Setting Up the File Server
         sudo systemctl enable file_server.service
         sudo systemctl start file_server.service
 
-Reproducing and Accessing Evaluation Results
+## Evaluate Pipeline
 
-The shared datasets provided above are used for node and relationship extraction evaluations. Once you import these datasets into your LangSmith account (see the Importing Shared Datasets section), you can run evaluations, track experiment metrics, and visualize results through the matGraph interface.
+To evaluate the pipeline, ensure that you have completed the following steps:
+
+1. **API Keys in .env:**  
+   Make sure your `.env` file includes a valid `OPENAI_API_KEY` and `LANGCHAIN_API_KEY`.
+
+2. **Install All Requirements:**  
+   Ensure that all dependencies are installed by running:
+   ```bash
+   pip install -r requirements.txt
+
+    Run Evaluations:
+    Navigate to the importing/LLMEvaluation directory and execute the runevaluations.py script:
+
+    cd importing/LLMEvaluation
+    python runevaluations.py
+
+This will trigger the evaluation pipeline, leveraging the provided API keys and dependencies to perform LLMEvaluation on the imported datasets.
+
+Shared LangSmith Datasets
+
+The shared datasets provided below are hosted on LangSmith and can be imported into your own LangSmith account. To do so:
+
+    Access the Dataset: Click on the public link for the dataset.
+    Import into LangSmith: In your LangSmith account, use the Import Dataset feature to add the dataset to your workspace.
+    Utilize the Data: Once imported, the datasets can be used to run evaluations, track experiments, or integrate into your custom workflows.
+
+Node Extraction Evaluation Datasets
+
+    Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
+    Parameter Dataset: https://smith.langchain.com/public/05aefa65-873f-4945-8ca5-dd0b65b30998/d
+    Matter Dataset: https://smith.langchain.com/public/91045cc2-7c62-4395-bd55-9e21927e8ae4/d
+    Manufacturing Dataset: https://smith.langchain.com/public/d3a20d4a-2551-4731-bf6a-315006b2b024/d
+    Measurement Dataset: https://smith.langchain.com/public/50aa343a-92e2-4352-86ad-809f8da4ae26/d
+
+Relationship Extraction Evaluation Datasets
+
+    Has_Manufacturing Dataset: https://smith.langchain.com/public/4229b14a-da62-48c4-8c74-5dddc223b4ae/d
+    Has_Measurement Dataset: https://smith.langchain.com/public/a9735b40-2dae-4e2c-8f06-ad29a8b6d9f9/d
+    Has_Parameter Dataset: https://smith.langchain.com/public/f840de1a-a438-4eac-bc5a-a2987788a5f5/d
+    Has_Property Dataset: https://smith.langchain.com/public/8957cd02-3e81-469d-9f93-75d0f993552d/d
+    Has_Metadata Dataset: https://smith.langchain.com/public/888d221a-de63-42a2-8236-14a60858f6c9/d
 
 Usage
 
