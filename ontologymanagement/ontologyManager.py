@@ -94,7 +94,6 @@ class OntologyManager:
         if examples:
             # examples should be a list of dicts like:
             # [{"input": "Example user prompt", "output": "Ideal example answer"}, ...]
-            print("EXAMLES", examples)
             example_prompt = ChatPromptTemplate.from_messages([
                 HumanMessagePromptTemplate.from_template("{input}"),
                 AIMessagePromptTemplate.from_template("{output}")
@@ -116,7 +115,6 @@ class OntologyManager:
         # Step 6: Run the chain with structured output
         chain = llm.with_structured_output(OntologyClass)
         ontology_class = chain.invoke(messages)
-        print(ontology_class)
         return ontology_class
 
     def update_ontology(self, ontology_file):
@@ -137,7 +135,6 @@ class OntologyManager:
                     print(f"Need to update class: {cls.name}")
                 try:
                     output = self.get_labels(cls.name, self.SETUP_MESSAGE[ontology_file])
-                    print(cls.name, output.name, output.alternative_labels)
                     cls.alternative_labels = str(output.alternative_labels)
                     cls.onto_name = cls.name
                     cls.description_name = output.description.replace("'", "")

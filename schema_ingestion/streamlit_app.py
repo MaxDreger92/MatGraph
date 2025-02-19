@@ -1,4 +1,5 @@
 import base64
+import json
 import sys
 import os
 import tempfile
@@ -28,10 +29,6 @@ import sys
 import os
 
 
-
-
-
-
 import sys
 import os
 from datetime import date
@@ -47,33 +44,6 @@ from schema_ingestion.models import (
     Analysis, AnalysisStep,
     # Data, Quantity # If these models exist, import them as needed.
 )
-
-x = np.linspace(0, 10, 200)
-a = np.sin(x) + 2
-b = np.cos(x) + 1
-sigma_a = 0.2 + 0.1*np.abs(np.sin(x))
-sigma_b = 0.2 + 0.1*np.abs(np.cos(x))
-f = a + b
-sigma_f = np.sqrt(sigma_a**2 + sigma_b**2)
-
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.plot(x, a, label='Component a', color='skyblue')
-ax.fill_between(x, a - sigma_a, a + sigma_a, color='skyblue', alpha=0.3)
-
-ax.plot(x, b, label='Component b', color='lightgreen')
-ax.fill_between(x, b - sigma_b, b + sigma_b, color='lightgreen', alpha=0.3)
-
-ax.plot(x, f, label='Total f(x)', color='darkred', linewidth=2)
-ax.fill_between(x, f - sigma_f, f + sigma_f, color='darkred', alpha=0.2)
-
-ax.set_xlabel('x')
-ax.set_ylabel('Value')
-ax.set_title('Continuous Components with Uncertainty Bands')
-ax.legend()
-
-
-plt.savefig("stacked_components.png")
-
 
 def advanced_search_tab_ui():
     st.subheader("Advanced Search with Multiple Criteria")
@@ -176,63 +146,71 @@ def advanced_search_tab_ui():
 
         # Use the SearchHandler to find matching experiments
         sh = SearchHandler()
-        experiments = sh.search_experiments(search_instructions)
+        experiments_uid = sh.search_experiments(search_instructions)
+        experiments = [e for e in Experiment.objects.filter(uid__in=experiments_uid)]
 
         if not experiments:
             st.warning("No experiments found matching your criteria.")
         else:
             st.success(f"Found {len(experiments)} experiment(s).")
-            selected_experiment = st.selectbox(
-                "Select an experiment to retrieve data from:",
-                options=experiments,
-                format_func=lambda e: f"{e.experiment_id} (UID: {e.uid})"
-            )
 
-            if st.button("Retrieve Data", key="retrieve_adv"):
-                retrieval_handler = Neo4jDataRetrievalHandler()
-                experiment_uid = str(selected_experiment.uid)
-
-                # JSON
-                if adv_output_format == "json":
+            retrieval_handler = Neo4jDataRetrievalHandler()
+            if adv_output_format == "json":
+                # For JSON, collect all experiment data in a dictionary
+                aggregated_json = {}
+                for exp in experiments:
+                    exp_uid = str(exp.uid)
                     try:
                         result_str = retrieval_handler.get_experiment_data(
-                            experiment_uid=experiment_uid,
+                            experiment_uid=exp_uid,
                             output_format='json'
                         )
-                        st.download_button(
-                            label="Download as JSON",
-                            data=result_str,
-                            file_name=f"experiment_{selected_experiment.experiment_id}.json",
-                            mime="application/json"
-                        )
-                        st.json(result_str)
+                        aggregated_json[exp_uid] = json.loads(result_str)
                     except Exception as e:
-                        st.error(f"Error retrieving JSON data: {e}")
-
-                else:  # CSV
-                    try:
-                        with tempfile.TemporaryDirectory() as tmpdir:
-                            result_files = retrieval_handler.get_experiment_data(
-                                experiment_uid=experiment_uid,
+                        st.error(f"Error retrieving JSON data for experiment {exp_uid}: {e}")
+                # Convert the aggregated data to JSON string
+                aggregated_json_str = json.dumps(aggregated_json, indent=2)
+                st.download_button(
+                    label="Download All Experiments as JSON",
+                    data=aggregated_json_str,
+                    file_name="all_experiments.json",
+                    mime="application/json"
+                )
+                st.json(aggregated_json)
+            else:  # CSV output
+                try:
+                    # Create a temporary directory for CSV files for all experiments
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        # Create a subdirectory for each experiment
+                        for exp in experiments:
+                            exp_uid = str(exp.uid)
+                            exp_dir = os.path.join(tmpdir, exp_uid)
+                            os.makedirs(exp_dir, exist_ok=True)
+                            retrieval_handler.get_experiment_data(
+                                experiment_uid=exp_uid,
                                 output_format='csv',
-                                base_path=tmpdir
+                                base_path=exp_dir
                             )
-                            with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip_file:
-                                with zipfile.ZipFile(tmp_zip_file.name, 'w') as zipf:
-                                    for label, filepath in result_files.items():
-                                        arcname = os.path.basename(filepath)
-                                        zipf.write(filepath, arcname=arcname)
+                        # Zip the entire temporary directory
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip_file:
+                            with zipfile.ZipFile(tmp_zip_file.name, 'w') as zipf:
+                                for root, dirs, files in os.walk(tmpdir):
+                                    for file in files:
+                                        abs_path = os.path.join(root, file)
+                                        # The archive name keeps the folder structure
+                                        arcname = os.path.relpath(abs_path, start=tmpdir)
+                                        zipf.write(abs_path, arcname=arcname)
+                            with open(tmp_zip_file.name, "rb") as f:
+                                zip_bytes = f.read()
 
-                                zip_bytes = tmp_zip_file.read()
-
-                            b64_zip = base64.b64encode(zip_bytes).decode()
-                            href = (
-                                f'<a href="data:application/zip;base64,{b64_zip}" '
-                                f'download="experiment_{selected_experiment.experiment_id}.zip">Download CSV ZIP</a>'
-                            )
-                            st.markdown(href, unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"Error retrieving CSV data: {e}")
+                        b64_zip = base64.b64encode(zip_bytes).decode()
+                        href = (
+                            f'<a href="data:application/zip;base64,{b64_zip}" '
+                            f'download="all_experiments.zip">Download All CSVs ZIP</a>'
+                        )
+                        st.markdown(href, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Error retrieving CSV data: {e}")
 
 def define_organizational_data_form():
     st.subheader("Organizational Data")
@@ -700,8 +678,6 @@ def add_analysis_step():
 
 
 def add_data_input(step_index):
-    print("Adding data input to analysis step", step_index)
-    print(st.session_state.analysis_steps_data)
     st.session_state.analysis_steps_data[step_index]["data_inputs"].append({
         "data_type": "default_type",
         "data_format": "default_format"
@@ -1282,12 +1258,6 @@ elif choice == "View Experiments":
 
     if experiments:
         for experiment in experiments:
-            print(experiment)
-            print("organizational_data", experiment.organizational_data)
-            print("characterization", experiment.characterization)
-            print("synthesis", experiment.synthesis)
-            print("sample_preparation", experiment.sample_preparation)
-            print("analysis", experiment.analysis)
 
             st.subheader(f"Experiment ID: {experiment.experiment_id}")
             if experiment.organizational_data:

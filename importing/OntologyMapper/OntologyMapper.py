@@ -188,12 +188,16 @@ class OntologyMapper:
         # If no node is sufficiently similar, try to create a synonym or new node
         print(f"Found nodes for {name_value}: {found_nodes}")
         if not found_nodes or found_nodes[0][1] < 0.97:
+            print("No Match Creating new node...")
             # Let's propose a synonym
             new_name = self._create_synonym(name_value, found_nodes)
+            print(f"Proposed synonym: {new_name}")
             new_search = self.ontology_class.nodes.get_by_string(
                 string=new_name, limit=15, include_similarity=True
             )
+            print(f"New search results: {new_search}")
             if not new_search or new_search[0][1] < 0.97:
+                print("still not found")
                 # Create a brand new node
                 ontology_node = self.ontology_class(name=new_name)
                 self._save_node(ontology_node)
@@ -301,8 +305,11 @@ class OntologyMapper:
             node (object): The newly created or retrieved node.
         """
         if not node.emmo_subclass and not node.emmo_parentclass:
+            print("Connecting node to ontology...")
             candidates = self._find_candidates(node)
-            connection_names = self._find_connection(candidates)
+            print(f"Candidates for {node.name}: {candidates}")
+            connection_names = self._find_connection(node.name, candidates)
+            print(f"Connection chain: {connection_names}")
             previous_node = None
             for cname in connection_names:
                 # Check if there is an existing node with that name
@@ -318,6 +325,7 @@ class OntologyMapper:
                     current_node.save()
 
                 if previous_node and previous_node != current_node:
+                    print(f"Connecting: {previous_node.name} -> {current_node.name}")
                     previous_node.emmo_parentclass.connect(current_node)
                 previous_node = current_node
         else:
@@ -382,7 +390,7 @@ class OntologyMapper:
             return node.get_superclasses([target_uid])
 
     @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
-    def _find_connection(self, candidates):
+    def _find_connection(self, name, candidates):
         """
         Given a list of candidate classes, use an LLM to find the connection chain.
 
@@ -401,11 +409,11 @@ class OntologyMapper:
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
         setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
         names_for_prompt = ", ".join([c[1] for c in candidates])
-        query = f"Input: {self.label}, candidates: {names_for_prompt}"
+        query = f"Input: {name}, candidates: {names_for_prompt}"
 
         prompt = ChatPromptTemplate.from_messages(setup_message)
         chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
-            {"run_name": f"{self.label}-connection"}
+            {"run_name": f"{name}-connection"}
         )
         response = chain.invoke({"input": query})
         return [cls.name for cls in response.classes]

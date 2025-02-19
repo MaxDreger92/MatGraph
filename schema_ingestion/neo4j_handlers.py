@@ -42,7 +42,7 @@ class Neo4JHandler:
         #    to the actual classes or their python wrappers.
         #    Below is a hypothetical mapping to your EMMO python classes:
         class_map = {
-            "EMMOMatter": (EMMOMatter),
+            "EMMOMatter": (EMMOMatter, "matter"),
             "EMMOProcess": (EMMOProcess, "manufacturing"),
             "EMMOQuantity": (EMMOQuantity, "property")
         }
@@ -65,7 +65,7 @@ class Neo4JHandler:
             if class_type not in class_map:
                 # Not recognized—skip or handle error
                 continue
-
+            print(class_map)
             ontology_class, mapper_label = class_map[class_type]
 
             # 3) Instantiate the OntologyMapper
@@ -805,9 +805,7 @@ class Neo4jDataRetrievalHandler:
               dict describing the written files.
         """
         # 1) Retrieve basic experiment node info
-        print("Fetching experiment data...")
         experiment_data = self._fetch_experiment(experiment_uid)
-        print("Experiment data:", experiment_data)
 
         # 2) Retrieve organizational data (Metadata attached directly to experiment)
         organizational_data = self._fetch_organizational_data(experiment_uid)
@@ -824,23 +822,52 @@ class Neo4jDataRetrievalHandler:
         # Combine everything in a single Python dictionary
         result = {
             "experiment": experiment_data,              # Basic experiment node
-            "organizational_data": organizational_data, # List of metadata nodes
-            "measurements": measurement_data,           # List of measurement nodes
-            "fabrication_workflow": synthesis_data,     # Synthesis steps
-            "data_processing": analysis_data            # Analysis steps
+            "organizational_data": organizational_data,   # List of metadata nodes
+            "measurements": measurement_data,             # List of measurement nodes
+            "fabrication_workflow": synthesis_data,       # Synthesis steps
+            "data_processing": analysis_data              # Analysis steps
         }
 
         if output_format == 'json':
-            return json.dumps(result, cls= DateTimeEncoder, indent=2)
+            return json.dumps(result, cls=DateTimeEncoder, indent=2)
         elif output_format == 'csv':
             return self._write_csv_files(result, base_path)
         else:
             raise ValueError("Output format must be either 'json' or 'csv'.")
 
+    def process_common_experiments(self, experiment_uids: list, output_format='json', base_path='.'):
+        """
+        Processes a list of common experiment UIDs. For each experiment UID, it retrieves the data
+        and writes out JSON or CSV files according to the specified output_format.
+
+        For JSON output, returns a dictionary mapping experiment uid to its JSON data.
+        For CSV output, each experiment's CSV files are written into a subdirectory (named after the uid)
+        within the provided base_path; returns a dict mapping experiment uid to its CSV file paths.
+
+        :param experiment_uids: List of experiment UIDs (strings).
+        :param output_format: 'json' or 'csv'
+        :param base_path: Base directory where CSV files are saved (or where JSON files can be aggregated).
+        :return: A dictionary mapping experiment uid to its output (JSON string or CSV file info).
+        """
+        aggregated_results = {}
+
+        for uid in experiment_uids:
+            if output_format == 'json':
+                data = self.get_experiment_data(uid, output_format='json')
+                aggregated_results[uid] = json.loads(data)  # Optionally parse to dict
+            elif output_format == 'csv':
+                # Create a subdirectory for each experiment so that files don't overwrite one another.
+                experiment_path = os.path.join(base_path, uid)
+                os.makedirs(experiment_path, exist_ok=True)
+                csv_files = self.get_experiment_data(uid, output_format='csv', base_path=experiment_path)
+                aggregated_results[uid] = csv_files
+            else:
+                raise ValueError("Output format must be either 'json' or 'csv'.")
+        return aggregated_results
+
     # --------------------------------------------------------------------------
     #                             INTERNAL METHODS
     # --------------------------------------------------------------------------
-
     def _fetch_experiment(self, experiment_uid):
         """
         Fetches basic info of the Experiment node.
@@ -851,7 +878,7 @@ class Neo4jDataRetrievalHandler:
         RETURN e.uid AS uid
         """
         results, meta = db.cypher_query(query, {"uid": experiment_uid})
-        print("res",results)
+        print("res", results)
         if not results:
             return {}
         row = results[0]
@@ -1256,6 +1283,35 @@ class SearchHandler:
     }
     """
 
+    def get_matter(self, value):
+        return EMMOMatter.nodes.get_by_string(string = value, limit = 10)[0].uid
+
+    def get_technique(self, value):
+        return  EMMOProcess.nodes.get_by_string(string = value, limit = 10)[0].uid
+
+    def get_quantity(self, value):
+        return EMMOQuantity.nodes.get_by_string(string = value, limit = 10)[0].uid
+
+    def get_experiments_by_matter(self, matter_node):
+        """
+        Fetches all experiments that are associated with a given Matter node.
+        :param matter_node:
+        :return:
+        """
+        query = f"""
+        MATCH (emm:EMMOMatter {{uid: '{matter_node}'}})
+        <-[:IS_A]-(m:Matter)
+        MATCH (m)-[:IS_MANUFACTURING_INPUT|HAS_MANUFACTURING_OUTPUT]-(man:Manufacturing)
+        MATCH (man)<-[:HAS_PART]-(p:Process)
+        MATCH (p)<-[:HAS_PART]-(exp:Experiment)
+        RETURN exp.uid AS experimentUID
+        """
+        print(query)
+        results = db.cypher_query(query)[0][0]
+        print(results)
+        return results
+
+
     def search_experiments(self, search_instructions: dict) -> list:
         """
         Takes a dictionary of search instructions and returns
@@ -1264,5 +1320,79 @@ class SearchHandler:
         You can define the logic to combine multiple criteria with either 'AND' or 'OR' logic.
         Below is an example that uses 'AND' across categories, but 'OR' within each category.
         """
+        print("run here")
+        print(search_instructions)
+        output = {
+            "EMMOMatter": [],
+            "EMMOProcess": [],
+            "EMMOQuantity": []
+        }
 
-        return []
+        for key, value in search_instructions.items():
+            if key == "materials":
+                for element in value:
+                    matter_node = self.get_matter(value)
+                    experiments = self.get_experiments_by_matter(matter_node)
+                    output["EMMOMatter"].append({matter_node: experiments})
+                    print(output)
+            elif key == "techniques":
+                for element in value:
+                    technique_node = self.get_technique(value)
+                    experiments = self.get_experiments_by_technique(technique_node)
+                    output["EMMOProcess"].append({technique_node: experiments})
+            elif key == "parameters" or key == "properties":
+                for element in value:
+                    quantity_node = self.get_quantity(value)
+                    experiments = self.get_experiments_by_quantity(quantity_node)
+                    output["EMMOQuantity"].append({quantity_node: experiments})
+
+        common_experiments = self.get_common_experiments(output)
+
+
+
+
+        return common_experiments
+
+    def get_common_experiments(self, search_output: dict) -> list:
+        """
+        Given the output dictionary from search_experiments, this function
+        returns a list of experiments that appear in every category.
+
+        The expected format of search_output is:
+          {
+              "EMMOMatter": [{matter_node: [exp1, exp2, ...]}, ...],
+              "EMMOProcess": [{technique_node: [exp3, exp4, ...]}, ...],
+              "EMMOQuantity": [{quantity_node: [exp5, exp6, ...]}, ...]
+          }
+        """
+        experiment_sets = []
+
+        # Iterate over each category in the output
+        for category, node_dicts in search_output.items():
+            if not node_dicts:
+                # If one category didn't return any nodes/experiments,
+                # then there can't be a common intersection.
+                continue
+
+            category_experiments = set()
+            # Each element in node_dicts is a dictionary mapping a node to experiments list
+            for node_dict in node_dicts:
+                for node, experiments in node_dict.items():
+                    # Here we assume experiments is a list of experiment identifiers (or objects)
+                    category_experiments.update(experiments)
+
+            # Only consider non-empty sets for intersection
+            if category_experiments:
+                experiment_sets.append(category_experiments)
+
+        # If we have no experiment sets, return empty list.
+        if not experiment_sets:
+            return []
+
+        # Compute the intersection of experiments across categories.
+        common_experiments = experiment_sets[0]
+        for exp_set in experiment_sets[1:]:
+            common_experiments = common_experiments.intersection(exp_set)
+
+        # Return as list (you might sort them if desired)
+        return list(common_experiments)
