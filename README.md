@@ -9,11 +9,21 @@
 - [Installation](#installation)
    - [Prerequisites](#prerequisites)
    - [Environment Setup](#environment-setup)
+   - [Clone & Install Python Dependencies](#clone--install-python-dependencies)
 - [Backend Setup](#backend-setup)
+   - [Prerequisites](#backend-prerequisites)
+   - [Installation & Setup](#installation--setup)
 - [Frontend Setup](#frontend-setup)
+   - [Prerequisites](#frontend-prerequisites)
+   - [Installation & Setup](#frontend-installation--setup)
 - [File Server Setup](#file-server-setup)
+   - [Setting Up the File Server](#setting-up-the-file-server)
+   - [Configuring NGINX as a Reverse Proxy](#configuring-nginx-as-a-reverse-proxy)
+   - [Ensuring Continuous Operation with systemd](#ensuring-continuous-operation-with-systemd)
 - [Evaluate Pipeline](#evaluate-pipeline)
 - [Shared LangSmith Datasets](#shared-langsmith-datasets)
+   - [Node Extraction Evaluation Datasets](#node-extraction-evaluation-datasets)
+   - [Relationship Extraction Evaluation Datasets](#relationship-extraction-evaluation-datasets)
 - [Usage](#usage)
 - [License](#license)
 
@@ -29,8 +39,7 @@ Before you begin, ensure you have the following installed and configured:
 - **OpenAI API Key:** Sign up at [OpenAI](https://openai.com/) and retrieve your API key from your dashboard.
 - **LangChain API Key:** Follow the [LangChain documentation](https://python.langchain.com/) to obtain your API key.
 - **Neo4j:**  
-  Install Neo4j for managing and visualizing your graph database.
-
+  Install Neo4j for managing and visualizing your graph database.  
   **Ubuntu Example:**
   ```bash
   wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
@@ -52,40 +61,42 @@ Creating the .env File:
 
 A sample file named env.example is provided. Populate this file with your credentials and configuration details, then rename it to .env:
 
-# Django
-DJANGO_PORT=8000
-DJANGO_SECRET_KEY=
+    # Django
+    DJANGO_PORT=8000
+    DJANGO_SECRET_KEY=
 
-# Postgres
-POSTGRES_USER=django_user
-POSTGRES_PASSWORD=
-POSTGRES_DB=django_db
-POSTGRES_HOST=mg-postgres
+    # Postgres
+    POSTGRES_USER=django_user
+    POSTGRES_PASSWORD=
+    POSTGRES_DB=django_db
+    POSTGRES_HOST=mg-postgres
 
-# Neo4j
-NEOMODEL_NEO4J_BOLT_URL=
+    # Neo4j
+    NEOMODEL_NEO4J_BOLT_URL=
 
-# File Server
-FILESERVER_URL_POST=
-FILESERVER_URL_GET=
-FILESERVER_URL_DEL=
-FILE_SERVER_USER=
-FILE_SERVER_PASSWORD=
+    # File Server
+    FILESERVER_URL_POST=
+    FILESERVER_URL_GET=
+    FILESERVER_URL_DEL=
+    FILE_SERVER_USER=
+    FILE_SERVER_PASSWORD= 
 
-# OpenAI / Langchain
-OPENAI_API_KEY=
-LANGCHAIN_API_KEY=
+    # OpenAI / Langchain
+    OPENAI_API_KEY=
+    LANGCHAIN_API_KEY=
 
-Clone and Install Python Dependencies:
+Clone & Install Python Dependencies
 
-    git clone https://github.com/yourusername/matGraph.git
-    cd matGraph
-    pip install -r requirements.txt
+Clone the repository and install the required Python dependencies:
+
+git clone https://github.com/yourusername/matGraph.git
+cd matGraph
+pip install -r requirements.txt
 
 Backend Setup
 
 The backend, housed in the UserBackendNodeJS directory, provides the API and server-side logic.
-Prerequisites
+Backend Prerequisites
 
     Node.js and npm: Ensure that Node.js (which includes npm) is installed. Check your installation:
 
@@ -104,25 +115,31 @@ npm install
 
 Starting the Backend Server:
 
+Depending on your setup, start the server using:
+
 npm start
 
-or, if using nodemon for automatic restarts:
+or, if using a tool like nodemon for automatic restarts:
 
     nodemon index.js
 
     The backend is typically accessible at http://localhost:5000 (or your configured port).
 
+    Additional Notes:
+        If the backend requires environment-specific configurations, create an .env file in the UserBackendNodeJS directory.
+        Check the scripts section in the package.json for other available commands.
+
 Frontend Setup
 
 The frontend is a React application that interacts with the backend.
-Prerequisites
+Frontend Prerequisites
 
     Node.js and npm: Ensure you have Node.js installed. Verify your installation:
 
     node -v
     npm -v
 
-Installation & Setup
+Frontend Installation & Setup
 
     Navigate to the Frontend Directory:
 
@@ -134,6 +151,8 @@ npm install
 
 Starting the Frontend Application:
 
+Start the development server with:
+
     npm start
 
     The React app will run on http://localhost:3000 and auto-reloads upon changes.
@@ -141,13 +160,56 @@ Starting the Frontend Application:
 File Server Setup
 
 A dedicated file server is required to handle file operations (POST, GET, DELETE) and should run continuously.
-Running the File Server
+Setting Up the File Server
 
-    Start the File Server:
+    Prepare the File Server Script:
 
-python file_server.py
+    Ensure that file_server.py (or your designated file server script) is included in your project.
 
-Ensure Continuous Operation with systemd
+    Run the File Server:
+
+    Start the file server by executing:
+
+    python file_server.py
+
+    For continuous operation, consider using a process manager such as systemd, supervisord, or pm2.
+
+Configuring NGINX as a Reverse Proxy
+
+    Install NGINX:
+
+    On Ubuntu/Debian:
+
+sudo apt update
+sudo apt install nginx
+
+For other systems, refer to the NGINX Installation Guide.
+
+Configure NGINX:
+
+Create a configuration file (e.g., /etc/nginx/sites-available/file_server):
+
+server {
+listen 80;
+server_name your_fileserver_domain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:YOUR_FILE_SERVER_PORT;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+Replace your_fileserver_domain.com with your domain and YOUR_FILE_SERVER_PORT with the port your file server is using.
+
+Enable and Test NGINX Configuration:
+
+    sudo ln -s /etc/nginx/sites-available/file_server /etc/nginx/sites-enabled/
+    sudo nginx -t
+    sudo systemctl restart nginx
+
+Ensuring Continuous Operation with systemd
 
 Create a service file at /etc/systemd/system/file_server.service:
 
@@ -166,9 +228,9 @@ WantedBy=multi-user.target
 
 Replace your_username and /path/to/your/project with your specific details, then run:
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable file_server.service
-    sudo systemctl start file_server.service
+sudo systemctl daemon-reload
+sudo systemctl enable file_server.service
+sudo systemctl start file_server.service
 
 Evaluate Pipeline
 
@@ -176,31 +238,39 @@ To verify that the complete pipeline is working correctly:
 
     Confirm API Keys in .env:
 
+    Ensure your .env file includes valid OPENAI_API_KEY and LANGCHAIN_API_KEY.
+
+    Install All Python Requirements:
+
 pip install -r requirements.txt
 
 Run Evaluations:
 
+Navigate to the importing/LLMEvaluation directory and run:
+
     cd importing/LLMEvaluation
     python runevaluations.py
 
+    This script leverages your API keys and dependencies to perform LLMEvaluation on the imported datasets.
+
 Shared LangSmith Datasets
 
-matGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks:
+matGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks.
 Node Extraction Evaluation Datasets
 
-    Property Dataset
-    Parameter Dataset
-    Matter Dataset
-    Manufacturing Dataset
-    Measurement Dataset
+    Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
+    Parameter Dataset: https://smith.langchain.com/public/05aefa65-873f-4945-8ca5-dd0b65b30998/d
+    Matter Dataset: https://smith.langchain.com/public/91045cc2-7c62-4395-bf6a-315006b2b024/d
+    Manufacturing Dataset: https://smith.langchain.com/public/d3a20d4a-2551-4731-bf6a-315006b2b024/d
+    Measurement Dataset: https://smith.langchain.com/public/50aa343a-92e2-4352-86ad-809f8da4ae26/d
 
 Relationship Extraction Evaluation Datasets
 
-    Has_Manufacturing Dataset
-    Has_Measurement Dataset
-    Has_Parameter Dataset
-    Has_Property Dataset
-    Has_Metadata Dataset
+    Has_Manufacturing Dataset: https://smith.langchain.com/public/4229b14a-da62-48c4-8c74-5dddc223b4ae/d
+    Has_Measurement Dataset: https://smith.langchain.com/public/a9735b40-2dae-4e2c-8f06-ad29a8b6d9f9/d
+    Has_Parameter Dataset: https://smith.langchain.com/public/f840de1a-a438-4eac-bc5a-a2987788a5f5/d
+    Has_Property Dataset: https://smith.langchain.com/public/8957cd02-3e81-469d-9f93-75d0f993552d/d
+    Has_Metadata Dataset: https://smith.langchain.com/public/888d221a-de63-42a2-8236-14a60858f6c9/d
 
 Usage
 
@@ -209,5 +279,3 @@ License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
 
-
-This is a properly formatted `README.md` file with clear headings,
