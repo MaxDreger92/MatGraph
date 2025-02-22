@@ -1,6 +1,6 @@
-# matGraph
+# MatGraph
 
-**matGraph** is a cutting-edge graph database that leverages Large Language Models (LLMs), deep embeddings, and a standardized ontology to accelerate and semantically enrich materials science workflows for data storage and retrieval. With native support for LangSmith, you can easily import shared datasets and integrate them into your own analysis pipelines.
+**MatGraph** is a cutting-edge graph database that leverages Large Language Models (LLMs), deep embeddings, and a standardized ontology to accelerate and semantically enrich materials science workflows for data storage and retrieval. With native support for LangSmith, you can easily import shared datasets and integrate them into your own analysis pipelines.
 
 ---
 
@@ -89,8 +89,8 @@ A sample file named env.example is provided. Populate this file with your creden
 
 Clone the repository and install the required Python dependencies:
 
-git clone https://github.com/yourusername/matGraph.git
-cd matGraph
+git clone https://github.com/MaxDreger92/MatGraph.git
+cd MatGraph
 pip install -r requirements.txt
 
 ##Backend Setup
@@ -234,6 +234,11 @@ sudo systemctl start file_server.service
 
 ### Evaluate Pipeline
 
+Evaluating the pipeline does not require a frontend or backend setup. All that is needed is the installation of all 
+Python requirements, the creation of a LangSmith and OpenAI API key. The evaulation can be used to check the pipelines 
+accuracy on the given data sets. Additionally, more datasets can be added. The evaluation can be done for each step of the 
+pipeline separately. 
+
 To verify that the complete pipeline is working correctly:
 
     Confirm API Keys in .env:
@@ -255,7 +260,7 @@ Navigate to the importing/LLMEvaluation directory and run:
 
 ## Shared LangSmith Datasets
 
-matGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks.
+MatGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks.
 ### Node Extraction Evaluation Datasets
 
     Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
@@ -274,7 +279,7 @@ matGraph integrates with LangSmith to import and utilize shared datasets. These 
 
 Usage
 
-Access the matGraph web application at: https://matgraph.xyz
+Access the MatGraph web application at: https://matgraph.xyz
 License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
