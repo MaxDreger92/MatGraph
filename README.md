@@ -11,7 +11,7 @@
    - [Environment Setup](#environment-setup)
    - [Clone & Install Python Dependencies](#clone--install-python-dependencies)
 - [Backend Setup](#backend-setup)
-   - [Prerequisites](#backend-prerequisites)
+   - [Backend Prerequisites](#backend-prerequisites)
    - [Installation & Setup](#installation--setup)
 - [Frontend Setup](#frontend-setup)
    - [Prerequisites](#frontend-prerequisites)
@@ -48,7 +48,7 @@ Before you begin, ensure you have the following installed and configured:
   sudo apt install neo4j
 
 For other operating systems, refer to the Neo4j Installation Guide.
-Environment Setup
+### Environment Setup
 
     API Keys and Configuration:
 
@@ -85,7 +85,7 @@ A sample file named env.example is provided. Populate this file with your creden
     OPENAI_API_KEY=
     LANGCHAIN_API_KEY=
 
-Clone & Install Python Dependencies
+### Clone & Install Python Dependencies
 
 Clone the repository and install the required Python dependencies:
 
@@ -93,17 +93,17 @@ git clone https://github.com/yourusername/matGraph.git
 cd matGraph
 pip install -r requirements.txt
 
-Backend Setup
+##Backend Setup
 
 The backend, housed in the UserBackendNodeJS directory, provides the API and server-side logic.
-Backend Prerequisites
+### Backend Prerequisites
 
     Node.js and npm: Ensure that Node.js (which includes npm) is installed. Check your installation:
 
     node -v
     npm -v
 
-Installation & Setup
+### Installation & Setup
 
     Navigate to the Backend Directory:
 
@@ -139,7 +139,7 @@ Frontend Prerequisites
     node -v
     npm -v
 
-Frontend Installation & Setup
+### Installation & Setup
 
     Navigate to the Frontend Directory:
 
@@ -157,10 +157,10 @@ Start the development server with:
 
     The React app will run on http://localhost:3000 and auto-reloads upon changes.
 
-File Server Setup
+## File Server Setup
 
 A dedicated file server is required to handle file operations (POST, GET, DELETE) and should run continuously.
-Setting Up the File Server
+### Setting Up the File Server
 
     Prepare the File Server Script:
 
@@ -174,7 +174,7 @@ Setting Up the File Server
 
     For continuous operation, consider using a process manager such as systemd, supervisord, or pm2.
 
-Configuring NGINX as a Reverse Proxy
+### Configuring NGINX as a Reverse Proxy
 
     Install NGINX:
 
@@ -209,7 +209,7 @@ Enable and Test NGINX Configuration:
     sudo nginx -t
     sudo systemctl restart nginx
 
-Ensuring Continuous Operation with systemd
+### Ensuring Continuous Operation with systemd
 
 Create a service file at /etc/systemd/system/file_server.service:
 
@@ -232,7 +232,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable file_server.service
 sudo systemctl start file_server.service
 
-Evaluate Pipeline
+### Evaluate Pipeline
 
 To verify that the complete pipeline is working correctly:
 
@@ -253,10 +253,10 @@ Navigate to the importing/LLMEvaluation directory and run:
 
     This script leverages your API keys and dependencies to perform LLMEvaluation on the imported datasets.
 
-Shared LangSmith Datasets
+## Shared LangSmith Datasets
 
 matGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks.
-Node Extraction Evaluation Datasets
+### Node Extraction Evaluation Datasets
 
     Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
     Parameter Dataset: https://smith.langchain.com/public/05aefa65-873f-4945-8ca5-dd0b65b30998/d
@@ -264,7 +264,7 @@ Node Extraction Evaluation Datasets
     Manufacturing Dataset: https://smith.langchain.com/public/d3a20d4a-2551-4731-bf6a-315006b2b024/d
     Measurement Dataset: https://smith.langchain.com/public/50aa343a-92e2-4352-86ad-809f8da4ae26/d
 
-Relationship Extraction Evaluation Datasets
+### Relationship Extraction Evaluation Datasets
 
     Has_Manufacturing Dataset: https://smith.langchain.com/public/4229b14a-da62-48c4-8c74-5dddc223b4ae/d
     Has_Measurement Dataset: https://smith.langchain.com/public/a9735b40-2dae-4e2c-8f06-ad29a8b6d9f9/d
