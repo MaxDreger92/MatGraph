@@ -4,7 +4,8 @@ from uuid import UUID
 
 from django_neomodel import NeoNodeSet
 from neomodel import StringProperty, db, NodeSet
-from neomodel.match import QueryBuilder, process_filter_args, unary_ops
+from neomodel.async_.match import process_filter_args
+from neomodel.sync_.match import QueryBuilder, _UNARY_OPERATORS
 from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -206,7 +207,7 @@ class FixedQueryBuilder(QueryBuilder):
                 filters = process_filter_args(source_class, kwargs)
                 for prop, op_and_val in filters.items():
                     operator, val = op_and_val
-                    if operator in unary_ops:
+                    if operator in _UNARY_OPERATORS:
                         # unary operators do not have a parameter
                         statement = f"{ident}.{prop} {operator}"
                     else:

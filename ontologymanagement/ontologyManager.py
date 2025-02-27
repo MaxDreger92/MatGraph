@@ -3,7 +3,7 @@ from json import JSONDecodeError
 
 from django.conf import settings
 from dotenv import load_dotenv
-from langchain.chains.ernie_functions import create_structured_output_runnable
+from langchain_community.chains.ernie_functions.base import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 from owlready2 import *
