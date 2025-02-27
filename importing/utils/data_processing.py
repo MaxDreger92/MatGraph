@@ -185,7 +185,7 @@ def sanitize_data(data):
 
 if __name__ == "__main__":
     # Sample CSV path and heading for demonstration
-    sample_csv_path = "../../data/materials.csv"
+    sample_csv_path = "../../data_schema/materials.csv"
     sample_heading = "product_id"
 
     # Find the true node row

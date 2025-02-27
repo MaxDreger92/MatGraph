@@ -23,5 +23,5 @@ _pycache_/
 
 # Mac OSX
 .DS_Store
-/data/
+/data_schema/
 /schema_ingestion/temp/*

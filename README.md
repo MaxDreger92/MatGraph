@@ -238,6 +238,12 @@ Evaluating the pipeline does not require a frontend or backend setup. All that i
 Python requirements, the creation of a LangSmith and OpenAI API key. The evaulation can be used to check the pipelines 
 accuracy on the given data sets. Additionally, more datasets can be added. The evaluation can be done for each step of the 
 pipeline separately. 
+The evaluation of the pipeline, as it is separated by steps does not contain the raw tables, it contains the langsmith 
+dataset which consist of JSON objects, that contain the tables as well as additional information and context, depending
+on the step and dataset.
+
+The raw tables as well as the artificial datasets for the validation of the node type and relationship type extraction
+can be found in the data_set directory.
 
 To verify that the complete pipeline is working correctly:
 

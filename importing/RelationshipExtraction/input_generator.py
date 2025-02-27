@@ -163,7 +163,7 @@ def get_node_ids(list1, list2):
 
 
 def main():
-    file_name = "../../data/materials.csv"
+    file_name = "../../data_schema/materials.csv"
     input_json = (csv_to_json(file_name))
     list1, list2 = prepare_lists(input_json, "matter", "manufacturing")
     print(list2)
