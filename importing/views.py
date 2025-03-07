@@ -24,6 +24,7 @@ from importing.utils.process_management import create_import_process
 from matgraph.models.metadata import File
 
 from .task_manager import submit_task, cancel_task
+from .utils.data_processing import sanitize_data
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,10 @@ class LabelExtractView(APIView):
 
         try:
             process = create_import_process(process_id, user_id, file_id, context)
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"Process creation failed with exception: {e}"})
+        try:
             submit_task(process_id, extract_labels, process)
             return JsonResponse(
                 {"process_id": process.process_id, "status": process.status},
@@ -94,7 +99,7 @@ class LabelExtractView(APIView):
         cached = FullTableCache.fetch(first_line)
         if cached:
             cached = str(cached).replace("'", '"')
-            sanitized_cached = self.sanitize_data(cached)
+            sanitized_cached = sanitize_data(cached)
             sanitized_cached_str = json.dumps(sanitized_cached)
 
             # send back
@@ -122,6 +127,9 @@ class AttributeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+        except Http404 as not_found:
+            return JsonResponse({"error": "Process not found"}, status=404)
+        try:
             if process.status not in ["idle", "cancelled", "error"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
@@ -163,6 +171,9 @@ class NodeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+        except Http404 as not_found:
+            return JsonResponse({"error": "Process not found"}, status=404)
+        try:
             if process.status not in ["idle", "cancelled", "error"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
@@ -204,6 +215,9 @@ class GraphExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+        except Http404 as not_found:
+            return JsonResponse({"error": "Process not found"}, status=404)
+        try:
             if process.status not in ["idle", "cancelled", "error"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
@@ -245,6 +259,9 @@ class GraphImportView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+        except Http404 as not_found:
+            return JsonResponse({"error": "Process not found"}, status=404)
+        try:
             if process.status not in ["idle", "cancelled", "error"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
