@@ -1,12 +1,11 @@
 import multiprocessing
 import time
+from datetime import datetime
 from multiprocessing import Queue, Process
 from queue import Empty
-from datetime import datetime
 
 from django.contrib.admin import SimpleListFilter
 from django_cron import Schedule
-from django.db import connection
 from neomodel import db, StringProperty, IntegerProperty, DateTimeProperty
 
 EXTRACTOR_STATE_TODO = 'todo'

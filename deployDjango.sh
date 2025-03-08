@@ -21,6 +21,9 @@ sudo rm -rf mat2devplatform/static/
 # Collect static files
 python manage.py collectstatic --no-input
 
+#python manage.py makemigrations
+#python manage.py migrate
+
 # Move collected static files
 sudo mv mat2devplatform/static/static/* mat2devplatform/static/
 
