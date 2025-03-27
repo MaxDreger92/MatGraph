@@ -267,6 +267,7 @@ Navigate to the importing/LLMEvaluation directory and run:
 ## Shared LangSmith Datasets
 
 MatGraph integrates with LangSmith to import and utilize shared datasets. These datasets are available for various evaluation tasks.
+Alternatively, the datasets can be accessed as JSON files in the dataset_graph_extraction directory within this repository.
 ### Node Extraction Evaluation Datasets
 
     Property Dataset: https://smith.langchain.com/public/39078e2b-db6d-483d-b7d6-ba677334228b/d
