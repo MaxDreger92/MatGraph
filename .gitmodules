@@ -1,0 +1,3 @@
+[submodule "fileserver"]
+	path = fileserver
+	url = https://github.com/thiloschenkelberg/mgfiles.git
