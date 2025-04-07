@@ -340,8 +340,8 @@ class ProcessReportView(APIView):
                 ImportProcess, user_id=user_id, process_id=process_id
             )
             process_status = process.status
-            if process_status in ["error", "cancelled"]:
-                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
+            # if process_status in ["error", "cancelled"]:
+            #     return response.Response({"status": process_status}, status=status.HTTP_200_OK)
 
             key_to_field_map = {
                 "labels": "labels",
