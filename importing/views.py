@@ -130,7 +130,7 @@ class AttributeExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error"]:
+            if process.status not in ["idle", "cancelled", "error", "imported"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "labels" in request.POST:
@@ -174,7 +174,7 @@ class NodeExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error"]:
+            if process.status not in ["idle", "cancelled", "error", "imported"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "attributes" in request.POST:
@@ -218,7 +218,7 @@ class GraphExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error"]:
+            if process.status not in ["idle", "cancelled", "error", "imported"]:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
