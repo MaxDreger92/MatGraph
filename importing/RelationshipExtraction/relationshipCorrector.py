@@ -235,7 +235,7 @@ class hasPartMeasurementCorrector(relationshipCorrector):
 class hasParameterCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
         super().__init__(nodes, graph, query, *args, **kwargs)
-        self._rel_type = 'has_parameter'
+        self._rel_type = 'HAS_PARAMETER'
         self._label_one = ['manufacturing', 'measurement']
         self._label_two = ['parameter']
         self.validator = hasParameterValidator(nodes, graph)
@@ -247,7 +247,7 @@ class hasParameterCorrector(relationshipCorrector):
 class hasPropertyCorrector(relationshipCorrector):
     def __init__(self, nodes, graph, query, *args, **kwargs):
         super().__init__(nodes, graph, query, *args, **kwargs)
-        self._rel_type = 'has_property'
+        self._rel_type = 'HAS_PROPERTY'
         self._label_one = ['matter']
         self._label_two = ['property']
         self.validator = hasPropertyValidator(nodes, graph)

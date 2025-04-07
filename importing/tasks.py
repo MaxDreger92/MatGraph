@@ -177,7 +177,7 @@ def extract_relationships(task, process):
         graph = json.loads(
             str(graph)
             .replace("'", '"')
-            .replace("has_manufacturing_output", "is_manufacturing_output")
+            .replace("HAS_MANUFACTURING_OUTPUT", "is_manufacturing_output")
         )
 
         process.graph = graph

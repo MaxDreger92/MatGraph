@@ -19,8 +19,8 @@ Guidelines:
 2. Ensure all matter and manufacturing nodes are included in the graph.
 3. Follow these rules:
     - Every node must have at least one edge connected to another node.
-    - Matter nodes cannot have both 'is_manufacturing_input' and 'has_manufacturing_output' edges with the same Manufacturing node.
-    - Matter nodes cannot have 'has_manufacturing_output' relationships with multiple Manufacturing nodes.
+    - Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'HAS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
+    - Matter nodes cannot have 'HAS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
 4. Use table_position to identify nodes that may belong together in the workflow.
 5. Ensure the sequence of nodes makes scientific sense, leveraging your knowledge and understanding of fabrication workflows.
 
@@ -30,8 +30,8 @@ Your goal is to create a graph that accurately represents the complete fabricati
                                 ("human", """
 Ensure you follow these rules:
 1. Every node must have at least one edge connected to another node.
-2. Matter nodes cannot have both 'is_manufacturing_input' and 'has_manufacturing_output' edges with the same Manufacturing node.
-3. Matter nodes cannot have 'has_manufacturing_output' relationships with multiple Manufacturing nodes.
+2. Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'HAS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
+3. Matter nodes cannot have 'HAS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
 4. The triples should form a node sequence that represents the complete fabrication workflow. Use table_position to identify related nodes.
 5. Make sure the sequence of nodes is scientifically sound, applying your knowledge and understanding of the workflow.
 """)
@@ -58,15 +58,15 @@ Each node has:
 
 
 Rules you always follow:
-1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
+1. Each parameter needs share exactly ONE 'HAS_PARAMETER' edge with a manufacturing, or measurement node.
 2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes and the table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
 """),
-("human", """Extract all "has_parameter" relationships from the data: {input} """),
+("human", """Extract all "HAS_PARAMETER" relationships from the data: {input} """),
 ("human",
 """Make sure that you followed the rule-set:
-1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
+1. Each parameter needs share exactly ONE 'HAS_PARAMETER' edge with a manufacturing, or measurement node.
 2. When you are unsure connect the nodes that are in close proximity in the table (consider the "index" keys of the attributes table).
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
@@ -184,17 +184,17 @@ Each node has:
 
 
 Rules you always follow:
-1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
+1. Each property node needs share exactly ONE 'HAS_PROPERTY' edge with a matter node.
 2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
 3. Usually properties of important parts a documented (e.g., products or important intermediate products).
 4. When you don't know how to correctly connect the nodes check their proximity in the table (consider the "table_position" keys of the attributes).
 """),
-("human", """Extract all "has_property" relationships from the data: {input} """),
+("human", """Extract all "HAS_PROPERTY" relationships from the data: {input} """),
 ("human",
 """Make sure to always follow the given format and that you create relationships that form correct triples!"""),
 ("human",
 """Make sure that you followed the rule-set:
-1. Each property node needs share exactly ONE 'has_property' edge with a matter node.
+1. Each property node needs share exactly ONE 'HAS_PROPERTY' edge with a matter node.
 2. Each property node needs to be connected with a matter node that fits the property (e.g., a battery capacity should be connected to a battery).
 3. Usually properties of important parts a documented (e.g., products or important intermediate products).
 4. When you don't know how to correctly connect the nodes check their proximity in the table (consider the "table_position" keys of the attributes).""")
@@ -206,14 +206,14 @@ and materials in the field of materials science. Your only task is to generate r
 You use the context and the deep knowledge in materials science to generate the relationships that correctly represent the information hidden in the table.
 Rules you always follow:
 1. Every measurement node needs to have at least on edge another property node.
-2. Each property node can only share a 'has_measurement_output' with one measurement node.
+2. Each property node can only share a 'HAS_MEASUREMENT_OUTPUT' with one measurement node.
 """),
 ("human", """Extract the relationships of the following nodes: {input} """),
 ("human", """Make sure to always follow the given format!"""),
 ("human",
 """Make sure that you followed the rule-set:
 1. Every measurement node needs to have at least on edge another property node.
-2. Each property node can only share a 'has_measurement_output' with one mess-embeeasurement node.""")
+2. Each property node can only share a 'HAS_MEASUREMENT_OUTPUT' with one mess-embeeasurement node.""")
 ]
 
 

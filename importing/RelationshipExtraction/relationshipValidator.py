@@ -168,7 +168,7 @@ class relationshipValidator:
 class hasPropertyValidator(relationshipValidator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rel_type = "has_property"
+        self.rel_type = "HAS_PROPERTY"
         self.label_one, self.label_two = ["matter"], ["property"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
 
@@ -184,8 +184,8 @@ class hasPropertyValidator(relationshipValidator):
 class hasManufacturingValidator(relationshipValidator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rel_type = "is_manufacturing_input"
-        self.rel_type2 = "has_manufacturing_output"
+        self.rel_type = "IS_MANUFACTURING_INPUT"
+        self.rel_type2 = "HAS_MANUFACTURING_OUTPUT"
         self.label_one, self.label_two = ["matter"], ["manufacturing"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
 
@@ -203,7 +203,7 @@ class hasManufacturingValidator(relationshipValidator):
 class hasParameterValidator(relationshipValidator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rel_type = "has_parameter"
+        self.rel_type = "HAS_PARAMETER"
         self.label_one, self.label_two = ["manufacturing", "measurement"], ["parameter"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
 
