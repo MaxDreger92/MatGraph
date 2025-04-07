@@ -380,6 +380,7 @@ class ImportProcess(models.Model):
     context = models.TextField()
     labels = models.JSONField(null=True, blank=True)
     attributes = models.JSONField(null=True, blank=True)
+    nodes = models.JSONField(null=True, blank=True)
     graph = models.JSONField(null=True, blank=True)
 
     status = models.TextField(default='idle')

@@ -143,7 +143,7 @@ def extract_nodes(task, process):
 
         graph = json.loads(str(node_extractor.results).replace("'", '"'))
 
-        process.graph = graph
+        process.nodes = graph
         process.status = "idle"
         process.save()
     except Exception as e:
@@ -157,7 +157,7 @@ def extract_relationships(task, process):
             task_cancelled(process)
             return
 
-        graph = process.graph
+        graph = process.nodes
         context = process.context
         header, first_row = prepare_graph_data(process.file_id)
         relationships_extractor = fullRelationshipsExtractor(
@@ -190,7 +190,6 @@ def extract_relationships(task, process):
 
 def import_graph(task, process, request_data):
     try:
-        print(0)
         if task.is_cancelled():
             task_cancelled(process)
             return

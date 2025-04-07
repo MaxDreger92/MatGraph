@@ -222,8 +222,8 @@ class GraphExtractView(APIView):
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
-                process.graph = json.loads(request.POST["graph"])
-            elif not process.graph:
+                process.nodes = json.loads(request.POST["graph"])
+            elif not process.nodes:
                     return JsonResponse({"error": "No graph provided"}, status=400)
 
             process.status = "processing_graph"
@@ -346,7 +346,7 @@ class ProcessReportView(APIView):
             key_to_field_map = {
                 "labels": "labels",
                 "attributes": "attributes",
-                "nodes": "graph",
+                "nodes": "nodes",
                 "graph": "graph",
                 "import": "import",
             }
@@ -372,9 +372,11 @@ class ProcessReportView(APIView):
                 response_data["message"] = "Data not available yet"
                 return response.Response(response_data, status=status.HTTP_200_OK)
 
+            response_key = key
             if key == "nodes":
-                data_value["relationships"] = []
-            response_data[key] = data_value
+                response_key = "graph"
+                
+            response_data[response_key] = data_value
             response_data["status"] = "ready"
             return response.Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:

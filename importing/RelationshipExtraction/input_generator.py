@@ -72,9 +72,9 @@ def csv_to_json(file_name):
 
 
 def extract_data(json_data_str, label):
-    json_data = json.loads(str(json_data_str).replace('\'', '"'))
+    nodes = json.loads(str(json_data_str).replace('\'', '"'))
     # Parse the JSON data
-    nodes = json_data.get('nodes', [])
+    # nodes = json_data.get('nodes', [])
 
     # Extract manufacturing data
     label_data = [node for node in nodes if node.get('label') == label]
