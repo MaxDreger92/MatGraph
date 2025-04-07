@@ -19,8 +19,8 @@ Guidelines:
 2. Ensure all matter and manufacturing nodes are included in the graph.
 3. Follow these rules:
     - Every node must have at least one edge connected to another node.
-    - Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'HAS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
-    - Matter nodes cannot have 'HAS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
+    - Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'IS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
+    - Matter nodes cannot have 'IS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
 4. Use table_position to identify nodes that may belong together in the workflow.
 5. Ensure the sequence of nodes makes scientific sense, leveraging your knowledge and understanding of fabrication workflows.
 
@@ -30,8 +30,8 @@ Your goal is to create a graph that accurately represents the complete fabricati
                                 ("human", """
 Ensure you follow these rules:
 1. Every node must have at least one edge connected to another node.
-2. Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'HAS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
-3. Matter nodes cannot have 'HAS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
+2. Matter nodes cannot have both 'IS_MANUFACTURING_INPUT' and 'IS_MANUFACTURING_OUTPUT' edges with the same Manufacturing node.
+3. Matter nodes cannot have 'IS_MANUFACTURING_OUTPUT' relationships with multiple Manufacturing nodes.
 4. The triples should form a node sequence that represents the complete fabrication workflow. Use table_position to identify related nodes.
 5. Make sure the sequence of nodes is scientifically sound, applying your knowledge and understanding of the workflow.
 """)

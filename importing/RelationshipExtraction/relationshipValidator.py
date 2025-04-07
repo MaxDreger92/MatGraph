@@ -185,7 +185,7 @@ class hasManufacturingValidator(relationshipValidator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rel_type = "IS_MANUFACTURING_INPUT"
-        self.rel_type2 = "HAS_MANUFACTURING_OUTPUT"
+        self.rel_type2 = "IS_MANUFACTURING_OUTPUT"
         self.label_one, self.label_two = ["matter"], ["manufacturing"]
         self._label_one_nodes, self._label_two_nodes = prepare_lists(self.input, self.label_one, self.label_two)
 

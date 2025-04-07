@@ -79,7 +79,7 @@ class HasManufacturingOutput(Edge):
     type:
      - has_manufacturing_output: connects a manufacturing step with its product (source: manufactruing node, target: matter node)
     """
-    type: str = "HAS_MANUFACTURING_OUTPUT"
+    type: str = "IS_MANUFACTURING_OUTPUT"
 
 class HasPropertyRelationships(BaseModel):
     relationships: List[HasProperty] = Field(None, description='List of has_property relationships')

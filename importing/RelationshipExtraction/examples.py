@@ -33,7 +33,7 @@ manufacturing: [
       "connection": ["9", "22"]
     },
     {
-      "rel_type": "HAS_MANUFACTURING_OUTPUT",
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
       "connection": ["22", "10"]
     },
     {
@@ -49,7 +49,7 @@ manufacturing: [
       "connection": ["11", "24"]
     },
     {
-      "rel_type": "HAS_MANUFACTURING_OUTPUT",
+      "rel_type": "IS_MANUFACTURING_OUTPUT",
       "connection": ["24", "13"]
     }
   ]
