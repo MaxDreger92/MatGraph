@@ -1,11 +1,18 @@
 import ast
 from json import JSONDecodeError
-
+import numpy as np
+from sklearn.preprocessing import normalize
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import hdbscan
+from sklearn.cluster import KMeans
+import numpy as np
 from django.conf import settings
 from dotenv import load_dotenv
 from langchain.chains.ernie_functions import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+from neomodel import db
 from owlready2 import *
 from owlready2 import get_ontology, Thing
 
@@ -219,35 +226,213 @@ class OntologyManager:
         for ontology_file in ontologies:
             self.import_to_neo4j(ontology_file)
 
+# def get_embeddings(type):
+#     """
+#     Connects to Neo4j and retrieves embeddings along with their node types.
+#     Make sure your nodes have an "embedding" property and a label indicating the node type.
+#     """
+#     query = f"""
+#     MATCH (n:{type})-[:FOR]-(m)
+#     WHERE size(n.input) < 30
+#
+#     RETURN n.vector AS embedding, labels(n) AS node_type, m.name AS name
+#     """
+#     output = db.cypher_query(query)
+#     return output[0]
+#
+# def main():
+#     # Get the project root directory
+#     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#
+#     # Change the current working directory to the project root directory
+#     os.chdir(project_root)
+#
+#     load_dotenv()
+#     from neomodel import config
+#
+#     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
+#     print(config.DATABASE_URL)
+#
+#     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
+#     api_key = settings.OPENAI_API_KEY
+#     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#     ontology_folder = BASE_DIR + "/Ontology/"
+#
+#     ontology_manager = OntologyManager(ontology_folder)
+#     # ontology_manager.update_ontology("quantities.owl")
+#     # ontology_manager.import_to_neo4j("quantities.owl")
+#     # ontology_manager.update_ontology("matter.owl")
+#     # ontology_manager.import_to_neo4j("matter.owl")
+#     # ontology_manager.update_ontology("manufacturing.owl")
+#     # ontology_manager.import_to_neo4j("manufacturing.owl")
+#
+#     # from emmopy import get_emmo
+#     uid = EMMOMatter.nodes.get_by_string(string = "ModelEmbedding", limit = 10)[0]
+#     print(uid.name)
+#     data = get_embeddings(type="ModelEmbedding")
+#
+#
+#     if not data:
+#         print("No embeddings found in the database!")
+#         return
+#
+#     # Separate embeddings and node types.
+#     embeddings = np.array([d[0] for d in data])
+#     node_types = []
+#     for d in data:
+#         # d[1] is a list of labels; choose the first label that isn't "ModelEmbedding".
+#         node_type = next((label for label in d[1] if label != "ModelEmbedding"), "ModelEmbedding")
+#         node_types.append(node_type)
+#     plt.style.use("ggplot")
+#     # Step 1: Normalize the embeddings using L2 normalization
+#     # # Normalize the embeddings using L2 normalization
+#     # embeddings_norm = normalize(embeddings, norm="l2")
+#     #
+#     # # Reduce dimensionality to 2D using PCA
+#     # pca_2d = PCA(n_components=2, random_state=42)
+#     # embeddings_2d = pca_2d.fit_transform(embeddings_norm)
+#     #
+#     # # Prepare the plot
+#     # unique_types = sorted(set(node_types))
+#     # cmap = plt.cm.get_cmap("viridis", len(unique_types))
+#     #
+#     # plt.figure(figsize=(10, 8))
+#     # for idx, node_type in enumerate(unique_types):
+#     #     indices = [i for i, t in enumerate(node_types) if t == node_type]
+#     #     plt.scatter(
+#     #         embeddings_2d[indices, 0],
+#     #         embeddings_2d[indices, 1],
+#     #         label=node_type,
+#     #         color=cmap(idx),
+#     #         s=20  # Smaller point size
+#     #     )
+#     #
+#     # plt.title("2D Visualization of OpenAI Embeddings by Node Type", fontsize=14, pad=20)
+#     # plt.xlabel("PCA Component 1", labelpad=10)
+#     # plt.ylabel("PCA Component 2", labelpad=10)
+#     # plt.legend(title="Node Type", fontsize=9, title_fontsize=10)
+#     # plt.show()
+#     # Normalize the embeddings using L2 normalization
+#     embeddings_norm = normalize(embeddings, norm="l2")
+#
+#     # Reduce dimensionality to 2D using PCA
+#     pca_2d = PCA(n_components=2, random_state=42)
+#     embeddings_2d = pca_2d.fit_transform(embeddings_norm)
+#
+#     # Get sorted unique node types (assuming there are three)
+#     unique_types = sorted(set(node_types))
+#
+#     # Create a figure with three subplots (one per node type)
+#     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
+#
+#     for ax, node_type in zip(axes, unique_types):
+#         # Filter indices for the current node type
+#         indices = [i for i, t in enumerate(node_types) if t == node_type]
+#         # Scatter plot for the current node type
+#         ax.scatter(embeddings_2d[indices, 0],
+#                    embeddings_2d[indices, 1],
+#                    s=20)  # Smaller point size
+#         ax.set_title(f"Node Type: {node_type}", fontsize=12)
+#         ax.set_xlabel("PCA Component 1", labelpad=10)
+#         ax.set_ylabel("PCA Component 2", labelpad=10)
+#
+#     plt.suptitle("2D Visualization of OpenAI Embeddings by Node Type", fontsize=16, y=1.05)
+#     plt.tight_layout()
+#     plt.show()
+#
+# if __name__ == "__main__":
+#     main()
+
+
+def get_embeddings(type):
+    """
+    Connects to Neo4j and retrieves embeddings along with their node types and names.
+    Make sure your nodes have an "embedding" property and a label indicating the node type.
+    """
+    query = f"""
+    MATCH (n:{type})-[:FOR]-(m)
+    WHERE size(n.input) < 30
+    RETURN n.vector AS embedding, labels(n) AS node_type, m.name AS name
+    """
+    output = db.cypher_query(query)
+    return output[0]
 
 def main():
-    # Get the project root directory
+    # Set project root directory
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    # Change the current working directory to the project root directory
     os.chdir(project_root)
 
     load_dotenv()
     from neomodel import config
-
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
     print(config.DATABASE_URL)
 
+    # Set up Django settings if needed
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
+    from django.conf import settings  # Assuming Django settings are needed for OPENAI_API_KEY
     api_key = settings.OPENAI_API_KEY
+
+    # Initialize ontology manager or any other required objects here
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ontology_folder = BASE_DIR + "/Ontology/"
+    # ontology_manager = OntologyManager(ontology_folder)
+    # ... additional ontology setup code ...
 
-    ontology_manager = OntologyManager(ontology_folder)
-    # ontology_manager.update_ontology("quantities.owl")
-    ontology_manager.import_to_neo4j("quantities.owl")
-    # ontology_manager.update_ontology("matter.owl")
-    ontology_manager.import_to_neo4j("matter.owl")
-    # ontology_manager.update_ontology("manufacturing.owl")
-    ontology_manager.import_to_neo4j("manufacturing.owl")
+    # Fetch embeddings from Neo4j
+    data = get_embeddings(type="ModelEmbedding")
+    if not data:
+        print("No embeddings found in the database!")
+        return
 
-    # from emmopy import get_emmo
+    # Separate embeddings and node types.
+    embeddings = np.array([d[0] for d in data])
+    node_types = []
+    for d in data:
+        # d[1] is a list of labels; choose the first label that isn't "ModelEmbedding".
+        node_type = next((label for label in d[1] if label != "ModelEmbedding"), "ModelEmbedding")
+        node_types.append(node_type)
 
+    # Normalize embeddings using L2 normalization
+    embeddings_norm = normalize(embeddings, norm="l2")
+
+    # Reduce embeddings to 2D using PCA for visualization
+    pca_2d = PCA(n_components=2, random_state=42)
+    embeddings_2d = pca_2d.fit_transform(embeddings_norm)
+
+    # Get sorted unique node types (assumed three in this case)
+    unique_types = sorted(set(node_types))
+
+    # Set a stylish theme for the plot
+    plt.style.use("ggplot")
+
+    # Create a figure with three subplots (one for each node type)
+    fig, axes = plt.subplots(1, len(unique_types), figsize=(18, 6), sharex=True, sharey=True)
+
+    for ax, node_type in zip(axes, unique_types):
+        # Get indices for the current node type
+        indices = [i for i, t in enumerate(node_types) if t == node_type]
+        # For these indices, extract the names
+        names = [data[i][2] for i in indices]
+        unique_names = sorted(set(names))
+
+        # Create a colormap for the names
+        cmap_names = plt.cm.get_cmap("viridis", len(unique_names))
+
+        # Plot points for each unique name with a distinct color
+        for j, name in enumerate(unique_names):
+            name_indices = [i for i in indices if data[i][2] == name]
+            ax.scatter(embeddings_2d[name_indices, 0],
+                       embeddings_2d[name_indices, 1],
+                       s=20,  # Smaller point size
+                       color=cmap_names(j))
+
+        ax.set_title(f"Node Type: {node_type}", fontsize=12)
+        ax.set_xlabel("PCA Component 1", labelpad=10)
+        ax.set_ylabel("PCA Component 2", labelpad=10)
+
+    plt.suptitle("2D Visualization of OpenAI Embeddings by Node Type (Colored by Name)", fontsize=16, y=1.05)
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,7 @@ class HasProperty(Edge):
     source: matter node
     target: property node
     """
-    type: str = Field(choices=["has_property"])
+    type: str = Field(choices=["HAS_PROPERTY"])
 
 class HasParameter(Edge):
     """
@@ -22,7 +22,7 @@ class HasParameter(Edge):
     source: manufacturing or measurement node
     target: parameter node
     """
-    type: str = Field(choices =["has_parameter"])
+    type: str = Field(choices =["HAS_PARAMETER"])
 
 class HasMeasurement(Edge):
     """
@@ -30,7 +30,7 @@ class HasMeasurement(Edge):
     source: measurement node
     target: property node
     """
-    type: str = Field(choices = ["has_measurement_output"])
+    type: str = Field(choices = ["HAS_MEASUREMENT_OUTPUT"])
 
 class HasMetadata(Edge):
     """
@@ -38,7 +38,7 @@ class HasMetadata(Edge):
     source: measurement/manufacturing node
     target: property node
     """
-    type: str = Field(choices = ["has_measurement_output"])
+    type: str = Field(choices = ["HAS_MEASUREMENT_OUTPUT"])
 
 class HasPartMatter(Edge):
     """
@@ -79,7 +79,7 @@ class HasManufacturingOutput(Edge):
     type:
      - has_manufacturing_output: connects a manufacturing step with its product (source: manufactruing node, target: matter node)
     """
-    type: str = "has_manufacturing_output"
+    type: str = "HAS_MANUFACTURING_OUTPUT"
 
 class HasPropertyRelationships(BaseModel):
     relationships: List[HasProperty] = Field(None, description='List of has_property relationships')

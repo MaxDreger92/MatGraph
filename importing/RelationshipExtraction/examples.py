@@ -33,7 +33,7 @@ manufacturing: [
       "connection": ["9", "22"]
     },
     {
-      "rel_type": "has_manufacturing_output",
+      "rel_type": "HAS_MANUFACTURING_OUTPUT",
       "connection": ["22", "10"]
     },
     {
@@ -49,7 +49,7 @@ manufacturing: [
       "connection": ["11", "24"]
     },
     {
-      "rel_type": "has_manufacturing_output",
+      "rel_type": "HAS_MANUFACTURING_OUTPUT",
       "connection": ["24", "13"]
     }
   ]
@@ -75,19 +75,19 @@ property: [
 ]""",
         'output': """{"output": [
     {
-      "rel_type": "has_property",
+      "rel_type": "HAS_PROPERTY",
       "connection": ["10", "22"]
     },
     {
-      "rel_type": "has_property",
+      "rel_type": "HAS_PROPERTY",
       "connection": ["8", "24"]
     },
     {
-      "rel_type": "has_property",
+      "rel_type": "HAS_PROPERTY",
       "connection": ["8", "26"]
     },
     {
-      "rel_type": "has_property",
+      "rel_type": "HAS_PROPERTY",
       "connection": ["8", "29"]
     }
   ] """}
@@ -114,23 +114,23 @@ parameter: [
         'output': """{
   "output": [
     {
-      "rel_type": "has_parameter",
+      "rel_type": "HAS_PARAMETER",
       "connection": ["10", "22"]
     },
     {
-      "rel_type": "has_parameter",
+      "rel_type": "HAS_PARAMETER",
       "connection": ["8", "24"]
     },
     {
-      "rel_type": "has_parameter",
+      "rel_type": "HAS_PARAMETER",
       "connection": ["8", "26"]
     },
     {
-      "rel_type": "has_parameter",
+      "rel_type": "HAS_PARAMETER",
       "connection": ["8", "27"]
     },
     {
-      "rel_type": "has_parameter",
+      "rel_type": "HAS_PARAMETER",
       "connection": ["8", "29"]
     }
   ]

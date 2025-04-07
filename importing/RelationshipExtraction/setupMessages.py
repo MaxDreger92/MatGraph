@@ -63,7 +63,7 @@ Rules you always follow:
 3. The source node is always the manufacturing or measurement node.
 4. The target node is always the parameter node.
 """),
-("human", """Extract all "has_parameter" relationships from the data: {input} """),
+("human", """Extract all "HAS_PARAMETER" relationships from the data: {input} """),
 ("human",
 """Make sure that you followed the rule-set:
 1. Each parameter needs share exactly ONE 'has_parameter' edge with a manufacturing, or measurement node.
@@ -189,7 +189,7 @@ Rules you always follow:
 3. Usually properties of important parts a documented (e.g., products or important intermediate products).
 4. When you don't know how to correctly connect the nodes check their proximity in the table (consider the "table_position" keys of the attributes).
 """),
-("human", """Extract all "has_property" relationships from the data: {input} """),
+("human", """Extract all "HAS_PROPERTY" relationships from the data: {input} """),
 ("human",
 """Make sure to always follow the given format and that you create relationships that form correct triples!"""),
 ("human",
