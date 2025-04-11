@@ -33,7 +33,7 @@ if not SECRET_KEY:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 
