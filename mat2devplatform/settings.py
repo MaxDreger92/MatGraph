@@ -43,6 +43,8 @@ ALLOWED_HOSTS = [
     "localhost",
     "matgraph.xyz",
     "vimilabs.com",
+    "host.docker.internal",
+    "3.69.233.134",
 ]
 
 # Application definition
