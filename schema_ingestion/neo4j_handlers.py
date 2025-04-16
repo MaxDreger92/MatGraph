@@ -258,7 +258,7 @@ class Neo4jOrganizationalDataHandler(Neo4JHandler):
         # ---------------------------------------------------------------------
         result_query = """
         MATCH (n)
-        WHERE n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property
+        WHERE (n:Matter OR n:Manufacturing OR n:Measurement OR n:Parameter OR n:Property) AND NOT (n)-[]-(:EMMOProcess|EMMOQuantity|EMMOMatter)
         RETURN 
             CASE 
                 WHEN n:Matter THEN 'EMMOMatter'

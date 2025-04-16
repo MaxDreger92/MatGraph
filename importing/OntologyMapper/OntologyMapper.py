@@ -180,13 +180,23 @@ class OntologyMapper:
             object: The ontology node that represents this name.
         """
         # Attempt to find similar nodes
-        found_nodes = self.ontology_class.nodes.get_by_string(
-            string=name_value.replace("_", " "),
-            limit=15,
-            include_similarity=True
-        )
+        found_nodes = []
+        if isinstance(name_value, list):
+            for name in name_value:
+                part_found_nodes = self.ontology_class.nodes.get_by_string(
+                    string=name.replace("_", " "),
+                    limit=15,
+                    include_similarity=True
+                )
+                found_nodes.extend(part_found_nodes)
+        else:
+            found_nodes = self.ontology_class.nodes.get_by_string(
+                string=name_value.replace("_", " "),
+                limit=15,
+                include_similarity=True
+            )
         # If no node is sufficiently similar, try to create a synonym or new node
-        print(f"Found nodes for {name_value}: {found_nodes}")
+        print(f"Found nodes for {name_value}: {found_nodes[0][1]}")
         if not found_nodes or found_nodes[0][1] < 0.97:
             print("No Match Creating new node...")
             # Let's propose a synonym
@@ -195,14 +205,17 @@ class OntologyMapper:
             new_search = self.ontology_class.nodes.get_by_string(
                 string=new_name, limit=15, include_similarity=True
             )
-            print(f"New search results: {new_search}")
+            print(f"New search results: {new_search[0]}")
             if not new_search or new_search[0][1] < 0.97:
                 print("still not found")
                 # Create a brand new node
                 ontology_node = self.ontology_class(name=new_name)
+                print("start saving")
                 self._save_node(ontology_node)
+                print("node saved")
                 return ontology_node
             else:
+                "Found a synonym, but and a match"
                 return new_search[0][0]
         else:
             return found_nodes[0][0]
@@ -305,11 +318,9 @@ class OntologyMapper:
             node (object): The newly created or retrieved node.
         """
         if not node.emmo_subclass and not node.emmo_parentclass:
-            print("Connecting node to ontology...")
+            print(f"Connecting {node.name} to the ontology...")
             candidates = self._find_candidates(node)
-            print(f"Candidates for {node.name}: {candidates}")
             connection_names = self._find_connection(node.name, candidates)
-            print(f"Connection chain: {connection_names}")
             previous_node = None
             for cname in connection_names:
                 # Check if there is an existing node with that name
@@ -318,7 +329,7 @@ class OntologyMapper:
                     limit=8,
                     include_similarity=True
                 )
-                if search_res and search_res[0][1] > 0.98:
+                if search_res and search_res[0][1] > 0.97:
                     current_node = search_res[0][0]
                 else:
                     current_node = self.ontology_class(name=cname)
@@ -451,30 +462,32 @@ class OntologyPipeline:
         parser = DataParser(self.data, self.file_link)
         parser.parse_data()
 
+
         # 2) For each (label, name_value) pair, map to ontology
         seen_pairs = set()  # Avoid re-mapping duplicates
         for label, name_value in parser.rows_to_map:
-            if (label, name_value) in seen_pairs:
-                continue
-
-            seen_pairs.add((label, name_value))
-            # Skip metadata, just in case
-            if label == 'metadata':
-                continue
-
-            if label in ONTOLOGY_CLASS_MAP:
-                ontology_class = ONTOLOGY_CLASS_MAP[label]
-                mapper = OntologyMapper(self.context, label, ontology_class)
-                node = mapper.map_name(name_value)
-                # Store result
-                self._results.append({
-                    'name': name_value,
-                    'label': label,
-                    'uid': node.uid,
-                    'ontology_class': ontology_class.__name__
-                })
-            else:
-                print(f"Unknown label: {label}. Skipping...")
+            print(f"Processing: {label} -> {name_value}")
+            # if (label, name_value) in seen_pairs:
+            #     continue
+            #
+            # seen_pairs.add((label, name_value))
+            # # Skip metadata, just in case
+            # if label == 'metadata':
+            #     continue
+            #
+            # if label in ONTOLOGY_CLASS_MAP:
+            #     ontology_class = ONTOLOGY_CLASS_MAP[label]
+            #     mapper = OntologyMapper(self.context, label, ontology_class)
+            #     node = mapper.map_name(name_value)
+            #     # Store result
+            #     self._results.append({
+            #         'name': name_value,
+            #         'label': label,
+            #         'uid': node.uid,
+            #         'ontology_class': ontology_class.__name__
+            #     })
+            # else:
+            #     print(f"Unknown label: {label}. Skipping...")
 
     @property
     def results(self):

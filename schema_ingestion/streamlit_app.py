@@ -334,6 +334,7 @@ def define_organizational_data_form():
             }
             # Create and save the Experiment organizational data
             experiment = Experiment.objects.create()
+            experiment.experiment_id = external_experiment_id
             experiment.save()
             organizational_data = OrganizationalData.objects.create(**organizational_data_dict, experiment=experiment)
             experiment.organizational_data=organizational_data
