@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('nodes', models.JSONField(blank=True, null=True)),
                 ('graph', models.JSONField(blank=True, null=True)),
                 ('status', models.TextField(default='idle')),
-                ('error_message', models.TextField(blank=True, null=True))
+                ('error_message', models.TextField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
