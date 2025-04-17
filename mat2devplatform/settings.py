@@ -33,7 +33,7 @@ if not SECRET_KEY:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 
@@ -43,6 +43,9 @@ ALLOWED_HOSTS = [
     "localhost",
     "matgraph.xyz",
     "vimilabs.com",
+    'matgraph.vimilabs.com',
+    "host.docker.internal",
+    "3.69.233.134",
 ]
 
 # Application definition
