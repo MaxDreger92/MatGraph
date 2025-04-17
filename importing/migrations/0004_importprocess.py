@@ -20,8 +20,10 @@ class Migration(migrations.Migration):
                 ('context', models.TextField()),
                 ('labels', models.JSONField(blank=True, null=True)),
                 ('attributes', models.JSONField(blank=True, null=True)),
+                ('nodes', models.JSONField(blank=True, null=True)),
                 ('graph', models.JSONField(blank=True, null=True)),
                 ('status', models.TextField(default='idle')),
+                ('error_message', models.TextField(blank=True, null=True))
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],

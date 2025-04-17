@@ -59,7 +59,9 @@ def extract_labels(task, process):
         process.status = "idle"
         process.save()
     except Exception as e:
-        process.delete()
+        process.status = "error"
+        process.error_message = str(e)
+        process.save()
         logger.error(f"Error during label extraction: {e}", exc_info=True)
         
 def extract_attributes(task, process):
@@ -107,6 +109,7 @@ def extract_attributes(task, process):
 
     except Exception as e:
         process.status = "error"
+        process.error_message = str(e)
         process.save()
         logger.error(f"Error during attribute extraction: {e}", exc_info=True)
 
@@ -148,6 +151,7 @@ def extract_nodes(task, process):
         process.save()
     except Exception as e:
         process.status = "error"
+        process.error_message = str(e)
         process.save()
         logger.error(f"Error during node extraction: {e}", exc_info=True)
 
@@ -184,6 +188,7 @@ def extract_relationships(task, process):
         process.save()
     except Exception as e:
         process.status = "error"
+        process.error_message = str(e)
         process.save()
         logger.error(f"Error during graph extraction: {e}", exc_info=True)
 
@@ -218,6 +223,7 @@ def import_graph(task, process, request_data):
         process.save()
     except Exception as e:
         process.status = "error"
+        process.error_message = str(e)
         process.save()
         logger.error(f"Error during graph import: {e}", exc_info=True)
         

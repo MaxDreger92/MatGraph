@@ -82,7 +82,9 @@ class LabelExtractView(APIView):
             logger.error(
                 f"Exception occurred while creating import process: {e}", exc_info=True
             )
-            process.delete()
+            process.status = "error"
+            process.error_message = str(e)
+            process.save()
             return response.Response(
                 {"error": "Label extraction failed"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -127,6 +129,7 @@ class AttributeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            process.error_message = None
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
@@ -146,6 +149,7 @@ class AttributeExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             process.status = "error"
+            process.error_message = str(e)
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Attribute extraction failed"}, status=500)
@@ -171,6 +175,7 @@ class NodeExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            process.error_message = None
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
@@ -190,6 +195,7 @@ class NodeExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             process.status = "error"
+            process.error_message = str(e)
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Node extraction failed"}, status=500)
@@ -215,6 +221,7 @@ class GraphExtractView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            process.error_message = None
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
@@ -234,6 +241,7 @@ class GraphExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             process.status = "error"
+            process.error_message = str(e)
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Graph extraction failed"}, status=500)
@@ -259,6 +267,7 @@ class GraphImportView(APIView):
             process = get_object_or_404(
                 ImportProcess, user_id=user_id, process_id=process_id
             )
+            process.error_message = None
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
@@ -277,6 +286,7 @@ class GraphImportView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             process.status = "error"
+            process.error_message = str(e)
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Graph import failed"}, status=500)
@@ -357,12 +367,12 @@ class ProcessReportView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-
-            if key == "import":
-                return response.Response({"status": process_status}, status=status.HTTP_200_OK)
-            
             response_data = {}
             response_data["status"] = process_status
+            response_data["error"] = process.error_message
+
+            if key == "import":
+                return response.Response(response_data, status=status.HTTP_200_OK)
             
             data_field = key_to_field_map[key]
             data_value = getattr(process, data_field)
