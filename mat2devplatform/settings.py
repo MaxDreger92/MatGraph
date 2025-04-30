@@ -228,3 +228,45 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ],
 }
+
+
+import logging
+import logging.config
+from logging.handlers import QueueHandler, QueueListener
+from queue import Queue
+
+log_queue = Queue(-1)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'handlers': {
+        'queue': {
+            'class': 'logging.handlers.QueueHandler',
+            'queue': log_queue,
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'level': 'DEBUG',
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} [{levelname}] {name}: {message}',
+            'style': '{',
+        },
+    },
+    'root': {
+        'handlers': ['queue'],
+        'level': 'DEBUG',
+    },
+}
+
+# Create the listener for writing logs to the file (thread-safe)
+file_handler = logging.FileHandler(os.path.join(BASE_DIR, 'debug.log'))
+file_handler.setFormatter(logging.Formatter('{asctime} [{levelname}] {name}: {message}', style='{'))
+listener = QueueListener(log_queue, file_handler)
+listener.start()
