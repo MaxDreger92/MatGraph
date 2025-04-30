@@ -1,19 +1,25 @@
 import ast
+import traceback
 from json import JSONDecodeError
 
+import openai
 from django.conf import settings
 from dotenv import load_dotenv
 from langchain_community.chains.ernie_functions.base import create_structured_output_runnable
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+from openai import OpenAI
 from owlready2 import *
 from owlready2 import get_ontology, Thing
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
 from graphutils.config import CHAT_GPT_MODEL
 from graphutils.embeddings import request_embedding
 from graphutils.models import AlternativeLabel
 from matgraph.models.embeddings import MatterEmbedding, ProcessEmbedding, QuantityEmbedding
 from matgraph.models.ontology import EMMOMatter, EMMOQuantity, EMMOProcess
+from ontologymanagement.examples import MATTER_ONTOLOGY_ASSISTANT_EXAMPLES, QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES, \
+    PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES
 from ontologymanagement.schema import OntologyClass
 from ontologymanagement.setupMessages import MATTER_ONTOLOGY_ASSISTANT_MESSAGES, QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES, \
     PROCESS_ONTOLOGY_ASSISTANT_MESSAGES
@@ -21,8 +27,7 @@ from ontologymanagement.setupMessages import MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
 
 def convert_alternative_labels(onto):
     onto_path = os.path.join("/home/mdreger/Documents/MatGraphAI/Ontology/", onto)
-    onto_path_alt = os.path.join("/home/mdreger/Documents/MatGraphAI/Ontology/alt_list", onto)
-    ontology = get_ontology(onto_path_alt).load()
+    ontology = get_ontology(onto_path).load()
 
     # Define the new alternative_label property
     # Define the new alternative_label property
@@ -54,39 +59,50 @@ class OntologyManager:
             "matter.owl": EMMOMatter,
             "quantities.owl": EMMOQuantity,
             "manufacturing.owl": EMMOProcess}
-        # self.EXAMPLES = {
-        #     "material.owl": MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
-        #     "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES,
-        #     "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
-        # }
+        self.EXAMPLES = {
+            "matter.owl": MATTER_ONTOLOGY_ASSISTANT_EXAMPLES,
+            "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_EXAMPLES,
+            "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_EXAMPLES,
+        }
         self.SETUP_MESSAGE = {
-            "material.owl": MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
+            "matter.owl": MATTER_ONTOLOGY_ASSISTANT_MESSAGES,
             "quantities.owl": QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES,
             "manufacturing.owl": PROCESS_ONTOLOGY_ASSISTANT_MESSAGES,
         }
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_fixed(1),  # wait 1 second between retries
+        retry=retry_if_exception_type(IndexError)
+    )
     def get_labels(self, class_name, setup_message, examples=None):
         """Performs the initial extraction of relationships using GPT-4."""
 
-        llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
+        class_name = str(class_name).lower()
+        llm = ChatOpenAI(model=CHAT_GPT_MODEL, api_key=os.getenv("OPENAI_API_KEY"))
+        llm = llm.bind_tools([OntologyClass])
         setup_message = setup_message
         prompt = ChatPromptTemplate.from_messages(setup_message)
 
+
         if examples:
-            print("Examples provided")
-            print(examples)
             example_prompt = ChatPromptTemplate.from_messages([('human', "{input}"), ('ai', "{output}")])
             few_shot_prompt = FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
             prompt = ChatPromptTemplate.from_messages([setup_message[0], few_shot_prompt, *setup_message[1:]])
 
-        chain = create_structured_output_runnable(OntologyClass, llm, prompt).with_config(
-            {"run_name": f"{label}-generation"})
+        chain = prompt | llm
         ontology_class = chain.invoke({"input": class_name})
-        return ontology_class
+        print(ontology_class)
+        ontology_class.content = ontology_class.content.replace("\n", "")
+        try:
+            ontology_object = OntologyClass.model_validate(ontology_class.tool_calls[0]["args"])
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            print("help", ontology_class.tool_calls[0]["args"])
+        return ontology_object
 
     def update_ontology(self, ontology_file):
-        if ontology_file == "matter.owl":
-            return
 
 
         ontology_path1 = os.path.join(self.ontology_folder, ontology_file)
@@ -102,15 +118,15 @@ class OntologyManager:
                 range = [str]
             class description_name(AnnotationProperty):
                 domain = [Thing]
-                range = str
+                range = [str]
             for cls in onto.classes():
                 if not cls.onto_name:
                     print(f"Need to update class: {cls.name}")
                 try:
-                    output = self.get_labels(cls.name, self.SETUP_MESSAGE[ontology_file])
-                    print(cls.name, output.name, output.alternative_labels)
-                    cls.alternative_labels = str(output.alternative_labels)
-                    cls.onto_name = cls.name
+                    output = self.get_labels(cls.name, self.SETUP_MESSAGE[ontology_file], self.EXAMPLES[ontology_file])
+                    cls.alternative_labels = str(output.alternative_labels).lower()
+                    cls.name = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', cls.name)
+                    cls.onto_name = cls.name.lower()
                     cls.description_name = output.description.replace("'", "")
                 except JSONDecodeError:
                     print(f"Invalid JSON response for class: {cls.name}")
@@ -127,13 +143,12 @@ class OntologyManager:
 
         for cls in onto.classes():
 
-            class_name = str(cls.name).title()
+            class_name = str(cls.name).lower()
             class_uri = str(cls.iri)
-            class_comment = str(cls.comment).replace("'","").replace("[","").replace("]","") if cls.comment else None
-            print(cls.name)
+            class_comment = str(cls.description_name).replace("'","").replace("[","").replace("]","") if cls.comment else None
             try:
                 cls_instance = self.file_to_model[ontology_file].nodes.get(uri=class_uri)
-                cls_instance.name = class_name.title()
+                cls_instance.name = class_name
                 cls_instance.validated_labels = True
                 cls_instance.validated_ontology = True
                 cls_instance.description = class_comment
@@ -168,8 +183,7 @@ class OntologyManager:
             if cls.alternative_labels:
 
                 for label in ast.literal_eval(cls.alternative_labels[0]):
-                    alt_label = str(label)
-                    label = label.title()
+                    alt_label = str(label).lower()
                     try:
                         alternative_label_node = AlternativeLabel.nodes.get(label=alt_label)
                         if not cls_instance.alternative_label.is_connected(alternative_label_node):
@@ -181,13 +195,13 @@ class OntologyManager:
                         alternative_label_node.save()
                         cls_instance.alternative_label.connect(alternative_label_node)
                     try:
-                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](input=label)
+                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](input=alt_label)
                         if not cls_instance.is_connected(embedding_node):
                             secondary_embedding_node =EMBEDDING_MODEL_MAPPER[ontology_file](input= embedding_node.input, vector=embedding_node.vector)
                             cls_instance.model_embedding.connect(secondary_embedding_node)
                     except:
                         vector = request_embedding(label)
-                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector, input=label).save()
+                        embedding_node = EMBEDDING_MODEL_MAPPER[ontology_file](vector=vector, input=alt_label).save()
                         cls_instance.model_embedding.connect(embedding_node)
 
             # Add subclass relationships
@@ -238,15 +252,16 @@ def main():
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ontology_folder = BASE_DIR + "/Ontology/"
 
-    ontology_manager = OntologyManager(ontology_folder)
+    # ontology_manager = OntologyManager(ontology_folder)
     # ontology_manager.update_ontology("quantities.owl")
-    ontology_manager.import_to_neo4j("quantities.owl")
+    # ontology_manager.import_to_neo4j("quantities.owl")
     # ontology_manager.update_ontology("matter.owl")
-    ontology_manager.import_to_neo4j("matter.owl")
+    # ontology_manager.import_to_neo4j("matter.owl")
     # ontology_manager.update_ontology("manufacturing.owl")
-    ontology_manager.import_to_neo4j("manufacturing.owl")
+    # ontology_manager.import_to_neo4j("manufacturing.owl")
 
-    # from emmopy import get_emmo
+    uid = EMMOMatter.nodes.get_by_string(string = "Test", limit = 10)[0].uid
+    print(uid)
 
 
 if __name__ == "__main__":

@@ -74,7 +74,24 @@ class EmbeddingGenerator:
             except Exception as e:
                 continue
 
+def setup_embeddings(directory="./NodeAttributeExtraction/embedding_inputs/"):
+    # Set up environment and database config
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(project_root)
 
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mat2devplatform.settings")
+    django.setup()
+
+    load_dotenv()
+    from neomodel import config
+    config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
+
+    for file in os.listdir(directory):
+        if file.endswith("property_attribute_inputs.csv") or file.endswith("manufacturing_inputs.csv"):
+            print(f"Processing file: {file}")
+            generator = EmbeddingGenerator(os.path.join(directory, file))
+            df = generator.parse_data()
+            generator.create_embeddings(df)
 
 
 if __name__ == "__main__":

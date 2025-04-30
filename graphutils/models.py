@@ -36,7 +36,7 @@ class EmbeddingNodeSet(NodeSet):
     def _get_by_embedding(self, include_similarity, include_input_string, **kwargs):
 
         #TODO: Needs to have big numbers for limit
-        query = """
+        query = f"""
             CALL db.index.vector.queryNodes($embedding, 50, $vector)
             YIELD node AS similarEmbedding, score
             MATCH (similarEmbedding)-[:FOR]->(n)

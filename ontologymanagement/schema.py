@@ -17,6 +17,8 @@ class OntologyClass(BaseModel):
     alternative_labels: List[str] = Field([], description="Alternative labels/synonymns of the class")
 
 
+
+
 class ChildClass(BaseModel):
     """
     SubClass among the given candidate.

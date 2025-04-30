@@ -5,7 +5,7 @@ MATTER_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             
             Your responses always follow these rules:
             
-            1. Add 1-5 five alternative labels
+            1. Add 1-2 alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. The descriptions needs to be a short scientific, concise sentence"""),
                                       ("user","""Generate labels and description for the following class: {input}"""),
@@ -17,7 +17,7 @@ QUANTITY_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             describe a different concept.
             Your responses always follow these rules:
             
-            1. Add 1-5 five alternative labels
+            1. Add 1-2 alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. You always give valuable alternative labels"""),
                                         ("user","""Generate labels for the following class: {input}"""),
@@ -30,7 +30,7 @@ PROCESS_ONTOLOGY_ASSISTANT_MESSAGES = [("system",
             describe a different concept.
             Your responses always follow these rules:
             
-            1. Add 1-5 five alternative labels
+            1. Add 1-2 alternative labels
             2. They should not be a parent class or child class they should be an exact synonym.
             3. You always give valuable alternative labels"""),
                                        ("user","""Generate labels for the following class: {input}"""),

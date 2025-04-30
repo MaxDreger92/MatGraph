@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "dal_select2",
     "mat2devplatform",
     "schema_ingestion",
+    "ontologymanagement",
     "matching",
     "importing",
     "matgraph",
