@@ -1,25 +1,14 @@
 services:
     mg-django:
-        image: python:3.10-bullseye
-        env_file:
-            - .env
         build:
             context: .
             dockerfile: docker/mg-django.dockerfile
+        image: mg-django:latest  # ✅ Name your custom built image here
         container_name: 'mg-django'
-        # depends_on:
-        #     - mg-neo4j
+        env_file:
+            - .env
         networks:
             - mg-network
-    # mg-neo4j:
-    #     image: neo4j:5.20
-    #     container_name: mg-neo4j
-    #     environment:
-    #         - NEO4J_AUTH=neo4j/neo4jpassword
-    #     volumes:
-    #         - "./neo4j_data:/data"
-    #     networks:
-    #         - mg-network
     mg-postgres:
         image: postgres:16
         restart: always

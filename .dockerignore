@@ -1,1 +1,5 @@
-postgres_data
+userBackendNodeJS/
+frontend/
+venv/
+sdl/
+opentrons-app/

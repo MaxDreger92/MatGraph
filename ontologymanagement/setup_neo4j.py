@@ -1,4 +1,6 @@
 import os
+import traceback
+
 from dotenv import load_dotenv
 from neomodel import db, config
 from graphutils.config import EMBEDDING_DIMENSIONS
@@ -102,7 +104,8 @@ def test_search():
         )
         print("Search Results:", results)
     except Exception as e:
-        print("Search failed:", str(e))
+        print("Search failed:")
+        traceback.print_exc()
 
 def check_db():
     query = "show indexes YIELD name RETURN name"
@@ -126,13 +129,13 @@ def check_db():
 
 def run_setup():
     """Full Neo4j setup routine."""
-    if not check_db():
-        setup_embeddings()
-        setup_environment()
-        setup_ontology()
-        add_all_vector_indices()
-        clean_duplicate_embeddings()
-        test_search()
+    # if not check_db():
+    #     setup_embeddings()
+    #     setup_environment()
+    #     setup_ontology()
+    #     add_all_vector_indices()
+    #     clean_duplicate_embeddings()
+    test_search()
 
 
 if __name__ == "__main__":
