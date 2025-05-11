@@ -11,13 +11,17 @@ from ontologymanagement.ontologyManager import OntologyManager
 
 
 TYPE_MAPPER = {
-    "LabelEmbeddings": "label-embeddings",
+    "NodeLabelEmbedding": "label-embeddings",
     "MatterAttributeEmbedding": "matter-attribute-embeddings",
     "ProcessAttributeEmbedding": "process-attribute-embeddings",
-    "QuantityAttributeEmbedding": "quantity-attribute-embeddings",
+    "ParameterAttributeEmbedding": "parameter-attribute-embeddings",
+    "PropertyAttributeEmbedding": "property-attribute-embeddings",
+    "ManufacturingAttributeEmbedding": "manufacturing-attribute-embeddings",
+    "MetadataAttributeEmbedding": "metadata-attribute-embeddings",
     "MatterEmbedding": "matter-embeddings",
     "ProcessEmbedding": "process-embeddings",
     "QuantityEmbedding": "quantity-embeddings",
+    "MeasurementAttributeEmbedding": "measurement-attribute-embeddings",
 }
 
 
@@ -75,6 +79,7 @@ def add_all_vector_indices():
         "MatterEmbedding",
         "ProcessEmbedding",
         "QuantityEmbedding",
+        "NodeLabelEmbedding",
     ]
     for label in labels:
         add_vector_index(label)
@@ -119,6 +124,7 @@ def check_db():
         "matter-embeddings",
         "process-embeddings",
         "quantity-embeddings",
+        "label-embeddings",
     }
 
     if needed_indices.issubset(index_names):
@@ -129,12 +135,13 @@ def check_db():
 
 def run_setup():
     """Full Neo4j setup routine."""
-    # if not check_db():
-    #     setup_embeddings()
-    #     setup_environment()
-    #     setup_ontology()
-    #     add_all_vector_indices()
-    #     clean_duplicate_embeddings()
+    if not check_db():
+        setup_environment()
+        setup_ontology()
+        add_all_vector_indices()
+        clean_duplicate_embeddings()
+    setup_embeddings()
+
     test_search()
 
 

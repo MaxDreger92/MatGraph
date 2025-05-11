@@ -87,7 +87,7 @@ def setup_embeddings(directory="./NodeAttributeExtraction/embedding_inputs/"):
     config.DATABASE_URL = os.getenv('NEOMODEL_NEO4J_BOLT_URL')
 
     for file in os.listdir(directory):
-        if file.endswith("property_attribute_inputs.csv") or file.endswith("manufacturing_inputs.csv"):
+        if file.endswith(".csv"):
             print(f"Processing file: {file}")
             generator = EmbeddingGenerator(os.path.join(directory, file))
             df = generator.parse_data()
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     directory = "./NodeAttributeExtraction/embedding_inputs/"
     #iterate over all csv files
     for file in os.listdir(directory):
-        if file.endswith("property_attribute_inputs.csv") or file.endswith("manufacturing_inputs.csv"):
+        if file.endswith("inputs.csv"):
             print(file)
             generator = EmbeddingGenerator(directory+file)
             df = generator.parse_data()

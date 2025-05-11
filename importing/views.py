@@ -79,16 +79,17 @@ class LabelExtractView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         except Exception as e:
+            import traceback
             logger.error(
                 f"Exception occurred while creating import process: {e}", exc_info=True
             )
             process.status = "error"
-            process.error_message = str(e)
+            process.error_message = traceback.format_exc()
             process.save()
             return response.Response(
                 {"error": "Label extraction failed"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+)
 
     def try_cache(self, file_id):
         file_record = File.nodes.get(uid=file_id)
@@ -148,10 +149,10 @@ class AttributeExtractView(APIView):
 
             return JsonResponse({"status": process.status})
         except Exception as e:
+            import traceback
             process.status = "error"
-            process.error_message = str(e)
+            process.error_message = traceback.format_exc()
             process.save()
-            logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Attribute extraction failed"}, status=500)
 
 
@@ -194,10 +195,10 @@ class NodeExtractView(APIView):
 
             return JsonResponse({"status": process.status})
         except Exception as e:
+            import traceback
             process.status = "error"
-            process.error_message = str(e)
+            process.error_message = traceback.format_exc()
             process.save()
-            logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Node extraction failed"}, status=500)
 
 
@@ -240,10 +241,10 @@ class GraphExtractView(APIView):
 
             return JsonResponse({"status": process.status})
         except Exception as e:
+            import traceback
             process.status = "error"
-            process.error_message = str(e)
+            process.error_message = traceback.format_exc()
             process.save()
-            logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Graph extraction failed"}, status=500)
 
 
@@ -285,8 +286,9 @@ class GraphImportView(APIView):
             submit_task(process_id, import_graph, process, {"session": request.session.get("first_line")})
             return JsonResponse({"status": process.status})
         except Exception as e:
+            import traceback
             process.status = "error"
-            process.error_message = str(e)
+            process.error_message = traceback.format_exc()
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
             return JsonResponse({"error": "Graph import failed"}, status=500)

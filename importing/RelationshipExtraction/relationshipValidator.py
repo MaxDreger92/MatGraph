@@ -14,9 +14,10 @@ class relationshipValidator:
         self._label_one_nodes, self._label_two_nodes = None, None
         self._validation_results = None
 
-        for rel in self.result.relationships:
-            self.triples.append([str(rel.source), rel.type, str(rel.target)])
-
+        # Only run loop if result and result.relationships are not None
+        if self.result and getattr(self.result, 'relationships', None):
+            for rel in self.result.relationships:
+                self.triples.append([str(rel.source), rel.type, str(rel.target)])
 
     def validate(self):
         """Needs to be implemented in the subclass."""

@@ -92,14 +92,12 @@ class OntologyManager:
 
         chain = prompt | llm
         ontology_class = chain.invoke({"input": class_name})
-        print(ontology_class)
         ontology_class.content = ontology_class.content.replace("\n", "")
         try:
             ontology_object = OntologyClass.model_validate(ontology_class.tool_calls[0]["args"])
         except Exception as e:
             print(e)
             traceback.print_exc()
-            print("help", ontology_class.tool_calls[0]["args"])
         return ontology_object
 
     def update_ontology(self, ontology_file):

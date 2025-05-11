@@ -59,10 +59,13 @@ def extract_labels(task, process):
         process.status = "idle"
         process.save()
     except Exception as e:
+        import traceback
+        logger.error(
+            f"Exception occurred while creating import process: {e}", exc_info=True
+        )
         process.status = "error"
-        process.error_message = str(e)
+        process.error_message = traceback.format_exc()
         process.save()
-        logger.error(f"Error during label extraction: {e}", exc_info=True)
         
 def extract_attributes(task, process):
     try:
@@ -108,10 +111,13 @@ def extract_attributes(task, process):
         process.save()
 
     except Exception as e:
+        import traceback
+        logger.error(
+            f"Exception occurred while creating import process: {e}", exc_info=True
+        )
         process.status = "error"
-        process.error_message = str(e)
+        process.error_message = traceback.format_exc()
         process.save()
-        logger.error(f"Error during attribute extraction: {e}", exc_info=True)
 
 def extract_nodes(task, process):
     try:
@@ -150,10 +156,13 @@ def extract_nodes(task, process):
         process.status = "idle"
         process.save()
     except Exception as e:
+        import traceback
+        logger.error(
+            f"Exception occurred while creating import process: {e}", exc_info=True
+        )
         process.status = "error"
-        process.error_message = str(e)
+        process.error_message = traceback.format_exc()
         process.save()
-        logger.error(f"Error during node extraction: {e}", exc_info=True)
 
 def extract_relationships(task, process):
     try:
@@ -187,10 +196,13 @@ def extract_relationships(task, process):
         process.status = "idle"
         process.save()
     except Exception as e:
+        import traceback
+        logger.error(
+            f"Exception occurred while creating import process: {e}", exc_info=True
+        )
         process.status = "error"
-        process.error_message = str(e)
+        process.error_message = traceback.format_exc()
         process.save()
-        logger.error(f"Error during graph extraction: {e}", exc_info=True)
 
 def import_graph(task, process, request_data):
     try:
@@ -222,10 +234,13 @@ def import_graph(task, process, request_data):
         process.status = "imported"
         process.save()
     except Exception as e:
+        import traceback
+        logger.error(
+            f"Exception occurred while creating import process: {e}", exc_info=True
+        )
         process.status = "error"
-        process.error_message = str(e)
+        process.error_message = traceback.format_exc()
         process.save()
-        logger.error(f"Error during graph import: {e}", exc_info=True)
         
 def prepare_attribute_data(labels):
     input_data = [
