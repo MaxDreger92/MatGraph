@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.http import Http404
 
-from importing.models import FullTableCache, ImportProcess
+from importing.models import FullTableCache, ImportProcess, ImportProcessStatus
 from importing.tasks import (
     extract_labels,
     extract_attributes,
@@ -134,7 +134,7 @@ class AttributeExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error", "imported"]:
+            if process.status == ImportProcessStatus.PROCESSING:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "labels" in request.POST:
@@ -142,7 +142,7 @@ class AttributeExtractView(APIView):
             elif not process.labels:
                     return JsonResponse({"error": "No labels provided"}, status=400)
 
-            process.status = "processing_attributes"
+            process.status = ImportProcessStatus.PROCESSING
             process.save()
 
             submit_task(process_id, extract_attributes, process)
@@ -150,7 +150,7 @@ class AttributeExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             import traceback
-            process.status = "error"
+            process.status = ImportProcessStatus.FAILED
             process.error_message = traceback.format_exc()
             process.save()
             return JsonResponse({"error": "Attribute extraction failed"}, status=500)
@@ -180,7 +180,7 @@ class NodeExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error", "imported"]:
+            if process.status == ImportProcessStatus.PROCESSING:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "attributes" in request.POST:
@@ -188,7 +188,7 @@ class NodeExtractView(APIView):
             elif not process.attributes:
                     return JsonResponse({"error": "No attributes provided"}, status=400)
 
-            process.status = "processing_nodes"
+            process.status = ImportProcessStatus.PROCESSING
             process.save()
 
             submit_task(process_id, extract_nodes, process)
@@ -196,7 +196,7 @@ class NodeExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             import traceback
-            process.status = "error"
+            process.status = ImportProcessStatus.FAILED
             process.error_message = traceback.format_exc()
             process.save()
             return JsonResponse({"error": "Node extraction failed"}, status=500)
@@ -226,7 +226,7 @@ class GraphExtractView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error", "imported"]:
+            if process.status == ImportProcessStatus.PROCESSING:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
@@ -234,7 +234,7 @@ class GraphExtractView(APIView):
             elif not process.nodes:
                     return JsonResponse({"error": "No graph provided"}, status=400)
 
-            process.status = "processing_graph"
+            process.status = ImportProcessStatus.PROCESSING
             process.save()
 
             submit_task(process_id, extract_relationships, process)
@@ -242,7 +242,7 @@ class GraphExtractView(APIView):
             return JsonResponse({"status": process.status})
         except Exception as e:
             import traceback
-            process.status = "error"
+            process.status = ImportProcessStatus.FAILED
             process.error_message = traceback.format_exc()
             process.save()
             return JsonResponse({"error": "Graph extraction failed"}, status=500)
@@ -272,7 +272,7 @@ class GraphImportView(APIView):
         except Http404 as not_found:
             return JsonResponse({"error": "Process not found"}, status=404)
         try:
-            if process.status not in ["idle", "cancelled", "error"]:
+            if process.status == ImportProcessStatus.PROCESSING:
                 return JsonResponse({"status": process.status, "message": "Not ready"})
 
             if "graph" in request.POST:
@@ -280,14 +280,14 @@ class GraphImportView(APIView):
             elif not process.graph:
                     return JsonResponse({"error": "No graph provided"}, status=400)
 
-            process.status = "processing_import"
+            process.status = ImportProcessStatus.PROCESSING
             process.save()
 
             submit_task(process_id, import_graph, process, {"session": request.session.get("first_line")})
             return JsonResponse({"status": process.status})
         except Exception as e:
             import traceback
-            process.status = "error"
+            process.status = ImportProcessStatus.FAILED
             process.error_message = traceback.format_exc()
             process.save()
             logger.error(f"Error during task submission: {e}", exc_info=True)
@@ -316,7 +316,7 @@ class CancelTaskView(APIView):
         if process:
             success = cancel_task(process_id)
             if success:
-                return JsonResponse({"status": "cancelled"})
+                return JsonResponse({"status": ImportProcessStatus.CANCELLED})
         else:
             return JsonResponse(
                 {
@@ -380,7 +380,7 @@ class ProcessReportView(APIView):
             data_value = getattr(process, data_field)
             data_available = data_value is not None
             
-            if process_status == f"processing_{key}" or not data_available:
+            if process_status == ImportProcessStatus.PROCESSING or not data_available:
                 response_data["message"] = "Data not available yet"
                 return response.Response(response_data, status=status.HTTP_200_OK)
 
@@ -389,7 +389,7 @@ class ProcessReportView(APIView):
                 response_key = "graph"
                 
             response_data[response_key] = data_value
-            response_data["status"] = "ready"
+            response_data["status"] = ImportProcessStatus.COMPLETED
             return response.Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error during writing report: {e}", exc_info=True)
@@ -421,7 +421,7 @@ class ProcessDeleteView(APIView):
             process.delete()
 
             return response.Response(
-                {"status": "deleted"},
+                {"status": ImportProcessStatus.CANCELLED},
                 status=status.HTTP_200_OK,
             )
         except Http404:
