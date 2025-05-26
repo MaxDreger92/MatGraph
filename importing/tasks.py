@@ -13,6 +13,7 @@ from importing.RelationshipExtraction.completeRelExtractor import (
 from importing.importer import TableImporter
 from importing.models import FullTableCache, ImportProcessStatus
 from importing.utils.data_processing import sanitize_data
+from importing.utils.callback import send_importing_callback
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,8 @@ def extract_labels(task, process):
         process.labels = sanitized_labels
         process.status = ImportProcessStatus.COMPLETED
         process.save()
+        
+        send_importing_callback(process.process_id, 'labels')
     except Exception as e:
         import traceback
         logger.error(
@@ -110,6 +113,7 @@ def extract_attributes(task, process):
         process.status = ImportProcessStatus.COMPLETED
         process.save()
 
+        send_importing_callback(process.process_id, 'attributes')
     except Exception as e:
         import traceback
         logger.error(
