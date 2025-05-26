@@ -101,6 +101,9 @@ class NodeValidator:
         found_references = set()
 
         # Iterate through each node in the node list
+        if not self.nodes or not hasattr(self.nodes, "nodes"):
+            return []
+
         for node in self.nodes.nodes:
             # Dynamically access all attributes of the node's attributes object
             for attr_name in dir(node.attributes):
@@ -127,7 +130,8 @@ class NodeValidator:
 
         # Set to store all unique AttributeReferences found in the nodes
         used_references = set()
-
+        if not self.nodes or not hasattr(self.nodes, "nodes"):
+            return []
         # Iterate through each node in the node list
         for node in self.nodes.nodes:
             # Dynamically access all attributes of the node's attributes object

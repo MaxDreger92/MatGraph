@@ -209,6 +209,8 @@ class OntologyGenerator:
         else:
             candidate_uid = nodes[[node.name for node in nodes].index(chosen_candidate.parent_name)].uid
             return node.get_superclasses([candidate_uid])
+
+
     @retry(stop=stop_after_attempt(4), wait=wait_fixed(2))
     def find_connection(self, candidates):
         ONTOLOGY_CONNECTOR = {
@@ -218,13 +220,24 @@ class OntologyGenerator:
         }
 
         llm = ChatOpenAI(model_name=CHAT_GPT_MODEL, openai_api_key=os.getenv("OPENAI_API_KEY"))
+        llm = llm.bind_tools([ClassList])
         setup_message = ONTOLOGY_CONNECTOR[self.ontology_class._meta.object_name]
+
         query = f"""Input: {self.name}, candidates: {', '.join([el[1] for el in candidates])}"""
         prompt = ChatPromptTemplate.from_messages(setup_message)
-        chain = create_structured_output_runnable(ClassList, llm, prompt).with_config(
-            {"run_name": f"{self.name}-connection"})
+
+        # Create chain expecting structured output as ClassList
+        chain = prompt | llm
+
+
         response = chain.invoke({"input": query})
-        return [el.name for el in response.classes]
+
+        response.content = response.content.replace("\n", "")
+        response_object = ClassList.model_validate(response.tool_calls[0]['args'])
+
+
+        # Attempt to access structured classes
+        return [el.name for el in response_object.classes]
 
     def add_labels_create_embeddings(self, node):
         SETUP_MAPPER_EXAMPLES = {

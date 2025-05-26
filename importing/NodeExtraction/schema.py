@@ -29,7 +29,7 @@ class FloatAttribute(BaseModel):
     AttributeReference:  - If the attribute was inferred from "Context" or "Header", the index is either "guess" or "header".
             - If the attribute is extracted from the SampleRow the index is the ColumnIndex of the attribute.
     """
-    AttributeValue: float = Field()
+    AttributeValue: float|str = Field()
     AttributeReference: int|str = Field()
     def to_dict(self):
         return {
