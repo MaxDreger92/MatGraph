@@ -11,7 +11,7 @@ from importing.RelationshipExtraction.completeRelExtractor import (
     fullRelationshipsExtractor,
 )
 from importing.importer import TableImporter
-from importing.models import FullTableCache, ImportProcessStatus
+from importing.models import FullTableCache, ImportProcessStatus, ImportProcessKeys
 from importing.utils.data_processing import sanitize_data
 from importing.utils.callback import send_importing_callback
 
@@ -59,8 +59,6 @@ def extract_labels(task, process):
         process.labels = sanitized_labels
         process.status = ImportProcessStatus.COMPLETED
         process.save()
-        
-        send_importing_callback(process.process_id, 'labels')
     except Exception as e:
         import traceback
         logger.error(
@@ -69,6 +67,8 @@ def extract_labels(task, process):
         process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.LABELS)
         
 def extract_attributes(task, process):
     try:
@@ -112,8 +112,6 @@ def extract_attributes(task, process):
         process.attributes = attributes
         process.status = ImportProcessStatus.COMPLETED
         process.save()
-
-        send_importing_callback(process.process_id, 'attributes')
     except Exception as e:
         import traceback
         logger.error(
@@ -122,6 +120,8 @@ def extract_attributes(task, process):
         process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.ATTRIBUTES)
 
 def extract_nodes(task, process):
     try:
@@ -167,6 +167,8 @@ def extract_nodes(task, process):
         process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.NODES)
 
 def extract_relationships(task, process):
     try:
@@ -207,6 +209,8 @@ def extract_relationships(task, process):
         process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.GRAPH)
 
 def import_graph(task, process, request_data):
     try:
@@ -245,6 +249,8 @@ def import_graph(task, process, request_data):
         process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.IMPORT)
         
 def prepare_attribute_data(labels):
     input_data = [
@@ -300,5 +306,6 @@ def prepare_graph_data(file_id):
 
 def task_cancelled(process):
     process.status = ImportProcessStatus.CANCELLED
+    process.error_message = "Task was cancelled by the user."
     process.save()
     logger.info(f"Task {process.process_id} was cancelled.")

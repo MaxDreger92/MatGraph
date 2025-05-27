@@ -397,6 +397,13 @@ class ImportProcessStatus:
     }
 
     DJANGO_CHOICES = [(k, v) for k, v in CHOICES.items()]
+    
+class ImportProcessKeys:
+    LABELS = "labels"
+    ATTRIBUTES = "attributes"
+    NODES = "nodes"
+    GRAPH = "graph"
+    IMPORT = "import"
             
 class ImportProcess(models.Model):
     process_id = models.CharField(max_length=255, unique=True)

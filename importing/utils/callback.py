@@ -4,11 +4,11 @@ import logging
 import requests
 from django.conf import settings
 
-from importing.models import ImportProcess, ImportProcessStatus
+from importing.models import ImportProcess, ImportProcessStatus, ImportProcessKeys
 
 logger = logging.getLogger(__name__)
 
-def send_importing_callback(process_id: str, key: str) -> None:
+def send_importing_callback(process_id, key) -> None:
     try:
         process = ImportProcess.objects.get(process_id=process_id)
     except ImportProcess.DoesNotExist:
@@ -17,9 +17,10 @@ def send_importing_callback(process_id: str, key: str) -> None:
     
     user_id = int(process.user_id)
     status = process.status
-    results = getattr(process, key)
-    message = process.error_message
-    
+    message = process.error_message 
+    if status == ImportProcessStatus.COMPLETED and key != ImportProcessKeys.IMPORT:
+        results = getattr(process, key)
+
     payload = {
         "user_id": user_id,
         "process_id": process_id,
