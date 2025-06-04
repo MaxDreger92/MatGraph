@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "mat2devplatform",
     "schema_ingestion",
     "ontologymanagement",
+    "tasks",
     "matching",
     "importing",
     "matgraph",

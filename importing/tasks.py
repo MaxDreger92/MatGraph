@@ -3,6 +3,8 @@ import csv
 import logging
 from io import StringIO
 
+from django.db import connection, close_old_connections
+
 from matgraph.models.metadata import File
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
@@ -18,6 +20,7 @@ from importing.utils.callback import send_importing_callback
 logger = logging.getLogger(__name__)
 
 def extract_labels(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -69,8 +72,10 @@ def extract_labels(task, process):
         process.save()
     finally:
         send_importing_callback(process.process_id, ImportProcessKeys.LABELS)
+        connection.close()
         
 def extract_attributes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -122,8 +127,10 @@ def extract_attributes(task, process):
         process.save()
     finally:
         send_importing_callback(process.process_id, ImportProcessKeys.ATTRIBUTES)
+        connection.close()
 
 def extract_nodes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -169,8 +176,10 @@ def extract_nodes(task, process):
         process.save()
     finally:
         send_importing_callback(process.process_id, ImportProcessKeys.NODES)
+        connection.close()
 
 def extract_relationships(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -211,8 +220,10 @@ def extract_relationships(task, process):
         process.save()
     finally:
         send_importing_callback(process.process_id, ImportProcessKeys.GRAPH)
+        connection.close()
 
 def import_graph(task, process, request_data):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -251,6 +262,7 @@ def import_graph(task, process, request_data):
         process.save()
     finally:
         send_importing_callback(process.process_id, ImportProcessKeys.IMPORT)
+        connection.close()
         
 def prepare_attribute_data(labels):
     input_data = [

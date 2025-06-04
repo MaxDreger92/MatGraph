@@ -1,4 +1,4 @@
-from importing.models import ImportProcess
+from importing.models import ImportProcess, ImportProcessStatus
 from django.utils import timezone
 
 def create_import_process(process_id, user_id, file_id, context):
@@ -8,7 +8,7 @@ def create_import_process(process_id, user_id, file_id, context):
             user_id=user_id,
             file_id=file_id,
             context=context,
-            status="processing_labels",
+            status=ImportProcessStatus.READY,
             created_at=timezone.now(),
             updated_at=timezone.now()
         )
