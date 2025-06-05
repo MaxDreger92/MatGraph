@@ -35,10 +35,10 @@ def send_importing_callback(process_id, key) -> None:
             "message": message,
         }
 
-        headers = {"Content-Type": "application/json"}
-        secret = getattr(settings, 'VIMI_SECRET', None)
-        if secret:
-            headers["X-API-KEY"] = secret
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": settings.VIMI_SECRET,
+        }
 
         resp = requests.post(
             f"{settings.VIMI_URL}webhooks/matgraph-import",
