@@ -14,5 +14,4 @@ RUN apt-get update && apt-get install -y postgresql-client
 COPY deployDjango_docker.sh /app/deployDjango_docker.sh
 RUN chmod +x /app/deployDjango_docker.sh
 
-
 ENTRYPOINT ["/app/deployDjango_docker.sh"]

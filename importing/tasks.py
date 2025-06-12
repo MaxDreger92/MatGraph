@@ -3,6 +3,8 @@ import csv
 import logging
 from io import StringIO
 
+from django.db import connection, close_old_connections
+
 from matgraph.models.metadata import File
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
@@ -11,12 +13,14 @@ from importing.RelationshipExtraction.completeRelExtractor import (
     fullRelationshipsExtractor,
 )
 from importing.importer import TableImporter
-from importing.models import FullTableCache
+from importing.models import FullTableCache, ImportProcessStatus, ImportProcessKeys
 from importing.utils.data_processing import sanitize_data
+from importing.utils.callback import send_importing_callback
 
 logger = logging.getLogger(__name__)
 
 def extract_labels(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -56,18 +60,22 @@ def extract_labels(task, process):
             return
 
         process.labels = sanitized_labels
-        process.status = "idle"
+        process.status = ImportProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
             f"Exception occurred while creating import process: {e}", exc_info=True
         )
-        process.status = "error"
+        process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.LABELS)
+        connection.close()
         
 def extract_attributes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -107,19 +115,22 @@ def extract_attributes(task, process):
         }
 
         process.attributes = attributes
-        process.status = "idle"
+        process.status = ImportProcessStatus.COMPLETED
         process.save()
-
     except Exception as e:
         import traceback
         logger.error(
             f"Exception occurred while creating import process: {e}", exc_info=True
         )
-        process.status = "error"
+        process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.ATTRIBUTES)
+        connection.close()
 
 def extract_nodes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -153,18 +164,22 @@ def extract_nodes(task, process):
         graph = json.loads(str(node_extractor.results).replace("'", '"'))
 
         process.nodes = graph
-        process.status = "idle"
+        process.status = ImportProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
             f"Exception occurred while creating import process: {e}", exc_info=True
         )
-        process.status = "error"
+        process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.NODES)
+        connection.close()
 
 def extract_relationships(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -193,18 +208,22 @@ def extract_relationships(task, process):
         )
 
         process.graph = graph
-        process.status = "idle"
+        process.status = ImportProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
             f"Exception occurred while creating import process: {e}", exc_info=True
         )
-        process.status = "error"
+        process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.GRAPH)
+        connection.close()
 
 def import_graph(task, process, request_data):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -231,16 +250,19 @@ def import_graph(task, process, request_data):
 
         FullTableCache.update(request_data["session"], graph)
         
-        process.status = "imported"
+        process.status = ImportProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
             f"Exception occurred while creating import process: {e}", exc_info=True
         )
-        process.status = "error"
+        process.status = ImportProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_importing_callback(process.process_id, ImportProcessKeys.IMPORT)
+        connection.close()
         
 def prepare_attribute_data(labels):
     input_data = [
@@ -295,6 +317,7 @@ def prepare_graph_data(file_id):
     return header, first_row
 
 def task_cancelled(process):
-    process.status = "cancelled"
+    process.status = ImportProcessStatus.CANCELLED
+    process.error_message = "Task was cancelled by the user."
     process.save()
     logger.info(f"Task {process.process_id} was cancelled.")

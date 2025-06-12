@@ -36,7 +36,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
-
 ALLOWED_HOSTS = [
     "134.94.199.247",
     "127.0.0.1",
@@ -71,6 +70,7 @@ INSTALLED_APPS = [
     "mat2devplatform",
     "schema_ingestion",
     "ontologymanagement",
+    "tasks",
     "matching",
     "importing",
     "matgraph",
@@ -111,6 +111,12 @@ NEOMODEL_SIGNALS = True
 NEOMODEL_FORCE_TIMEZONE = False
 NEOMODEL_ENCRYPTED_CONNECTION = True
 NEOMODEL_MAX_POOL_SIZE = 50
+
+# Vimi callback
+VIMI_URL = os.getenv("VIMI_URL", "http://local.vimi-app.ai:8083/api/")
+VIMI_SECRET = os.getenv("VIMI_SECRET", "default")
+import hashlib
+VIMI_SECRET_HASH = hashlib.sha256(VIMI_SECRET.encode()).hexdigest()
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
