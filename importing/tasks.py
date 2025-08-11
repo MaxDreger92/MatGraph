@@ -202,10 +202,6 @@ def extract_relationships(task, process):
             return
 
         graph = relationships_extractor.results
-        graph = json.loads(
-            str(graph)
-            .replace("'", '"')
-        )
 
         process.graph = graph
         process.status = ImportProcessStatus.COMPLETED
