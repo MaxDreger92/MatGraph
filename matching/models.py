@@ -1,5 +1,6 @@
 from django.db import models
 
+from tasks.models import Process
 
 class MatchingReport(models.Model):
 
@@ -13,3 +14,10 @@ class MatchingReport(models.Model):
 
     def __str__(self):
         return f'Matching Report ({self.type}, {self.date})'
+    
+class ExtractProcess(Process):
+    graph = models.JSONField(null=True, blank=True)
+    dataset = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return f"ExtractProcess {self.process_id}"

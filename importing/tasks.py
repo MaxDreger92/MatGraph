@@ -13,9 +13,11 @@ from importing.RelationshipExtraction.completeRelExtractor import (
     fullRelationshipsExtractor,
 )
 from importing.importer import TableImporter
-from importing.models import FullTableCache, ImportProcessStatus, ImportProcessKeys
+from importing.models import FullTableCache
+from tasks.models import ProcessKeys, ProcessStatus
 from importing.utils.data_processing import sanitize_data
-from importing.utils.callback import send_importing_callback
+# from importing.utils.callback import send_importing_callback
+from tasks.utils.callback import send_callback
 
 logger = logging.getLogger(__name__)
 
@@ -60,18 +62,18 @@ def extract_labels(task, process):
             return
 
         process.labels = sanitized_labels
-        process.status = ImportProcessStatus.COMPLETED
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
+            f"Exception occurred during label extraction: {e}", exc_info=True
         )
-        process.status = ImportProcessStatus.FAILED
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
-        send_importing_callback(process.process_id, ImportProcessKeys.LABELS)
+        send_callback(process.process_id, ProcessKeys.LABELS)
         connection.close()
         
 def extract_attributes(task, process):
@@ -115,18 +117,18 @@ def extract_attributes(task, process):
         }
 
         process.attributes = attributes
-        process.status = ImportProcessStatus.COMPLETED
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
+            f"Exception occurred during attribute extraction: {e}", exc_info=True
         )
-        process.status = ImportProcessStatus.FAILED
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
-        send_importing_callback(process.process_id, ImportProcessKeys.ATTRIBUTES)
+        send_callback(process.process_id, ProcessKeys.ATTRIBUTES)
         connection.close()
 
 def extract_nodes(task, process):
@@ -164,18 +166,18 @@ def extract_nodes(task, process):
         graph = json.loads(str(node_extractor.results).replace("'", '"'))
 
         process.nodes = graph
-        process.status = ImportProcessStatus.COMPLETED
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
+            f"Exception occurred during node extraction: {e}", exc_info=True
         )
-        process.status = ImportProcessStatus.FAILED
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
-        send_importing_callback(process.process_id, ImportProcessKeys.NODES)
+        send_callback(process.process_id, ProcessKeys.NODES)
         connection.close()
 
 def extract_relationships(task, process):
@@ -204,18 +206,18 @@ def extract_relationships(task, process):
         graph = relationships_extractor.results
 
         process.graph = graph
-        process.status = ImportProcessStatus.COMPLETED
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
+            f"Exception occurred during graph extraction: {e}", exc_info=True
         )
-        process.status = ImportProcessStatus.FAILED
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
-        send_importing_callback(process.process_id, ImportProcessKeys.GRAPH)
+        send_callback(process.process_id, ProcessKeys.GRAPH)
         connection.close()
 
 def import_graph(task, process, request_data):
@@ -246,18 +248,18 @@ def import_graph(task, process, request_data):
 
         FullTableCache.update(request_data["session"], graph)
         
-        process.status = ImportProcessStatus.COMPLETED
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
         logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
+            f"Exception occurred during graph import: {e}", exc_info=True
         )
-        process.status = ImportProcessStatus.FAILED
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
-        send_importing_callback(process.process_id, ImportProcessKeys.IMPORT)
+        send_callback(process.process_id, ProcessKeys.IMPORT)
         connection.close()
         
 def prepare_attribute_data(labels):
@@ -313,7 +315,7 @@ def prepare_graph_data(file_id):
     return header, first_row
 
 def task_cancelled(process):
-    process.status = ImportProcessStatus.CANCELLED
+    process.status = ProcessStatus.CANCELLED
     process.error_message = "Task was cancelled by the user."
     process.save()
     logger.info(f"Task {process.process_id} was cancelled.")
