@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('matching', '0001_initial'),
-        ('tasks', '0002_initial'),
+        ('tasks', '0002_process'),
     ]
 
     operations = [
