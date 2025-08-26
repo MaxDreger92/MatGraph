@@ -117,7 +117,7 @@ def build_results(data):
             relationships.append(
                 {
                     'rel_type': item.type,
-                    'connection': [str(item.source), str(item.target)]
+                    'edge': [str(item.source), str(item.target)]
                 }
             )
     return relationships
