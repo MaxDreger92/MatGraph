@@ -1,32 +1,31 @@
-import json
 from io import StringIO
-import uuid
 import logging
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
-from rest_framework import response, status
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.http import JsonResponse
 from django.http import Http404
 
 from django.db import connection, close_old_connections
 
-from importing.models import FullTableCache, ImportProcess, ImportProcessStatus
-from importing.tasks import (
+from .models import FullTableCache, ImportProcess
+from .tasks import (
     extract_labels,
     extract_attributes,
     extract_nodes,
     extract_relationships,
     import_graph,
 )
-from importing.utils.file_processing import store_file
-from importing.utils.process_management import create_import_process
+from .utils.file_processing import store_file
+from .utils.process_management import create_import_process
 from matgraph.models.metadata import File
 
 from tasks.task_manager import submit_task, cancel_task
-from .utils.data_processing import sanitize_data
+from tasks.models import ProcessStatus
+# from .utils.data_processing import sanitize_data
 
 logger = logging.getLogger(__name__)
 
@@ -36,76 +35,86 @@ class LabelExtractView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No user id provided"}, status=status.HTTP_400_BAD_REQUEST
+            process_id = request.query_params.get("process_id")
+            user_id = request.query_params.get("user_id")
+            context = request.data.get("context")
+            file = request.FILES.get("file")
+
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-            if "file" not in request.FILES:
-                return response.Response(
-                    {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-            if "context" not in request.POST:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            if file is None:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No file provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if context is None:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No context provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            file = request.FILES["file"]
-            if not file.name.endswith(".csv"):
-                return response.Response(
-                    {"error": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST
+            if not str(file.name).lower().endswith(".csv"):
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Invalid file type (expected .csv)"},
+                    status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                 )
+
             try:
                 file_record = store_file(file)
             except Exception as e:
-                logger.error(f"Exception occurred while storing file: {e}", exc_info=True)
-                return response.Response(
-                    {"error": "File storage failed"},
+                logger.exception("Exception occurred while storing file: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "File storage failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            process_id = str(uuid.uuid4())
-            user_id = request.GET["user_id"]
             file_id = file_record.uid
-            context = request.POST["context"]
 
             # TODO
             # cached = await self.try_cache(file_id)
 
-            if 'process_id' in request.GET:
-                process_id = request.GET["process_id"]
-                try:
-                    process = get_object_or_404(
-                        ImportProcess, user_id=user_id, process_id=process_id
-                    )
-                    if process.status == ImportProcessStatus.PROCESSING:
-                        return JsonResponse({"status": process.status, "message": "Not ready"})
-                except Http404:
-                    return JsonResponse({"error": "Process not found"}, status=404)
-            else:
-                try:
-                    process = create_import_process(process_id, user_id, file_id, context)
-                except Exception as e:
-                    return JsonResponse(
-                        {"error": f"Process creation failed with exception: {e}"})
-                    
             try:
-                process.status = ImportProcessStatus.PROCESSING
+                try:
+                    process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
+                    process.file_id = file_id
+                    process.context = context
+                    process.error_message = None
+                    process.save()
+                    logger.info("Reusing existing import process %s for user %s", process_id, user_id)
+                except ImportProcess.DoesNotExist:
+                    process = create_import_process(process_id, user_id, file_id, context)
+            except Exception as e:
+                logger.exception("Process creation failed: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process creation failed"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            try:
+                process.status = ProcessStatus.PROCESSING
                 process.save()
                 submit_task(process_id, extract_labels, process)
-                return JsonResponse(
-                    {"process_id": process.process_id, "status": process.status},
-                    status=status.HTTP_201_CREATED,
+                return Response(
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
                 )
             except Exception as e:
                 import traceback
-                logger.error(
-                    f"Exception occurred while creating import process: {e}", exc_info=True
-                )
-                process.status = "error"
+
+                logger.exception("Exception occurred while submitting task: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
                 process.error_message = traceback.format_exc()
                 process.save()
-                return response.Response(
-                    {"error": "Label extraction failed"},
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Label extraction failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         finally:
@@ -123,9 +132,9 @@ class LabelExtractView(APIView):
 
             cached = FullTableCache.fetch(first_line)
             if cached:
-                cached = str(cached).replace("'", '"')
-                sanitized_cached = sanitize_data(cached)
-                sanitized_cached_str = json.dumps(sanitized_cached)
+                # cached = str(cached).replace("'", '"')
+                # sanitized_cached = sanitize_data(cached)
+                # sanitized_cached_str = json.dumps(sanitized_cached)
 
                 # send back
                 return True
@@ -133,267 +142,421 @@ class LabelExtractView(APIView):
         finally:
             connection.close()
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class AttributeExtractView(APIView):
-
     def post(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process.error_message = None
-            except Http404 as not_found:
-                return JsonResponse({"error": "Process not found"}, status=404)
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
             try:
-                if process.status == ImportProcessStatus.PROCESSING:
-                    return JsonResponse({"status": process.status, "message": "Not ready"})
+                if process.status == ProcessStatus.PROCESSING:
+                    return Response(
+                        {"status": process.status, "message": "Not ready"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
 
-                if "labels" in request.POST:
-                    process.labels = json.loads(request.POST["labels"])
+                import json
+
+                labels = request.data.get("labels")
+                if isinstance(labels, str):
+                    try:
+                        labels = json.loads(labels)
+                    except json.JSONDecodeError as e:
+                        logger.exception("Invalid JSON in 'labels': %s", e, exc_info=True)
+                        return Response(
+                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'labels'"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                if labels is not None:
+                    process.labels = labels
                 elif not process.labels:
-                        return JsonResponse({"error": "No labels provided"}, status=400)
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "No labels provided"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-                process.status = ImportProcessStatus.PROCESSING
+                process.status = ProcessStatus.PROCESSING
                 process.save()
 
                 submit_task(process_id, extract_attributes, process)
 
-                return JsonResponse({"status": process.status})
+                return Response(
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
             except Exception as e:
                 import traceback
-                process.status = ImportProcessStatus.FAILED
+
+                logger.exception("Exception occurred while submitting attribute extraction task: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
                 process.error_message = traceback.format_exc()
                 process.save()
-                return JsonResponse({"error": "Attribute extraction failed"}, status=500)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Attribute extraction failed"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         finally:
             connection.close()
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class NodeExtractView(APIView):
-
     def post(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process.error_message = None
-            except Http404 as not_found:
-                return JsonResponse({"error": "Process not found"}, status=404)
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
             try:
-                if process.status == ImportProcessStatus.PROCESSING:
-                    return JsonResponse({"status": process.status, "message": "Not ready"})
+                if process.status == ProcessStatus.PROCESSING:
+                    return Response(
+                        {"status": process.status, "message": "Not ready"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
 
-                if "attributes" in request.POST:
-                    process.attributes = json.loads(request.POST["attributes"])
+                import json
+
+                attributes = request.data.get("attributes")
+                if isinstance(attributes, str):
+                    try:
+                        attributes = json.loads(attributes)
+                    except json.JSONDecodeError as e:
+                        logger.exception("Invalid JSON in 'attributes': %s", e, exc_info=True)
+                        return Response(
+                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'attributes'"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                if attributes is not None:
+                    process.attributes = attributes
                 elif not process.attributes:
-                        return JsonResponse({"error": "No attributes provided"}, status=400)
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "No attributes provided"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-                process.status = ImportProcessStatus.PROCESSING
+                process.status = ProcessStatus.PROCESSING
                 process.save()
 
                 submit_task(process_id, extract_nodes, process)
 
-                return JsonResponse({"status": process.status})
+                return Response(
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
             except Exception as e:
                 import traceback
-                process.status = ImportProcessStatus.FAILED
+
+                logger.exception("Exception occurred while submitting node extraction task: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
                 process.error_message = traceback.format_exc()
                 process.save()
-                return JsonResponse({"error": "Node extraction failed"}, status=500)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Node extraction failed"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         finally:
             connection.close()
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphExtractView(APIView):
-
     def post(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process.error_message = None
-            except Http404 as not_found:
-                return JsonResponse({"error": "Process not found"}, status=404)
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
             try:
-                if process.status == ImportProcessStatus.PROCESSING:
-                    return JsonResponse({"status": process.status, "message": "Not ready"})
+                if process.status == ProcessStatus.PROCESSING:
+                    return Response(
+                        {"status": process.status, "message": "Not ready"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
 
-                if "graph" in request.POST:
-                    process.nodes = json.loads(request.POST["graph"])
+                import json
+
+                graph = request.data.get("graph")
+                if isinstance(graph, str):
+                    try:
+                        graph = json.loads(graph)
+                    except json.JSONDecodeError as e:
+                        logger.exception("Invalid JSON in 'graph': %s", e, exc_info=True)
+                        return Response(
+                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'graph'"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                if graph is not None:
+                    process.nodes = graph
                 elif not process.nodes:
-                        return JsonResponse({"error": "No graph provided"}, status=400)
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "No graph provided"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-                process.status = ImportProcessStatus.PROCESSING
+                process.status = ProcessStatus.PROCESSING
                 process.save()
 
                 submit_task(process_id, extract_relationships, process)
 
-                return JsonResponse({"status": process.status})
+                return Response(
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
             except Exception as e:
                 import traceback
-                process.status = ImportProcessStatus.FAILED
+
+                logger.exception("Exception occurred while submitting graph extraction task: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
                 process.error_message = traceback.format_exc()
                 process.save()
-                return JsonResponse({"error": "Graph extraction failed"}, status=500)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Graph extraction failed"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         finally:
             connection.close()
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GraphImportView(APIView):
-
     def post(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process.error_message = None
-            except Http404 as not_found:
-                return JsonResponse({"error": "Process not found"}, status=404)
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
             try:
-                if process.status == ImportProcessStatus.PROCESSING:
-                    return JsonResponse({"status": process.status, "message": "Not ready"})
+                if process.status == ProcessStatus.PROCESSING:
+                    return Response(
+                        {"status": process.status, "message": "Not ready"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
 
-                if "graph" in request.POST:
-                    process.graph = json.loads(request.POST["graph"])
+                graph = request.data.get("graph")
+                if isinstance(graph, str):
+                    import json
+
+                    try:
+                        graph = json.loads(graph)
+                    except json.JSONDecodeError as e:
+                        logger.exception("Invalid JSON in 'graph': %s", e, exc_info=True)
+                        return Response(
+                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'graph'"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                if graph is not None:
+                    process.graph = graph
                 elif not process.graph:
-                        return JsonResponse({"error": "No graph provided"}, status=400)
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "No graph provided"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-                process.status = ImportProcessStatus.PROCESSING
+                process.status = ProcessStatus.PROCESSING
                 process.save()
 
-                submit_task(process_id, import_graph, process, {"session": request.session.get("first_line")})
-                return JsonResponse({"status": process.status})
+                submit_task(
+                    process_id,
+                    import_graph,
+                    process,
+                    {"session": request.session.get("first_line")},
+                )
+
+                return Response(
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
             except Exception as e:
                 import traceback
-                process.status = ImportProcessStatus.FAILED
+
+                logger.exception("Error during graph import task submission: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
                 process.error_message = traceback.format_exc()
                 process.save()
-                logger.error(f"Error during task submission: {e}", exc_info=True)
-                return JsonResponse({"error": "Graph import failed"}, status=500)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Graph import failed"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         finally:
             connection.close()
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelTaskView(APIView):
-
     def patch(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
+
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No context provided"}, status=status.HTTP_400_BAD_REQUEST
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            try:
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-            process = get_object_or_404(
-                ImportProcess, user_id=user_id, process_id=process_id
-            )
-            if process:
+            try:
                 success = cancel_task(process_id)
                 if success:
-                    return JsonResponse({"status": ImportProcessStatus.CANCELLED})
-            else:
-                return JsonResponse(
-                    {
-                        "error": "Task not found or already completed",
-                    },
-                    status=404,
+                    process.status = ProcessStatus.CANCELLED
+                    process.save()
+                    return Response(
+                        {"status": ProcessStatus.CANCELLED, "message": "Task cancelled"},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "Task not found or already completed"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+            except Exception as e:
+                import traceback
+
+                logger.exception("Exception occurred while cancelling task: %s", e, exc_info=True)
+                process.status = ProcessStatus.FAILED
+                process.error_message = traceback.format_exc()
+                process.save()
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Failed to cancel task"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         finally:
             connection.close()
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class ProcessReportView(APIView):
-
     def get(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "key" not in request.GET:
-                return response.Response(
-                    {"error": "No key provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
+            key = request.query_params.get("key")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
-            key = request.GET["key"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user_id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process_id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not key:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No key provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process_status = process.status
-                # if process_status in ["error", "cancelled"]:
-                #     return response.Response({"status": process_status}, status=status.HTTP_200_OK)
 
                 key_to_field_map = {
                     "labels": "labels",
@@ -404,78 +567,81 @@ class ProcessReportView(APIView):
                 }
 
                 if key not in key_to_field_map:
-                    return response.Response(
-                        {"error": "Invalid key provided"},
+                    return Response(
+                        {"status": ProcessStatus.FAILED, "message": "Invalid key provided"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                response_data = {}
-                response_data["status"] = process_status
-                response_data["error"] = process.error_message
+                response_data = {
+                    "status": process_status,
+                    "message": process.error_message,
+                }
 
                 if key == "import":
-                    return response.Response(response_data, status=status.HTTP_200_OK)
-                
+                    return Response(response_data, status=status.HTTP_200_OK)
+
                 data_field = key_to_field_map[key]
                 data_value = getattr(process, data_field)
                 data_available = data_value is not None
-                
-                if process_status == ImportProcessStatus.PROCESSING or not data_available:
-                    response_data["message"] = "Data not available yet"
-                    return response.Response(response_data, status=status.HTTP_200_OK)
 
-                response_key = key
-                if key == "nodes":
-                    response_key = "graph"
-                    
+                if process_status == ProcessStatus.PROCESSING or not data_available:
+                    response_data["message"] = "Data not available yet"
+                    return Response(response_data, status=status.HTTP_200_OK)
+
+                response_key = "graph" if key == "nodes" else key
                 response_data[response_key] = data_value
-                response_data["status"] = ImportProcessStatus.COMPLETED
-                return response.Response(response_data, status=status.HTTP_200_OK)
+                response_data["status"] = ProcessStatus.COMPLETED
+
+                return Response(response_data, status=status.HTTP_200_OK)
+
             except Exception as e:
-                logger.error(f"Error during writing report: {e}", exc_info=True)
-                return response.Response(
-                    {f"error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                logger.exception("Error during writing report: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": str(e)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         finally:
             connection.close()
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class ProcessDeleteView(APIView):
-
     def delete(self, request):
         close_old_connections()
         try:
-            if "user_id" not in request.GET:
-                return response.Response(
-                    {"error": "No user_id provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            if "process_id" not in request.GET:
-                return response.Response(
-                    {"error": "No process_id provided"}, status=status.HTTP_400_BAD_REQUEST
-                )
+            user_id = request.query_params.get("user_id")
+            process_id = request.query_params.get("process_id")
 
-            user_id = request.GET["user_id"]
-            process_id = request.GET["process_id"]
+            if not user_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No user_id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not process_id:
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "No process_id provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             try:
-                process = get_object_or_404(
-                    ImportProcess, user_id=user_id, process_id=process_id
-                )
+                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
                 process.delete()
 
-                return response.Response(
-                    {"status": ImportProcessStatus.CANCELLED},
+                return Response(
+                    {"status": ProcessStatus.CANCELLED, "message": "Process deleted"},
                     status=status.HTTP_200_OK,
                 )
-            except Http404:
-                return response.Response(
-                    {"error": "Process not found"},
+            except Http404 as e:
+                logger.exception("Process not found: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": "Process not found"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
             except Exception as e:
-                logger.error(f"Error during deleting process: {e}", exc_info=True)
-                return response.Response(
-                    {f"error: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                logger.exception("Error during deleting process: %s", e, exc_info=True)
+                return Response(
+                    {"status": ProcessStatus.FAILED, "message": str(e)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         finally:
             connection.close()

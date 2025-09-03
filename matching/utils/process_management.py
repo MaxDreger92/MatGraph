@@ -1,14 +1,13 @@
-from importing.models import ImportProcess
+from matching.models import ExtractProcess
 from tasks.models import ProcessStatus
 from django.utils import timezone
 
-def create_import_process(process_id, user_id, file_id, context):
+def create_extract_process(process_id, user_id, graph):
     try:
-        new_process = ImportProcess.objects.create(
+        new_process = ExtractProcess.objects.create(
             process_id=process_id,
             user_id=user_id,
-            file_id=file_id,
-            context=context,
+            graph=graph,
             status=ProcessStatus.READY,
             created_at=timezone.now(),
             updated_at=timezone.now()

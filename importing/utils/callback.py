@@ -1,10 +1,9 @@
-import os
-import json
 import logging
 import requests
 from django.conf import settings
 
-from importing.models import ImportProcess, ImportProcessStatus, ImportProcessKeys
+from importing.models import ImportProcess
+from tasks.models import ProcessKeys, ProcessStatus
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ def send_importing_callback(process_id, key) -> None:
         message = process.error_message
 
         results = None
-        if status == ImportProcessStatus.COMPLETED and key != ImportProcessKeys.IMPORT:
+        if status == ProcessStatus.COMPLETED and key != ProcessKeys.IMPORT:
             results = getattr(process, key, None)
 
         payload = {
@@ -53,5 +52,5 @@ def send_importing_callback(process_id, key) -> None:
         logger.error(f"No ImportProcess found for process_id={process_id}")
     except requests.RequestException as e:
         logger.error(f"Failed to send callback for {process_id}/{key}: {e}", exc_info=True)
-    except Exception as e:
+    except Exception:
         logger.exception("Uncaught error in send_importing_callback")

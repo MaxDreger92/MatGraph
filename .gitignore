@@ -15,6 +15,7 @@ static/
 !deployUserBackend_docker.sh
 neo4j_data/
 postgres_data/
+output_filename.csv
 
 # Byte-compiled / optimized / DLL files
 _pycache_/
