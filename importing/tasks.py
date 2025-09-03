@@ -16,10 +16,11 @@ from importing.importer import TableImporter
 from importing.models import FullTableCache
 from tasks.models import ProcessKeys, ProcessStatus
 from importing.utils.data_processing import sanitize_data
-# from importing.utils.callback import send_importing_callback
+
 from tasks.utils.callback import send_callback
 
 logger = logging.getLogger(__name__)
+
 
 def extract_labels(task, process):
     close_old_connections()
@@ -51,10 +52,7 @@ def extract_labels(task, process):
             task_cancelled(process)
             return
 
-        labels = {
-            element["header"]: [element["1_label"], element["column_values"][0]]
-            for element in node_classifier.results
-        }
+        labels = {element["header"]: [element["1_label"], element["column_values"][0]] for element in node_classifier.results}
         sanitized_labels = sanitize_data(labels)
 
         if task.is_cancelled():
@@ -66,16 +64,16 @@ def extract_labels(task, process):
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred during label extraction: {e}", exc_info=True
-        )
+
+        logger.exception(f"Exception occurred during label extraction: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
         send_callback(process.process_id, ProcessKeys.LABELS)
         connection.close()
-        
+
+
 def extract_attributes(task, process):
     close_old_connections()
     try:
@@ -87,7 +85,7 @@ def extract_attributes(task, process):
         file_record = File.nodes.get(uid=file_id)
         file_link = file_record.link
         file_name = file_record.name
-        
+
         labels = process.labels
         label_input = prepare_attribute_data(labels)
 
@@ -121,15 +119,15 @@ def extract_attributes(task, process):
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred during attribute extraction: {e}", exc_info=True
-        )
+
+        logger.exception(f"Exception occurred during attribute extraction: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
         send_callback(process.process_id, ProcessKeys.ATTRIBUTES)
         connection.close()
+
 
 def extract_nodes(task, process):
     close_old_connections()
@@ -170,15 +168,15 @@ def extract_nodes(task, process):
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred during node extraction: {e}", exc_info=True
-        )
+
+        logger.exception(f"Exception occurred during node extraction: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
         send_callback(process.process_id, ProcessKeys.NODES)
         connection.close()
+
 
 def extract_relationships(task, process):
     close_old_connections()
@@ -190,9 +188,7 @@ def extract_relationships(task, process):
         graph = process.nodes
         context = process.context
         header, first_row = prepare_graph_data(process.file_id)
-        relationships_extractor = fullRelationshipsExtractor(
-            graph, context, header, first_row
-        )
+        relationships_extractor = fullRelationshipsExtractor(graph, context, header, first_row)
 
         if task.is_cancelled():
             task_cancelled(process)
@@ -210,15 +206,15 @@ def extract_relationships(task, process):
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred during graph extraction: {e}", exc_info=True
-        )
+
+        logger.exception(f"Exception occurred during graph extraction: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
         send_callback(process.process_id, ProcessKeys.GRAPH)
         connection.close()
+
 
 def import_graph(task, process, request_data):
     close_old_connections()
@@ -247,29 +243,27 @@ def import_graph(task, process, request_data):
             return
 
         FullTableCache.update(request_data["session"], graph)
-        
+
         process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred during graph import: {e}", exc_info=True
-        )
+
+        logger.exception(f"Exception occurred during graph import: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
     finally:
         send_callback(process.process_id, ProcessKeys.IMPORT)
         connection.close()
-        
+
+
 def prepare_attribute_data(labels):
-    input_data = [
-        {"column_values": [value[1]], "header": key, "1_label": value[0]}
-        for key, value in labels.items()
-    ]
+    input_data = [{"column_values": [value[1]], "header": key, "1_label": value[0]} for key, value in labels.items()]
     for index, item in enumerate(input_data):
         item["index"] = index
     return input_data
+
 
 def prepare_node_data(file_id, attributes):
     file_record = File.nodes.get(uid=file_id)
@@ -290,17 +284,9 @@ def prepare_node_data(file_id, attributes):
 
     first_line = file_obj.readline().strip()
     first_line = first_line.split(",")
-    input = [
-        {
-            "index": i,
-            "column_values": column_values[i],
-            "header": header,
-            "1_label": attributes[header]['Label'],
-            "1_attribute": attributes[header]['Attribute']
-        }
-        for i, header in enumerate(first_line)
-    ]
+    input = [{"index": i, "column_values": column_values[i], "header": header, "1_label": attributes[header]["Label"], "1_attribute": attributes[header]["Attribute"]} for i, header in enumerate(first_line)]
     return input
+
 
 def prepare_graph_data(file_id):
     file_record = File.nodes.get(uid=file_id)
@@ -313,6 +299,7 @@ def prepare_graph_data(file_id):
     first_row = next(csv_reader)
 
     return header, first_row
+
 
 def task_cancelled(process):
     process.status = ProcessStatus.CANCELLED

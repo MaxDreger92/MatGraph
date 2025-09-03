@@ -44,7 +44,7 @@ def match_workflow(task, process):
         process.save()
     except Exception as e:
         import traceback
-        logger.error(f"Exception occurred while matching workflow: {e}", exc_info=True)
+        logger.exception(f"Exception occurred while matching workflow: {e}", exc_info=True)
         process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
