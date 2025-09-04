@@ -41,14 +41,16 @@ class WorkflowMatcher(APIView):
             process_id = data["process_id"]
             user_id = data["user_id"]
             graph = data["graph"]
+            callback_url = data["callback_url"]
 
             try:
                 process = ExtractProcess.objects.get(process_id=process_id, user_id=user_id)
                 process.graph = graph
+                process.callback_url = callback_url
                 process.error_message = None
                 process.save()
             except ExtractProcess.DoesNotExist:
-                process = create_extract_process(process_id, user_id, graph)
+                process = create_extract_process(process_id, user_id, graph, callback_url)
             except Exception as e:
                 logger.exception("Process creation failed: %s", e, exc_info=True)
                 return Response(

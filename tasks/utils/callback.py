@@ -62,7 +62,6 @@ def send_callback(process_id, key) -> None:
         status = process.status
         message = getattr(process, "error_message", None)
         is_file = key == ProcessKeys.DATASET
-        endpoint = "webhooks/matgraph"
 
         results = None
         if status == ProcessStatus.COMPLETED and not key == ProcessKeys.IMPORT:
@@ -71,10 +70,11 @@ def send_callback(process_id, key) -> None:
         headers = {"X-API-KEY": settings.VIMI_SECRET}
 
         callback_url = getattr(process, "callback_url", None)
-        if callback_url:
-            url = _normalize_url(callback_url)
-        else:
-            url = urljoin(settings.VIMI_URL, endpoint)
+        if not callback_url:
+            logger.warning(f"No callback URL set for process_id={process_id}, skipping callback")
+            return
+
+        url = _normalize_url(callback_url)
 
         response_data = {
             "user_id": user_id,
