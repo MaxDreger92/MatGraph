@@ -113,7 +113,6 @@ NEOMODEL_ENCRYPTED_CONNECTION = True
 NEOMODEL_MAX_POOL_SIZE = 50
 
 # Vimi callback
-VIMI_URL = os.getenv("VIMI_URL", "http://local.vimi-app.ai:8083/api/")
 VIMI_SECRET = os.getenv("VIMI_SECRET", "default")
 import hashlib
 VIMI_SECRET_HASH = hashlib.sha256(VIMI_SECRET.encode()).hexdigest()
