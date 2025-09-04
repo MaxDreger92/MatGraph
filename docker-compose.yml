@@ -1,4 +1,21 @@
 services:
+    mg-neo4j:
+        image: neo4j:2025.03.0-community
+        container_name: mg-neo4j
+        environment:
+            - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+        ports:
+            - 7474:7474
+            - 7687:7687
+        volumes:
+            - "./neo4j_data/:/data"
+        networks:
+            - mg-network
+        healthcheck:
+            test: ["CMD", "cypher-shell", "-u", "${NEO4J_USERNAME}", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 6
     mg-django:
         build:
             context: .
@@ -9,16 +26,35 @@ services:
             - .env
         networks:
             - mg-network
+        volumes:
+            - './:/app'
+        depends_on:
+            mg-neo4j:
+                condition: service_healthy
+            mg-postgres:
+                condition: service_healthy
+
     mg-postgres:
         image: postgres:16
         restart: always
         env_file:
             - .env
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
         container_name: 'mg-postgres'
+        ports:
+            - 5432:5432
         volumes:
             - './postgres_data/:/var/lib/postgresql/data'
         networks:
             - mg-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
         command: >
           postgres
           -c idle_in_transaction_session_timeout=300000
