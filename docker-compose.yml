@@ -20,7 +20,7 @@ services:
         build:
             context: .
             dockerfile: docker/mg-django.dockerfile
-        image: mg-django:latest  # ✅ Name your custom built image here
+        image: mg-django:latest
         container_name: 'mg-django'
         env_file:
             - .env
@@ -55,6 +55,10 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        command: >
+          postgres
+          -c idle_in_transaction_session_timeout=300000
+          -c tcp_keepalives_idle=300
     mg-nginx:
         image: nginx:latest
         container_name: mg-nginx

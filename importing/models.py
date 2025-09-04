@@ -2,7 +2,7 @@ import io
 import os
 
 import requests
-from django.db import models, IntegrityError
+from django.db import models
 from django_neomodel import classproperty
 from neomodel import RelationshipFrom, ZeroOrMore
 from neomodel import StringProperty, RelationshipTo, One, ArrayProperty, FloatProperty
@@ -10,9 +10,8 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from graphutils.models import UIDDjangoNode, EmbeddingNodeSet
 from matgraph.models.embeddings import ModelEmbedding
-from django.contrib.postgres.fields import JSONField
 
-
+from tasks.models import Process
 
 class ImportingReport(models.Model):
     """
@@ -57,7 +56,7 @@ class ImportingReport(models.Model):
         url = f"{os.environ.get('FILESERVER_URL_DEL')}{self.report_file_link.split('/')[-1]}"
         payload = {'user': os.environ.get('FILE_SERVER_USER'), 'password': os.environ.get('FILE_SERVER_PASSWORD')}
         headers = {'Accept': '*/*'}
-        resp_data = requests.delete(url, headers=headers, data=payload)
+        requests.delete(url, headers=headers, data=payload)
         super().delete()
 
     def delete_selected(self, **kwargs):
@@ -373,21 +372,13 @@ class FullTableCache(models.Model, Cache):
                 header=header)
             new_record.save()
             
-class ImportProcess(models.Model):
-    process_id = models.CharField(max_length=255, unique=True)
-    user_id = models.CharField(max_length=255)
+class ImportProcess(Process):
     file_id = models.CharField(max_length=255)
     context = models.TextField()
     labels = models.JSONField(null=True, blank=True)
     attributes = models.JSONField(null=True, blank=True)
     nodes = models.JSONField(null=True, blank=True)
     graph = models.JSONField(null=True, blank=True)
-
-    status = models.TextField(default='idle')
-    error_message = models.TextField(null=True, blank=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     def __str__(self):
         return f"ImportProcess {self.process_id}"

@@ -3,35 +3,26 @@ from dotenv import load_dotenv
 from django.http import JsonResponse
 import jwt
 import hashlib
+from django.conf import settings
 
 load_dotenv() 
 
 class APIKeyAuthenticationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+        self.expected_hash = settings.VIMI_SECRET_HASH
 
     def __call__(self, request):
-        protected_path = '/api/'
+        if request.path.startswith("/api/"):
+            incoming_key = request.META.get("HTTP_X_API_KEY", "")
+            if not incoming_key:
+                return JsonResponse({"error": "API key missing"}, status=401)
 
-        if request.path.startswith(protected_path):
-            api_key = request.META.get('HTTP_API_KEY', '')
+            incoming_hash = hashlib.sha256(incoming_key.encode()).hexdigest()
+            if incoming_hash != self.expected_hash:
+                return JsonResponse({"error": "Invalid API key"}, status=403)
 
-            if api_key:
-                if self.validate_api_key(api_key):
-                    return self.get_response(request)
-                else:
-                    return self.get_response(request)
-                    # return JsonResponse({'error': 'Invalid API key'}, status=403)
-            else:
-                return self.get_response(request)
-                # return JsonResponse({'error': 'API key is missing'}, status=401)
-
-        response = self.get_response(request)
-        return response
-
-    def validate_api_key(self, api_key):
-        stored_hash = hashlib.sha256(b'secret_key_example').hexdigest()
-        return hashlib.sha256(api_key.encode()).hexdigest() == stored_hash
+        return self.get_response(request)
 
 class TokenAuthenticationMiddleware:
     def __init__(self, get_response):

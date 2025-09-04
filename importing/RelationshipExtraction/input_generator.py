@@ -71,13 +71,9 @@ def csv_to_json(file_name):
     return json.dumps({"nodes": combined_nodes, "headers": header}, indent=4)
 
 
-def extract_data(json_data_str, label):
-    nodes = json.loads(str(json_data_str).replace('\'', '"'))
-    # Parse the JSON data
-    # nodes = json_data.get('nodes', [])
-
+def extract_data(json_data, label):
     # Extract manufacturing data
-    label_data = [node for node in nodes if node.get('label') == label]
+    label_data = [node for node in json_data if node.get('label') == label]
 
     return label_data
 

@@ -3,6 +3,8 @@ import csv
 import logging
 from io import StringIO
 
+from django.db import connection, close_old_connections
+
 from matgraph.models.metadata import File
 from importing.NodeLabelClassification.labelClassifier import NodeClassifier
 from importing.NodeAttributeExtraction.attributeClassifier import AttributeClassifier
@@ -12,11 +14,16 @@ from importing.RelationshipExtraction.completeRelExtractor import (
 )
 from importing.importer import TableImporter
 from importing.models import FullTableCache
+from tasks.models import ProcessKeys, ProcessStatus
 from importing.utils.data_processing import sanitize_data
+
+from tasks.utils.callback import send_callback
 
 logger = logging.getLogger(__name__)
 
+
 def extract_labels(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -45,10 +52,7 @@ def extract_labels(task, process):
             task_cancelled(process)
             return
 
-        labels = {
-            element["header"]: [element["1_label"], element["column_values"][0]]
-            for element in node_classifier.results
-        }
+        labels = {element["header"]: [element["1_label"], element["column_values"][0]] for element in node_classifier.results}
         sanitized_labels = sanitize_data(labels)
 
         if task.is_cancelled():
@@ -56,18 +60,22 @@ def extract_labels(task, process):
             return
 
         process.labels = sanitized_labels
-        process.status = "idle"
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
-        )
-        process.status = "error"
+
+        logger.exception(f"Exception occurred during label extraction: {e}", exc_info=True)
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
-        
+    finally:
+        send_callback(process.process_id, ProcessKeys.LABELS)
+        connection.close()
+
+
 def extract_attributes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -77,7 +85,7 @@ def extract_attributes(task, process):
         file_record = File.nodes.get(uid=file_id)
         file_link = file_record.link
         file_name = file_record.name
-        
+
         labels = process.labels
         label_input = prepare_attribute_data(labels)
 
@@ -107,19 +115,22 @@ def extract_attributes(task, process):
         }
 
         process.attributes = attributes
-        process.status = "idle"
+        process.status = ProcessStatus.COMPLETED
         process.save()
-
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
-        )
-        process.status = "error"
+
+        logger.exception(f"Exception occurred during attribute extraction: {e}", exc_info=True)
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_callback(process.process_id, ProcessKeys.ATTRIBUTES)
+        connection.close()
+
 
 def extract_nodes(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -153,18 +164,22 @@ def extract_nodes(task, process):
         graph = json.loads(str(node_extractor.results).replace("'", '"'))
 
         process.nodes = graph
-        process.status = "idle"
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
-        )
-        process.status = "error"
+
+        logger.exception(f"Exception occurred during node extraction: {e}", exc_info=True)
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_callback(process.process_id, ProcessKeys.NODES)
+        connection.close()
+
 
 def extract_relationships(task, process):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -173,9 +188,7 @@ def extract_relationships(task, process):
         graph = process.nodes
         context = process.context
         header, first_row = prepare_graph_data(process.file_id)
-        relationships_extractor = fullRelationshipsExtractor(
-            graph, context, header, first_row
-        )
+        relationships_extractor = fullRelationshipsExtractor(graph, context, header, first_row)
 
         if task.is_cancelled():
             task_cancelled(process)
@@ -187,24 +200,24 @@ def extract_relationships(task, process):
             return
 
         graph = relationships_extractor.results
-        graph = json.loads(
-            str(graph)
-            .replace("'", '"')
-        )
 
         process.graph = graph
-        process.status = "idle"
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
-        )
-        process.status = "error"
+
+        logger.exception(f"Exception occurred during graph extraction: {e}", exc_info=True)
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
+    finally:
+        send_callback(process.process_id, ProcessKeys.GRAPH)
+        connection.close()
+
 
 def import_graph(task, process, request_data):
+    close_old_connections()
     try:
         if task.is_cancelled():
             task_cancelled(process)
@@ -230,26 +243,27 @@ def import_graph(task, process, request_data):
             return
 
         FullTableCache.update(request_data["session"], graph)
-        
-        process.status = "imported"
+
+        process.status = ProcessStatus.COMPLETED
         process.save()
     except Exception as e:
         import traceback
-        logger.error(
-            f"Exception occurred while creating import process: {e}", exc_info=True
-        )
-        process.status = "error"
+
+        logger.exception(f"Exception occurred during graph import: {e}", exc_info=True)
+        process.status = ProcessStatus.FAILED
         process.error_message = traceback.format_exc()
         process.save()
-        
+    finally:
+        send_callback(process.process_id, ProcessKeys.IMPORT)
+        connection.close()
+
+
 def prepare_attribute_data(labels):
-    input_data = [
-        {"column_values": [value[1]], "header": key, "1_label": value[0]}
-        for key, value in labels.items()
-    ]
+    input_data = [{"column_values": [value[1]], "header": key, "1_label": value[0]} for key, value in labels.items()]
     for index, item in enumerate(input_data):
         item["index"] = index
     return input_data
+
 
 def prepare_node_data(file_id, attributes):
     file_record = File.nodes.get(uid=file_id)
@@ -270,17 +284,9 @@ def prepare_node_data(file_id, attributes):
 
     first_line = file_obj.readline().strip()
     first_line = first_line.split(",")
-    input = [
-        {
-            "index": i,
-            "column_values": column_values[i],
-            "header": header,
-            "1_label": attributes[header]['Label'],
-            "1_attribute": attributes[header]['Attribute']
-        }
-        for i, header in enumerate(first_line)
-    ]
+    input = [{"index": i, "column_values": column_values[i], "header": header, "1_label": attributes[header]["Label"], "1_attribute": attributes[header]["Attribute"]} for i, header in enumerate(first_line)]
     return input
+
 
 def prepare_graph_data(file_id):
     file_record = File.nodes.get(uid=file_id)
@@ -294,7 +300,9 @@ def prepare_graph_data(file_id):
 
     return header, first_row
 
+
 def task_cancelled(process):
-    process.status = "cancelled"
+    process.status = ProcessStatus.CANCELLED
+    process.error_message = "Task was cancelled by the user."
     process.save()
     logger.info(f"Task {process.process_id} was cancelled.")
