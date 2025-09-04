@@ -1,5 +1,6 @@
 from io import StringIO
 import logging
+import json
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -35,37 +36,30 @@ class LabelExtractView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            process_id = request.query_params.get("process_id")
-            user_id = request.query_params.get("user_id")
-            context = request.data.get("context")
-            file = request.FILES.get("file")
+            from importing.serializers import CsvFileSerializer, LabelExtractSerializer
 
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if file is None:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No file provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if context is None:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No context provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            file_ser = CsvFileSerializer(data={"file": request.FILES.get("file")})
+            file_ser.is_valid(raise_exception=True)
+            file = file_ser.validated_data["file"]
 
-            if not str(file.name).lower().endswith(".csv"):
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "Invalid file type (expected .csv)"},
-                    status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                )
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
+                try:
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = LabelExtractSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            context = data["context"]
+            callback_url = data.get("callback_url")
 
             try:
                 file_record = store_file(file)
@@ -82,15 +76,14 @@ class LabelExtractView(APIView):
             # cached = await self.try_cache(file_id)
 
             try:
-                try:
-                    process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
-                    process.file_id = file_id
-                    process.context = context
-                    process.error_message = None
-                    process.save()
-                    logger.info("Reusing existing import process %s for user %s", process_id, user_id)
-                except ImportProcess.DoesNotExist:
-                    process = create_import_process(process_id, user_id, file_id, context)
+                process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
+                process.file_id = file_id
+                process.context = context
+                process.callback_url = callback_url
+                process.error_message = None
+                process.save()
+            except ImportProcess.DoesNotExist:
+                process = create_import_process(process_id, user_id, file_id, context, callback_url)
             except Exception as e:
                 logger.exception("Process creation failed: %s", e, exc_info=True)
                 return Response(
@@ -148,24 +141,33 @@ class AttributeExtractView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            user_id = request.query_params.get("user_id")
-            process_id = request.query_params.get("process_id")
+            from importing.serializers import AttributeExtractSerializer
 
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
+                try:
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = AttributeExtractSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            labels = data.get("labels")
+            callback_url = data.get("callback_url")
 
             try:
-                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
+                process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
                 process.error_message = None
-            except Http404 as e:
+                process.callback_url = callback_url
+                process.save()
+            except Exception as e:
                 logger.exception("Process not found: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "Process not found"},
@@ -178,19 +180,6 @@ class AttributeExtractView(APIView):
                         {"status": process.status, "message": "Not ready"},
                         status=status.HTTP_202_ACCEPTED,
                     )
-
-                import json
-
-                labels = request.data.get("labels")
-                if isinstance(labels, str):
-                    try:
-                        labels = json.loads(labels)
-                    except json.JSONDecodeError as e:
-                        logger.exception("Invalid JSON in 'labels': %s", e, exc_info=True)
-                        return Response(
-                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'labels'"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
 
                 if labels is not None:
                     process.labels = labels
@@ -229,24 +218,33 @@ class NodeExtractView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            user_id = request.query_params.get("user_id")
-            process_id = request.query_params.get("process_id")
+            from importing.serializers import NodeExtractSerializer
 
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
+                try:
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = NodeExtractSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            attributes = data.get("attributes")
+            callback_url = data.get("callback_url")
 
             try:
-                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
+                process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
                 process.error_message = None
-            except Http404 as e:
+                process.callback_url = callback_url
+                process.save()
+            except Exception as e:
                 logger.exception("Process not found: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "Process not found"},
@@ -259,19 +257,6 @@ class NodeExtractView(APIView):
                         {"status": process.status, "message": "Not ready"},
                         status=status.HTTP_202_ACCEPTED,
                     )
-
-                import json
-
-                attributes = request.data.get("attributes")
-                if isinstance(attributes, str):
-                    try:
-                        attributes = json.loads(attributes)
-                    except json.JSONDecodeError as e:
-                        logger.exception("Invalid JSON in 'attributes': %s", e, exc_info=True)
-                        return Response(
-                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'attributes'"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
 
                 if attributes is not None:
                     process.attributes = attributes
@@ -310,24 +295,33 @@ class GraphExtractView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            user_id = request.query_params.get("user_id")
-            process_id = request.query_params.get("process_id")
+            from importing.serializers import GraphExtractSerializer
 
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
+                try:
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = GraphExtractSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            nodes = data.get("nodes")
+            callback_url = data.get("callback_url")
 
             try:
-                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
+                process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
                 process.error_message = None
-            except Http404 as e:
+                process.callback_url = callback_url
+                process.save()
+            except Exception as e:
                 logger.exception("Process not found: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "Process not found"},
@@ -341,24 +335,11 @@ class GraphExtractView(APIView):
                         status=status.HTTP_202_ACCEPTED,
                     )
 
-                import json
-
-                graph = request.data.get("graph")
-                if isinstance(graph, str):
-                    try:
-                        graph = json.loads(graph)
-                    except json.JSONDecodeError as e:
-                        logger.exception("Invalid JSON in 'graph': %s", e, exc_info=True)
-                        return Response(
-                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'graph'"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-                if graph is not None:
-                    process.nodes = graph
+                if nodes is not None:
+                    process.nodes = nodes
                 elif not process.nodes:
                     return Response(
-                        {"status": ProcessStatus.FAILED, "message": "No graph provided"},
+                        {"status": ProcessStatus.FAILED, "message": "No nodes provided"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
@@ -391,24 +372,33 @@ class GraphImportView(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            user_id = request.query_params.get("user_id")
-            process_id = request.query_params.get("process_id")
+            from importing.serializers import GraphImportSerializer
 
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
+                try:
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = GraphImportSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            graph = data.get("graph")
+            callback_url = data.get("callback_url")
 
             try:
-                process = get_object_or_404(ImportProcess, user_id=user_id, process_id=process_id)
+                process = ImportProcess.objects.get(process_id=process_id, user_id=user_id)
                 process.error_message = None
-            except Http404 as e:
+                process.callback_url = callback_url
+                process.save()
+            except Exception as e:
                 logger.exception("Process not found: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "Process not found"},
@@ -421,19 +411,6 @@ class GraphImportView(APIView):
                         {"status": process.status, "message": "Not ready"},
                         status=status.HTTP_202_ACCEPTED,
                     )
-
-                graph = request.data.get("graph")
-                if isinstance(graph, str):
-                    import json
-
-                    try:
-                        graph = json.loads(graph)
-                    except json.JSONDecodeError as e:
-                        logger.exception("Invalid JSON in 'graph': %s", e, exc_info=True)
-                        return Response(
-                            {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'graph'"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
 
                 if graph is not None:
                     process.graph = graph

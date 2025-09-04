@@ -1,3 +1,4 @@
+import json
 import logging
 from django.db import close_old_connections, connection
 
@@ -21,67 +22,57 @@ class WorkflowMatcher(APIView):
     def post(self, request):
         close_old_connections()
         try:
-            process_id = request.query_params.get("process_id")
-            user_id = request.query_params.get("user_id")
-            graph = request.data.get("graph")
-            
-            if not process_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No process id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not user_id:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No user id provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if graph is None:
-                return Response(
-                    {"status": ProcessStatus.FAILED, "message": "No graph provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-                
-            if isinstance(graph, str):
-                import json
+            from matching.serializers import WorkflowMatchSerializer
+
+            raw_payload = request.data.get("payload")
+
+            if raw_payload and isinstance(raw_payload, str):
                 try:
-                    graph = json.loads(graph)
-                except json.JSONDecodeError as e:
-                    logger.exception("Loading JSON failed: %s", e, exc_info=True)
-                    return Response(
-                        {"status": ProcessStatus.FAILED, "message": "Invalid JSON in 'graph'"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                    
-            logger.info(graph)
-                    
+                    raw_payload = json.loads(raw_payload)
+                except json.JSONDecodeError:
+                    raw_payload = {}
+            elif not raw_payload:
+                raw_payload = {}
+
+            ser = WorkflowMatchSerializer(data=raw_payload)
+            ser.is_valid(raise_exception=True)
+            data = ser.validated_data
+
+            process_id = data["process_id"]
+            user_id = data["user_id"]
+            graph = data["graph"]
+            callback_url = data["callback_url"]
+
             try:
-                try:
-                    process = ExtractProcess.objects.get(process_id=process_id, user_id=user_id)
-                    process.graph = graph
-                    process.error_message = None
-                    process.save()
-                    logger.info("Reusing existing extract process %s for user %s", process_id, user_id)
-                except ExtractProcess.DoesNotExist:
-                    process = create_extract_process(process_id, user_id, graph)
+                process = ExtractProcess.objects.get(process_id=process_id, user_id=user_id)
+                process.graph = graph
+                process.callback_url = callback_url
+                process.error_message = None
+                process.save()
+            except ExtractProcess.DoesNotExist:
+                process = create_extract_process(process_id, user_id, graph, callback_url)
             except Exception as e:
                 logger.exception("Process creation failed: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "Process creation failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
-                
+
             try:
                 if process.status == ProcessStatus.PROCESSING:
                     return Response(
                         {"status": process.status, "message": "Already processing"},
                         status=status.HTTP_202_ACCEPTED,
                     )
+
                 process.status = ProcessStatus.PROCESSING
                 process.save()
+
                 submit_task(process_id, match_workflow, process)
+
                 return Response(
-                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},    
-                    status=status.HTTP_202_ACCEPTED
+                    {"status": ProcessStatus.PROCESSING, "message": "Process started"},
+                    status=status.HTTP_202_ACCEPTED,
                 )
             except Exception as e:
                 import traceback

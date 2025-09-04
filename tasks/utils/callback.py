@@ -1,6 +1,7 @@
 import io
 import logging
 import requests
+from urllib.parse import urljoin
 from django.conf import settings
 
 from importing.models import ImportProcess
@@ -29,18 +30,27 @@ def _as_csv_bytes(value):
         return b""
 
 
+def _normalize_url(url: str) -> str:
+    """
+    Ensure the callback URL has exactly one trailing slash.
+    """
+    if not url:
+        return url
+    return url.rstrip("/") + "/"
+
+
 def send_callback(process_id, key) -> None:
     logger.info("Sending callback")
     process = None
 
     try:
-        process = ImportProcess.objects.get(process_id=process_id)
-    except ImportProcess.DoesNotExist:
         try:
+            process = ImportProcess.objects.get(process_id=process_id)
+        except ImportProcess.DoesNotExist:
             process = ExtractProcess.objects.get(process_id=process_id)
-        except Exception:
-            logger.error(f"No process found for process_id={process_id}")
-            return
+    except Exception:
+        logger.error(f"No process found for process_id={process_id}")
+        return
 
     try:
         try:
@@ -52,14 +62,20 @@ def send_callback(process_id, key) -> None:
         status = process.status
         message = getattr(process, "error_message", None)
         is_file = key == ProcessKeys.DATASET
-        endpoint = "webhooks/matgraph"
-        
+
         results = None
         if status == ProcessStatus.COMPLETED and not key == ProcessKeys.IMPORT:
             results = getattr(process, key, None)
-            
+
         headers = {"X-API-KEY": settings.VIMI_SECRET}
-        
+
+        callback_url = getattr(process, "callback_url", None)
+        if not callback_url:
+            logger.warning(f"No callback URL set for process_id={process_id}, skipping callback")
+            return
+
+        url = _normalize_url(callback_url)
+
         response_data = {
             "user_id": user_id,
             "process_id": process_id,
@@ -74,7 +90,7 @@ def send_callback(process_id, key) -> None:
             if csv_bytes:
                 files = {"results": ("data_extract.csv", io.BytesIO(csv_bytes), "text/csv")}
             resp = requests.post(
-                f"{settings.VIMI_URL}{endpoint}",
+                url,
                 headers=headers,
                 data=response_data,
                 files=files,
@@ -83,14 +99,14 @@ def send_callback(process_id, key) -> None:
         else:
             response_data["results"] = results
             resp = requests.post(
-                f"{settings.VIMI_URL}{endpoint}",
+                url,
                 headers=headers,
                 json=response_data,
                 timeout=15,
             )
 
         resp.raise_for_status()
-        logger.info(f"Callback sent for {process_id}/{key} with status {status}")
+        logger.info(f"Callback sent to {url} for {process_id}/{key} with status {status}")
     except requests.RequestException as e:
         logger.error(f"Failed to send callback for {process_id}/{key}: {e}", exc_info=True)
     except Exception:

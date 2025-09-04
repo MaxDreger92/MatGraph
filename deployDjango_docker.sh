@@ -12,8 +12,8 @@ echo "✅ Postgres is ready."
 rm -rf mat2devplatform/static/
 
 python manage.py collectstatic --no-input
-python manage.py makemigrations
-python manage.py migrate
+python manage.py makemigrations --no-input
+python manage.py migrate --no-input
 # Neo4j setup
 #python manage.py setup_neo4j
 
