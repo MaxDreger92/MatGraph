@@ -13,7 +13,7 @@ class CsvFileSerializer(serializers.Serializer):
 
 
 class LabelExtractSerializer(BaseProcessSerializer):
-    context = SmartJSONField(required=True)
+    context = serializers.CharField(required=True)
 
 
 class AttributeExtractSerializer(BaseProcessSerializer):
@@ -25,7 +25,7 @@ class NodeExtractSerializer(BaseProcessSerializer):
 
 
 class GraphExtractSerializer(BaseProcessSerializer):
-    graph = SmartJSONField(required=False, allow_null=True)
+    nodes = SmartJSONField(required=False, allow_null=True)
 
 
 class GraphImportSerializer(BaseProcessSerializer):
