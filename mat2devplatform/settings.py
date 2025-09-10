@@ -21,9 +21,6 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -36,8 +33,6 @@ if not SECRET_KEY:
 # Openai API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 ALLOWED_HOSTS = [
@@ -51,6 +46,12 @@ ALLOWED_HOSTS = [
     "3.69.233.134",
 ]
 
+# Logging
+# SECURITY WARNING: don't run with debug turned on in production!
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -63,13 +64,13 @@ LOGGING = {
         "file": {
             "class": "logging.handlers.WatchedFileHandler",
             "filename": os.path.join(LOG_DIR, "debug.log"),
-            "level": "DEBUG",
+            "level": LOG_LEVEL,
             "formatter": "verbose",
         },
     },
     "root": {
         "handlers": ["file"],
-        "level": "DEBUG",
+        "level": LOG_LEVEL,
     },
     "loggers": {
         "django.request": {
