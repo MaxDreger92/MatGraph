@@ -84,5 +84,11 @@ class WorkflowMatcher(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Process submission failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in WorkflowMatcher: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
