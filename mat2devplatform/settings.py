@@ -15,11 +15,12 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from decouple import config
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-from decouple import config
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -32,8 +33,6 @@ if not SECRET_KEY:
 # Openai API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000000
 
 ALLOWED_HOSTS = [
@@ -47,20 +46,43 @@ ALLOWED_HOSTS = [
     "3.69.233.134",
 ]
 
-# Application definition
+# Logging
+# SECURITY WARNING: don't run with debug turned on in production!
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        },
+    },
     "handlers": {
         "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "../debug.log",
+            "class": "logging.handlers.WatchedFileHandler",
+            "filename": os.path.join(LOG_DIR, "debug.log"),
+            "level": LOG_LEVEL,
+            "formatter": "verbose",
         },
     },
     "root": {
         "handlers": ["file"],
-        "level": "DEBUG",
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
     },
 }
 
@@ -233,45 +255,3 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ],
 }
-
-
-import logging
-import logging.config
-from logging.handlers import QueueHandler, QueueListener
-from queue import Queue
-
-log_queue = Queue(-1)
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-
-    'handlers': {
-        'queue': {
-            'class': 'logging.handlers.QueueHandler',
-            'queue': log_queue,
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
-            'level': 'DEBUG',
-            'formatter': 'verbose',
-        },
-    },
-    'formatters': {
-        'verbose': {
-            'format': '{asctime} [{levelname}] {name}: {message}',
-            'style': '{',
-        },
-    },
-    'root': {
-        'handlers': ['queue'],
-        'level': 'DEBUG',
-    },
-}
-
-# Create the listener for writing logs to the file (thread-safe)
-file_handler = logging.FileHandler(os.path.join(BASE_DIR, 'debug.log'))
-file_handler.setFormatter(logging.Formatter('{asctime} [{levelname}] {name}: {message}', style='{'))
-listener = QueueListener(log_queue, file_handler)
-listener.start()

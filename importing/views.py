@@ -63,14 +63,13 @@ class LabelExtractView(APIView):
 
             try:
                 file_record = store_file(file)
+                file_id = file_record.uid
             except Exception as e:
                 logger.exception("Exception occurred while storing file: %s", e, exc_info=True)
                 return Response(
                     {"status": ProcessStatus.FAILED, "message": "File storage failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
-
-            file_id = file_record.uid
 
             # TODO
             # cached = await self.try_cache(file_id)
@@ -110,6 +109,12 @@ class LabelExtractView(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Label extraction failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in LabelExtractView: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
 
@@ -209,6 +214,12 @@ class AttributeExtractView(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Attribute extraction failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in AttributeExtractView: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
 
@@ -286,6 +297,12 @@ class NodeExtractView(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Node extraction failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in NodeExtractView: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
 
@@ -363,6 +380,12 @@ class GraphExtractView(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Graph extraction failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in GraphExtractView: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
 
@@ -445,6 +468,12 @@ class GraphImportView(APIView):
                     {"status": ProcessStatus.FAILED, "message": "Graph import failed"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        except Exception as e:
+            logger.exception("Unhandled exception in GraphImportView: %s", e, exc_info=True)
+            return Response(
+                {"status": ProcessStatus.FAILED, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         finally:
             connection.close()
 
