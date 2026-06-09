@@ -297,7 +297,7 @@ def process_attribute(value):
     if isinstance(value, list):
         return [
             {
-                'value': str(el.AttributeValue).encode('unicode_escape').decode('ascii'),
+                'value': str(el.AttributeValue),
                 'index': str(el.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
             for el in value if hasattr(el, 'AttributeValue') and hasattr(el, 'AttributeReference')
@@ -305,7 +305,7 @@ def process_attribute(value):
     elif hasattr(value, 'AttributeValue') and hasattr(value, 'AttributeReference'):
         return [
             {
-                'value': str(value.AttributeValue).encode('unicode_escape').decode('ascii'),
+                'value': str(value.AttributeValue),
                 'index': str(value.AttributeReference).replace("guess", "inferred").replace("header", "inferred").replace("context", "inferred")
             }
         ]

@@ -268,7 +268,8 @@ def prepare_attribute_data(labels):
 def prepare_node_data(file_id, attributes):
     file_record = File.nodes.get(uid=file_id)
     file_obj_bytes = file_record.get_file()
-    file_obj_str = file_obj_bytes.decode("utf-8")
+    # utf-8-sig strips optional BOM from CSVs exported by Excel/other tools.
+    file_obj_str = file_obj_bytes.decode("utf-8-sig")
     file_obj = StringIO(file_obj_str)
     csv_reader = csv.reader(file_obj)
 
@@ -282,16 +283,29 @@ def prepare_node_data(file_id, attributes):
 
     file_obj.seek(0)
 
-    first_line = file_obj.readline().strip()
-    first_line = first_line.split(",")
-    input = [{"index": i, "column_values": column_values[i], "header": header, "1_label": attributes[header]["Label"], "1_attribute": attributes[header]["Attribute"]} for i, header in enumerate(first_line)]
+    first_line = [str(h).strip().lstrip("\ufeff") for h in next(csv_reader)]
+
+    normalized_attributes = {
+        str(k).strip().lstrip("\ufeff"): v for k, v in (attributes or {}).items()
+    }
+
+    input = [
+        {
+            "index": i,
+            "column_values": column_values[i],
+            "header": header,
+            "1_label": normalized_attributes[header]["Label"],
+            "1_attribute": normalized_attributes[header]["Attribute"],
+        }
+        for i, header in enumerate(first_line)
+    ]
     return input
 
 
 def prepare_graph_data(file_id):
     file_record = File.nodes.get(uid=file_id)
     file_obj_bytes = file_record.get_file()
-    file_obj_str = file_obj_bytes.decode("utf-8")
+    file_obj_str = file_obj_bytes.decode("utf-8-sig")
     file_obj = StringIO(file_obj_str)
     csv_reader = csv.reader(file_obj)
 

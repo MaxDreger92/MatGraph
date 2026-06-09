@@ -8,6 +8,8 @@ COPY ./requirements.txt /app/requirements.txt
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 RUN pip3 install gunicorn
+RUN pip3 install --no-cache-dir --upgrade "setuptools<81" wheel
+RUN python3 -c "import pkg_resources"
 
 COPY . /app
 

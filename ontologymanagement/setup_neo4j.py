@@ -72,15 +72,7 @@ def add_vector_index(label: str):
 
 def add_all_vector_indices():
     """Add all necessary vector indices."""
-    labels = [
-        "MatterAttributeEmbedding",
-        "ProcessAttributeEmbedding",
-        "QuantityAttributeEmbedding",
-        "MatterEmbedding",
-        "ProcessEmbedding",
-        "QuantityEmbedding",
-        "NodeLabelEmbedding",
-    ]
+    labels = list(TYPE_MAPPER.keys())
     for label in labels:
         add_vector_index(label)
 
@@ -117,15 +109,7 @@ def check_db():
     results, _ = db.cypher_query(query)
     index_names = {name for (name,) in results}
 
-    needed_indices = {
-        "matter-attribute-embeddings",
-        "process-attribute-embeddings",
-        "quantity-attribute-embeddings",
-        "matter-embeddings",
-        "process-embeddings",
-        "quantity-embeddings",
-        "label-embeddings",
-    }
+    needed_indices = set(TYPE_MAPPER.values())
 
     if needed_indices.issubset(index_names):
         return True

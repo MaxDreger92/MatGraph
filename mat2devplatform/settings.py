@@ -195,7 +195,7 @@ DATABASES = {
         "USER": POSTGRES_USER,
         "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,
-        'CONN_MAX_AGE': 60,  # Keep connections open for reuse
+        'CONN_MAX_AGE': 0,  # Keep connections open for reuse
         'OPTIONS': {
             'connect_timeout': 10,
         },

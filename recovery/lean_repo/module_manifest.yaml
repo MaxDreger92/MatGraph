@@ -1,0 +1,92 @@
+version: 1
+scope:
+  goal: Lean runtime extraction for importing and matching API paths.
+  include_runtime_only: true
+  notes:
+    - Keep async process lifecycle and callback behavior.
+    - Keep JSON process report endpoint; treat HTML reporting as optional.
+
+project_routing:
+  required:
+    - mat2devplatform/urls.py
+
+apps:
+  importing:
+    keep:
+      - importing/urls.py
+      - importing/views.py
+      - importing/serializers.py
+      - importing/tasks.py
+      - importing/models.py
+      - importing/importer.py
+      - importing/utils/file_processing.py
+      - importing/utils/process_management.py
+      - importing/utils/data_processing.py
+      - importing/NodeLabelClassification/labelClassifier.py
+      - importing/NodeAttributeExtraction/attributeClassifier.py
+      - importing/NodeExtraction/nodeExtractor.py
+      - importing/NodeExtraction/nodeCorrector.py
+      - importing/NodeExtraction/nodeValidator.py
+      - importing/NodeExtraction/schema.py
+      - importing/NodeExtraction/setupMessages.py
+      - importing/NodeExtraction/examples.py
+      - importing/RelationshipExtraction/completeRelExtractor.py
+      - importing/RelationshipExtraction/relationshipExtractor.py
+      - importing/RelationshipExtraction/relationshipCorrector.py
+      - importing/RelationshipExtraction/relationshipValidator.py
+      - importing/RelationshipExtraction/input_generator.py
+      - importing/RelationshipExtraction/schema.py
+      - importing/RelationshipExtraction/setupMessages.py
+      - importing/RelationshipExtraction/examples.py
+      - importing/OntologyMapper/OntologyMapper.py
+      - importing/OntologyMapper/setupMessages.py
+    optional:
+      - importing/templates/reports/query.html
+      - importing/templates/reports/results.html
+      - importing/models.py:ImportingReport
+      - importing/models.py:LabelClassificationReport
+      - importing/models.py:AttributeClassificationReport
+      - importing/models.py:NodeExtractionReport
+    quarantine_first:
+      - importing/tests.py
+      - importing/templates/input.JSON
+      - importing/LLMEvaluation/
+
+  matching:
+    keep:
+      - matching/urls.py
+      - matching/views.py
+      - matching/serializers.py
+      - matching/tasks.py
+      - matching/models.py
+      - matching/matcher.py
+      - matching/fabricationworkflows.py
+      - matching/utils/process_management.py
+    optional:
+      - matching/templates/reports/query.html
+      - matching/templates/reports/results.html
+      - matching/models.py:MatchingReport
+    quarantine_first:
+      - matching/templates/workflow.html
+      - matching/query.cypher
+      - matching/templates/reference_query.cypher
+      - matching/templates/reports/reports/results.html
+
+shared_dependencies:
+  keep:
+    - tasks/models.py
+    - tasks/task_manager.py
+    - tasks/serializers.py
+    - tasks/utils/callback.py
+    - graphutils/general.py
+    - matgraph/models/metadata.py
+    - matgraph/models/ontology.py
+
+verification:
+  tests_added:
+    - importing/tests.py
+    - matching/tests.py
+  next:
+    - Add state transition integration tests for PROCESSING/COMPLETED/FAILED/CANCELLED.
+    - Add callback payload contract tests for each process key.
+    - Add golden CSV end-to-end fixtures.

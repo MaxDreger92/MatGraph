@@ -23,9 +23,9 @@ class ImportingReport(models.Model):
     report = models.TextField(default="None given")
     html_report = models.TextField(default="None given")
     context = models.TextField(null=True, blank=True, max_length=140, default="None given")
-    file_link = models.CharField(max_length=100, default="None given")
-    report_file_link = models.CharField(max_length=100, default="None given")
-    file_name = models.CharField(max_length=100, default="None given")
+    file_link = models.CharField(max_length=255, default="None given")
+    report_file_link = models.CharField(max_length=255, default="None given")
+    file_name = models.CharField(max_length=255, default="None given")
 
     class Meta:
         abstract = True
