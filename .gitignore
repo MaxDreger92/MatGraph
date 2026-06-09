@@ -26,3 +26,5 @@ _pycache_/
 .DS_Store
 /data/
 /schema_ingestion/temp/*
+
+fileserver/uploads/
